@@ -23,6 +23,13 @@ export type Vault = {
   targetAmount: number;
 };
 
+export type Beneficiary = {
+  id: string;
+  name: string;
+  bankName: string;
+  accountNumber: string;
+};
+
 
 export const accounts: Account[] = [
   {
@@ -67,6 +74,27 @@ export const accounts: Account[] = [
     balance: 1250000, // Represents outstanding debt
     last4: 'Loan'
   }
+];
+
+export const beneficiaries: Beneficiary[] = [
+  {
+    id: 'ben1',
+    name: 'Vstalin Grady',
+    bankName: 'BCA',
+    accountNumber: '1234567890',
+  },
+  {
+    id: 'ben2',
+    name: 'John Smith',
+    bankName: 'Mandiri',
+    accountNumber: '0987654321',
+  },
+  {
+    id: 'ben3',
+    name: 'Mom',
+    bankName: 'BNI',
+    accountNumber: '1122334455',
+  },
 ];
 
 export const vaults: Vault[] = [

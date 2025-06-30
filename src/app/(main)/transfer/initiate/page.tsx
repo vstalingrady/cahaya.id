@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Banknote, Landmark, MessageSquare } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -19,27 +19,16 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { accounts } from '@/lib/data';
+import { accounts, beneficiaries } from '@/lib/data';
 import NoiseOverlay from '@/components/noise-overlay';
 import Link from 'next/link';
 
 const formSchema = z.object({
   fromAccountId: z.string().min(1, { message: 'Please select an account to transfer from.' }),
-  recipientBank: z.string().min(1, { message: 'Please select a recipient bank.' }),
-  recipientAccount: z.string().min(10, { message: 'Please enter a valid account number.' }),
   amount: z.coerce.number().min(10000, { message: 'Minimum transfer amount is IDR 10,000.' }),
   notes: z.string().optional(),
 });
 
-const banks = [
-  { value: 'bca', label: 'BCA (Bank Central Asia)' },
-  { value: 'bni', label: 'BNI (Bank Negara Indonesia)' },
-  { value: 'mandiri', label: 'Mandiri' },
-  { value: 'bri', label: 'BRI (Bank Rakyat Indonesia)' },
-  { value: 'cimb', label: 'CIMB Niaga' },
-  { value: 'permata', label: 'Permata Bank' },
-  { value: 'danamon', label: 'Danamon' },
-];
 
 const BI_FAST_FEE = 2500;
 const BANK_API_FEE = 1000;
@@ -52,26 +41,39 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     minimumFractionDigits: 0,
 }).format(amount);
 
+const getBankLogo = (bankName: string) => {
+    const lowerName = bankName.toLowerCase();
+    const initials = bankName.split(' ').map(n => n[0]).join('');
+
+    if (lowerName.includes('bca')) return <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">BCA</div>;
+    if (lowerName.includes('mandiri')) return <div className="w-12 h-12 bg-gradient-to-br from-sky-600 to-sky-800 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">MDR</div>;
+    if (lowerName.includes('bni')) return <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-700 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">BNI</div>;
+    return <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">{initials.substring(0, 3)}</div>;
+}
+
 export default function InitiateTransferPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
+  
+  const recipientId = searchParams.get('recipientId');
+  const recipient = beneficiaries.find(b => b.id === recipientId);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       fromAccountId: '',
-      recipientBank: '',
-      recipientAccount: '',
       amount: 0,
       notes: '',
     },
   });
 
-  const amount = Number(form.watch('amount')) || 0;
+  const amount = form.watch('amount');
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const selectedAccount = accounts.find(acc => acc.id === values.fromAccountId);
-    const totalDebit = values.amount + TOTAL_FEE;
+    const numericAmount = Number(values.amount);
+    const totalDebit = numericAmount + TOTAL_FEE;
 
     if (!selectedAccount || selectedAccount.balance < totalDebit) {
         toast({
@@ -85,12 +87,22 @@ export default function InitiateTransferPage() {
     console.log(values);
     toast({
       title: "Transfer Successful!",
-      description: `You have successfully transferred ${formatCurrency(values.amount)} to account ${values.recipientAccount}. Total debited: ${formatCurrency(totalDebit)}`,
+      description: `You have successfully transferred ${formatCurrency(numericAmount)} to ${recipient?.name}. Total debited: ${formatCurrency(totalDebit)}`,
     });
     router.push('/dashboard');
   }
   
   const userAccounts = accounts.filter(acc => acc.type === 'bank' || acc.type === 'e-wallet');
+  
+  if (!recipient) {
+      return (
+          <div className="text-center space-y-4">
+              <p className="text-destructive font-bold">Recipient not found.</p>
+              <Button onClick={() => router.push('/transfer')}>Go Back</Button>
+          </div>
+      )
+  }
+
 
   return (
     <div className="space-y-8 animate-fade-in-up">
@@ -102,6 +114,17 @@ export default function InitiateTransferPage() {
           Transfer Money
         </h1>
       </header>
+      
+       <div className="bg-gradient-to-r from-red-950/40 to-red-900/40 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden flex items-center gap-3">
+          <NoiseOverlay opacity={0.03} />
+          {getBankLogo(recipient.bankName)}
+          <div>
+            <p className="text-red-300 text-sm">Transferring to</p>
+            <p className="font-bold text-lg text-white">{recipient.name}</p>
+            <p className="text-red-300 text-sm font-semibold">{recipient.bankName} &bull; {recipient.accountNumber}</p>
+          </div>
+       </div>
+
 
       <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
         <NoiseOverlay opacity={0.03} />
@@ -133,48 +156,6 @@ export default function InitiateTransferPage() {
                   <FormMessage />
                 </FormItem>
               )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="recipientBank"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-red-200">Recipient Bank</FormLabel>
-                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                        <SelectTrigger className="bg-red-950/50 border-red-800/50 h-14 text-base placeholder:text-red-300/70">
-                            <SelectValue placeholder="Select a bank" />
-                        </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                        {banks.map(bank => (
-                            <SelectItem key={bank.value} value={bank.value}>
-                                {bank.label}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-                control={form.control}
-                name="recipientAccount"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel className="text-red-200">Recipient Account Number</FormLabel>
-                    <FormControl>
-                    <div className="relative">
-                        <Landmark className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
-                        <Input className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="e.g. 1234567890" {...field} />
-                    </div>
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
             />
 
             <FormField
@@ -211,11 +192,11 @@ export default function InitiateTransferPage() {
                 )}
             />
 
-            {amount >= 10000 && (
+            {Number(amount) >= 10000 && (
             <div className="space-y-3 bg-red-950/60 p-5 rounded-2xl border border-red-800/50">
                 <div className="flex justify-between items-center text-sm">
                 <span className="text-red-300">Transfer Amount</span>
-                <span className="font-mono text-white">{formatCurrency(amount)}</span>
+                <span className="font-mono text-white">{formatCurrency(Number(amount))}</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                 <span className="text-red-300">BI-FAST Fee</span>
@@ -231,7 +212,7 @@ export default function InitiateTransferPage() {
                 </div>
                 <div className="flex justify-between items-center font-bold text-base pt-3 mt-2 border-t border-red-800/50">
                 <span className="text-white">Total Debited</span>
-                <span className="font-mono text-accent">{formatCurrency(amount + TOTAL_FEE)}</span>
+                <span className="font-mono text-accent">{formatCurrency(Number(amount) + TOTAL_FEE)}</span>
                 </div>
             </div>
             )}
