@@ -113,20 +113,20 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
 
 
   return (
-    <div className="bg-gradient-to-r from-primary to-accent p-8 rounded-3xl shadow-2xl border border-red-400/30 relative overflow-hidden">
+    <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-red-700/30 relative overflow-hidden">
       <NoiseOverlay opacity={0.1} />
-      <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-transparent"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent"></div>
       <div className="relative z-10">
         <div className="flex flex-col gap-8">
             <div>
-                 <h2 className="text-sm text-red-100 mb-2 font-bold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> Total Net Worth</h2>
+                 <h2 className="text-sm text-muted-foreground mb-2 font-bold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> Total Net Worth</h2>
                 <div className="text-4xl font-black mb-3 text-white">{formattedAmount}</div>
-                <div className="flex items-center text-red-200">
+                <div className="flex items-center text-green-400">
                     <span className="text-lg mr-2">↗</span>
                     <span className="font-bold">+ Rp 1.200.000 today</span>
                 </div>
             </div>
-            <div className="h-36 -mx-8 -mb-8 relative">
+            <div className="h-24 -mx-6 -mb-6 relative">
                 <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
                     <LineChart
                         data={adjustedData}
@@ -190,7 +190,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                         />
                     </LineChart>
                 </ChartContainer>
-                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-accent to-transparent pointer-events-none" />
+                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-red-800/50 to-transparent pointer-events-none" />
             </div>
         </div>
       </div>
