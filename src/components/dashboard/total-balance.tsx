@@ -1,8 +1,9 @@
+
 'use client';
 
 import { Wallet } from "lucide-react";
 import NoiseOverlay from "../noise-overlay";
-import { Line, LineChart } from "recharts";
+import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { ChartConfig, ChartContainer, ChartTooltip } from "../ui/chart";
 
 
@@ -73,7 +74,7 @@ export default function TotalBalance({ amount }: TotalBalanceProps) {
       <NoiseOverlay opacity={0.1} />
       <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-transparent"></div>
       <div className="relative z-10">
-        <div className="flex justify-between items-start">
+        <div className="flex flex-col gap-8">
             <div>
                  <h2 className="text-sm text-red-100 mb-2 font-bold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> Total Net Worth</h2>
                 <div className="text-4xl font-black mb-3 text-white">{formattedAmount}</div>
@@ -82,14 +83,37 @@ export default function TotalBalance({ amount }: TotalBalanceProps) {
                     <span className="font-bold">+ Rp 1.200.000 today</span>
                 </div>
             </div>
-            <div className="w-1/3 h-16 -mr-4 -mt-2">
+            <div className="h-48 -mx-8 -mb-8">
                 <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
                     <LineChart
                         data={adjustedData}
-                        margin={{ top: 10, right: 0, left: 0, bottom: 0 }}
+                        margin={{ top: 5, right: 20, left: 5, bottom: 20 }}
                     >
+                         <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--foreground), 0.2)" />
+                         <XAxis
+                            dataKey="day"
+                            tickLine={false}
+                            axisLine={false}
+                            stroke="hsl(var(--foreground))"
+                            tickMargin={10}
+                            tickFormatter={(value) => `D${value}`}
+                            interval={6}
+                        />
+                        <YAxis
+                            tickLine={false}
+                            axisLine={false}
+                            stroke="hsl(var(--foreground))"
+                            width={50}
+                            tickMargin={10}
+                            tickFormatter={(value) => {
+                                const num = value as number;
+                                if (num >= 1e6) return `${(num / 1e6).toFixed(0)}M`;
+                                if (num >= 1e3) return `${(num / 1e3).toFixed(0)}K`;
+                                return num.toString();
+                            }}
+                        />
                         <ChartTooltip
-                            cursor={false}
+                            cursor={{ stroke: 'hsl(var(--foreground))', strokeWidth: 1, strokeDasharray: "3 3" }}
                             content={({ active, payload }) => {
                                 if (active && payload && payload.length) {
                                 return (
@@ -97,7 +121,7 @@ export default function TotalBalance({ amount }: TotalBalanceProps) {
                                         <div className="grid grid-cols-1 gap-2">
                                             <div className="flex flex-col">
                                                 <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                                Net Worth
+                                                    Day {payload[0].payload.day}
                                                 </span>
                                                 <span className="font-bold text-foreground">
                                                 {new Intl.NumberFormat('id-ID', {
