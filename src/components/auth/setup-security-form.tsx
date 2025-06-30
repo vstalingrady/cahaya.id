@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -72,7 +73,7 @@ export default function SetupSecurityForm() {
     // Simulate aligning face for 2 seconds
     setTimeout(() => {
       // Start flash sequence
-      const colors = ['bg-red-500', 'bg-green-500', 'bg-blue-400'];
+      const colors = ['bg-red-500/80', 'bg-green-500/80', 'bg-blue-400/80'];
       let flashIndex = 0;
       
       const flash = () => {
@@ -101,7 +102,7 @@ export default function SetupSecurityForm() {
   return (
     <>
       {flashColor && (
-        <div className={cn("fixed inset-0 z-50", flashColor)}></div>
+        <div className={cn("fixed inset-0 z-50 pointer-events-none", flashColor)}></div>
       )}
       <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
         <NoiseOverlay opacity={0.03} />
@@ -128,7 +129,7 @@ export default function SetupSecurityForm() {
               </Alert>
 
               <div className={cn(
-                "relative w-64 h-64 rounded-full overflow-hidden border-4 flex items-center justify-center bg-black",
+                "relative w-64 h-80 rounded-[50%] overflow-hidden border-4 flex items-center justify-center bg-black",
                 scanStep === 'scanning' ? 'animate-border-color-cycle' : 'border-red-900/80'
               )}>
                 {scanStep === 'scanning' ? (
@@ -145,7 +146,7 @@ export default function SetupSecurityForm() {
                     )}
                   </>
                 ) : (
-                  <Smile className="w-32 h-32 text-red-500/50" />
+                  <Camera className="w-32 h-32 text-red-500/50" />
                 )}
               </div>
               
