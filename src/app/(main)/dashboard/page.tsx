@@ -1,9 +1,7 @@
 import Link from 'next/link';
-import { ArrowRight, Bell, PieChart } from 'lucide-react';
 import { accounts, transactions } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
 import AccountCard from '@/components/dashboard/account-card';
-import TransactionHistory from '@/components/dashboard/transaction-history';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import NoiseOverlay from '@/components/noise-overlay';
 
@@ -38,23 +36,6 @@ export default function DashboardPage() {
 
             <TotalBalance amount={netWorth} transactions={transactions} />
 
-            <div className="grid grid-cols-2 gap-4">
-                <Link href="/transfer" className="text-center bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex flex-col items-center justify-center hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
-                    <NoiseOverlay opacity={0.03} />
-                    <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg mb-3">
-                        <ArrowRight className="w-6 h-6 text-white" />
-                    </div>
-                    <p className="font-semibold text-white">Pay & Transfer</p>
-                </Link>
-                <Link href="/insights" className="text-center bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex flex-col items-center justify-center hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
-                    <NoiseOverlay opacity={0.03} />
-                     <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg mb-3">
-                        <PieChart className="w-6 h-6 text-white" />
-                    </div>
-                    <p className="font-semibold text-white">Spending Insights</p>
-                </Link>
-            </div>
-
             <div>
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-semibold text-white font-serif">Your Accounts</h2>
@@ -88,13 +69,6 @@ export default function DashboardPage() {
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
-            </div>
-            
-            <div>
-                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-white font-serif">Recent Activity</h2>
-                </div>
-                <TransactionHistory transactions={transactions.slice(0, 4)} />
             </div>
         </div>
     );
