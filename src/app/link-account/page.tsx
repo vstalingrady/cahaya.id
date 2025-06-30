@@ -13,7 +13,7 @@ export default function LinkAccountPage() {
       </div>
 
       <div className="mb-8 relative z-10">
-        <h1 className="text-3xl font-black mb-3 bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">Let's get you connected.</h1>
+        <h1 className="text-3xl font-black mb-3 bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent font-serif">Let's get you connected.</h1>
         <p className="text-red-200 leading-relaxed">Select an account to link. We use official and secure bank APIs to connect. We never store your login credentials.</p>
       </div>
 

@@ -14,7 +14,7 @@ export default function LoginPage() {
 
       <div className="relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-black mb-4 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">Welcome Back</h1>
+          <h1 className="text-4xl font-black mb-4 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent font-serif">Welcome Back</h1>
           <p className="text-red-100 text-lg font-light">Log in to continue to Cuan.</p>
         </div>
         <LoginForm />

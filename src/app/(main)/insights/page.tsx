@@ -92,7 +92,7 @@ export default function InsightsPage() {
     return (
         <div className="space-y-8 animate-fade-in-up">
             <div>
-                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
                     Insights
                 </h1>
                 <p className="text-muted-foreground">Lacak semua pengeluaranmu.</p>
@@ -100,7 +100,7 @@ export default function InsightsPage() {
 
             <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
                 <NoiseOverlay opacity={0.03} />
-                <h3 className="font-bold text-white text-center mb-4">Spending this month</h3>
+                <h3 className="font-bold text-white text-center mb-4 font-serif">Spending this month</h3>
                 <div className="h-64 w-full">
                     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
@@ -126,7 +126,7 @@ export default function InsightsPage() {
 
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-white">History for <span className="text-accent">{activeCategory}</span></h2>
+                    <h2 className="text-xl font-bold text-white font-serif">History for <span className="text-accent">{activeCategory}</span></h2>
                 </div>
                 <div className="space-y-2">
                     {filteredTransactions.map(t => (

@@ -15,7 +15,7 @@ export default function BillsPage() {
   return (
     <div className="space-y-8 animate-fade-in-up">
       <div>
-        <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+        <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
           Pusat Tagihan
         </h1>
         <p className="text-muted-foreground">Bayar semua tagihan dari satu tempat.</p>

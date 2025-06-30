@@ -27,14 +27,11 @@ export default function DashboardPage() {
         <div className="space-y-8 animate-fade-in-up">
             <header className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
                         Good morning, Vstalin Grady
                     </h1>
                 </div>
                 <div className="flex items-center gap-4">
-                  <button className="text-white hover:text-accent transition-colors">
-                      <Bell className="w-7 h-7" />
-                  </button>
                   <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-accent rounded-2xl shadow-2xl border-red-500/20" data-ai-hint="person avatar"></div>
                 </div>
             </header>
@@ -60,7 +57,7 @@ export default function DashboardPage() {
 
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-white">Your Accounts</h2>
+                    <h2 className="text-xl font-bold text-white font-serif">Your Accounts</h2>
                     <Link href="/link-account" className="text-sm font-semibold text-accent hover:text-accent/90">
                         Link New
                     </Link>
@@ -95,7 +92,7 @@ export default function DashboardPage() {
             
             <div>
                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-white">Recent Activity</h2>
+                    <h2 className="text-xl font-bold text-white font-serif">Recent Activity</h2>
                 </div>
                 <TransactionHistory transactions={transactions.slice(0, 4)} />
             </div>

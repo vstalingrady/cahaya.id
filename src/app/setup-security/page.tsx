@@ -13,7 +13,7 @@ export default function SetupSecurityPage() {
 
       <div className="relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-black mb-4 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">Secure Your Account</h1>
+          <h1 className="text-4xl font-black mb-4 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent font-serif">Secure Your Account</h1>
           <p className="text-red-100 text-lg font-light">Choose a secure way to access Cuan.</p>
         </div>
         <SetupSecurityForm />

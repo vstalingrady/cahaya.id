@@ -11,6 +11,7 @@ export default {
     extend: {
       fontFamily: {
         sans: ['"Poppins"', 'sans-serif'],
+        serif: ['"Lora"', 'serif'],
         code: ['monospace'],
       },
       colors: {

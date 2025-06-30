@@ -16,7 +16,7 @@ export default function BcaAuthPage() {
         <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl border border-red-500/20">
           <span className="text-white font-black text-2xl">BCA</span>
         </div>
-        <h1 className="text-2xl font-black mb-3 bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">Authorize Cuan to access your BCA account</h1>
+        <h1 className="text-2xl font-black mb-3 bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent font-serif">Authorize Cuan to access your BCA account</h1>
       </div>
 
       <div className="space-y-5 mb-8 relative z-10">
