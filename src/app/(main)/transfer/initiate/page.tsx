@@ -67,13 +67,13 @@ export default function InitiateTransferPage() {
     },
   });
 
-  const amount = form.watch('amount');
-  const fromAccountId = form.watch('fromAccountId');
-  const selectedAccount = accounts.find(acc => acc.id === fromAccountId);
-  const isSufficientBalance = selectedAccount ? selectedAccount.balance >= (amount + TOTAL_FEE) : false;
+  const amount = Number(form.watch('amount')) || 0;
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!isSufficientBalance) {
+    const selectedAccount = accounts.find(acc => acc.id === values.fromAccountId);
+    const totalDebit = values.amount + TOTAL_FEE;
+
+    if (!selectedAccount || selectedAccount.balance < totalDebit) {
         toast({
           variant: "destructive",
           title: "Insufficient Balance",
@@ -81,10 +81,11 @@ export default function InitiateTransferPage() {
         });
         return;
     }
+    
     console.log(values);
     toast({
       title: "Transfer Successful!",
-      description: `You have successfully transferred ${formatCurrency(values.amount)} to account ${values.recipientAccount}. Total debited: ${formatCurrency(values.amount + TOTAL_FEE)}`,
+      description: `You have successfully transferred ${formatCurrency(values.amount)} to account ${values.recipientAccount}. Total debited: ${formatCurrency(totalDebit)}`,
     });
     router.push('/dashboard');
   }
