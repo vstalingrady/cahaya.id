@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import { Wallet } from "lucide-react";
 import NoiseOverlay from "../noise-overlay";
 import { Line, LineChart, Area, XAxis, YAxis } from "recharts";
@@ -124,6 +125,20 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
   
   const chartData = generateChartData(amount, transactions, 14);
 
+  const yAxisDomain = React.useMemo(() => {
+    if (!chartData || chartData.length === 0) {
+      return ['auto', 'auto']; // Recharts default
+    }
+    const netWorthValues = chartData.map(d => d.netWorth);
+    const yMin = Math.min(...netWorthValues);
+    const yMax = Math.max(...netWorthValues);
+    
+    // Add a 5% buffer to the top and bottom
+    const padding = (yMax - yMin) * 0.05;
+    
+    return [yMin - padding, yMax + padding];
+  }, [chartData]);
+
 
   return (
     <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-red-700/30 relative overflow-hidden">
@@ -168,6 +183,10 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                             tickFormatter={(value) => format(new Date(value), 'd MMM')}
                             interval={3}
                         />
+                         <YAxis
+                            hide={true}
+                            domain={yAxisDomain}
+                        />
                         <ChartTooltip
                             cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1.5, strokeDasharray: "3 3" }}
                             content={({ active, payload }) => {
@@ -200,6 +219,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                             fill="url(#fillNetWorth)"
                             fillOpacity={1}
                             stroke="none"
+                            connectNulls
                         />
                         <Line
                             type="monotone"
@@ -213,6 +233,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                                 fill: 'hsl(var(--background))',
                                 stroke: 'hsl(var(--primary))',
                             }}
+                            connectNulls
                         />
                     </LineChart>
                 </ChartContainer>
