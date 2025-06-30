@@ -14,17 +14,17 @@ export default function TransferPage() {
   return (
     <div className="space-y-8 animate-fade-in-up">
       <div>
-        <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
+        <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-accent to-emerald-500 bg-clip-text text-transparent">
           Pay & Transfer
         </h1>
-        <p className="text-red-200">Your central hub for all payments.</p>
+        <p className="text-teal-200">Your central hub for all payments.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
         {actions.map((action) => (
           <button key={action.name} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
             <NoiseOverlay opacity={0.03} />
-            <div className="bg-gradient-to-br from-red-600 to-red-800 p-3 rounded-xl shadow-lg">
+            <div className="bg-gradient-to-br from-accent to-emerald-600 p-3 rounded-xl shadow-lg">
                 <action.icon className="w-6 h-6 text-white" />
             </div>
             <div>

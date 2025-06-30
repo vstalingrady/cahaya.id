@@ -27,7 +27,7 @@ export default function DashboardPage() {
         <div className="space-y-8 animate-fade-in-up">
             <header className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-black bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Good morning, Budi
                     </h1>
                 </div>
@@ -36,7 +36,7 @@ export default function DashboardPage() {
 
             <TotalBalance amount={netWorth} />
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Link href="/transfer" className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
                     <NoiseOverlay opacity={0.03} />
                     <div>
@@ -45,20 +45,20 @@ export default function DashboardPage() {
                     </div>
                     <ArrowRight className="w-5 h-5 text-red-400 group-hover:text-red-300 transition-colors" />
                 </Link>
-                 <Link href="/insights" className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
+                 <Link href="/insights" className="w-full text-left bg-gradient-to-r from-teal-900/50 to-emerald-900/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between hover:from-teal-800/60 hover:to-emerald-800/60 transition-all duration-300 border border-accent/20 shadow-2xl group relative overflow-hidden">
                     <NoiseOverlay opacity={0.03} />
                     <div>
                         <p className="font-black text-lg text-white">Spending Insights</p>
-                        <p className="text-red-300 text-sm">Track your expenses automatically</p>
+                        <p className="text-teal-300 text-sm">Track your expenses automatically</p>
                     </div>
-                    <ArrowRight className="w-5 h-5 text-red-400 group-hover:text-red-300 transition-colors" />
+                    <ArrowRight className="w-5 h-5 text-accent group-hover:text-teal-300 transition-colors" />
                 </Link>
             </div>
 
             <div>
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-xl font-bold text-white">Your Accounts</h2>
-                    <Link href="/link-account" className="text-sm font-semibold text-red-400 hover:text-red-300">
+                    <Link href="/link-account" className="text-sm font-semibold text-accent hover:text-teal-300">
                         Link New
                     </Link>
                 </div>

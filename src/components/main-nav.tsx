@@ -28,13 +28,13 @@ export default function MainNav() {
               <div
                 className={cn(
                   'flex flex-col items-center gap-1 p-2 rounded-lg transition-all duration-300 w-full',
-                  isActive ? 'text-red-400' : 'text-red-700 hover:text-red-500'
+                  isActive ? 'text-accent' : 'text-red-700 hover:text-red-500'
                 )}
               >
                 <item.icon className="w-6 h-6" />
                 <span className="text-xs font-bold">{item.label}</span>
                 {isActive && (
-                    <div className="w-8 h-1 bg-gradient-to-r from-red-500 to-red-600 rounded-full mt-1"></div>
+                    <div className="w-8 h-1 bg-gradient-to-r from-accent to-emerald-400 rounded-full mt-1"></div>
                 )}
               </div>
             </Link>

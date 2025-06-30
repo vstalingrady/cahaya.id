@@ -6,14 +6,25 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import NoiseOverlay from '@/components/noise-overlay';
+import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+
+const chartConfig = {
+  value: { label: "Spending" },
+  'Food & Drink': { label: "Food & Drink", color: "hsl(var(--chart-1))" },
+  'Transportation': { label: "Transportation", color: "hsl(var(--chart-2))" },
+  'Shopping': { label: "Shopping", color: "hsl(var(--chart-3))" },
+  'Bills': { label: "Bills", color: "hsl(var(--chart-4))" },
+  'Groceries': { label: "Groceries", color: "hsl(var(--chart-5))" },
+  'Entertainment': { label: "Entertainment", color: "hsl(var(--chart-1))" }, // cycle back
+} satisfies ChartConfig
 
 const spendingData = [
-  { name: 'Food & Drink', value: 450000, color: '#f87171' },
-  { name: 'Transportation', value: 150000, color: '#fb923c' },
-  { name: 'Shopping', value: 799000, color: '#facc15' },
-  { name: 'Bills', value: 186000, color: '#a3e635' },
-  { name: 'Groceries', value: 550000, color: '#4ade80' },
-  { name: 'Entertainment', value: 100000, color: '#34d399' },
+  { name: 'Food & Drink', value: 450000, fill: 'var(--color-Food & Drink)' },
+  { name: 'Transportation', value: 150000, fill: 'var(--color-Transportation)' },
+  { name: 'Shopping', value: 799000, fill: 'var(--color-Shopping)' },
+  { name: 'Bills', value: 186000, fill: 'var(--color-Bills)' },
+  { name: 'Groceries', value: 550000, fill: 'var(--color-Groceries)' },
+  { name: 'Entertainment', value: 100000, fill: 'var(--color-Entertainment)' },
 ];
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
@@ -40,7 +51,7 @@ const renderActiveShape = (props: any) => {
       <text x={cx} y={cy - 10} dy={8} textAnchor="middle" fill="#fff" className="font-bold text-lg">
         {payload.name}
       </text>
-       <text x={cx} y={cy + 10} dy={8} textAnchor="middle" fill="#fca5a5" className="text-sm">
+       <text x={cx} y={cy + 10} dy={8} textAnchor="middle" fill="#a5f3fc" className="text-sm">
         {formatCurrency(payload.value)} ({(percent * 100).toFixed(0)}%)
       </text>
       <Sector
@@ -81,41 +92,41 @@ export default function InsightsPage() {
     return (
         <div className="space-y-8 animate-fade-in-up">
             <div>
-                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-accent to-emerald-400 bg-clip-text text-transparent">
                     Insights
                 </h1>
-                <p className="text-red-200">Lacak semua pengeluaranmu.</p>
+                <p className="text-teal-200">Lacak semua pengeluaranmu.</p>
             </div>
 
-            <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
+            <div className="bg-gradient-to-r from-teal-950/50 to-emerald-950/50 backdrop-blur-xl p-5 rounded-2xl border border-accent/20 shadow-2xl relative overflow-hidden">
                 <NoiseOverlay opacity={0.03} />
                 <h3 className="font-bold text-white text-center mb-4">Spending this month</h3>
                 <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie
-                                activeIndex={activeIndex}
-                                activeShape={renderActiveShape}
-                                data={spendingData}
-                                cx="50%"
-                                cy="50%"
-                                innerRadius={60}
-                                outerRadius={80}
-                                dataKey="value"
-                                onMouseEnter={onPieEnter}
-                            >
-                               {spendingData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} stroke={entry.color} />
-                                ))}
-                            </Pie>
-                        </PieChart>
-                    </ResponsiveContainer>
+                    <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                                <Pie
+                                    activeIndex={activeIndex}
+                                    activeShape={renderActiveShape}
+                                    data={spendingData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    dataKey="value"
+                                    onMouseEnter={onPieEnter}
+                                >
+                                </Pie>
+                            </PieChart>
+                        </ResponsiveContainer>
+                    </ChartContainer>
                 </div>
             </div>
 
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-white">History for <span className="text-red-400">{activeCategory}</span></h2>
+                    <h2 className="text-xl font-bold text-white">History for <span className="text-accent">{activeCategory}</span></h2>
                 </div>
                 <div className="space-y-2">
                     {filteredTransactions.map(t => (

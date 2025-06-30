@@ -3,32 +3,38 @@ import NoiseOverlay from '@/components/noise-overlay';
 import { ArrowDown } from 'lucide-react';
 import Image from 'next/image';
 
-const FeatureSection = ({ title, description, imgSrc, imgHint, reverse = false }: { title: string, description: string, imgSrc: string, imgHint: string, reverse?: boolean }) => (
-  <section className="min-h-screen flex items-center justify-center p-6 lg:p-12 animate-fade-in-up">
-    <div className={`flex flex-col ${reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center justify-center gap-8 lg:gap-16 max-w-5xl mx-auto`}>
-      <div className="flex-1 text-center lg:text-left">
-        <h2 className="text-4xl lg:text-6xl font-black mb-6 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">
-          {title}
-        </h2>
-        <p className="text-lg lg:text-xl text-red-200 leading-relaxed">
-          {description}
-        </p>
-      </div>
-      <div className="flex-1 mt-8 lg:mt-0 w-full max-w-sm">
-        <div className="bg-gradient-to-br from-red-900/50 to-red-800/30 p-4 rounded-3xl backdrop-blur-xl border border-red-600/20 shadow-2xl">
-           <Image 
-              src={imgSrc}
-              alt={title}
-              width={600}
-              height={400}
-              data-ai-hint={imgHint}
-              className="rounded-2xl shadow-lg"
-            />
+const FeatureSection = ({ title, description, imgSrc, imgHint, reverse = false, color = 'red' }: { title: string, description: string, imgSrc: string, imgHint: string, reverse?: boolean, color?: 'red' | 'teal' }) => {
+    const titleColor = color === 'red' ? 'from-red-400 via-red-500 to-red-600' : 'from-accent via-emerald-500 to-green-400';
+    const textColor = color === 'red' ? 'text-red-200' : 'text-teal-200';
+    const boxColor = color === 'red' ? 'from-red-900/50 to-red-800/30 border-red-600/20' : 'from-teal-900/50 to-teal-800/30 border-teal-600/20';
+
+    return (
+      <section className="min-h-screen flex items-center justify-center p-6 lg:p-12 animate-fade-in-up">
+        <div className={`flex flex-col ${reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center justify-center gap-8 lg:gap-16 max-w-5xl mx-auto`}>
+          <div className="flex-1 text-center lg:text-left">
+            <h2 className={`text-4xl lg:text-6xl font-black mb-6 bg-gradient-to-r bg-clip-text text-transparent ${titleColor}`}>
+              {title}
+            </h2>
+            <p className={`text-lg lg:text-xl leading-relaxed ${textColor}`}>
+              {description}
+            </p>
+          </div>
+          <div className="flex-1 mt-8 lg:mt-0 w-full max-w-sm">
+            <div className={`bg-gradient-to-br p-4 rounded-3xl backdrop-blur-xl border shadow-2xl ${boxColor}`}>
+               <Image 
+                  src={imgSrc}
+                  alt={title}
+                  width={600}
+                  height={400}
+                  data-ai-hint={imgHint}
+                  className="rounded-2xl shadow-lg"
+                />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </section>
-);
+      </section>
+    );
+};
 
 const serviceLogos = [
   { name: 'BCA', color: 'bg-blue-600' },
@@ -75,13 +81,14 @@ export default function WelcomePage() {
         description="See your complete financial picture. BCA, GoPay, OVO, Bibit—all your accounts, one stunning dashboard. Finally understand your true net worth in real-time."
         imgSrc="https://placehold.co/600x400.png"
         imgHint="finance dashboard"
+        color="red"
       />
 
       <section className="min-h-screen flex flex-col items-center justify-center p-6 lg:p-12 text-center animate-fade-in-up">
-        <h2 className="text-4xl lg:text-6xl font-black mb-6 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">
+        <h2 className="text-4xl lg:text-6xl font-black mb-6 bg-gradient-to-r from-accent via-emerald-500 to-green-400 bg-clip-text text-transparent">
           Connect Everything in Seconds.
         </h2>
-        <p className="text-lg lg:text-xl text-red-200 leading-relaxed max-w-3xl mx-auto mb-12">
+        <p className="text-lg lg:text-xl text-teal-200 leading-relaxed max-w-3xl mx-auto mb-12">
           Link your banks, e-wallets, and investment apps with official, secure APIs. We never see or store your credentials.
         </p>
         <div className="relative w-full h-48 flex items-center justify-center [perspective:1000px]">
@@ -110,6 +117,7 @@ export default function WelcomePage() {
         imgSrc="https://placehold.co/600x400.png"
         imgHint="bill payment"
         reverse={true}
+        color="teal"
       />
       
       <FeatureSection 
@@ -117,6 +125,7 @@ export default function WelcomePage() {
         description="Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance."
         imgSrc="https://placehold.co/600x400.png"
         imgHint="savings goal"
+        color="red"
       />
 
       <FeatureSection 
@@ -125,6 +134,7 @@ export default function WelcomePage() {
         imgSrc="https://placehold.co/600x400.png"
         imgHint="pie chart finance"
         reverse={true}
+        color="teal"
       />
 
       {/* Final CTA */}
