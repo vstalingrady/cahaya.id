@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Wallet } from "lucide-react";
@@ -148,6 +147,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                             stroke="hsl(var(--foreground))"
                             width={50}
                             tickMargin={10}
+                            domain={['dataMin - 500000', 'dataMax + 500000']}
                             tickFormatter={(value) => {
                                 const num = value as number;
                                 if (num >= 1e6) return `${(num / 1e6).toFixed(0)}M`;
