@@ -6,6 +6,7 @@ import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { ChartConfig, ChartContainer, ChartTooltip } from "../ui/chart";
 import { type Transaction } from "@/lib/data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { format } from 'date-fns';
 
 
 type TotalBalanceProps = {
@@ -28,7 +29,7 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
 
 const CustomTransactionDot = (props: any) => {
     const { cx, cy, payload } = props;
-    const { transactions } = payload as { transactions: Transaction[], day: number, netWorth: number };
+    const { transactions } = payload as { transactions: Transaction[], date: Date, netWorth: number };
 
     if (!transactions || transactions.length === 0) {
         return null; // Don't render a dot if there are no transactions
@@ -87,10 +88,10 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
 
       // Calculate the net worth at the beginning of the period
       const totalChangeInPeriod = relevantTransactions.reduce((sum, t) => sum + t.amount, 0);
-      let startOfMonthNetWorth = currentBalance - totalChangeInPeriod;
+      let startOfPeriodNetWorth = currentBalance - totalChangeInPeriod;
 
       const data = [];
-      let runningBalance = startOfMonthNetWorth;
+      let runningBalance = startOfPeriodNetWorth;
       
       for (let i = 0; i < days; i++) {
           const loopDate = new Date(startDate);
@@ -107,7 +108,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
           runningBalance += dailyChange;
 
           data.push({
-              day: i + 1,
+              date: loopDate,
               netWorth: runningBalance,
               transactions: dailyTransactions,
           });
@@ -146,12 +147,12 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                     >
                          <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--foreground), 0.2)" />
                          <XAxis
-                            dataKey="day"
+                            dataKey="date"
                             tickLine={false}
                             axisLine={false}
                             stroke="hsl(var(--foreground))"
                             tickMargin={10}
-                            tickFormatter={(value) => `D${value}`}
+                            tickFormatter={(value) => format(new Date(value), 'd MMM')}
                             interval={3}
                         />
                         <YAxis
@@ -177,7 +178,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                                         <div className="grid grid-cols-1 gap-2">
                                             <div className="flex flex-col">
                                                 <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                                    Day {payload[0].payload.day}
+                                                    {format(new Date(payload[0].payload.date), 'eeee, d MMM yyyy')}
                                                 </span>
                                                 <span className="font-bold text-foreground">
                                                 {new Intl.NumberFormat('id-ID', {
