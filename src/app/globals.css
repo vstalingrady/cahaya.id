@@ -20,7 +20,7 @@ body {
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 280 70% 65%;
+    --accent: 340 82% 70%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -30,9 +30,9 @@ body {
     --radius: 0.8rem;
     --chart-1: hsl(0 84% 60%);
     --chart-2: hsl(340 82% 70%);
-    --chart-3: hsl(310 80% 65%);
-    --chart-4: hsl(280 70% 65%);
-    --chart-5: hsl(262 70% 66%);
+    --chart-3: hsl(320 80% 65%);
+    --chart-4: hsl(10 80% 60%);
+    --chart-5: hsl(30 75% 68%);
   }
 }
 
