@@ -15,29 +15,62 @@ export type Transaction = {
   accountId: string;
 };
 
+export type Vault = {
+  id: string;
+  name: string;
+  icon: string;
+  currentAmount: number;
+  targetAmount: number;
+};
+
+
 export const accounts: Account[] = [
   {
     id: 'bca1',
     name: 'BCA Main Account',
     type: 'bank',
-    balance: 25750000,
-    last4: '1234',
+    balance: 15250000,
+    last4: '2847',
   },
   {
     id: 'gopay1',
     name: 'GoPay',
     type: 'e-wallet',
-    balance: 850000,
-    last4: '5678',
+    balance: 875000,
+    last4: '0812',
   },
   {
     id: 'ovo1',
     name: 'OVO Premier',
     type: 'e-wallet',
-    balance: 1235000,
-    last4: '1122',
+    balance: 250000,
+    last4: '0857',
   },
 ];
+
+export const vaults: Vault[] = [
+  {
+    id: 'vault1',
+    name: 'Emergency Fund',
+    icon: 'Emergency',
+    currentAmount: 2000000,
+    targetAmount: 10000000
+  },
+  {
+    id: 'vault2',
+    name: 'Bali Holiday',
+    icon: 'Holiday',
+    currentAmount: 1500000,
+    targetAmount: 5000000
+  },
+   {
+    id: 'vault3',
+    name: 'New Phone',
+    icon: 'New Gadget',
+    currentAmount: 850000,
+    targetAmount: 12000000
+  }
+]
 
 export const transactions: Transaction[] = [
   {
@@ -77,13 +110,13 @@ export const transactions: Transaction[] = [
     date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
     description: 'Netflix Subscription',
     amount: -186000,
-    category: 'Entertainment',
+    category: 'Bills',
     accountId: 'ovo1',
   },
   {
     id: 'txn6',
     date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-    description: 'Ranch Market Groceries',
+    description: 'Ranch Market',
     amount: -550000,
     category: 'Groceries',
     accountId: 'bca1',
@@ -96,4 +129,12 @@ export const transactions: Transaction[] = [
     category: 'Entertainment',
     accountId: 'ovo1',
   },
+  {
+    id: 'txn8',
+    date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    description: 'Kopi Kenangan',
+    amount: -22000,
+    category: 'Food & Drink',
+    accountId: 'gopay1'
+  }
 ];

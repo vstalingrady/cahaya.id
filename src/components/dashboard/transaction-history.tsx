@@ -1,4 +1,4 @@
-import { type Transaction } from "@/lib/data";
+import { type Transaction, accounts } from "@/lib/data";
 import {
   Card,
   CardContent,
@@ -6,67 +6,47 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { format } from 'date-fns';
 
-type TransactionHistoryProps = {
-  transactions: Transaction[];
-};
-
-export default function TransactionHistory({ transactions }: TransactionHistoryProps) {
-
-  const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
+const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
-  }).format(amount);
+}).format(amount);
 
+const getAccountLogo = (accountId: string) => {
+    const account = accounts.find(a => a.id === accountId);
+    if (!account) return <div className="w-8 h-8 rounded-lg bg-gray-500"></div>;
+    const name = account.name.toLowerCase();
+    if (name.includes('bca')) return <div className="w-8 h-8 text-xs bg-blue-600 text-white rounded-lg flex items-center justify-center font-black">BCA</div>;
+    if (name.includes('gopay')) return <div className="w-8 h-8 text-xs bg-sky-500 text-white rounded-lg flex items-center justify-center font-black">GP</div>;
+    if (name.includes('ovo')) return <div className="w-8 h-8 text-xs bg-purple-600 text-white rounded-lg flex items-center justify-center font-black">OVO</div>;
+    return <div className="w-8 h-8 rounded-lg bg-gray-500"></div>;
+}
+
+
+export default function TransactionHistory({ transactions }: { transactions: Transaction[] }) {
   return (
-    <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg">
-      <CardHeader>
-        <CardTitle>Transaction History</CardTitle>
-        <CardDescription>A unified view of your financial flow.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead className="text-right">Amount</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {transactions.map((t) => (
-              <TableRow key={t.id}>
-                <TableCell className="text-muted-foreground text-xs">
-                  {format(new Date(t.date), 'dd MMM yyyy')}
-                </TableCell>
-                <TableCell className="font-medium">{t.description}</TableCell>
-                <TableCell>
-                  <Badge variant="secondary">{t.category}</Badge>
-                </TableCell>
-                <TableCell className={cn(
-                    "text-right font-semibold font-mono",
-                    t.amount > 0 ? "text-green-600" : "text-foreground"
+    <div className="space-y-2">
+        {transactions.map(t => (
+            <div key={t.id} className="bg-gradient-to-r from-red-950/50 to-red-900/50 p-4 rounded-xl flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    {getAccountLogo(t.accountId)}
+                    <div>
+                        <p className="font-bold text-white">{t.description}</p>
+                        <p className="text-xs text-red-300">{format(new Date(t.date), 'dd MMM yyyy')} &bull; <Badge variant="secondary" className="bg-red-800/50 text-red-300 border-none">{t.category}</Badge></p>
+                    </div>
+                </div>
+                <p className={cn(
+                    "font-bold font-mono",
+                    t.amount > 0 ? "text-green-400" : "text-red-400"
                 )}>
-                  {formatCurrency(t.amount)}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+                    {formatCurrency(t.amount)}
+                </p>
+            </div>
+        ))}
+    </div>
   );
 }

@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Wallet } from "lucide-react";
+import NoiseOverlay from "../noise-overlay";
 
 type TotalBalanceProps = {
   amount: number;
@@ -14,18 +14,17 @@ export default function TotalBalance({ amount }: TotalBalanceProps) {
   }).format(amount);
 
   return (
-    <Card className="relative overflow-hidden rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg transition-all duration-300 group hover:shadow-glow-primary border-0">
-      <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full filter blur-xl opacity-70 group-hover:scale-125 transition-transform duration-500"></div>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
-        <CardTitle className="text-sm font-medium text-primary-foreground/80">Total Balance</CardTitle>
-        <Wallet className="h-5 w-5 text-primary-foreground" />
-      </CardHeader>
-      <CardContent className="relative z-10">
-        <div className="text-4xl font-bold font-headline text-primary-foreground">
-          {formattedAmount}
+    <div className="bg-gradient-to-r from-red-600 via-red-500 to-red-600 p-8 rounded-3xl shadow-2xl border border-red-400/30 relative overflow-hidden">
+      <NoiseOverlay opacity={0.1} />
+      <div className="absolute inset-0 bg-gradient-to-br from-red-400/20 to-transparent"></div>
+      <div className="relative z-10">
+        <h2 className="text-sm text-red-100 mb-2 font-bold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> Total Net Worth</h2>
+        <div className="text-4xl font-black mb-3 text-white">{formattedAmount}</div>
+        <div className="flex items-center text-red-100">
+          <span className="text-lg mr-2">↗</span>
+          <span className="font-bold">+ Rp 1.200.000 today</span>
         </div>
-        <p className="text-xs text-primary-foreground/80 mt-1">Across all linked accounts</p>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

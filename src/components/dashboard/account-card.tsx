@@ -1,37 +1,42 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { type Account } from "@/lib/data";
-import BankIcon from "../icons/bank-icon";
-import EwalletIcon from "../icons/ewallet-icon";
+import NoiseOverlay from "../noise-overlay";
 
-type AccountCardProps = {
-  account: Account;
-};
+const getAccountIcon = (name: string) => {
+    const lowerName = name.toLowerCase();
+    if (lowerName.includes('bca')) {
+        return <div className="w-14 h-14 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">BCA</div>;
+    }
+    if (lowerName.includes('gopay')) {
+        return <div className="w-14 h-14 bg-gradient-to-br from-sky-500 to-sky-700 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">GP</div>;
+    }
+    if (lowerName.includes('ovo')) {
+        return <div className="w-14 h-14 bg-gradient-to-br from-purple-600 to-purple-800 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">OVO</div>;
+    }
+    return <div className="w-14 h-14 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">AC</div>;
+}
 
-export default function AccountCard({ account }: AccountCardProps) {
+
+export default function AccountCard({ account }: { account: Account }) {
   const formattedAmount = new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(account.balance);
-  
-  const Icon = account.type === 'bank' ? BankIcon : EwalletIcon;
 
   return (
-    <Card className="bg-card/80 backdrop-blur-sm border border-primary/20 shadow-md hover:shadow-glow-accent hover:border-accent transition-all duration-300 group">
-       <div className="absolute -bottom-5 -left-5 w-16 h-16 bg-accent/10 rounded-full filter blur-md opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium">{account.name}</CardTitle>
-        <Icon className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold font-headline">
-          {formattedAmount}
+    <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex justify-between items-center border border-red-600/20 shadow-2xl relative overflow-hidden">
+        <NoiseOverlay opacity={0.03} />
+        <div className="flex items-center relative z-10">
+            {getAccountIcon(account.name)}
+            <div>
+            <div className="font-black text-lg text-white">{account.name}</div>
+            <div className="text-red-300 text-sm">...{account.last4}</div>
+            </div>
         </div>
-        <p className="text-xs text-muted-foreground">
-            {account.type === 'bank' ? `Account ending in` : 'E-Wallet'} {account.last4}
-        </p>
-      </CardContent>
-    </Card>
+        <div className="text-right relative z-10">
+            <div className="font-black text-lg text-white">{formattedAmount}</div>
+        </div>
+    </div>
   );
 }
