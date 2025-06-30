@@ -3,7 +3,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Camera, Check, Fingerprint, Loader2, Lock, Smile } from 'lucide-react';
+import { Camera, Check, Fingerprint, Loader2, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -23,9 +23,17 @@ export default function SetupSecurityForm() {
   const [scanStep, setScanStep] = useState<'idle' | 'scanning' | 'complete'>('idle');
   const [flashColor, setFlashColor] = useState<string | null>(null);
 
+  // Mapping from Tailwind class to RGBA for the radial gradient
+  const flashColorMap: { [key: string]: string } = {
+    'bg-red-500/80': 'rgba(239, 68, 68, 0.8)',
+    'bg-green-500/80': 'rgba(34, 197, 94, 0.8)',
+    'bg-blue-400/80': 'rgba(96, 165, 250, 0.8)',
+  };
+
   useEffect(() => {
     let stream: MediaStream | null = null;
-    if (activeTab === 'face' && scanStep === 'scanning') {
+    // Activate camera as soon as the tab is active
+    if (activeTab === 'face') {
       const getCamera = async () => {
         try {
           if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -39,7 +47,7 @@ export default function SetupSecurityForm() {
         } catch (error) {
           console.error('Error accessing camera:', error);
           setHasCameraPermission(false);
-          setScanStep('idle'); // Reset on error
+          if (scanStep !== 'idle') setScanStep('idle');
           toast({
             variant: 'destructive',
             title: 'Camera Access Denied',
@@ -57,7 +65,7 @@ export default function SetupSecurityForm() {
             videoRef.current.srcObject = null;
         }
     };
-  }, [activeTab, scanStep, toast]);
+  }, [activeTab, toast]);
 
   const handleSetupComplete = (method: string) => {
     toast({
@@ -84,7 +92,8 @@ export default function SetupSecurityForm() {
         } else {
           setFlashColor(null); // End flash
           setScanStep('complete');
-          handleSetupComplete('Face ID');
+          // Delay completion to show the final state
+          setTimeout(() => handleSetupComplete('Face ID'), 500);
         }
       };
       
@@ -99,17 +108,24 @@ export default function SetupSecurityForm() {
     setPin(value);
   }
 
+  const isCameraActive = hasCameraPermission === true && (scanStep === 'scanning' || scanStep === 'complete' || scanStep === 'idle');
+
   return (
     <>
       {flashColor && (
-        <div className={cn("fixed inset-0 z-50 pointer-events-none", flashColor)}></div>
+        <div
+          className="fixed inset-0 z-50 pointer-events-none"
+          style={{
+            background: `radial-gradient(ellipse 30% 45% at 50% 50%, transparent, transparent 50%, ${flashColorMap[flashColor]})`
+          }}
+        ></div>
       )}
       <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
         <NoiseOverlay opacity={0.03} />
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-red-950/50 border-red-800/50">
             <TabsTrigger value="face" className="data-[state=active]:bg-red-700/50 data-[state=active]:text-white">
-              <Smile className="w-5 h-5 mr-2" /> Face ID
+              <Camera className="w-5 h-5 mr-2" /> Face ID
             </TabsTrigger>
             <TabsTrigger value="fingerprint" className="data-[state=active]:bg-red-700/50 data-[state=active]:text-white">
               <Fingerprint className="w-5 h-5 mr-2" /> Fingerprint
@@ -129,30 +145,27 @@ export default function SetupSecurityForm() {
               </Alert>
 
               <div className={cn(
-                "relative w-64 h-80 rounded-[50%] overflow-hidden border-4 flex items-center justify-center bg-black",
-                scanStep === 'scanning' ? 'animate-border-color-cycle' : 'border-red-900/80'
+                "relative w-64 h-80 rounded-[50%] overflow-hidden border-4 flex items-center justify-center",
+                scanStep === 'scanning' ? 'animate-border-color-cycle' : 'border-red-900/80',
+                scanStep === 'complete' ? 'border-green-500' : ''
               )}>
-                {scanStep === 'scanning' ? (
-                  <>
-                    <video ref={videoRef} className="w-full h-full object-cover scale-x-[-1]" autoPlay muted playsInline />
-                    {hasCameraPermission === false && (
-                      <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-center p-4">
-                        <Camera className="w-12 h-12 text-red-400 mb-4" />
-                        <Alert variant="destructive">
-                          <AlertTitle>Camera Access Denied</AlertTitle>
-                          <AlertDescription>Enable camera access to use Face ID.</AlertDescription>
-                        </Alert>
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <Camera className="w-32 h-32 text-red-500/50" />
+                <video ref={videoRef} className={cn("w-full h-full object-cover scale-x-[-1] transition-opacity duration-300", isCameraActive ? 'opacity-100' : 'opacity-0')} autoPlay muted playsInline />
+                
+                {!isCameraActive && (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+                        {hasCameraPermission === null && <Loader2 className="w-12 h-12 text-red-400 animate-spin" />}
+                        {hasCameraPermission === false && <Camera className="w-12 h-12 text-red-400" />}
+                        <p className="text-sm text-red-300 mt-2">
+                          {hasCameraPermission === null ? "Requesting camera..." : "Camera unavailable"}
+                        </p>
+                    </div>
                 )}
               </div>
               
               {scanStep === 'idle' && (
                  <Button 
                     onClick={handleStartScan}
+                    disabled={!hasCameraPermission}
                     className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105"
                  >
                     Start Scan
