@@ -10,21 +10,21 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '
 
 const chartConfig = {
   value: { label: "Spending" },
-  'Food & Drink': { label: "Food & Drink", color: "hsl(var(--chart-1))" },
-  'Transportation': { label: "Transportation", color: "hsl(var(--chart-2))" },
-  'Shopping': { label: "Shopping", color: "hsl(var(--chart-3))" },
-  'Bills': { label: "Bills", color: "hsl(var(--chart-4))" },
-  'Groceries': { label: "Groceries", color: "hsl(var(--chart-5))" },
-  'Entertainment': { label: "Entertainment", color: "hsl(var(--chart-1))" }, // cycle back
+  foodAndDrink: { label: "Food & Drink", color: "hsl(var(--chart-1))" },
+  transportation: { label: "Transportation", color: "hsl(var(--chart-2))" },
+  shopping: { label: "Shopping", color: "hsl(var(--chart-3))" },
+  bills: { label: "Bills", color: "hsl(var(--chart-4))" },
+  groceries: { label: "Groceries", color: "hsl(var(--chart-5))" },
+  entertainment: { label: "Entertainment", color: "hsl(var(--chart-1))" },
 } satisfies ChartConfig
 
 const spendingData = [
-  { name: 'Food & Drink', value: 450000, fill: 'var(--color-Food & Drink)' },
-  { name: 'Transportation', value: 150000, fill: 'var(--color-Transportation)' },
-  { name: 'Shopping', value: 799000, fill: 'var(--color-Shopping)' },
-  { name: 'Bills', value: 186000, fill: 'var(--color-Bills)' },
-  { name: 'Groceries', value: 550000, fill: 'var(--color-Groceries)' },
-  { name: 'Entertainment', value: 100000, fill: 'var(--color-Entertainment)' },
+  { category: 'foodAndDrink', name: 'Food & Drink', value: 450000, fill: 'var(--color-foodAndDrink)' },
+  { category: 'transportation', name: 'Transportation', value: 150000, fill: 'var(--color-transportation)' },
+  { category: 'shopping', name: 'Shopping', value: 799000, fill: 'var(--color-shopping)' },
+  { category: 'bills', name: 'Bills', value: 186000, fill: 'var(--color-bills)' },
+  { category: 'groceries', name: 'Groceries', value: 550000, fill: 'var(--color-groceries)' },
+  { category: 'entertainment', name: 'Entertainment', value: 100000, fill: 'var(--color-entertainment)' },
 ];
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
@@ -79,14 +79,14 @@ const renderActiveShape = (props: any) => {
 
 export default function InsightsPage() {
     const [activeIndex, setActiveIndex] = useState(0);
-    const activeCategory = spendingData[activeIndex]?.name;
+    const activeCategoryName = spendingData[activeIndex]?.name;
 
     const onPieEnter = (_: any, index: number) => {
         setActiveIndex(index);
     };
 
-    const filteredTransactions = activeCategory
-        ? transactions.filter(t => t.category === activeCategory)
+    const filteredTransactions = activeCategoryName
+        ? transactions.filter(t => t.category === activeCategoryName)
         : transactions;
 
     return (
@@ -105,7 +105,7 @@ export default function InsightsPage() {
                     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
-                                <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                                <ChartTooltip content={<ChartTooltipContent nameKey="category" />} />
                                 <Pie
                                     activeIndex={activeIndex}
                                     activeShape={renderActiveShape}
@@ -115,8 +115,12 @@ export default function InsightsPage() {
                                     innerRadius={60}
                                     outerRadius={80}
                                     dataKey="value"
+                                    nameKey="category"
                                     onMouseEnter={onPieEnter}
                                 >
+                                     {spendingData.map((entry) => (
+                                        <Cell key={`cell-${entry.category}`} fill={entry.fill} />
+                                    ))}
                                 </Pie>
                             </PieChart>
                         </ResponsiveContainer>
@@ -126,7 +130,7 @@ export default function InsightsPage() {
 
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-white font-serif">History for <span className="text-accent">{activeCategory}</span></h2>
+                    <h2 className="text-xl font-bold text-white font-serif">History for <span className="text-accent">{activeCategoryName}</span></h2>
                 </div>
                 <div className="space-y-2">
                     {filteredTransactions.map(t => (
