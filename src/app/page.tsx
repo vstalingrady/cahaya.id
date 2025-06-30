@@ -172,7 +172,7 @@ export default function WelcomePage() {
   ];
 
   return (
-    <div className="bg-gradient-to-br from-black via-red-950 to-black text-white h-screen relative overflow-hidden">
+    <div className="w-full max-w-md mx-auto bg-gradient-to-br from-black via-red-950 to-black text-white h-screen relative overflow-hidden">
       <NoiseOverlay opacity={0.03} />
 
       <Carousel setApi={setApi} className="w-full h-full">

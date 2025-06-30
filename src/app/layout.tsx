@@ -28,9 +28,7 @@ export default function RootLayout({
           'font-body antialiased min-h-screen',
         )}
       >
-        <div className="w-full max-w-md mx-auto bg-black min-h-screen">
-          {children}
-        </div>
+        {children}
         <Toaster />
       </body>
     </html>

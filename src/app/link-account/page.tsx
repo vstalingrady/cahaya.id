@@ -4,7 +4,7 @@ import { ChevronRight } from 'lucide-react';
 
 export default function LinkAccountPage() {
   return (
-    <div className="bg-gradient-to-br from-black via-red-950 to-black text-white p-6 min-h-screen relative overflow-hidden">
+    <div className="w-full max-w-md mx-auto bg-gradient-to-br from-black via-red-950 to-black text-white p-6 min-h-screen relative overflow-hidden">
       <NoiseOverlay />
       
       <div className="absolute inset-0 overflow-hidden -z-10">

@@ -4,7 +4,7 @@ import { Check } from 'lucide-react';
 
 export default function BcaAuthPage() {
   return (
-    <div className="bg-gradient-to-br from-white via-red-50 to-red-100 text-slate-900 p-6 min-h-screen relative overflow-hidden">
+    <div className="w-full max-w-md mx-auto bg-gradient-to-br from-white via-red-50 to-red-100 text-slate-900 p-6 min-h-screen relative overflow-hidden">
       <NoiseOverlay opacity={0.02} />
       
       <div className="absolute inset-0 overflow-hidden">
