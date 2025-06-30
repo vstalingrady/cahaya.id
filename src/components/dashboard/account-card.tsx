@@ -42,7 +42,7 @@ export default function AccountCard({ account }: { account: Account }) {
             {getAccountIcon(account.name)}
             <div>
             <div className="font-black text-lg text-white">{account.name}</div>
-            <div className="text-red-300 text-sm">{isLoan ? "Outstanding debt" : `...${account.last4}`}</div>
+            <div className="text-muted-foreground text-sm">{isLoan ? "Outstanding debt" : `...${account.last4}`}</div>
             </div>
         </div>
         <div className="text-right relative z-10">

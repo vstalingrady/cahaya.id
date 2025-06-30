@@ -22,10 +22,10 @@ export default function VaultsPage() {
     return (
         <div className="space-y-8 animate-fade-in-up">
             <div>
-                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                     Cuan Vaults
                 </h1>
-                <p className="text-red-200">Simpan untuk semua tujuanmu.</p>
+                <p className="text-muted-foreground">Simpan untuk semua tujuanmu.</p>
             </div>
 
             <div className="space-y-4">
@@ -41,7 +41,7 @@ export default function VaultsPage() {
                                 </div>
                             </div>
                         </div>
-                        <Progress value={(vault.currentAmount / vault.targetAmount) * 100} className="h-2 bg-red-900/80 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-red-400" />
+                        <Progress value={(vault.currentAmount / vault.targetAmount) * 100} className="h-2 bg-red-900/80 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-accent" />
                     </div>
                 ))}
             </div>

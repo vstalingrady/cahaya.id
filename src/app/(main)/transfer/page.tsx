@@ -14,10 +14,10 @@ export default function TransferPage() {
   return (
     <div className="space-y-8 animate-fade-in-up">
       <div>
-        <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
+        <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           Pay & Transfer
         </h1>
-        <p className="text-red-200">Your central hub for all payments.</p>
+        <p className="text-muted-foreground">Your central hub for all payments.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4">

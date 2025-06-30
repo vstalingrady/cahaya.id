@@ -48,10 +48,10 @@ const renderActiveShape = (props: any) => {
 
   return (
     <g>
-      <text x={cx} y={cy - 10} dy={8} textAnchor="middle" fill="#fff" className="font-bold text-lg">
+      <text x={cx} y={cy - 10} dy={8} textAnchor="middle" fill="hsl(var(--foreground))" className="font-bold text-lg">
         {payload.name}
       </text>
-       <text x={cx} y={cy + 10} dy={8} textAnchor="middle" fill="#fca5a5" className="text-sm">
+       <text x={cx} y={cy + 10} dy={8} textAnchor="middle" fill="hsl(var(--muted-foreground))" className="text-sm">
         {formatCurrency(payload.value)} ({(percent * 100).toFixed(0)}%)
       </text>
       <Sector
@@ -92,10 +92,10 @@ export default function InsightsPage() {
     return (
         <div className="space-y-8 animate-fade-in-up">
             <div>
-                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                     Insights
                 </h1>
-                <p className="text-red-200">Lacak semua pengeluaranmu.</p>
+                <p className="text-muted-foreground">Lacak semua pengeluaranmu.</p>
             </div>
 
             <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
@@ -126,7 +126,7 @@ export default function InsightsPage() {
 
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-white">History for <span className="text-primary">{activeCategory}</span></h2>
+                    <h2 className="text-xl font-bold text-white">History for <span className="text-accent">{activeCategory}</span></h2>
                 </div>
                 <div className="space-y-2">
                     {filteredTransactions.map(t => (
@@ -135,7 +135,7 @@ export default function InsightsPage() {
                                 {getAccountLogo(t.accountId)}
                                 <div>
                                     <p className="font-bold text-white">{t.description}</p>
-                                    <p className="text-xs text-red-300">{format(new Date(t.date), 'dd MMM yyyy')}</p>
+                                    <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'dd MMM yyyy')}</p>
                                 </div>
                             </div>
                             <p className={cn(
