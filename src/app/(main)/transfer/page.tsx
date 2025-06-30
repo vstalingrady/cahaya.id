@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   Plus,
   ChevronRight,
@@ -18,6 +19,8 @@ import {
   Clapperboard,
 } from 'lucide-react';
 import Link from 'next/link';
+import { type CarouselApi } from '@/components/ui/carousel';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 
 import NoiseOverlay from '@/components/noise-overlay';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -75,6 +78,23 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
 
 
 export default function TransferPage() {
+  const [api, setApi] = useState<CarouselApi>()
+  const [current, setCurrent] = useState(0)
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    if (!api) {
+      return
+    }
+
+    setCount(api.scrollSnapList().length)
+    setCurrent(api.selectedScrollSnap())
+
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap())
+    })
+  }, [api])
+
   return (
     <div className="space-y-8 animate-fade-in-up">
       <div>
@@ -128,28 +148,41 @@ export default function TransferPage() {
           
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white font-serif">Recommended</h2>
-            <div className="flex space-x-4 overflow-x-auto pb-4 -mx-6 px-6">
-              {recommendedTransactions.map((rec) => {
-                const Component = rec.disabled ? 'button' : Link;
-                return (
-                  <Component
-                    key={rec.id}
-                    href={rec.href}
-                    // @ts-ignore
-                    disabled={rec.disabled}
-                    className="flex-shrink-0 w-40 bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex flex-col items-start justify-between hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <NoiseOverlay opacity={0.03} />
-                    <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg mb-4">
-                      <rec.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="w-full mt-auto">
-                      <p className="font-bold text-white text-sm truncate">{rec.name}</p>
-                      <p className="text-xs text-red-300 font-mono">{formatCurrency(rec.amount)}</p>
-                    </div>
-                  </Component>
-                )
-              })}
+            <Carousel setApi={setApi} className="w-full" opts={{ loop: true }}>
+              <CarouselContent>
+                {recommendedTransactions.map((rec) => {
+                  const Component = rec.disabled ? 'button' : Link;
+                  return (
+                    <CarouselItem key={rec.id}>
+                      <Component
+                        href={rec.href}
+                        // @ts-ignore
+                        disabled={rec.disabled}
+                        className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <NoiseOverlay opacity={0.03} />
+                        <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">
+                          <rec.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-lg text-white">{rec.name}</p>
+                          <p className="text-red-300 text-sm font-mono">{formatCurrency(rec.amount)}</p>
+                        </div>
+                      </Component>
+                    </CarouselItem>
+                  );
+                })}
+              </CarouselContent>
+            </Carousel>
+            <div className="flex justify-center space-x-2 pt-2">
+              {Array.from({ length: count }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => api?.scrollTo(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${current === i ? 'w-6 bg-primary' : 'w-2 bg-muted-foreground/50 hover:bg-muted-foreground'}`}
+                  aria-label={`Go to slide ${i + 1}`}
+                />
+              ))}
             </div>
           </div>
           
