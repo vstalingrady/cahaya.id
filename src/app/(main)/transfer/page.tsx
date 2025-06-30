@@ -1,5 +1,6 @@
 import { Send, Hand, Users, Gift, QrCode, Shuffle, Cable, Phone, Droplets, Lightbulb, Shield, Car, CreditCard } from 'lucide-react';
 import NoiseOverlay from '@/components/noise-overlay';
+import Link from 'next/link';
 
 const actions = [
   { name: 'Pay with QRIS', subtext: 'Scan any QR to pay', icon: QrCode },
@@ -33,18 +34,34 @@ export default function TransferPage() {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold text-white font-serif">Quick Actions</h2>
         <div className="grid grid-cols-1 gap-4">
-          {actions.map((action) => (
-            <button key={action.name} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
-              <NoiseOverlay opacity={0.03} />
-              <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">
-                  <action.icon className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <p className="font-bold text-lg text-white">{action.name}</p>
-                <p className="text-red-300 text-sm">{action.subtext}</p>
-              </div>
-            </button>
-          ))}
+          {actions.map((action) => {
+            const content = (
+              <>
+                <NoiseOverlay opacity={0.03} />
+                <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">
+                    <action.icon className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="font-bold text-lg text-white">{action.name}</p>
+                  <p className="text-red-300 text-sm">{action.subtext}</p>
+                </div>
+              </>
+            );
+
+            if (action.name === 'Transfer') {
+              return (
+                <Link key={action.name} href="/transfer/initiate" className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
+                  {content}
+                </Link>
+              );
+            }
+
+            return (
+              <button key={action.name} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
+                {content}
+              </button>
+            );
+          })}
         </div>
       </div>
 
