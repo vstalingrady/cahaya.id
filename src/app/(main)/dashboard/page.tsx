@@ -44,20 +44,12 @@ export default function DashboardPage() {
 
             <TotalBalance amount={netWorth} transactions={transactions} />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
                 <Link href="/transfer" className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
                     <NoiseOverlay opacity={0.03} />
                     <div>
                         <p className="font-black text-lg text-white">Pay & Transfer</p>
                         <p className="text-muted-foreground text-sm">QRIS, top-ups, and more</p>
-                    </div>
-                    <ArrowRight className="w-5 h-5 text-accent group-hover:text-accent/80 transition-colors" />
-                </Link>
-                 <Link href="/insights" className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
-                    <NoiseOverlay opacity={0.03} />
-                    <div>
-                        <p className="font-black text-lg text-white">Spending Insights</p>
-                        <p className="text-muted-foreground text-sm">Track your expenses automatically</p>
                     </div>
                     <ArrowRight className="w-5 h-5 text-accent group-hover:text-accent/80 transition-colors" />
                 </Link>

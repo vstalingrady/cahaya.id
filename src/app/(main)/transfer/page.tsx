@@ -1,4 +1,4 @@
-import { Send, Hand, Users, Gift, QrCode, Shuffle } from 'lucide-react';
+import { Send, Hand, Users, Gift, QrCode, Shuffle, Cable, Phone, Droplets, Lightbulb, Shield, Car, CreditCard } from 'lucide-react';
 import NoiseOverlay from '@/components/noise-overlay';
 
 const actions = [
@@ -8,6 +8,16 @@ const actions = [
   { name: 'Request Money', subtext: 'Ask for payment from friends', icon: Hand },
   { name: 'Split Bill', subtext: 'Divide expenses with a group', icon: Users },
   { name: 'Send a Gift', subtext: 'Surprise someone with Cuan', icon: Gift },
+];
+
+const billers = [
+  { name: 'PLN', subtext: 'Token & Tagihan', icon: Lightbulb },
+  { name: 'Pulsa & Data', subtext: 'Telkomsel, XL, etc.', icon: Phone },
+  { name: 'Air PDAM', subtext: 'Tagihan Air', icon: Droplets },
+  { name: 'Internet & TV', subtext: 'IndiHome, First Media', icon: Cable },
+  { name: 'BPJS', subtext: 'Kesehatan', icon: Shield },
+  { name: 'E-Samsat', subtext: 'Pajak Kendaraan', icon: Car },
+  { name: 'Kartu Kredit', subtext: 'Tagihan Kartu', icon: CreditCard },
 ];
 
 export default function TransferPage() {
@@ -20,20 +30,42 @@ export default function TransferPage() {
         <p className="text-muted-foreground">Your central hub for all payments.</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4">
-        {actions.map((action) => (
-          <button key={action.name} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
-            <NoiseOverlay opacity={0.03} />
-            <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">
-                <action.icon className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="font-black text-lg text-white">{action.name}</p>
-              <p className="text-red-300 text-sm">{action.subtext}</p>
-            </div>
-          </button>
-        ))}
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-white">Quick Actions</h2>
+        <div className="grid grid-cols-1 gap-4">
+          {actions.map((action) => (
+            <button key={action.name} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
+              <NoiseOverlay opacity={0.03} />
+              <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">
+                  <action.icon className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="font-black text-lg text-white">{action.name}</p>
+                <p className="text-red-300 text-sm">{action.subtext}</p>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
+
+      <div className="space-y-4">
+        <h2 className="text-xl font-bold text-white">Pay Bills</h2>
+        <div className="grid grid-cols-1 gap-4">
+          {billers.map((biller) => (
+            <button key={biller.name} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
+              <NoiseOverlay opacity={0.03} />
+              <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">
+                  <biller.icon className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <p className="font-black text-lg text-white">{biller.name}</p>
+                <p className="text-red-300 text-sm">{biller.subtext}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }

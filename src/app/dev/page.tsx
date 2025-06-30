@@ -10,10 +10,8 @@ const routes = [
   { path: '/link-account', name: 'Link Account (List)' },
   { path: '/link-account/bca', name: 'Link Account (BCA Auth)' },
   { path: '/dashboard', name: 'Dashboard' },
-  { path: '/bills', name: 'Bills Page' },
-  { path: '/transfer', name: 'Transfer Page' },
+  { path: '/transfer', name: 'Pay (Bills & Transfer)' },
   { path: '/vaults', name: 'Vaults Page' },
-  { path: '/insights', name: 'Insights Page' },
 ];
 
 export default function DevMenuPage() {
