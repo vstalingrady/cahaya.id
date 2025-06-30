@@ -14,6 +14,8 @@ import {
   Send,
   Wallet,
   ArrowDownUp,
+  User,
+  Clapperboard,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -37,6 +39,39 @@ const billers = [
   { name: 'E-Samsat', subtext: 'Pajak Kendaraan', icon: Car },
   { name: 'Kartu Kredit', subtext: 'Tagihan Kartu', icon: CreditCard },
 ];
+
+const recommendedTransactions = [
+  {
+    id: 'rec1',
+    name: 'Transfer to Mom',
+    amount: 1000000,
+    href: '/transfer/ben3', // Corresponds to Mom's beneficiary ID
+    icon: User,
+    disabled: false,
+  },
+  {
+    id: 'rec2',
+    name: 'Pay Netflix',
+    amount: 186000,
+    href: '#', // In a real app, this would link to a pre-filled bill payment
+    icon: Clapperboard,
+    disabled: true,
+  },
+  {
+    id: 'rec3',
+    name: 'Pay Kredivo',
+    amount: 1250000,
+    href: '#',
+    icon: CreditCard,
+    disabled: true,
+  },
+];
+
+const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+}).format(amount);
 
 
 export default function TransferPage() {
@@ -87,6 +122,33 @@ export default function TransferPage() {
                           <p className="font-semibold text-white text-sm">{action.name}</p>
                       </Component>
                   )
+              })}
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-white font-serif">Recommended</h2>
+            <div className="flex space-x-4 overflow-x-auto pb-4 -mx-6 px-6">
+              {recommendedTransactions.map((rec) => {
+                const Component = rec.disabled ? 'button' : Link;
+                return (
+                  <Component
+                    key={rec.id}
+                    href={rec.href}
+                    // @ts-ignore
+                    disabled={rec.disabled}
+                    className="flex-shrink-0 w-40 bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex flex-col items-start justify-between hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <NoiseOverlay opacity={0.03} />
+                    <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg mb-4">
+                      <rec.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="w-full mt-auto">
+                      <p className="font-bold text-white text-sm truncate">{rec.name}</p>
+                      <p className="text-xs text-red-300 font-mono">{formatCurrency(rec.amount)}</p>
+                    </div>
+                  </Component>
+                )
               })}
             </div>
           </div>
