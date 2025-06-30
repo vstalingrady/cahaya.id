@@ -133,11 +133,21 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
     const yMin = Math.min(...netWorthValues);
     const yMax = Math.max(...netWorthValues);
     
-    // Add a 5% buffer to the top and bottom
-    const padding = (yMax - yMin) * 0.05;
+    // Add a 20% buffer to the top and bottom
+    const padding = (yMax - yMin) * 0.2;
     
     return [yMin - padding, yMax + padding];
   }, [chartData]);
+
+  const formatYAxisTick = (tick: number) => {
+    if (tick >= 1_000_000) {
+        return `${(tick / 1_000_000).toFixed(1)}M`;
+    }
+    if (tick >= 1_000) {
+        return `${(tick / 1_000).toFixed(0)}K`;
+    }
+    return tick.toString();
+  };
 
 
   return (
@@ -181,11 +191,16 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                             stroke="hsl(var(--muted-foreground))"
                             tickMargin={10}
                             tickFormatter={(value) => format(new Date(value), 'd MMM')}
-                            interval={3}
+                            interval={6}
                         />
                          <YAxis
-                            hide={true}
                             domain={yAxisDomain}
+                            tickLine={false}
+                            axisLine={false}
+                            stroke="hsl(var(--muted-foreground))"
+                            tickMargin={8}
+                            width={50}
+                            tickFormatter={formatYAxisTick}
                         />
                         <ChartTooltip
                             cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1.5, strokeDasharray: "3 3" }}
