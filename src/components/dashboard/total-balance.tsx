@@ -13,24 +13,6 @@ type TotalBalanceProps = {
   transactions: Transaction[];
 };
 
-const staticChartData = [
-    { day: 1, netWorth: 75000000 }, { day: 2, netWorth: 75200000 },
-    { day: 3, netWorth: 75100000 }, { day: 4, netWorth: 75500000 },
-    { day: 5, netWorth: 75800000 }, { day: 6, netWorth: 76000000 },
-    { day: 7, netWorth: 76300000 }, { day: 8, netWorth: 76200000 },
-    { day: 9, netWorth: 76500000 }, { day: 10, netWorth: 76800000 },
-    { day: 11, netWorth: 77000000 }, { day: 12, netWorth: 77100000 },
-    { day: 13, netWorth: 77300000 }, { day: 14, netWorth: 77600000 },
-    { day: 15, netWorth: 77500000 }, { day: 16, netWorth: 77900000 },
-    { day: 17, netWorth: 78200000 }, { day: 18, netWorth: 78500000 },
-    { day: 19, netWorth: 78300000 }, { day: 20, netWorth: 78700000 },
-    { day: 21, netWorth: 79000000 }, { day: 22, netWorth: 79100000 },
-    { day: 23, netWorth: 79400000 }, { day: 24, netWorth: 79600000 },
-    { day: 25, netWorth: 79800000 }, { day: 26, netWorth: 80000000 },
-    { day: 27, netWorth: 80100000 }, { day: 28, netWorth: 80500000 },
-    { day: 29, netWorth: 80300000 }, { day: 30, netWorth: 81550000 },
-];
-
 const chartConfig = {
   netWorth: {
     label: "Net Worth",
@@ -89,26 +71,57 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
     maximumFractionDigits: 0,
   }).format(amount);
 
-  const finalAmount = staticChartData[staticChartData.length - 1].netWorth;
-  const ratio = finalAmount > 0 ? amount / finalAmount : 1;
-  
-  const adjustedData = staticChartData.map(d => {
-    const dayFromToday = 30 - d.day;
-    const matchingTransactions = transactions.filter(t => {
-        const transactionDate = new Date(t.date);
-        const today = new Date();
-        const diffTime = today.getTime() - transactionDate.getTime();
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays === dayFromToday;
-    });
+  const generateChartData = (currentBalance: number, allTransactions: Transaction[], days: number) => {
+      const today = new Date();
+      today.setHours(23, 59, 59, 999); // Set to end of today
 
-    return {
-        ...d,
-        netWorth: Math.round(d.netWorth * ratio),
-        transactions: matchingTransactions,
-    };
-  });
-  adjustedData[adjustedData.length - 1].netWorth = amount;
+      const startDate = new Date(today);
+      startDate.setDate(today.getDate() - (days - 1));
+      startDate.setHours(0, 0, 0, 0); // Set to start of the first day
+
+      // Filter transactions within the date range
+      const relevantTransactions = allTransactions.filter(t => {
+          const tDate = new Date(t.date);
+          return tDate >= startDate && tDate <= today;
+      });
+
+      // Calculate the net worth at the beginning of the period
+      const totalChangeInPeriod = relevantTransactions.reduce((sum, t) => sum + t.amount, 0);
+      let startOfMonthNetWorth = currentBalance - totalChangeInPeriod;
+
+      const data = [];
+      let runningBalance = startOfMonthNetWorth;
+      
+      for (let i = 0; i < days; i++) {
+          const loopDate = new Date(startDate);
+          loopDate.setDate(startDate.getDate() + i);
+
+          const dailyTransactions = allTransactions.filter(t => {
+              const tDate = new Date(t.date);
+              return tDate.getFullYear() === loopDate.getFullYear() &&
+                     tDate.getMonth() === loopDate.getMonth() &&
+                     tDate.getDate() === loopDate.getDate();
+          });
+
+          const dailyChange = dailyTransactions.reduce((sum, t) => sum + t.amount, 0);
+          runningBalance += dailyChange;
+
+          data.push({
+              day: i + 1,
+              netWorth: runningBalance,
+              transactions: dailyTransactions,
+          });
+      }
+
+      // Ensure the final day's balance is exactly the current balance
+      if(data.length > 0) {
+        data[data.length - 1].netWorth = currentBalance;
+      }
+      
+      return data;
+  };
+  
+  const chartData = generateChartData(amount, transactions, 14);
 
 
   return (
@@ -128,7 +141,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
             <div className="h-24 -mx-6 -mb-6 relative">
                 <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
                     <LineChart
-                        data={adjustedData}
+                        data={chartData}
                         margin={{ top: 5, right: 20, left: 5, bottom: 20 }}
                     >
                          <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--foreground), 0.2)" />
@@ -139,7 +152,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                             stroke="hsl(var(--foreground))"
                             tickMargin={10}
                             tickFormatter={(value) => `D${value}`}
-                            interval={6}
+                            interval={3}
                         />
                         <YAxis
                             tickLine={false}
