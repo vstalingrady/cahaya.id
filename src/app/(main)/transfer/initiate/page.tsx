@@ -25,10 +25,26 @@ import Link from 'next/link';
 
 const formSchema = z.object({
   fromAccountId: z.string().min(1, { message: 'Please select an account to transfer from.' }),
+  recipientBank: z.string().min(1, { message: 'Please select a recipient bank.' }),
   recipientAccount: z.string().min(10, { message: 'Please enter a valid account number.' }),
   amount: z.coerce.number().min(10000, { message: 'Minimum transfer amount is IDR 10,000.' }),
   notes: z.string().optional(),
 });
+
+const banks = [
+  { value: 'bca', label: 'BCA (Bank Central Asia)' },
+  { value: 'bni', label: 'BNI (Bank Negara Indonesia)' },
+  { value: 'mandiri', label: 'Mandiri' },
+  { value: 'bri', label: 'BRI (Bank Rakyat Indonesia)' },
+  { value: 'cimb', label: 'CIMB Niaga' },
+  { value: 'permata', label: 'Permata Bank' },
+  { value: 'danamon', label: 'Danamon' },
+];
+
+const BI_FAST_FEE = 2500;
+const BANK_API_FEE = 1000;
+const CUAN_FEE = 500;
+const TOTAL_FEE = BI_FAST_FEE + BANK_API_FEE + CUAN_FEE;
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -44,17 +60,31 @@ export default function InitiateTransferPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       fromAccountId: '',
+      recipientBank: '',
       recipientAccount: '',
       amount: 0,
       notes: '',
     },
   });
 
+  const amount = form.watch('amount');
+  const fromAccountId = form.watch('fromAccountId');
+  const selectedAccount = accounts.find(acc => acc.id === fromAccountId);
+  const isSufficientBalance = selectedAccount ? selectedAccount.balance >= (amount + TOTAL_FEE) : false;
+
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!isSufficientBalance) {
+        toast({
+          variant: "destructive",
+          title: "Insufficient Balance",
+          description: `Your balance is not enough to cover the transfer and fees.`,
+        });
+        return;
+    }
     console.log(values);
     toast({
       title: "Transfer Successful!",
-      description: `You have successfully transferred ${formatCurrency(values.amount)} to account ${values.recipientAccount}.`,
+      description: `You have successfully transferred ${formatCurrency(values.amount)} to account ${values.recipientAccount}. Total debited: ${formatCurrency(values.amount + TOTAL_FEE)}`,
     });
     router.push('/dashboard');
   }
@@ -105,6 +135,31 @@ export default function InitiateTransferPage() {
             />
             
             <FormField
+              control={form.control}
+              name="recipientBank"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-red-200">Recipient Bank</FormLabel>
+                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                        <SelectTrigger className="bg-red-950/50 border-red-800/50 h-14 text-base placeholder:text-red-300/70">
+                            <SelectValue placeholder="Select a bank" />
+                        </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        {banks.map(bank => (
+                            <SelectItem key={bank.value} value={bank.value}>
+                                {bank.label}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
                 control={form.control}
                 name="recipientAccount"
                 render={({ field }) => (
@@ -154,6 +209,32 @@ export default function InitiateTransferPage() {
                 </FormItem>
                 )}
             />
+
+            {amount >= 10000 && (
+            <div className="space-y-3 bg-red-950/60 p-5 rounded-2xl border border-red-800/50">
+                <div className="flex justify-between items-center text-sm">
+                <span className="text-red-300">Transfer Amount</span>
+                <span className="font-mono text-white">{formatCurrency(amount)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                <span className="text-red-300">BI-FAST Fee</span>
+                <span className="font-mono text-white">{formatCurrency(BI_FAST_FEE)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                <span className="text-red-300">Bank API Fee</span>
+                <span className="font-mono text-white">{formatCurrency(BANK_API_FEE)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                <span className="text-red-300">Cuan Service Fee</span>
+                <span className="font-mono text-white">{formatCurrency(CUAN_FEE)}</span>
+                </div>
+                <div className="flex justify-between items-center font-bold text-base pt-3 mt-2 border-t border-red-800/50">
+                <span className="text-white">Total Debited</span>
+                <span className="font-mono text-accent">{formatCurrency(amount + TOTAL_FEE)}</span>
+                </div>
+            </div>
+            )}
+
 
             <Button 
                 type="submit" 
