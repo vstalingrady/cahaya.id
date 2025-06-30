@@ -91,9 +91,8 @@ export default function SetupSecurityForm() {
         <TabsContent value="face" className="mt-6">
           <div className="flex flex-col items-center space-y-6">
             <p className="text-center text-red-200">Center your face in the frame. The color cycle helps us capture your features accurately.</p>
-            <div className="relative w-64 h-64 rounded-full overflow-hidden border-4 border-red-500/50 flex items-center justify-center bg-black">
+            <div className="relative w-64 h-64 rounded-full overflow-hidden border-4 flex items-center justify-center bg-black animate-border-color-cycle">
               <video ref={videoRef} className="w-full h-full object-cover scale-x-[-1]" autoPlay muted playsInline />
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/50 via-blue-500/50 to-green-500/50 animate-spin opacity-50"></div>
               {hasCameraPermission === false && (
                 <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-center p-4">
                     <Camera className="w-12 h-12 text-red-400 mb-4" />

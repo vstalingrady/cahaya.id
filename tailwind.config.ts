@@ -82,11 +82,17 @@ export default {
           '0%': { transform: 'rotate(0deg)' },
           '100%': { transform: 'rotate(360deg)' },
         },
+        'border-color-cycle': {
+          '0%, 100%': { 'border-color': '#f87171' }, // red-400
+          '33%': { 'border-color': '#4ade80' }, // green-400
+          '66%': { 'border-color': '#60a5fa' }, // blue-400
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'spin': 'spin 4s linear infinite',
+        'border-color-cycle': 'border-color-cycle 4s linear infinite',
       },
     },
   },
