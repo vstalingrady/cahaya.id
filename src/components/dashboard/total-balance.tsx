@@ -5,43 +5,31 @@ import { Wallet } from "lucide-react";
 import NoiseOverlay from "../noise-overlay";
 import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { ChartConfig, ChartContainer, ChartTooltip } from "../ui/chart";
+import { type Transaction } from "@/lib/data";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 
 
 type TotalBalanceProps = {
   amount: number;
+  transactions: Transaction[];
 };
 
 const staticChartData = [
-    { day: 1, netWorth: 75000000 },
-    { day: 2, netWorth: 75200000 },
-    { day: 3, netWorth: 75100000 },
-    { day: 4, netWorth: 75500000 },
-    { day: 5, netWorth: 75800000 },
-    { day: 6, netWorth: 76000000 },
-    { day: 7, netWorth: 76300000 },
-    { day: 8, netWorth: 76200000 },
-    { day: 9, netWorth: 76500000 },
-    { day: 10, netWorth: 76800000 },
-    { day: 11, netWorth: 77000000 },
-    { day: 12, netWorth: 77100000 },
-    { day: 13, netWorth: 77300000 },
-    { day: 14, netWorth: 77600000 },
-    { day: 15, netWorth: 77500000 },
-    { day: 16, netWorth: 77900000 },
-    { day: 17, netWorth: 78200000 },
-    { day: 18, netWorth: 78500000 },
-    { day: 19, netWorth: 78300000 },
-    { day: 20, netWorth: 78700000 },
-    { day: 21, netWorth: 79000000 },
-    { day: 22, netWorth: 79100000 },
-    { day: 23, netWorth: 79400000 },
-    { day: 24, netWorth: 79600000 },
-    { day: 25, netWorth: 79800000 },
-    { day: 26, netWorth: 80000000 },
-    { day: 27, netWorth: 80100000 },
-    { day: 28, netWorth: 80500000 },
-    { day: 29, netWorth: 80300000 },
-    { day: 30, netWorth: 81550000 },
+    { day: 1, netWorth: 75000000 }, { day: 2, netWorth: 75200000 },
+    { day: 3, netWorth: 75100000 }, { day: 4, netWorth: 75500000 },
+    { day: 5, netWorth: 75800000 }, { day: 6, netWorth: 76000000 },
+    { day: 7, netWorth: 76300000 }, { day: 8, netWorth: 76200000 },
+    { day: 9, netWorth: 76500000 }, { day: 10, netWorth: 76800000 },
+    { day: 11, netWorth: 77000000 }, { day: 12, netWorth: 77100000 },
+    { day: 13, netWorth: 77300000 }, { day: 14, netWorth: 77600000 },
+    { day: 15, netWorth: 77500000 }, { day: 16, netWorth: 77900000 },
+    { day: 17, netWorth: 78200000 }, { day: 18, netWorth: 78500000 },
+    { day: 19, netWorth: 78300000 }, { day: 20, netWorth: 78700000 },
+    { day: 21, netWorth: 79000000 }, { day: 22, netWorth: 79100000 },
+    { day: 23, netWorth: 79400000 }, { day: 24, netWorth: 79600000 },
+    { day: 25, netWorth: 79800000 }, { day: 26, netWorth: 80000000 },
+    { day: 27, netWorth: 80100000 }, { day: 28, netWorth: 80500000 },
+    { day: 29, netWorth: 80300000 }, { day: 30, netWorth: 81550000 },
 ];
 
 const chartConfig = {
@@ -51,7 +39,50 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function TotalBalance({ amount }: TotalBalanceProps) {
+const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+}).format(amount);
+
+const CustomTransactionDot = (props: any) => {
+    const { cx, cy, payload } = props;
+    const { transactions } = payload as { transactions: Transaction[], day: number, netWorth: number };
+
+    if (!transactions || transactions.length === 0) {
+        return null; // Don't render a dot if there are no transactions
+    }
+
+    const netChange = transactions.reduce((acc, t) => acc + t.amount, 0);
+    let dotColorClass = "fill-background";
+    if (netChange > 0) dotColorClass = "fill-green-400";
+    if (netChange < 0) dotColorClass = "fill-red-400";
+
+    return (
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <circle cx={cx} cy={cy} r={5} stroke="hsl(var(--background))" strokeWidth={1.5} className={dotColorClass} />
+                </TooltipTrigger>
+                <TooltipContent>
+                    <div className="flex flex-col gap-1">
+                        {transactions.map((t: Transaction) => (
+                            <div key={t.id} className="text-xs">
+                                <p className="font-bold">{t.description}</p>
+                                <p className={t.amount > 0 ? "text-green-400" : "text-red-400"}>
+                                    {formatCurrency(t.amount)}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
+    );
+};
+
+
+export default function TotalBalance({ amount, transactions }: TotalBalanceProps) {
   const formattedAmount = new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -62,15 +93,27 @@ export default function TotalBalance({ amount }: TotalBalanceProps) {
   const finalAmount = staticChartData[staticChartData.length - 1].netWorth;
   const ratio = finalAmount > 0 ? amount / finalAmount : 1;
   
-  const adjustedData = staticChartData.map(d => ({
-    ...d,
-    netWorth: Math.round(d.netWorth * ratio)
-  }));
+  const adjustedData = staticChartData.map(d => {
+    const dayFromToday = 30 - d.day;
+    const matchingTransactions = transactions.filter(t => {
+        const transactionDate = new Date(t.date);
+        const today = new Date();
+        const diffTime = today.getTime() - transactionDate.getTime();
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays === dayFromToday;
+    });
+
+    return {
+        ...d,
+        netWorth: Math.round(d.netWorth * ratio),
+        transactions: matchingTransactions,
+    };
+  });
   adjustedData[adjustedData.length - 1].netWorth = amount;
 
 
   return (
-    <div className="bg-gradient-to-r from-red-600 via-red-500 to-red-600 p-8 rounded-3xl shadow-2xl border border-red-400/30 relative overflow-hidden">
+    <div className="bg-gradient-to-r from-red-600 via-purple-600 to-red-600 p-8 rounded-3xl shadow-2xl border border-red-400/30 relative overflow-hidden">
       <NoiseOverlay opacity={0.1} />
       <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-transparent"></div>
       <div className="relative z-10">
@@ -143,7 +186,7 @@ export default function TotalBalance({ amount }: TotalBalanceProps) {
                             dataKey="netWorth"
                             stroke="hsl(var(--foreground))"
                             strokeWidth={2.5}
-                            dot={false}
+                            dot={<CustomTransactionDot />}
                         />
                     </LineChart>
                 </ChartContainer>
