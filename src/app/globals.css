@@ -20,19 +20,19 @@ body {
     --secondary-foreground: 0 0% 98%;
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 162 72% 45%;
+    --accent: 0 84% 60%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
-    --ring: 162 72% 45%;
+    --ring: 0 84% 60%;
     --radius: 0.8rem;
     --chart-1: hsl(12 76% 61%);
-    --chart-2: hsl(162 72% 45%);
-    --chart-3: hsl(43 94% 54%);
-    --chart-4: hsl(262 70% 66%);
-    --chart-5: hsl(340 82% 70%);
+    --chart-2: hsl(43 94% 54%);
+    --chart-3: hsl(262 70% 66%);
+    --chart-4: hsl(340 82% 70%);
+    --chart-5: hsl(12 76% 61%);
   }
 }
 

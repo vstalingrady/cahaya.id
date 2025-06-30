@@ -51,7 +51,7 @@ const renderActiveShape = (props: any) => {
       <text x={cx} y={cy - 10} dy={8} textAnchor="middle" fill="#fff" className="font-bold text-lg">
         {payload.name}
       </text>
-       <text x={cx} y={cy + 10} dy={8} textAnchor="middle" fill="#a5f3fc" className="text-sm">
+       <text x={cx} y={cy + 10} dy={8} textAnchor="middle" fill="#fca5a5" className="text-sm">
         {formatCurrency(payload.value)} ({(percent * 100).toFixed(0)}%)
       </text>
       <Sector
@@ -92,13 +92,13 @@ export default function InsightsPage() {
     return (
         <div className="space-y-8 animate-fade-in-up">
             <div>
-                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-accent to-emerald-400 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
                     Insights
                 </h1>
-                <p className="text-teal-200">Lacak semua pengeluaranmu.</p>
+                <p className="text-red-200">Lacak semua pengeluaranmu.</p>
             </div>
 
-            <div className="bg-gradient-to-r from-teal-950/50 to-emerald-950/50 backdrop-blur-xl p-5 rounded-2xl border border-accent/20 shadow-2xl relative overflow-hidden">
+            <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
                 <NoiseOverlay opacity={0.03} />
                 <h3 className="font-bold text-white text-center mb-4">Spending this month</h3>
                 <div className="h-64 w-full">
@@ -126,7 +126,7 @@ export default function InsightsPage() {
 
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-white">History for <span className="text-accent">{activeCategory}</span></h2>
+                    <h2 className="text-xl font-bold text-white">History for <span className="text-primary">{activeCategory}</span></h2>
                 </div>
                 <div className="space-y-2">
                     {filteredTransactions.map(t => (

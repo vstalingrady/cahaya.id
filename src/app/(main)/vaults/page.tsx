@@ -22,10 +22,10 @@ export default function VaultsPage() {
     return (
         <div className="space-y-8 animate-fade-in-up">
             <div>
-                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-accent to-emerald-500 bg-clip-text text-transparent">
+                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
                     Cuan Vaults
                 </h1>
-                <p className="text-teal-200">Simpan untuk semua tujuanmu.</p>
+                <p className="text-red-200">Simpan untuk semua tujuanmu.</p>
             </div>
 
             <div className="space-y-4">
@@ -41,15 +41,15 @@ export default function VaultsPage() {
                                 </div>
                             </div>
                         </div>
-                        <Progress value={(vault.currentAmount / vault.targetAmount) * 100} className="h-2 bg-teal-900/80 [&>div]:bg-gradient-to-r [&>div]:from-accent [&>div]:to-emerald-400" />
+                        <Progress value={(vault.currentAmount / vault.targetAmount) * 100} className="h-2 bg-red-900/80 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-red-400" />
                     </div>
                 ))}
             </div>
 
-             <button className="w-full bg-gradient-to-r from-teal-900/30 to-teal-800/30 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-center text-accent border-2 border-dashed border-accent/40 hover:border-accent/60 transition-all duration-300 relative overflow-hidden group">
+             <button className="w-full bg-gradient-to-r from-red-900/30 to-red-800/30 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-center text-red-300 border-2 border-dashed border-red-600/40 hover:border-red-600/60 transition-all duration-300 relative overflow-hidden group">
                 <NoiseOverlay opacity={0.02} />
-                <Plus className="w-6 h-6 mr-3 group-hover:text-teal-300 transition-colors relative z-10" />
-                <span className="font-bold group-hover:text-teal-300 transition-colors relative z-10">Create New Vault</span>
+                <Plus className="w-6 h-6 mr-3 group-hover:text-red-200 transition-colors relative z-10" />
+                <span className="font-bold group-hover:text-red-200 transition-colors relative z-10">Create New Vault</span>
             </button>
         </div>
     );
