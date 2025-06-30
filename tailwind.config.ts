@@ -82,6 +82,10 @@ export default {
           '0%': { transform: 'rotate(0deg)' },
           '100%': { transform: 'rotate(360deg)' },
         },
+        'spin-3d': {
+          'from': { transform: 'rotateY(0deg)' },
+          'to': { transform: 'rotateY(360deg)' },
+        },
         'border-color-cycle': {
           '0%, 100%': { 'border-color': '#f87171' }, // red-400
           '33%': { 'border-color': '#4ade80' }, // green-400
@@ -100,6 +104,7 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'spin': 'spin 4s linear infinite',
+        'spin-3d': 'spin-3d 25s linear infinite',
         'border-color-cycle': 'border-color-cycle 4s linear infinite',
         'flash': 'flash 0.5s ease-out',
         'fade-in-up': 'fade-in-up 0.5s ease-out',

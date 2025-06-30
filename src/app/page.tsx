@@ -37,7 +37,7 @@ const serviceLogos = [
   { name: 'DANA', color: 'bg-blue-400' },
   { name: 'Bibit', color: 'bg-green-500' },
   { name: 'Pintu', color: 'bg-indigo-500' },
-  { name: 'Jago', color: 'bg-yellow-400 text-black' },
+  { name: 'Jago', color: 'bg-yellow-400' },
   { name: 'Kredivo', color: 'bg-orange-500' },
 ];
 
@@ -84,12 +84,23 @@ export default function WelcomePage() {
         <p className="text-lg lg:text-xl text-red-200 leading-relaxed max-w-3xl mx-auto mb-12">
           Link your banks, e-wallets, and investment apps with official, secure APIs. We never see or store your credentials.
         </p>
-        <div className="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-4 lg:gap-6 w-full max-w-4xl">
-          {serviceLogos.map((logo, index) => (
-            <div key={logo.name} className="flex items-center justify-center aspect-square bg-white/10 p-2 lg:p-4 rounded-2xl lg:rounded-3xl backdrop-blur-md border border-white/10 animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
-              <div className={`w-full h-full ${logo.color} rounded-xl lg:rounded-2xl flex items-center justify-center text-xs lg:text-base font-black ${logo.name === 'Jago' ? 'text-black' : 'text-white'}`}>{logo.name}</div>
-            </div>
-          ))}
+        <div className="relative w-full h-48 flex items-center justify-center [perspective:1000px]">
+          <div className="relative w-32 h-32 [transform-style:preserve-3d] animate-spin-3d">
+            {serviceLogos.map((logo, index) => {
+              const angle = (360 / serviceLogos.length) * index;
+              return (
+                <div
+                  key={logo.name}
+                  className="absolute w-full h-full"
+                  style={{ transform: `rotateY(${angle}deg) translateZ(150px)` }}
+                >
+                  <div className={`flex items-center justify-center w-32 h-32 rounded-3xl ${logo.color} text-xl font-black shadow-2xl border border-white/10 ${logo.name === 'Jago' ? 'text-black' : 'text-white'}`}>
+                    {logo.name}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </section>
 
