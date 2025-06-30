@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Menu } from 'lucide-react';
 import { accounts, transactions } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
 import AccountCard from '@/components/dashboard/account-card';
@@ -28,10 +28,15 @@ export default function DashboardPage() {
             <header className="flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                        Good morning, Budi
+                        Good morning, Vstalin Grady
                     </h1>
                 </div>
-                <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-800 rounded-2xl shadow-2xl border border-red-500/20" data-ai-hint="person avatar"></div>
+                <div className="flex items-center gap-4">
+                  <button className="text-white hover:text-accent transition-colors">
+                      <Menu className="w-7 h-7" />
+                  </button>
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-800 rounded-2xl shadow-2xl border border-red-500/20" data-ai-hint="person avatar"></div>
+                </div>
             </header>
 
             <TotalBalance amount={netWorth} />
