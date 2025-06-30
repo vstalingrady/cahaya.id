@@ -49,66 +49,68 @@ export default function LoginForm() {
   }
 
   return (
-    <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="pt-6 space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><Mail className="w-4 h-4 mr-2" /> Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="you@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><Lock className="w-4 h-4 mr-2" /> Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-             <div className="pt-2">
-                <Button type="submit" className="w-full font-bold" variant="default">
-                  Login
-                </Button>
-            </div>
-             <div className="text-right">
-                <Button variant="link" size="sm" asChild className="p-0 h-auto">
-                    <Link href="#">Forgot Password?</Link>
-                </Button>
-            </div>
-            <div className="relative flex items-center justify-center text-sm">
-                <Separator className="flex-1" />
-                <span className="mx-4 text-muted-foreground">Or continue with</span>
-                <Separator className="flex-1" />
-            </div>
-            <Button variant="outline" className="w-full" type="button">
-                <Fingerprint className="w-4 h-4 mr-2 text-accent" />
-                Login with Biometrics
-            </Button>
-          </CardContent>
-          <CardFooter className="flex flex-col items-center justify-center pb-6">
-            <p className="text-sm text-muted-foreground">
-              Don&apos;t have an account?{' '}
-              <Link href="/signup" className="font-semibold text-primary hover:underline">
-                Sign Up
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
-      </Form>
-    </Card>
+    <div className="relative rounded-lg p-px bg-gradient-to-br from-primary/30 via-accent/30 to-primary/30 transition-all duration-300 hover:shadow-glow-primary">
+      <Card className="relative z-10 border-0 bg-card/90 backdrop-blur-lg">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <CardContent className="pt-6 space-y-4">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Mail className="w-4 h-4 mr-2" /> Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="you@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Lock className="w-4 h-4 mr-2" /> Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+               <div className="pt-2">
+                  <Button type="submit" className="w-full font-bold" variant="default">
+                    Login
+                  </Button>
+              </div>
+               <div className="text-right">
+                  <Button variant="link" size="sm" asChild className="p-0 h-auto">
+                      <Link href="#">Forgot Password?</Link>
+                  </Button>
+              </div>
+              <div className="relative flex items-center justify-center text-sm">
+                  <Separator className="flex-1" />
+                  <span className="mx-4 text-muted-foreground">Or continue with</span>
+                  <Separator className="flex-1" />
+              </div>
+              <Button variant="outline" className="w-full" type="button">
+                  <Fingerprint className="w-4 h-4 mr-2 text-accent" />
+                  Login with Biometrics
+              </Button>
+            </CardContent>
+            <CardFooter className="flex flex-col items-center justify-center pb-6">
+              <p className="text-sm text-muted-foreground">
+                Don&apos;t have an account?{' '}
+                <Link href="/signup" className="font-semibold text-primary hover:underline">
+                  Sign Up
+                </Link>
+              </p>
+            </CardFooter>
+          </form>
+        </Form>
+      </Card>
+    </div>
   );
 }

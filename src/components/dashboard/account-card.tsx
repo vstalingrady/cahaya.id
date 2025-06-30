@@ -18,8 +18,8 @@ export default function AccountCard({ account }: AccountCardProps) {
   const Icon = account.type === 'bank' ? BankIcon : EwalletIcon;
 
   return (
-    <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-md hover:shadow-lg hover:border-accent/50 transition-all duration-300 group">
-       <div className="absolute -bottom-5 -left-5 w-16 h-16 bg-accent/5 rounded-full filter blur-md opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
+    <Card className="bg-card/80 backdrop-blur-sm border border-primary/20 shadow-md hover:shadow-glow-accent hover:border-accent transition-all duration-300 group">
+       <div className="absolute -bottom-5 -left-5 w-16 h-16 bg-accent/10 rounded-full filter blur-md opacity-50 group-hover:scale-150 transition-transform duration-500"></div>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium">{account.name}</CardTitle>
         <Icon className="h-5 w-5 text-muted-foreground group-hover:text-accent transition-colors" />

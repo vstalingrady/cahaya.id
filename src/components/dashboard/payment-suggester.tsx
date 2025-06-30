@@ -83,7 +83,7 @@ export default function PaymentSuggester() {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full h-12 shadow-sm border-dashed border-2 hover:border-solid hover:bg-accent/10 hover:text-accent-foreground">
+        <Button className="w-full h-12 shadow-sm border-dashed border-2 border-primary/50 hover:border-solid hover:border-primary hover:shadow-glow-primary transition-all duration-300 text-primary hover:text-foreground hover:bg-primary/10">
           <WalletCards className="mr-2 h-5 w-5" />
           Make a Smart Payment
         </Button>

@@ -34,8 +34,8 @@ export default function AIInsights({ allTransactions }: AIInsightsProps) {
   };
 
   return (
-    <Card className="bg-card/80 backdrop-blur-sm border-accent/20 shadow-lg relative overflow-hidden group">
-      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-accent/5 to-transparent -z-10 group-hover:from-accent/10 transition-all duration-500"></div>
+    <Card className="bg-card/80 backdrop-blur-sm border-accent/20 shadow-lg relative overflow-hidden group hover:shadow-glow-accent transition-shadow duration-300">
+      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-accent/20 to-transparent -z-10 group-hover:from-accent/30 transition-all duration-500"></div>
       <CardHeader>
         <div className="flex items-center gap-3">
             <div className="p-2 bg-accent/20 rounded-lg">
@@ -49,9 +49,9 @@ export default function AIInsights({ allTransactions }: AIInsightsProps) {
       </CardHeader>
       <CardContent>
         {suggestions.length === 0 && !isLoading && !error && (
-            <div className="text-center p-4 border-2 border-dashed rounded-lg">
+            <div className="text-center p-4 border-2 border-dashed rounded-lg border-border/30">
                 <p className="text-muted-foreground mb-4">Click the button to get your personalized tips!</p>
-                <Button onClick={handleGenerateInsights} disabled={isLoading} variant="secondary">
+                <Button onClick={handleGenerateInsights} disabled={isLoading} className="bg-gradient-to-r from-accent to-primary hover:opacity-90 text-accent-foreground font-bold">
                   <Lightbulb className="mr-2 h-4 w-4" />
                   Get AI Saving Tips
                 </Button>

@@ -52,78 +52,80 @@ export default function SignupForm() {
   }
 
   return (
-    <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CardContent className="pt-6 space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><User className="w-4 h-4 mr-2" /> Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="John Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><Mail className="w-4 h-4 mr-2" /> Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="you@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><Lock className="w-4 h-4 mr-2" /> Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="pin"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center"><Shield className="w-4 h-4 mr-2" /> 6-Digit PIN</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••" maxLength={6} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="pt-2">
-                <Button type="submit" className="w-full font-bold">
-                  Create Account
-                </Button>
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col items-center justify-center pb-6">
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{' '}
-              <Link href="/" className="font-semibold text-primary hover:underline">
-                Login
-              </Link>
-            </p>
-          </CardFooter>
-        </form>
-      </Form>
-    </Card>
+    <div className="relative rounded-lg p-px bg-gradient-to-br from-primary/30 via-accent/30 to-primary/30 transition-all duration-300 hover:shadow-glow-primary">
+      <Card className="relative z-10 border-0 bg-card/90 backdrop-blur-lg">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <CardContent className="pt-6 space-y-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><User className="w-4 h-4 mr-2" /> Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Mail className="w-4 h-4 mr-2" /> Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="you@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Lock className="w-4 h-4 mr-2" /> Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="pin"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="flex items-center"><Shield className="w-4 h-4 mr-2" /> 6-Digit PIN</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••" maxLength={6} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="pt-2">
+                  <Button type="submit" className="w-full font-bold">
+                    Create Account
+                  </Button>
+              </div>
+            </CardContent>
+            <CardFooter className="flex flex-col items-center justify-center pb-6">
+              <p className="text-sm text-muted-foreground">
+                Already have an account?{' '}
+                <Link href="/" className="font-semibold text-primary hover:underline">
+                  Login
+                </Link>
+              </p>
+            </CardFooter>
+          </form>
+        </Form>
+      </Card>
+    </div>
   );
 }

@@ -14,7 +14,7 @@ import { LogOut, User } from 'lucide-react';
 
 export default function DashboardHeader() {
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 w-full bg-background/80 backdrop-blur-sm">
       <div className="container flex h-16 items-center">
         <div className="mr-4 flex">
           <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
@@ -26,7 +26,7 @@ export default function DashboardHeader() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                <Avatar className='h-10 w-10'>
+                <Avatar className='h-10 w-10 border-2 border-transparent hover:border-primary transition-colors'>
                   <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar" />
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
@@ -57,6 +57,7 @@ export default function DashboardHeader() {
           </DropdownMenu>
         </div>
       </div>
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-primary/30 to-transparent"></div>
     </header>
   );
 }

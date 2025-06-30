@@ -14,17 +14,17 @@ export default function TotalBalance({ amount }: TotalBalanceProps) {
   }).format(amount);
 
   return (
-    <Card className="bg-card/80 backdrop-blur-sm border-primary/20 shadow-lg relative overflow-hidden group hover:shadow-primary/20 transition-all duration-300">
-       <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 rounded-full filter blur-xl opacity-70 group-hover:scale-125 transition-transform duration-500"></div>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">Total Balance</CardTitle>
-        <Wallet className="h-5 w-5 text-primary" />
+    <Card className="relative overflow-hidden rounded-lg bg-gradient-to-br from-primary to-accent text-primary-foreground shadow-lg transition-all duration-300 group hover:shadow-glow-primary border-0">
+      <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full filter blur-xl opacity-70 group-hover:scale-125 transition-transform duration-500"></div>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 relative z-10">
+        <CardTitle className="text-sm font-medium text-primary-foreground/80">Total Balance</CardTitle>
+        <Wallet className="h-5 w-5 text-primary-foreground" />
       </CardHeader>
-      <CardContent>
-        <div className="text-4xl font-bold font-headline text-foreground">
+      <CardContent className="relative z-10">
+        <div className="text-4xl font-bold font-headline text-primary-foreground">
           {formattedAmount}
         </div>
-        <p className="text-xs text-muted-foreground mt-1">Across all linked accounts</p>
+        <p className="text-xs text-primary-foreground/80 mt-1">Across all linked accounts</p>
       </CardContent>
     </Card>
   );
