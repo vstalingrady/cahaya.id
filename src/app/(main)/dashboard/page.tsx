@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Menu } from 'lucide-react';
+import { ArrowRight, Bell } from 'lucide-react';
 import { accounts, transactions } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
 import AccountCard from '@/components/dashboard/account-card';
@@ -33,7 +33,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center gap-4">
                   <button className="text-white hover:text-accent transition-colors">
-                      <Menu className="w-7 h-7" />
+                      <Bell className="w-7 h-7" />
                   </button>
                   <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-800 rounded-2xl shadow-2xl border border-red-500/20" data-ai-hint="person avatar"></div>
                 </div>
