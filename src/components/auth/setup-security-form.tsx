@@ -108,7 +108,7 @@ export default function SetupSecurityForm() {
     setPin(value);
   }
 
-  const isCameraActive = hasCameraPermission === true && (scanStep === 'scanning' || scanStep === 'complete' || scanStep === 'idle');
+  const isCameraActive = hasCameraPermission === true;
 
   return (
     <>
@@ -151,8 +151,10 @@ export default function SetupSecurityForm() {
               )}>
                 <video ref={videoRef} className={cn("w-full h-full object-cover scale-x-[-1] transition-opacity duration-300", isCameraActive ? 'opacity-100' : 'opacity-0')} autoPlay muted playsInline />
                 
+                <div className="absolute inset-0 rounded-[50%] border-4 border-dashed border-white/30 pointer-events-none"></div>
+
                 {!isCameraActive && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-black/50">
                         {hasCameraPermission === null && <Loader2 className="w-12 h-12 text-red-400 animate-spin" />}
                         {hasCameraPermission === false && <Camera className="w-12 h-12 text-red-400" />}
                         <p className="text-sm text-red-300 mt-2">
