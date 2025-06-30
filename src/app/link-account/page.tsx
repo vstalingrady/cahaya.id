@@ -57,6 +57,17 @@ export default function LinkAccountPage() {
               </div>
               <ChevronRight className="w-5 h-5 text-red-400 relative z-10" />
             </button>
+            <button className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between border border-red-600/20 shadow-2xl relative overflow-hidden opacity-50 cursor-not-allowed">
+              <NoiseOverlay opacity={0.03} />
+              <div className="flex items-center relative z-10">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-700 to-red-900 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">JAGO</div>
+                <div className="text-left">
+                  <div className="font-black text-lg text-white">Jago</div>
+                  <div className="text-red-300 text-sm">Bank Jago</div>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-red-400 relative z-10" />
+            </button>
           </div>
         </div>
 
@@ -91,6 +102,17 @@ export default function LinkAccountPage() {
                 <div className="w-12 h-12 bg-gradient-to-br from-red-700 to-red-900 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">DA</div>
                 <div className="text-left">
                   <div className="font-black text-lg text-white">DANA</div>
+                  <div className="text-red-300 text-sm">Dompet Digital</div>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-red-400 relative z-10" />
+            </button>
+            <button className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between border border-red-600/20 shadow-2xl relative overflow-hidden opacity-50 cursor-not-allowed">
+              <NoiseOverlay opacity={0.03} />
+              <div className="flex items-center relative z-10">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-700 to-red-900 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">LA</div>
+                <div className="text-left">
+                  <div className="font-black text-lg text-white">LinkAja</div>
                   <div className="text-red-300 text-sm">Dompet Digital</div>
                 </div>
               </div>
