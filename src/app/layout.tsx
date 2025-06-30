@@ -4,8 +4,8 @@ import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Cuan - Your Financial Playground',
-  description: 'Unify your accounts, analyze spending with AI, and discover a new world of financial clarity.',
+  title: 'Cuan - All your money, in one place.',
+  description: 'Welcome to Cuan. The secure way to manage your finances.',
 };
 
 export default function RootLayout({
@@ -28,7 +28,9 @@ export default function RootLayout({
           'font-body antialiased min-h-screen',
         )}
       >
-        {children}
+        <div className="w-full max-w-md mx-auto bg-black min-h-screen">
+          {children}
+        </div>
         <Toaster />
       </body>
     </html>

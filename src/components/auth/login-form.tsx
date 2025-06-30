@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fingerprint, Lock, Mail } from 'lucide-react';
 
@@ -13,13 +12,12 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import NoiseOverlay from '../noise-overlay';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email.' }),
@@ -39,7 +37,6 @@ export default function LoginForm() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Mock login
     console.log(values);
     toast({
       title: "Login Successful!",
@@ -49,68 +46,61 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="relative rounded-lg p-px bg-gradient-to-br from-primary/30 via-accent/30 to-primary/30 transition-all duration-300 hover:shadow-glow-primary">
-      <Card className="relative z-10 border-0 bg-card/90 backdrop-blur-lg">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardContent className="pt-6 space-y-4">
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><Mail className="w-4 h-4 mr-2" /> Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="you@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center"><Lock className="w-4 h-4 mr-2" /> Password</FormLabel>
-                    <FormControl>
-                      <Input type="password" placeholder="••••••••" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <div className="pt-2">
-                  <Button type="submit" className="w-full font-bold" variant="default">
-                    Login
-                  </Button>
-              </div>
-               <div className="text-right">
-                  <Button variant="link" size="sm" asChild className="p-0 h-auto">
-                      <Link href="#">Forgot Password?</Link>
-                  </Button>
-              </div>
-              <div className="relative flex items-center justify-center text-sm">
-                  <Separator className="flex-1" />
-                  <span className="mx-4 text-muted-foreground">Or continue with</span>
-                  <Separator className="flex-1" />
-              </div>
-              <Button variant="outline" className="w-full" type="button">
-                  <Fingerprint className="w-4 h-4 mr-2 text-accent" />
-                  Login with Biometrics
-              </Button>
-            </CardContent>
-            <CardFooter className="flex flex-col items-center justify-center pb-6">
-              <p className="text-sm text-muted-foreground">
-                Don&apos;t have an account?{' '}
-                <Link href="/signup" className="font-semibold text-primary hover:underline">
-                  Sign Up
-                </Link>
-              </p>
-            </CardFooter>
-          </form>
-        </Form>
-      </Card>
+    <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
+      <NoiseOverlay opacity={0.03} />
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
+                    <Input className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="Email" {...field} />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
+                    <Input type="password" className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="Password" {...field} />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <Button 
+            type="submit" 
+            className="w-full bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white py-5 rounded-2xl font-black text-xl shadow-2xl border border-red-400/30 hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
+          >
+            <NoiseOverlay opacity={0.05} />
+            <span className="relative z-10">Log In</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          </Button>
+
+          <div className="relative flex items-center justify-center text-sm">
+              <Separator className="flex-1 bg-red-800/50" />
+              <span className="mx-4 text-red-300">Or</span>
+              <Separator className="flex-1 bg-red-800/50" />
+          </div>
+
+          <Button variant="outline" className="w-full bg-red-900/50 border-red-800/50 h-14 text-base font-bold text-red-300 hover:bg-red-900/80 hover:text-red-200" type="button">
+              <Fingerprint className="w-5 h-5 mr-3 text-red-400" />
+              Login with Biometrics
+          </Button>
+        </form>
+      </Form>
     </div>
   );
 }

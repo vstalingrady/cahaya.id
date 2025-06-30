@@ -1,64 +1,50 @@
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import CuanLogo from '@/components/cuanflex-logo';
-import BankIcon from '@/components/icons/bank-icon';
-import EwalletIcon from '@/components/icons/ewallet-icon';
-import { cn } from '@/lib/utils';
-
-const BackgroundAsset = ({ icon: Icon, className, style }: { icon: React.ElementType, className?: string, style?: React.CSSProperties }) => (
-    <div 
-        className={cn(
-            "absolute rounded-2xl bg-card/10 backdrop-blur-sm p-4 border border-white/10 shadow-lg transform-gpu",
-            className
-        )}
-        style={style}
-    >
-        <Icon className="w-10 h-10 text-white/50" />
-    </div>
-);
+import NoiseOverlay from '@/components/noise-overlay';
 
 export default function WelcomePage() {
   return (
-    <div className="relative flex flex-col items-center justify-between min-h-screen w-full overflow-hidden bg-black">
+    <div className="bg-gradient-to-br from-black via-red-950 to-black text-white p-6 flex flex-col justify-between min-h-screen relative overflow-hidden">
+      <NoiseOverlay />
       
-      <div className="absolute inset-0 -z-10 opacity-70">
-          <div className="absolute inset-0 bg-gradient-to-br from-background via-transparent to-primary/30" style={{backgroundSize: '400% 400%', animation: 'background-pan 15s ease infinite'}}></div>
-          
-          <BackgroundAsset icon={BankIcon} className="top-[10%] left-[5%] animate-subtle-float" />
-          <BackgroundAsset icon={EwalletIcon} className="top-[20%] right-[10%] animate-subtle-float" style={{ animationDelay: '1s' }} />
-          <BackgroundAsset icon={BankIcon} className="bottom-[30%] left-[15%] animate-subtle-float" style={{ animationDelay: '2s' }} />
-          <BackgroundAsset icon={EwalletIcon} className="bottom-[10%] right-[20%] animate-subtle-float" style={{ animationDelay: '3s' }} />
-          <BackgroundAsset icon={BankIcon} className="top-[55%] right-[35%] animate-subtle-float" style={{ animationDelay: '1.5s' }} />
-          <BackgroundAsset icon={EwalletIcon} className="bottom-[5%] left-[40%] animate-subtle-float" style={{ animationDelay: '2.5s' }} />
-          <BackgroundAsset icon={BankIcon} className="top-[60%] left-[25%] animate-subtle-float" style={{ animationDelay: '0.5s' }} />
-          <BackgroundAsset icon={EwalletIcon} className="top-[5%] right-[45%] animate-subtle-float" style={{ animationDelay: '3.5s' }} />
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-red-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-gradient-to-r from-red-600/30 to-rose-600/30 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
       </div>
 
-      <main className="relative z-10 flex flex-col items-center justify-center flex-grow p-4 text-center">
-        <div className="animate-float-in" style={{ animationDelay: '0ms' }}>
-          <CuanLogo className="w-32 h-auto mb-12" />
+      <div className="flex-1 flex flex-col justify-center items-center text-center relative z-10">
+        <div className="mb-8">
+          <div className="grid grid-cols-3 gap-4 opacity-30 mb-8 transform rotate-3">
+            <div className="bg-gradient-to-br from-red-600 to-red-800 rounded-2xl p-4 text-xs font-black shadow-2xl border border-red-500/20">BCA</div>
+            <div className="bg-gradient-to-br from-red-500 to-red-700 rounded-2xl p-4 text-xs font-black shadow-2xl border border-red-400/20">GoPay</div>
+            <div className="bg-gradient-to-br from-red-700 to-red-900 rounded-2xl p-4 text-xs font-black shadow-2xl border border-red-600/20">OVO</div>
+            <div className="bg-gradient-to-br from-red-800 to-red-950 rounded-2xl p-4 text-xs font-black shadow-2xl border border-red-700/20">Bibit</div>
+            <div className="bg-gradient-to-br from-red-600 to-red-800 rounded-2xl p-4 text-xs font-black shadow-2xl border border-red-500/20">DANA</div>
+            <div className="bg-gradient-to-br from-red-500 to-red-700 rounded-2xl p-4 text-xs font-black shadow-2xl border border-red-400/20">Pintu</div>
+          </div>
         </div>
-
-        <h1 className="text-5xl md:text-6xl font-bold tracking-tighter text-foreground mb-4 animate-float-in" style={{ animationDelay: '100ms' }}>
-          All your money,
-          <br />
-          in one place.
-        </h1>
-        <p className="max-w-md text-lg text-muted-foreground mb-12 animate-float-in" style={{ animationDelay: '200ms' }}>
-          Welcome to Cuan. The secure way to manage your finances.
-        </p>
-      </main>
-
-      <footer className="relative z-10 w-full max-w-sm p-8 animate-float-in" style={{ animationDelay: '300ms' }}>
-        <div className="grid grid-cols-1 gap-4">
-          <Button asChild size="lg" className="font-bold text-lg h-14 bg-primary text-primary-foreground hover:bg-primary/90">
-            <Link href="/signup">Create Account</Link>
-          </Button>
-          <Button asChild variant="outline" size="lg" className="font-bold text-lg h-14 border-muted-foreground/50 text-muted-foreground hover:bg-muted-foreground/10 hover:text-foreground hover:border-foreground">
-            <Link href="/login">Log In</Link>
-          </Button>
+        
+        <div className="mb-8">
+          <h1 className="text-6xl font-black mb-4 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent leading-tight">
+            All your money,<br />in one place.
+          </h1>
+          <div className="w-24 h-1 bg-gradient-to-r from-red-500 to-red-600 mx-auto mb-6 rounded-full"></div>
         </div>
-      </footer>
+        
+        <p className="text-red-100 text-xl mb-12 font-light">Welcome to Cuan. The secure way to manage your finances.</p>
+      </div>
+      
+      <div className="space-y-4 relative z-10">
+        <Link 
+          href="/signup"
+          className="block w-full bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white py-5 rounded-2xl font-black text-xl shadow-2xl border border-red-400/30 hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group text-center"
+        >
+          <NoiseOverlay opacity={0.05} />
+          <span className="relative z-10">Create Account</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </Link>
+        <Link href="/login" className="block w-full text-red-300 py-3 font-semibold hover:text-red-200 transition-colors text-center">Log In</Link>
+      </div>
     </div>
   );
 }
