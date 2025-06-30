@@ -1,7 +1,7 @@
 export type Account = {
   id: string;
   name: string;
-  type: 'bank' | 'e-wallet';
+  type: 'bank' | 'e-wallet' | 'investment' | 'loan';
   balance: number;
   last4: string;
 };
@@ -46,6 +46,27 @@ export const accounts: Account[] = [
     balance: 250000,
     last4: '0857',
   },
+  {
+    id: 'bibit1',
+    name: 'Bibit Portfolio',
+    type: 'investment',
+    balance: 45600000,
+    last4: 'Invst'
+  },
+  {
+    id: 'pintu1',
+    name: 'Pintu Crypto',
+    type: 'investment',
+    balance: 25400000,
+    last4: 'Crpto'
+  },
+  {
+    id: 'kredivo1',
+    name: 'Kredivo PayLater',
+    type: 'loan',
+    balance: 1250000, // Represents outstanding debt
+    last4: 'Loan'
+  }
 ];
 
 export const vaults: Vault[] = [
