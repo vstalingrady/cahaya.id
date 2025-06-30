@@ -30,6 +30,17 @@ const FeatureSection = ({ title, description, imgSrc, imgHint, reverse = false }
   </section>
 );
 
+const serviceLogos = [
+  { name: 'BCA', color: 'bg-blue-600' },
+  { name: 'GoPay', color: 'bg-sky-500' },
+  { name: 'OVO', color: 'bg-purple-600' },
+  { name: 'DANA', color: 'bg-blue-400' },
+  { name: 'Bibit', color: 'bg-green-500' },
+  { name: 'Pintu', color: 'bg-indigo-500' },
+  { name: 'Jago', color: 'bg-yellow-400 text-black' },
+  { name: 'Kredivo', color: 'bg-orange-500' },
+];
+
 
 export default function WelcomePage() {
   return (
@@ -40,7 +51,7 @@ export default function WelcomePage() {
       <section className="min-h-screen flex flex-col justify-center items-center text-center p-6 relative z-10">
         <div className="absolute inset-0 overflow-hidden -z-10">
           <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-red-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-gradient-to-r from-accent/20 to-blue-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
           <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-gradient-to-r from-red-600/30 to-rose-600/30 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
         </div>
 
@@ -53,18 +64,6 @@ export default function WelcomePage() {
         
         <p className="text-red-100 text-xl max-w-2xl mx-auto mb-12 font-light">Welcome to Cuan. The secure, unified way to manage your entire financial life from a single, beautiful app.</p>
         
-        <div className="space-y-4 relative z-10">
-          <Link 
-            href="/signup"
-            className="block w-64 bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white py-5 rounded-2xl font-black text-xl shadow-2xl border border-red-400/30 hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group text-center"
-          >
-            <NoiseOverlay opacity={0.05} />
-            <span className="relative z-10">Create Account</span>
-            <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          </Link>
-          <Link href="/login" className="block w-full text-red-300 py-3 font-semibold hover:text-red-200 transition-colors text-center">Log In</Link>
-        </div>
-
          <div className="absolute bottom-10 animate-bounce">
             <ArrowDown className="w-8 h-8 text-red-400/50" />
          </div>
@@ -77,6 +76,22 @@ export default function WelcomePage() {
         imgSrc="https://placehold.co/600x400.png"
         imgHint="finance dashboard"
       />
+
+      <section className="min-h-screen flex flex-col items-center justify-center p-6 lg:p-12 text-center animate-fade-in-up">
+        <h2 className="text-4xl lg:text-6xl font-black mb-6 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">
+          Connect Everything in Seconds.
+        </h2>
+        <p className="text-lg lg:text-xl text-red-200 leading-relaxed max-w-3xl mx-auto mb-12">
+          Link your banks, e-wallets, and investment apps with official, secure APIs. We never see or store your credentials.
+        </p>
+        <div className="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-8 gap-4 lg:gap-6 w-full max-w-4xl">
+          {serviceLogos.map((logo, index) => (
+            <div key={logo.name} className="flex items-center justify-center aspect-square bg-white/10 p-2 lg:p-4 rounded-2xl lg:rounded-3xl backdrop-blur-md border border-white/10 animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
+              <div className={`w-full h-full ${logo.color} rounded-xl lg:rounded-2xl flex items-center justify-center text-xs lg:text-base font-black ${logo.name === 'Jago' ? 'text-black' : 'text-white'}`}>{logo.name}</div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <FeatureSection 
         title="Pay Any Bill, From Any Source."
@@ -117,10 +132,10 @@ export default function WelcomePage() {
             className="block w-64 bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white py-5 rounded-2xl font-black text-xl shadow-2xl border border-red-400/30 hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group text-center"
           >
             <NoiseOverlay opacity={0.05} />
-            <span className="relative z-10">Get Started for Free</span>
+            <span className="relative z-10">Create Account</span>
             <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </Link>
-          <Link href="/login" className="block w-full text-red-300 py-3 font-semibold hover:text-red-200 transition-colors text-center">Already have an account? Log In</Link>
+          <Link href="/login" className="block w-full text-red-300 py-3 font-semibold hover:text-red-200 transition-colors text-center">Log In</Link>
         </div>
       </section>
 
