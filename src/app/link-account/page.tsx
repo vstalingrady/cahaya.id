@@ -7,7 +7,7 @@ export default function LinkAccountPage() {
     <div className="bg-gradient-to-br from-black via-red-950 to-black text-white p-6 min-h-screen relative overflow-hidden">
       <NoiseOverlay />
       
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden -z-10">
         <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-red-500/10 to-transparent rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-red-600/10 to-transparent rounded-full blur-3xl"></div>
       </div>
@@ -46,6 +46,17 @@ export default function LinkAccountPage() {
               </div>
               <ChevronRight className="w-5 h-5 text-red-400 relative z-10" />
             </button>
+             <button className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between border border-red-600/20 shadow-2xl relative overflow-hidden opacity-50 cursor-not-allowed">
+              <NoiseOverlay opacity={0.03} />
+              <div className="flex items-center relative z-10">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-700 to-red-900 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">MDR</div>
+                <div className="text-left">
+                  <div className="font-black text-lg text-white">Mandiri</div>
+                  <div className="text-red-300 text-sm">Bank Mandiri</div>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-red-400 relative z-10" />
+            </button>
           </div>
         </div>
 
@@ -74,6 +85,17 @@ export default function LinkAccountPage() {
               </div>
               <ChevronRight className="w-5 h-5 text-red-400 relative z-10" />
             </button>
+             <button className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between border border-red-600/20 shadow-2xl relative overflow-hidden opacity-50 cursor-not-allowed">
+              <NoiseOverlay opacity={0.03} />
+              <div className="flex items-center relative z-10">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-700 to-red-900 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">DA</div>
+                <div className="text-left">
+                  <div className="font-black text-lg text-white">DANA</div>
+                  <div className="text-red-300 text-sm">Dompet Digital</div>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-red-400 relative z-10" />
+            </button>
           </div>
         </div>
 
@@ -98,6 +120,45 @@ export default function LinkAccountPage() {
                 <div className="text-left">
                   <div className="font-black text-lg text-white">Pintu</div>
                   <div className="text-red-300 text-sm">Cryptocurrency</div>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-red-400 relative z-10" />
+            </button>
+             <button className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between border border-red-600/20 shadow-2xl relative overflow-hidden opacity-50 cursor-not-allowed">
+              <NoiseOverlay opacity={0.03} />
+              <div className="flex items-center relative z-10">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-700 to-red-900 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">AJ</div>
+                <div className="text-left">
+                  <div className="font-black text-lg text-white">Ajaib</div>
+                  <div className="text-red-300 text-sm">Stocks & Crypto</div>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-red-400 relative z-10" />
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-sm font-black text-red-400 mb-4 uppercase tracking-widest">Pinjaman Online</h3>
+          <div className="grid grid-cols-1 gap-4">
+            <button className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between border border-red-600/20 shadow-2xl relative overflow-hidden opacity-50 cursor-not-allowed">
+              <NoiseOverlay opacity={0.03} />
+              <div className="flex items-center relative z-10">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-red-800 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">KR</div>
+                <div className="text-left">
+                  <div className="font-black text-lg text-white">Kredivo</div>
+                  <div className="text-red-300 text-sm">PayLater & Loans</div>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-red-400 relative z-10" />
+            </button>
+            <button className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between border border-red-600/20 shadow-2xl relative overflow-hidden opacity-50 cursor-not-allowed">
+              <NoiseOverlay opacity={0.03} />
+              <div className="flex items-center relative z-10">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-700 to-red-900 rounded-xl mr-4 flex items-center justify-center text-sm font-black shadow-lg">AK</div>
+                <div className="text-left">
+                  <div className="font-black text-lg text-white">Akulaku</div>
+                  <div className="text-red-300 text-sm">PayLater & Loans</div>
                 </div>
               </div>
               <ChevronRight className="w-5 h-5 text-red-400 relative z-10" />

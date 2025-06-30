@@ -87,12 +87,17 @@ export default {
           '33%': { 'border-color': '#4ade80' }, // green-400
           '66%': { 'border-color': '#60a5fa' }, // blue-400
         },
+        'flash': {
+          '0%, 100%': { opacity: '0' },
+          '50%': { opacity: '1' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'spin': 'spin 4s linear infinite',
         'border-color-cycle': 'border-color-cycle 4s linear infinite',
+        'flash': 'flash 0.5s ease-out',
       },
     },
   },
