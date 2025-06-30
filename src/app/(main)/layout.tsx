@@ -7,7 +7,7 @@ export default function MainAppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-gradient-to-br from-black via-red-950 to-black text-white min-h-screen relative overflow-hidden flex flex-col">
+    <div className="bg-gradient-to-br from-black via-purple-950 to-black text-white min-h-screen relative overflow-hidden flex flex-col">
       <NoiseOverlay />
       
       <div className="absolute inset-0 overflow-hidden -z-10">
@@ -19,7 +19,7 @@ export default function MainAppLayout({
         {children}
       </main>
       
-      <div className="absolute bottom-0 left-0 right-0 z-20">
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 z-20 w-full max-w-md">
         <MainNav />
       </div>
     </div>
