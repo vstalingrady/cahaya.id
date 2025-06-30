@@ -2,7 +2,7 @@
 
 import { Wallet } from "lucide-react";
 import NoiseOverlay from "../noise-overlay";
-import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Line, LineChart, CartesianGrid, XAxis, YAxis, Area } from "recharts";
 import { ChartConfig, ChartContainer, ChartTooltip } from "../ui/chart";
 import { type Transaction } from "@/lib/data";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
@@ -17,7 +17,7 @@ type TotalBalanceProps = {
 const chartConfig = {
   netWorth: {
     label: "Net Worth",
-    color: "hsl(var(--foreground))",
+    color: "hsl(var(--primary))",
   },
 } satisfies ChartConfig;
 
@@ -32,11 +32,11 @@ const CustomTransactionDot = (props: any) => {
     const { transactions } = payload as { transactions: Transaction[], date: Date, netWorth: number };
 
     if (!transactions || transactions.length === 0) {
-        return null; // Don't render a dot if there are no transactions
+        return <circle cx={cx} cy={cy} r={3} fill="hsl(var(--primary))" stroke="hsl(var(--background))" strokeWidth={1.5} />;
     }
 
     const netChange = transactions.reduce((acc, t) => acc + t.amount, 0);
-    let dotColorClass = "fill-background";
+    let dotColorClass = "fill-primary";
     if (netChange > 0) dotColorClass = "fill-green-400";
     if (netChange < 0) dotColorClass = "fill-red-400";
 
@@ -139,38 +139,38 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                     <span className="font-bold">+ Rp 1.200.000 today</span>
                 </div>
             </div>
-            <div className="h-24 -mx-6 -mb-6 relative">
+            <div className="h-32 -mx-6 -mb-6 relative">
                 <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
                     <LineChart
                         data={chartData}
-                        margin={{ top: 5, right: 20, left: 5, bottom: 20 }}
+                        margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
                     >
-                         <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--foreground), 0.2)" />
+                        <defs>
+                            <linearGradient id="fillNetWorth" x1="0" y1="0" x2="0" y2="1">
+                                <stop
+                                    offset="5%"
+                                    stopColor="hsl(var(--primary))"
+                                    stopOpacity={0.4}
+                                />
+                                <stop
+                                    offset="95%"
+                                    stopColor="hsl(var(--primary))"
+                                    stopOpacity={0.05}
+                                />
+                            </linearGradient>
+                        </defs>
+                         <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" />
                          <XAxis
                             dataKey="date"
                             tickLine={false}
                             axisLine={false}
-                            stroke="hsl(var(--foreground))"
+                            stroke="hsl(var(--muted-foreground))"
                             tickMargin={10}
                             tickFormatter={(value) => format(new Date(value), 'd MMM')}
                             interval={3}
                         />
-                        <YAxis
-                            tickLine={false}
-                            axisLine={false}
-                            stroke="hsl(var(--foreground))"
-                            width={50}
-                            tickMargin={10}
-                            domain={['dataMin - 500000', 'dataMax + 500000']}
-                            tickFormatter={(value) => {
-                                const num = value as number;
-                                if (num >= 1e6) return `${(num / 1e6).toFixed(0)}M`;
-                                if (num >= 1e3) return `${(num / 1e3).toFixed(0)}K`;
-                                return num.toString();
-                            }}
-                        />
                         <ChartTooltip
-                            cursor={{ stroke: 'hsl(var(--foreground))', strokeWidth: 1, strokeDasharray: "3 3" }}
+                            cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1.5, strokeDasharray: "3 3" }}
                             content={({ active, payload }) => {
                                 if (active && payload && payload.length) {
                                 return (
@@ -195,16 +195,28 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                                 return null
                             }}
                         />
+                         <Area
+                            dataKey="netWorth"
+                            type="monotone"
+                            fill="url(#fillNetWorth)"
+                            fillOpacity={1}
+                            stroke="none"
+                        />
                         <Line
                             type="monotone"
                             dataKey="netWorth"
-                            stroke="hsl(var(--foreground))"
+                            stroke="hsl(var(--primary))"
                             strokeWidth={2.5}
                             dot={<CustomTransactionDot />}
+                             activeDot={{
+                                r: 6,
+                                strokeWidth: 2,
+                                fill: 'hsl(var(--background))',
+                                stroke: 'hsl(var(--primary))',
+                            }}
                         />
                     </LineChart>
                 </ChartContainer>
-                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-red-800/50 to-transparent pointer-events-none" />
             </div>
         </div>
       </div>
