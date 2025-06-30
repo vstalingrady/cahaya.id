@@ -24,7 +24,7 @@ const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email.' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
-  cuanPin: z.string().length(6, { message: 'PIN must be 6 digits.' }).regex(/^\d+$/, { message: 'PIN must be numeric.' }),
+  pin: z.string().length(6, { message: 'PIN must be 6 digits.' }).regex(/^\d+$/, { message: 'PIN must be numeric.' }),
 });
 
 export default function SignupForm() {
@@ -37,7 +37,7 @@ export default function SignupForm() {
       name: '',
       email: '',
       password: '',
-      cuanPin: '',
+      pin: '',
     },
   });
 
@@ -46,7 +46,7 @@ export default function SignupForm() {
     console.log(values);
     toast({
       title: "Account Created!",
-      description: "Welcome to CuanFlex! Redirecting you to the dashboard.",
+      description: "Welcome to Cuan! Redirecting you to the dashboard.",
     });
     router.push('/dashboard');
   }
@@ -97,10 +97,10 @@ export default function SignupForm() {
             />
             <FormField
               control={form.control}
-              name="cuanPin"
+              name="pin"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center"><Shield className="w-4 h-4 mr-2" /> 6-Digit Cuan PIN</FormLabel>
+                  <FormLabel className="flex items-center"><Shield className="w-4 h-4 mr-2" /> 6-Digit PIN</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="••••••" maxLength={6} {...field} />
                   </FormControl>

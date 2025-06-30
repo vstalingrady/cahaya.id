@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import CuanFlexLogo from '../cuanflex-logo';
+import CuanLogo from '../cuanflex-logo';
 import { Button } from '../ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import {
@@ -18,7 +18,7 @@ export default function DashboardHeader() {
       <div className="container flex h-16 items-center">
         <div className="mr-4 flex">
           <Link href="/dashboard" className="mr-6 flex items-center space-x-2">
-            <CuanFlexLogo className="h-8 w-auto" />
+            <CuanLogo className="h-8 w-auto" />
           </Link>
         </div>
 
@@ -37,7 +37,7 @@ export default function DashboardHeader() {
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-medium leading-none">User</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    user@cuanflex.com
+                    user@cuan.com
                   </p>
                 </div>
               </DropdownMenuLabel>

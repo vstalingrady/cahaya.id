@@ -1,5 +1,5 @@
 import SignupForm from '@/components/auth/signup-form';
-import CuanFlexLogo from '@/components/cuanflex-logo';
+import CuanLogo from '@/components/cuanflex-logo';
 
 export default function SignupPage() {
   return (
@@ -10,7 +10,7 @@ export default function SignupPage() {
         
         <div className="relative z-10 w-full animate-float-in">
            <div className="text-center mb-8">
-            <CuanFlexLogo className="w-48 h-auto mx-auto mb-2 text-primary" />
+            <CuanLogo className="w-40 h-auto mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-foreground font-headline">Create Your Account</h1>
             <p className="text-muted-foreground">Start your surreal financial journey.</p>
           </div>

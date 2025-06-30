@@ -1,5 +1,5 @@
 import LoginForm from '@/components/auth/login-form';
-import CuanFlexLogo from '@/components/cuanflex-logo';
+import CuanLogo from '@/components/cuanflex-logo';
 
 export default function LoginPage() {
   return (
@@ -10,8 +10,8 @@ export default function LoginPage() {
 
         <div className="relative z-10 w-full animate-float-in">
           <div className="text-center mb-8">
-            <CuanFlexLogo className="w-48 h-auto mx-auto mb-2 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground font-headline">Welcome Back to CuanFlex</h1>
+            <CuanLogo className="w-40 h-auto mx-auto mb-4" />
+            <h1 className="text-2xl font-bold text-foreground font-headline">Welcome Back to Cuan</h1>
             <p className="text-muted-foreground">Your financial playground awaits.</p>
           </div>
           <LoginForm />
