@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Bell, Menu, PieChart } from 'lucide-react';
+import { ArrowRight, Bell, PieChart } from 'lucide-react';
 import { accounts, transactions } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
 import AccountCard from '@/components/dashboard/account-card';
@@ -36,9 +36,6 @@ export default function DashboardPage() {
                       <Bell className="w-7 h-7" />
                   </button>
                   <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-accent rounded-2xl shadow-2xl border-red-500/20" data-ai-hint="person avatar"></div>
-                   <button className="text-white hover:text-accent transition-colors">
-                      <Menu className="w-7 h-7" />
-                  </button>
                 </div>
             </header>
 
