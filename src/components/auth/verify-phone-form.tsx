@@ -51,9 +51,9 @@ export default function VerifyPhoneForm() {
     console.log('Verifying OTP:', values.otp);
     toast({
       title: 'Phone Verified!',
-      description: "Now let's set up your account security.",
+      description: "Now let's create your profile.",
     });
-    router.push('/setup-security');
+    router.push('/verify-phone');
   }
 
   return (

@@ -1,5 +1,7 @@
+'use client';
+
 import Link from 'next/link';
-import SignupForm from '@/components/auth/signup-form';
+import VerifyPhoneForm from '@/components/auth/verify-phone-form';
 import NoiseOverlay from '@/components/noise-overlay';
 
 export default function SignupPage() {
@@ -15,9 +17,9 @@ export default function SignupPage() {
       <div className="relative z-10">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-black mb-4 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">Create your Account</h1>
-          <p className="text-red-100 text-lg font-light">Join Cuan and take control of your finances.</p>
+          <p className="text-red-100 text-lg font-light">Let's start by verifying your phone number.</p>
         </div>
-        <SignupForm />
+        <VerifyPhoneForm />
         <div className="text-center mt-6">
             <p className="text-sm text-red-300">
                 Already have an account?{' '}

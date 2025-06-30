@@ -40,10 +40,10 @@ export default function SignupForm() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     toast({
-      title: "Account Created!",
-      description: "Now let's verify your phone number.",
+      title: "Profile Created!",
+      description: "Now let's secure your account.",
     });
-    router.push('/verify-phone');
+    router.push('/setup-security');
   }
 
   return (
@@ -101,7 +101,7 @@ export default function SignupForm() {
             className="w-full bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white py-5 rounded-2xl font-black text-xl shadow-2xl border border-red-400/30 hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
           >
             <NoiseOverlay opacity={0.05} />
-            <span className="relative z-10">Create Account</span>
+            <span className="relative z-10">Create Account & Continue</span>
             <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </Button>
         </form>

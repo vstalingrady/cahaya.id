@@ -1,7 +1,7 @@
-import VerifyPhoneForm from '@/components/auth/verify-phone-form';
+import SignupForm from '@/components/auth/signup-form';
 import NoiseOverlay from '@/components/noise-overlay';
 
-export default function VerifyPhonePage() {
+export default function CompleteProfilePage() {
   return (
     <div className="bg-gradient-to-br from-black via-red-950 to-black text-white p-6 flex flex-col justify-center min-h-screen relative overflow-hidden">
       <NoiseOverlay />
@@ -13,10 +13,10 @@ export default function VerifyPhonePage() {
 
       <div className="relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-black mb-4 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">Verify Your Phone</h1>
-          <p className="text-red-100 text-lg font-light">We'll send a code to your WhatsApp.</p>
+          <h1 className="text-4xl font-black mb-4 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent">Complete Your Profile</h1>
+          <p className="text-red-100 text-lg font-light">Just a few more details to get you started.</p>
         </div>
-        <VerifyPhoneForm />
+        <SignupForm />
       </div>
     </div>
   );
