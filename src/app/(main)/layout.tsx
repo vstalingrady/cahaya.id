@@ -58,7 +58,7 @@ export default function MainAppLayout({
       
       <div className={cn(
         "absolute bottom-0 left-0 right-0 z-20 transition-all duration-300 ease-in-out",
-        isNavVisible ? "translate-y-0 opacity-100" : "translate-y-full opacity-70"
+        isNavVisible ? "translate-y-0 opacity-100" : "translate-y-10 opacity-70"
       )}>
         <MainNav />
       </div>
