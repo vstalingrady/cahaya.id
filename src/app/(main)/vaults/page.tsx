@@ -36,7 +36,7 @@ export default function VaultsPage() {
                             <div className="flex items-center gap-4">
                                 <div className="text-3xl">{icons[vault.icon] || '💰'}</div>
                                 <div>
-                                    <p className="font-black text-lg text-white">{vault.name}</p>
+                                    <p className="font-bold text-lg text-white">{vault.name}</p>
                                     <p className="text-sm text-red-300 font-bold">{formatCurrency(vault.currentAmount)} <span className="font-normal text-red-400">of {formatCurrency(vault.targetAmount)}</span></p>
                                 </div>
                             </div>
@@ -49,7 +49,7 @@ export default function VaultsPage() {
              <button className="w-full bg-gradient-to-r from-red-900/30 to-red-800/30 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-center text-red-300 border-2 border-dashed border-red-600/40 hover:border-red-600/60 transition-all duration-300 relative overflow-hidden group">
                 <NoiseOverlay opacity={0.02} />
                 <Plus className="w-6 h-6 mr-3 group-hover:text-red-200 transition-colors relative z-10" />
-                <span className="font-bold group-hover:text-red-200 transition-colors relative z-10">Create New Vault</span>
+                <span className="font-semibold group-hover:text-red-200 transition-colors relative z-10">Create New Vault</span>
             </button>
         </div>
     );

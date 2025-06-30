@@ -29,7 +29,7 @@ export default function BillsPage() {
                 <biller.icon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <p className="font-black text-lg text-white">{biller.name}</p>
+              <p className="font-bold text-lg text-white">{biller.name}</p>
               <p className="text-red-300 text-sm">{biller.subtext}</p>
             </div>
           </button>

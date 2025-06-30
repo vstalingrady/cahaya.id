@@ -41,12 +41,12 @@ export default function AccountCard({ account }: { account: Account }) {
         <div className="flex items-center relative z-10">
             {getAccountIcon(account.name)}
             <div>
-            <div className="font-black text-lg text-white">{account.name}</div>
+            <div className="font-bold text-lg text-white">{account.name}</div>
             <div className="text-muted-foreground text-sm">{isLoan ? "Outstanding debt" : `...${account.last4}`}</div>
             </div>
         </div>
         <div className="text-right relative z-10">
-            <div className="font-black text-lg text-white">{formattedAmount}</div>
+            <div className="font-bold text-lg text-white">{formattedAmount}</div>
         </div>
     </div>
   );

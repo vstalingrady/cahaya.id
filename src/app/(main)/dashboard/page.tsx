@@ -44,45 +44,45 @@ export default function DashboardPage() {
                     <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg mb-3">
                         <ArrowRight className="w-6 h-6 text-white" />
                     </div>
-                    <p className="font-bold text-white">Pay & Transfer</p>
+                    <p className="font-semibold text-white">Pay & Transfer</p>
                 </Link>
                 <Link href="/insights" className="text-center bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex flex-col items-center justify-center hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
                     <NoiseOverlay opacity={0.03} />
                      <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg mb-3">
                         <PieChart className="w-6 h-6 text-white" />
                     </div>
-                    <p className="font-bold text-white">Spending Insights</p>
+                    <p className="font-semibold text-white">Spending Insights</p>
                 </Link>
             </div>
 
             <div>
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-white font-serif">Your Accounts</h2>
+                    <h2 className="text-xl font-semibold text-white font-serif">Your Accounts</h2>
                     <Link href="/link-account" className="text-sm font-semibold text-accent hover:text-accent/90">
                         Link New
                     </Link>
                 </div>
                 <Accordion type="multiple" defaultValue={['banks', 'e-wallets']} className="space-y-4">
                     <AccordionItem value="banks" className="border-none">
-                        <AccordionTrigger className="bg-gradient-to-r from-red-950/40 to-red-900/40 backdrop-blur-xl p-4 rounded-xl hover:no-underline hover:bg-red-900/60 text-white font-bold">Banks</AccordionTrigger>
+                        <AccordionTrigger className="bg-gradient-to-r from-red-950/40 to-red-900/40 backdrop-blur-xl p-4 rounded-xl hover:no-underline hover:bg-red-900/60 text-white font-semibold">Banks</AccordionTrigger>
                         <AccordionContent className="pt-2 space-y-2">
                              {banks.map(account => <AccountCard key={account.id} account={account} />)}
                         </AccordionContent>
                     </AccordionItem>
                      <AccordionItem value="e-wallets" className="border-none">
-                        <AccordionTrigger className="bg-gradient-to-r from-red-950/40 to-red-900/40 backdrop-blur-xl p-4 rounded-xl hover:no-underline hover:bg-red-900/60 text-white font-bold">E-Wallets</AccordionTrigger>
+                        <AccordionTrigger className="bg-gradient-to-r from-red-950/40 to-red-900/40 backdrop-blur-xl p-4 rounded-xl hover:no-underline hover:bg-red-900/60 text-white font-semibold">E-Wallets</AccordionTrigger>
                         <AccordionContent className="pt-2 space-y-2">
                              {ewallets.map(account => <AccountCard key={account.id} account={account} />)}
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="investments" className="border-none">
-                        <AccordionTrigger className="bg-gradient-to-r from-red-950/40 to-red-900/40 backdrop-blur-xl p-4 rounded-xl hover:no-underline hover:bg-red-900/60 text-white font-bold">Investments</AccordionTrigger>
+                        <AccordionTrigger className="bg-gradient-to-r from-red-950/40 to-red-900/40 backdrop-blur-xl p-4 rounded-xl hover:no-underline hover:bg-red-900/60 text-white font-semibold">Investments</AccordionTrigger>
                         <AccordionContent className="pt-2 space-y-2">
                              {investments.map(account => <AccountCard key={account.id} account={account} />)}
                         </AccordionContent>
                     </AccordionItem>
                      <AccordionItem value="loans" className="border-none">
-                        <AccordionTrigger className="bg-gradient-to-r from-red-950/40 to-red-900/40 backdrop-blur-xl p-4 rounded-xl hover:no-underline hover:bg-red-900/60 text-white font-bold">Online Loans</AccordionTrigger>
+                        <AccordionTrigger className="bg-gradient-to-r from-red-950/40 to-red-900/40 backdrop-blur-xl p-4 rounded-xl hover:no-underline hover:bg-red-900/60 text-white font-semibold">Online Loans</AccordionTrigger>
                         <AccordionContent className="pt-2 space-y-2">
                              {loans.map(account => <AccountCard key={account.id} account={account} />)}
                         </AccordionContent>
@@ -92,7 +92,7 @@ export default function DashboardPage() {
             
             <div>
                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-white font-serif">Recent Activity</h2>
+                    <h2 className="text-xl font-semibold text-white font-serif">Recent Activity</h2>
                 </div>
                 <TransactionHistory transactions={transactions.slice(0, 4)} />
             </div>

@@ -35,7 +35,7 @@ export default function TransactionHistory({ transactions }: { transactions: Tra
                 <div className="flex items-center gap-3">
                     {getAccountLogo(t.accountId)}
                     <div>
-                        <p className="font-bold text-white">{t.description}</p>
+                        <p className="font-semibold text-white">{t.description}</p>
                         <p className="text-xs text-red-300">{format(new Date(t.date), 'dd MMM yyyy')} &bull; <Badge variant="secondary" className="bg-red-800/50 text-red-300 border-none">{t.category}</Badge></p>
                     </div>
                 </div>

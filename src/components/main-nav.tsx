@@ -31,7 +31,7 @@ export default function MainNav() {
                 )}
               >
                 <item.icon className="w-6 h-6" />
-                <span className="text-xs font-bold">{item.label}</span>
+                <span className="text-xs font-semibold">{item.label}</span>
                 {isActive && (
                     <div className="w-8 h-1 bg-gradient-to-r from-primary to-accent rounded-full mt-1"></div>
                 )}

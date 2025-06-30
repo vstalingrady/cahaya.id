@@ -31,7 +31,7 @@ export default function TransferPage() {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-white font-serif">Quick Actions</h2>
+        <h2 className="text-xl font-semibold text-white font-serif">Quick Actions</h2>
         <div className="grid grid-cols-1 gap-4">
           {actions.map((action) => (
             <button key={action.name} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
@@ -40,7 +40,7 @@ export default function TransferPage() {
                   <action.icon className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="font-black text-lg text-white">{action.name}</p>
+                <p className="font-bold text-lg text-white">{action.name}</p>
                 <p className="text-red-300 text-sm">{action.subtext}</p>
               </div>
             </button>
@@ -49,7 +49,7 @@ export default function TransferPage() {
       </div>
 
       <div className="space-y-4">
-        <h2 className="text-xl font-bold text-white font-serif">Pay Bills</h2>
+        <h2 className="text-xl font-semibold text-white font-serif">Pay Bills</h2>
         <div className="grid grid-cols-1 gap-4">
           {billers.map((biller) => (
             <button key={biller.name} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
@@ -58,7 +58,7 @@ export default function TransferPage() {
                   <biller.icon className="w-6 h-6 text-white" />
               </div>
               <div>
-                <p className="font-black text-lg text-white">{biller.name}</p>
+                <p className="font-bold text-lg text-white">{biller.name}</p>
                 <p className="text-red-300 text-sm">{biller.subtext}</p>
               </div>
             </button>
