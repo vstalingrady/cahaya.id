@@ -52,7 +52,7 @@ export default function BcaAuthPage() {
           <NoiseOverlay opacity={0.05} />
           <span className="relative z-10">Authorize</span>
         </Link>
-        <Link href="/signup" className="block text-center w-full text-red-600 py-3 font-bold hover:text-red-700 transition-colors">Cancel</Link>
+        <Link href="/link-account" className="block text-center w-full text-red-600 py-3 font-bold hover:text-red-700 transition-colors">Cancel</Link>
       </div>
     </div>
   );
