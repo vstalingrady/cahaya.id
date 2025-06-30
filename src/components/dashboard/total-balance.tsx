@@ -132,11 +132,31 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
     const netWorthValues = chartData.map(d => d.netWorth);
     const yMin = Math.min(...netWorthValues);
     const yMax = Math.max(...netWorthValues);
+
+    const getNiceDomain = (min: number, max: number, tickCount: number = 4) => {
+        const range = max - min;
+        if (range <= 0) {
+            const buffer = Math.abs(min * 0.1) || 1;
+            return [min - buffer, max + buffer];
+        }
+
+        const tempStep = range / (tickCount - 1);
+        const magnitude = Math.pow(10, Math.floor(Math.log10(tempStep)));
+        const tempStepNormalized = tempStep / magnitude;
+
+        let niceStep;
+        if (tempStepNormalized < 1.5) niceStep = 1 * magnitude;
+        else if (tempStepNormalized < 3) niceStep = 2 * magnitude;
+        else if (tempStepNormalized < 7) niceStep = 5 * magnitude;
+        else niceStep = 10 * magnitude;
+        
+        const niceMin = Math.floor(min / niceStep) * niceStep;
+        const niceMax = Math.ceil(max / niceStep) * niceStep;
+        
+        return [niceMin, niceMax];
+    };
     
-    // Add a 20% buffer to the top and bottom
-    const padding = (yMax - yMin) * 0.2;
-    
-    return [yMin - padding, yMax + padding];
+    return getNiceDomain(yMin, yMax);
   }, [chartData]);
 
   const formatYAxisTick = (tick: number) => {
@@ -151,24 +171,24 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
 
 
   return (
-    <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-red-700/30 relative overflow-hidden">
+    <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl shadow-2xl border border-red-700/30 relative overflow-hidden">
       <NoiseOverlay opacity={0.1} />
       <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent"></div>
       <div className="relative z-10">
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4">
             <div>
-                 <h2 className="text-sm text-muted-foreground mb-2 font-bold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> Total Net Worth</h2>
-                <div className="text-4xl font-black mb-3 text-white">{formattedAmount}</div>
-                <div className="flex items-center text-green-400">
-                    <span className="text-lg mr-2">↗</span>
-                    <span className="font-bold">+ Rp 1.200.000 today</span>
+                 <h2 className="text-xs text-muted-foreground mb-1 font-bold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> Total Net Worth</h2>
+                <div className="text-3xl font-black mb-2 text-white">{formattedAmount}</div>
+                <div className="flex items-center text-green-400 text-sm font-semibold">
+                    <span className="text-base mr-1">↗</span>
+                    <span>+ Rp 1.200.000 today</span>
                 </div>
             </div>
-            <div className="h-32 -mx-6 -mb-6 relative">
+            <div className="h-24 -mx-5 -mb-5 relative">
                 <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
                     <LineChart
                         data={chartData}
-                        margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
+                        margin={{ top: 5, right: 5, left: 0, bottom: 0 }}
                     >
                         <defs>
                             <linearGradient id="fillNetWorth" x1="0" y1="0" x2="0" y2="1">
@@ -189,18 +209,21 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                             tickLine={false}
                             axisLine={false}
                             stroke="hsl(var(--muted-foreground))"
-                            tickMargin={10}
-                            tickFormatter={(value) => format(new Date(value), 'd MMM')}
-                            interval={6}
+                            tickMargin={8}
+                            tickFormatter={(value) => format(new Date(value), 'd')}
+                            interval="preserveStartEnd"
+                            minTickGap={20}
                         />
                          <YAxis
+                            dataKey="netWorth"
                             domain={yAxisDomain}
                             tickLine={false}
                             axisLine={false}
                             stroke="hsl(var(--muted-foreground))"
-                            tickMargin={8}
-                            width={50}
+                            tickMargin={5}
+                            width={35}
                             tickFormatter={formatYAxisTick}
+                            tickCount={4}
                         />
                         <ChartTooltip
                             cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1.5, strokeDasharray: "3 3" }}
@@ -240,7 +263,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                             type="monotone"
                             dataKey="netWorth"
                             stroke="hsl(var(--primary))"
-                            strokeWidth={2.5}
+                            strokeWidth={2}
                             dot={<CustomTransactionDot />}
                              activeDot={{
                                 r: 6,
