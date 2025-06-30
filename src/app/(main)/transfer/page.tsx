@@ -1,7 +1,9 @@
-import { Send, Hand, Users, Gift } from 'lucide-react';
+import { Send, Hand, Users, Gift, QrCode, Shuffle } from 'lucide-react';
 import NoiseOverlay from '@/components/noise-overlay';
 
 const actions = [
+  { name: 'Pay with QRIS', subtext: 'Scan any QR to pay', icon: QrCode },
+  { name: 'Top Up', subtext: 'Move money between accounts', icon: Shuffle },
   { name: 'Transfer', subtext: 'Send money to any account', icon: Send },
   { name: 'Request Money', subtext: 'Ask for payment from friends', icon: Hand },
   { name: 'Split Bill', subtext: 'Divide expenses with a group', icon: Users },
@@ -13,9 +15,9 @@ export default function TransferPage() {
     <div className="space-y-8 animate-fade-in-up">
       <div>
         <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
-          Send & Request
+          Pay & Transfer
         </h1>
-        <p className="text-red-200">All your P2P payments, simplified.</p>
+        <p className="text-red-200">Your central hub for all payments.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4">
