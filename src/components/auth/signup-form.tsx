@@ -41,9 +41,9 @@ export default function SignupForm() {
     console.log(values);
     toast({
       title: "Account Created!",
-      description: "Now let's connect your financial accounts.",
+      description: "Now let's secure your account.",
     });
-    router.push('/link-account');
+    router.push('/setup-security');
   }
 
   return (
