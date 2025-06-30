@@ -139,11 +139,11 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                     <span className="font-bold">+ Rp 1.200.000 today</span>
                 </div>
             </div>
-            <div className="h-32 -mx-6 -mb-6 relative">
+            <div className="h-40 -mx-6 -mb-6 relative">
                 <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
                     <LineChart
                         data={chartData}
-                        margin={{ top: 5, right: 10, left: 10, bottom: 0 }}
+                        margin={{ top: 5, right: 20, left: 10, bottom: 0 }}
                     >
                         <defs>
                             <linearGradient id="fillNetWorth" x1="0" y1="0" x2="0" y2="1">
@@ -159,7 +159,6 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                                 />
                             </linearGradient>
                         </defs>
-                         <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border))" />
                          <XAxis
                             dataKey="date"
                             tickLine={false}
@@ -168,6 +167,15 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                             tickMargin={10}
                             tickFormatter={(value) => format(new Date(value), 'd MMM')}
                             interval={3}
+                        />
+                         <YAxis
+                            tickLine={false}
+                            axisLine={false}
+                            stroke="hsl(var(--muted-foreground))"
+                            tickMargin={5}
+                            tickFormatter={(value) =>
+                                `Rp${(Number(value) / 1000000).toLocaleString()}M`
+                            }
                         />
                         <ChartTooltip
                             cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1.5, strokeDasharray: "3 3" }}
