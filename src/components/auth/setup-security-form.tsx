@@ -2,13 +2,14 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Camera, Fingerprint, Lock, Smile } from 'lucide-react';
+import { Camera, Check, Fingerprint, Loader2, Lock, Smile } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import NoiseOverlay from '../noise-overlay';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 export default function SetupSecurityForm() {
   const router = useRouter();
@@ -17,69 +18,80 @@ export default function SetupSecurityForm() {
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState('face');
   const [pin, setPin] = useState('');
-  const [isFlashing, setIsFlashing] = useState(false);
+  
+  const [scanStep, setScanStep] = useState<'idle' | 'scanning' | 'complete'>('idle');
+  const [flashColor, setFlashColor] = useState<string | null>(null);
 
   useEffect(() => {
     let stream: MediaStream | null = null;
-    if (activeTab !== 'face') {
+    if (activeTab === 'face' && scanStep === 'scanning') {
+      const getCamera = async () => {
+        try {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('Camera API not available in this browser.');
+          }
+          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          setHasCameraPermission(true);
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+        } catch (error) {
+          console.error('Error accessing camera:', error);
+          setHasCameraPermission(false);
+          setScanStep('idle'); // Reset on error
+          toast({
+            variant: 'destructive',
+            title: 'Camera Access Denied',
+            description: 'Please enable camera permissions to use Face ID.',
+          });
+        }
+      };
+      getCamera();
+    }
+    
+    return () => {
         if (videoRef.current && videoRef.current.srcObject) {
             const currentStream = videoRef.current.srcObject as MediaStream;
             currentStream.getTracks().forEach(track => track.stop());
             videoRef.current.srcObject = null;
         }
-        return;
-    }
-
-    const getCameraPermission = async () => {
-      try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            throw new Error('Camera API not available in this browser.');
-        }
-        stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        setHasCameraPermission(true);
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Access Denied',
-          description: 'Please enable camera permissions to use Face ID.',
-        });
-      }
     };
-
-    getCameraPermission();
-    
-    return () => {
-        if (stream) {
-            stream.getTracks().forEach(track => track.stop());
-        }
-    };
-  }, [activeTab, toast]);
+  }, [activeTab, scanStep, toast]);
 
   const handleSetupComplete = (method: string) => {
-    if (method === 'Face ID') {
-      setIsFlashing(true);
-      setTimeout(() => {
-        setIsFlashing(false);
-        toast({
-          title: 'Security Set Up!',
-          description: `${method} has been configured.`,
-        });
-        router.push('/link-account');
-      }, 500);
-    } else {
-      toast({
-        title: 'Security Set Up!',
-        description: `${method} has been configured.`,
-      });
-      router.push('/link-account');
-    }
+    toast({
+      title: 'Security Set Up!',
+      description: `${method} has been configured.`,
+    });
+    router.push('/link-account');
   };
+
+  const handleStartScan = async () => {
+    setScanStep('scanning');
+
+    // Simulate aligning face for 2 seconds
+    setTimeout(() => {
+      // Start flash sequence
+      const colors = ['bg-red-500', 'bg-green-500', 'bg-blue-400'];
+      let flashIndex = 0;
+      
+      const flash = () => {
+        if (flashIndex < colors.length) {
+          setFlashColor(colors[flashIndex]);
+          flashIndex++;
+          setTimeout(flash, 250); // Each color shown for 250ms
+        } else {
+          setFlashColor(null); // End flash
+          setScanStep('complete');
+          handleSetupComplete('Face ID');
+        }
+      };
+      
+      flash();
+
+    }, 2000);
+  };
+
 
   const handlePinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
@@ -88,8 +100,8 @@ export default function SetupSecurityForm() {
 
   return (
     <>
-      {isFlashing && (
-        <div className="fixed inset-0 bg-white z-50 animate-flash"></div>
+      {flashColor && (
+        <div className={cn("fixed inset-0 z-50", flashColor)}></div>
       )}
       <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
         <NoiseOverlay opacity={0.03} />
@@ -107,30 +119,62 @@ export default function SetupSecurityForm() {
           </TabsList>
           <TabsContent value="face" className="mt-6">
             <div className="flex flex-col items-center space-y-6">
-              <Alert className="text-center text-red-200 bg-red-950/40 border-red-800/60">
-                <AlertDescription>For best results, the screen will flash briefly to illuminate your face.</AlertDescription>
+               <Alert className="text-center text-red-200 bg-red-950/40 border-red-800/60">
+                <AlertDescription>
+                  {scanStep === 'scanning'
+                    ? "Hold still, the screen will flash to illuminate your face."
+                    : "Position your face in the oval, then start the scan."}
+                </AlertDescription>
               </Alert>
-              <div className="relative w-64 h-64 rounded-full overflow-hidden border-4 flex items-center justify-center bg-black animate-border-color-cycle">
-                <video ref={videoRef} className="w-full h-full object-cover scale-x-[-1]" autoPlay muted playsInline />
-                {hasCameraPermission === false && (
-                  <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-center p-4">
-                      <Camera className="w-12 h-12 text-red-400 mb-4" />
-                      <Alert variant="destructive">
-                        <AlertTitle>Camera Access Required</AlertTitle>
-                        <AlertDescription>
-                          Please allow camera access in your browser settings to use this feature.
-                        </AlertDescription>
-                      </Alert>
-                  </div>
+
+              <div className={cn(
+                "relative w-64 h-64 rounded-full overflow-hidden border-4 flex items-center justify-center bg-black",
+                scanStep === 'scanning' ? 'animate-border-color-cycle' : 'border-red-900/80'
+              )}>
+                {scanStep === 'scanning' ? (
+                  <>
+                    <video ref={videoRef} className="w-full h-full object-cover scale-x-[-1]" autoPlay muted playsInline />
+                    {hasCameraPermission === false && (
+                      <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center text-center p-4">
+                        <Camera className="w-12 h-12 text-red-400 mb-4" />
+                        <Alert variant="destructive">
+                          <AlertTitle>Camera Access Denied</AlertTitle>
+                          <AlertDescription>Enable camera access to use Face ID.</AlertDescription>
+                        </Alert>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <Smile className="w-32 h-32 text-red-500/50" />
                 )}
               </div>
-              <Button 
-                  onClick={() => handleSetupComplete('Face ID')}
-                  disabled={!hasCameraPermission}
-                  className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105"
-              >
-                  Enable Face ID
-              </Button>
+              
+              {scanStep === 'idle' && (
+                 <Button 
+                    onClick={handleStartScan}
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105"
+                 >
+                    Start Scan
+                 </Button>
+              )}
+              {scanStep === 'scanning' && (
+                 <Button 
+                    disabled
+                    className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg"
+                 >
+                    <Loader2 className="w-6 h-6 mr-3 animate-spin" />
+                    Scanning...
+                 </Button>
+              )}
+               {scanStep === 'complete' && (
+                 <Button 
+                    disabled
+                    className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg"
+                 >
+                    <Check className="w-6 h-6 mr-3" />
+                    Face ID Configured
+                 </Button>
+              )}
             </div>
           </TabsContent>
           <TabsContent value="fingerprint" className="mt-6">
