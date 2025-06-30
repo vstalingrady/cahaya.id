@@ -44,22 +44,20 @@ export default function DashboardPage() {
 
             <TotalBalance amount={netWorth} transactions={transactions} />
 
-            <div className="grid grid-cols-1 gap-4">
-                <Link href="/transfer" className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
+            <div className="grid grid-cols-2 gap-4">
+                <Link href="/transfer" className="text-center bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex flex-col items-center justify-center hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
                     <NoiseOverlay opacity={0.03} />
-                    <div>
-                        <p className="font-black text-lg text-white">Pay & Transfer</p>
-                        <p className="text-muted-foreground text-sm">QRIS, top-ups, and more</p>
+                    <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg mb-3">
+                        <ArrowRight className="w-6 h-6 text-white" />
                     </div>
-                    <ArrowRight className="w-5 h-5 text-accent group-hover:text-accent/80 transition-colors" />
+                    <p className="font-bold text-white">Pay & Transfer</p>
                 </Link>
-                <Link href="/insights" className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
+                <Link href="/insights" className="text-center bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex flex-col items-center justify-center hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
                     <NoiseOverlay opacity={0.03} />
-                    <div>
-                        <p className="font-black text-lg text-white">Spending Insights</p>
-                        <p className="text-muted-foreground text-sm">Analyze your spending habits</p>
+                     <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg mb-3">
+                        <PieChart className="w-6 h-6 text-white" />
                     </div>
-                    <PieChart className="w-5 h-5 text-accent group-hover:text-accent/80 transition-colors" />
+                    <p className="font-bold text-white">Spending Insights</p>
                 </Link>
             </div>
 

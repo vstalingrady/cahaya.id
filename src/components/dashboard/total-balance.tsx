@@ -113,7 +113,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
 
 
   return (
-    <div className="bg-gradient-to-r from-red-600 via-purple-600 to-red-600 p-8 rounded-3xl shadow-2xl border border-red-400/30 relative overflow-hidden">
+    <div className="bg-gradient-to-r from-primary to-accent p-8 rounded-3xl shadow-2xl border border-red-400/30 relative overflow-hidden">
       <NoiseOverlay opacity={0.1} />
       <div className="absolute inset-0 bg-gradient-to-br from-red-500/20 to-transparent"></div>
       <div className="relative z-10">
@@ -126,7 +126,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                     <span className="font-bold">+ Rp 1.200.000 today</span>
                 </div>
             </div>
-            <div className="h-48 -mx-8 -mb-8">
+            <div className="h-36 -mx-8 -mb-8 relative">
                 <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
                     <LineChart
                         data={adjustedData}
@@ -190,6 +190,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                         />
                     </LineChart>
                 </ChartContainer>
+                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-accent to-transparent pointer-events-none" />
             </div>
         </div>
       </div>
