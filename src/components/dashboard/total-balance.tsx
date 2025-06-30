@@ -184,11 +184,11 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                     <span>+ Rp 1.200.000 today</span>
                 </div>
             </div>
-            <div className="h-24 -mx-5 -mb-5 relative">
+            <div className="h-24 relative">
                 <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
                     <LineChart
                         data={chartData}
-                        margin={{ top: 5, right: 5, left: 0, bottom: 0 }}
+                        margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
                     >
                         <defs>
                             <linearGradient id="fillNetWorth" x1="0" y1="0" x2="0" y2="1">
