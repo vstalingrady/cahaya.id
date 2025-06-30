@@ -41,9 +41,9 @@ export default function SignupForm() {
     console.log(values);
     toast({
       title: "Account Created!",
-      description: "Now let's secure your account.",
+      description: "Now let's verify your phone number.",
     });
-    router.push('/setup-security');
+    router.push('/verify-phone');
   }
 
   return (

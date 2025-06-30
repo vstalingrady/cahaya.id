@@ -20,7 +20,7 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
 
 export default function VaultsPage() {
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-fade-in-up">
             <div>
                 <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
                     Cuan Vaults

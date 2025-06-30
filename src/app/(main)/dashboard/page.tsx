@@ -24,7 +24,7 @@ export default function DashboardPage() {
     const loans = accounts.filter(acc => acc.type === 'loan');
 
     return (
-        <div className="space-y-8">
+        <div className="space-y-8 animate-fade-in-up">
             <header className="flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-black bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">

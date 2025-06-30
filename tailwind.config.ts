@@ -78,7 +78,7 @@ export default {
             height: '0',
           },
         },
-        spin: {
+        'spin': {
           '0%': { transform: 'rotate(0deg)' },
           '100%': { transform: 'rotate(360deg)' },
         },
@@ -91,6 +91,10 @@ export default {
           '0%, 100%': { opacity: '0' },
           '50%': { opacity: '1' },
         },
+        'fade-in-up': {
+          'from': { opacity: '0', transform: 'translateY(10px)' },
+          'to': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -98,6 +102,7 @@ export default {
         'spin': 'spin 4s linear infinite',
         'border-color-cycle': 'border-color-cycle 4s linear infinite',
         'flash': 'flash 0.5s ease-out',
+        'fade-in-up': 'fade-in-up 0.5s ease-out',
       },
     },
   },
