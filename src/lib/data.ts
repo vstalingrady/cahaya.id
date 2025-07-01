@@ -43,8 +43,12 @@ export type Beneficiary = {
 };
 
 export type Budget = {
+  id: string;
+  name: string;
   category: string;
   amount: number;
+  startDate: string; // "YYYY-MM-DD"
+  endDate: string; // "YYYY-MM-DD"
 };
 
 
@@ -150,12 +154,9 @@ export const vaults: Vault[] = [
 ]
 
 export const budgets: Budget[] = [
-  { category: 'Food & Drink', amount: 1500000 },
-  { category: 'Transportation', amount: 500000 },
-  { category: 'Shopping', amount: 1000000 },
-  { category: 'Bills', amount: 500000 },
-  { category: 'Groceries', amount: 750000 },
-  { category: 'Entertainment', amount: 400000 },
+  { id: 'bud1', name: 'Monthly Food', category: 'Food & Drink', amount: 1500000, startDate: '2024-07-01', endDate: '2024-07-31' },
+  { id: 'bud2', name: 'Monthly Transport', category: 'Transportation', amount: 500000, startDate: '2024-07-01', endDate: '2024-07-31' },
+  { id: 'bud3', name: 'July Shopping Spree', category: 'Shopping', amount: 1000000, startDate: '2024-07-01', endDate: '2024-07-31' },
 ];
 
 export const transactions: Transaction[] = [
