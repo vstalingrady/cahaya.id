@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import NoiseOverlay from '@/components/noise-overlay';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles, Check } from 'lucide-react';
+import { Loader2, Sparkles, Check, Info } from 'lucide-react';
 import { getSavingSuggestions } from '@/lib/actions';
 import { type PersonalizedSavingSuggestionsOutput } from '@/ai/flows/saving-opportunities';
 import {
@@ -25,14 +25,9 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     minimumFractionDigits: 0,
 }).format(amount);
 
-const slugify = (str: string) =>
-  str
-    .toLowerCase()
-    .trim()
-    .replace(/[ &]+/g, '-')
-    .replace(/[^\w-]+/g, '')
-    .replace(/--+/g, '-')
-    .replace(/-./g, (x) => x[1].toUpperCase());
+// A safer slugify function
+const slugify = (str: string) => str.toLowerCase().replace(/[\s&]+/g, '-').replace(/[^\w-]+/g, '');
+
 
 const renderActiveShape = (props: any) => {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent } = props;
@@ -118,6 +113,10 @@ export default function InsightsPage() {
         setActiveIndex(index);
     };
 
+    const handlePieClick = (_: any, index: number) => {
+        setActiveIndex(index);
+    };
+
     const handleGetSuggestions = async () => {
         setIsGenerating(true);
         setAiResult(null);
@@ -130,6 +129,8 @@ export default function InsightsPage() {
               spenderType: "Error",
               summary: "Could not analyze spending data at this time.",
               suggestions: [],
+              investmentPlan: "",
+              localDeals: [],
             });
         }
         setIsGenerating(false);
@@ -155,7 +156,7 @@ export default function InsightsPage() {
                 ) : (
                     <Sparkles className="w-6 h-6" />
                 )}
-                <span className="relative z-10">{isGenerating ? 'Analyzing your spending...' : 'Get AI Savings Plan'}</span>
+                <span className="relative z-10">{isGenerating ? 'Analyzing your spending...' : 'Get AI Financial Plan'}</span>
             </Button>
             
             <Dialog open={!!aiResult} onOpenChange={(open) => !open && setAiResult(null)}>
@@ -173,7 +174,7 @@ export default function InsightsPage() {
                             </div>
                         )}
                     </DialogHeader>
-                     <div className="pt-6">
+                     <div className="pt-6 max-h-[60vh] overflow-y-auto custom-scrollbar pr-4 -mr-4">
                         {aiResult?.error ? (
                             <p className="text-center">{aiResult.summary}</p>
                         ) : (
@@ -181,23 +182,54 @@ export default function InsightsPage() {
                                 <div>
                                     <p className="text-red-200 leading-relaxed text-center">{aiResult?.summary}</p>
                                 </div>
-                                <div className="space-y-3">
-                                     <h3 className="font-semibold text-lg text-white font-serif">Your Action Plan:</h3>
-                                     <ul className="space-y-3">
-                                        {aiResult?.suggestions?.map((s, i) => (
-                                            <li key={i} className="flex items-start gap-3 bg-red-950/50 p-4 rounded-xl border border-red-800/30">
-                                                <div className="w-5 h-5 bg-gradient-to-r from-primary to-accent rounded-full flex-shrink-0 mt-1 flex items-center justify-center">
-                                                   <Check className="w-3 h-3 text-white" />
-                                                </div>
-                                                <span className="text-foreground text-sm">{s}</span>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
+                                
+                                {aiResult?.suggestions && aiResult.suggestions.length > 0 && (
+                                    <div className="space-y-3">
+                                        <h3 className="font-semibold text-lg text-white font-serif">Your Action Plan:</h3>
+                                        <ul className="space-y-3">
+                                            {aiResult.suggestions.map((s, i) => (
+                                                <li key={`sugg-${i}`} className="flex items-start gap-3 bg-red-950/50 p-4 rounded-xl border border-red-800/30">
+                                                    <div className="w-5 h-5 bg-gradient-to-r from-primary to-accent rounded-full flex-shrink-0 mt-1 flex items-center justify-center">
+                                                    <Check className="w-3 h-3 text-white" />
+                                                    </div>
+                                                    <span className="text-foreground text-sm">{s}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                {aiResult?.investmentPlan && (
+                                    <div className="space-y-3">
+                                        <h3 className="font-semibold text-lg text-white font-serif">Investment Idea:</h3>
+                                        <div className="flex items-start gap-3 bg-red-950/50 p-4 rounded-xl border border-red-800/30">
+                                            <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-green-700 rounded-full flex-shrink-0 mt-1 flex items-center justify-center">
+                                                <Info className="w-3 h-3 text-white" />
+                                            </div>
+                                            <span className="text-foreground text-sm">{aiResult.investmentPlan}</span>
+                                        </div>
+                                    </div>
+                                )}
+                                
+                                {aiResult?.localDeals && aiResult.localDeals.length > 0 && (
+                                     <div className="space-y-3">
+                                        <h3 className="font-semibold text-lg text-white font-serif">Local Deals For You:</h3>
+                                        <ul className="space-y-3">
+                                            {aiResult.localDeals.map((deal, i) => (
+                                                <li key={`deal-${i}`} className="flex items-start gap-3 bg-red-950/50 p-4 rounded-xl border border-red-800/30">
+                                                    <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full flex-shrink-0 mt-1 flex items-center justify-center">
+                                                        <Check className="w-3 h-3 text-white" />
+                                                    </div>
+                                                    <span className="text-foreground text-sm">{deal}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
-                    <DialogFooter>
+                    <DialogFooter className="pt-4">
                         <Button onClick={() => setAiResult(null)} className="w-full bg-primary hover:bg-primary/90 rounded-xl h-12 font-bold text-lg">Got It!</Button>
                     </DialogFooter>
                 </DialogContent>
@@ -247,10 +279,10 @@ export default function InsightsPage() {
                                     dataKey="value"
                                     nameKey="category"
                                     onMouseEnter={onPieEnter}
-                                    onClick={(data) => setDetailCategory(data.name)}
+                                    onClick={handlePieClick}
                                 >
-                                     {spendingData.map((entry) => (
-                                        <Cell key={`cell-${entry.category}`} fill={entry.fill} className="cursor-pointer" />
+                                     {spendingData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={entry.fill} />
                                     ))}
                                 </Pie>
                             </PieChart>
