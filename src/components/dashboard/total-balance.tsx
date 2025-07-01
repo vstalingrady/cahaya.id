@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Wallet } from "lucide-react";
+import { Wallet, Loader2 } from "lucide-react";
 import NoiseOverlay from "../noise-overlay";
 import { Line, LineChart, Area, XAxis, YAxis } from "recharts";
 import { ChartConfig, ChartContainer, ChartTooltip } from "../ui/chart";
@@ -67,6 +67,7 @@ const CustomTransactionDot = (props: any) => {
 
 export default function TotalBalance({ amount, transactions }: TotalBalanceProps) {
   const [chartData, setChartData] = React.useState<any[]>([]);
+  const [hasMounted, setHasMounted] = React.useState(false);
 
   const formattedAmount = new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -124,6 +125,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
     };
     
     setChartData(generateChartData(amount, transactions, 14));
+    setHasMounted(true);
   }, [amount, transactions]);
   
   const yAxisDomain = React.useMemo(() => {
@@ -186,96 +188,102 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                 </div>
             </div>
             <div className="h-24 relative">
-                <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
-                    <LineChart
-                        data={chartData}
-                        margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
-                    >
-                        <defs>
-                            <linearGradient id="fillNetWorth" x1="0" y1="0" x2="0" y2="1">
-                                <stop
-                                    offset="5%"
-                                    stopColor="hsl(var(--primary))"
-                                    stopOpacity={0.4}
-                                />
-                                <stop
-                                    offset="95%"
-                                    stopColor="hsl(var(--primary))"
-                                    stopOpacity={0.05}
-                                />
-                            </linearGradient>
-                        </defs>
-                         <XAxis
-                            dataKey="date"
-                            tickLine={false}
-                            axisLine={false}
-                            stroke="hsl(var(--muted-foreground))"
-                            tickMargin={8}
-                            tickFormatter={(value) => format(new Date(value), 'd')}
-                            interval="preserveStartEnd"
-                            minTickGap={20}
-                        />
-                         <YAxis
-                            dataKey="netWorth"
-                            domain={yAxisDomain}
-                            tickLine={false}
-                            axisLine={false}
-                            stroke="hsl(var(--muted-foreground))"
-                            tickMargin={5}
-                            width={35}
-                            tickFormatter={formatYAxisTick}
-                            tickCount={4}
-                        />
-                        <ChartTooltip
-                            cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1.5, strokeDasharray: "3 3" }}
-                            content={({ active, payload }) => {
-                                if (active && payload && payload.length) {
-                                return (
-                                    <div className="rounded-lg border bg-background/80 backdrop-blur-sm p-2 shadow-sm">
-                                        <div className="grid grid-cols-1 gap-2">
-                                            <div className="flex flex-col">
-                                                <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                                    {format(new Date(payload[0].payload.date), 'eeee, d MMM yyyy')}
-                                                </span>
-                                                <span className="font-bold text-foreground">
-                                                {new Intl.NumberFormat('id-ID', {
-                                                    style: 'currency',
-                                                    currency: 'IDR',
-                                                    minimumFractionDigits: 0,
-                                                }).format(payload[0].value as number)}
-                                                </span>
+                {!hasMounted ? (
+                    <div className="w-full h-full flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+                    </div>
+                ) : (
+                    <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
+                        <LineChart
+                            data={chartData}
+                            margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                        >
+                            <defs>
+                                <linearGradient id="fillNetWorth" x1="0" y1="0" x2="0" y2="1">
+                                    <stop
+                                        offset="5%"
+                                        stopColor="hsl(var(--primary))"
+                                        stopOpacity={0.4}
+                                    />
+                                    <stop
+                                        offset="95%"
+                                        stopColor="hsl(var(--primary))"
+                                        stopOpacity={0.05}
+                                    />
+                                </linearGradient>
+                            </defs>
+                            <XAxis
+                                dataKey="date"
+                                tickLine={false}
+                                axisLine={false}
+                                stroke="hsl(var(--muted-foreground))"
+                                tickMargin={8}
+                                tickFormatter={(value) => format(new Date(value), 'd')}
+                                interval="preserveStartEnd"
+                                minTickGap={20}
+                            />
+                            <YAxis
+                                dataKey="netWorth"
+                                domain={yAxisDomain}
+                                tickLine={false}
+                                axisLine={false}
+                                stroke="hsl(var(--muted-foreground))"
+                                tickMargin={5}
+                                width={35}
+                                tickFormatter={formatYAxisTick}
+                                tickCount={4}
+                            />
+                            <ChartTooltip
+                                cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1.5, strokeDasharray: "3 3" }}
+                                content={({ active, payload }) => {
+                                    if (active && payload && payload.length) {
+                                    return (
+                                        <div className="rounded-lg border bg-background/80 backdrop-blur-sm p-2 shadow-sm">
+                                            <div className="grid grid-cols-1 gap-2">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[0.70rem] uppercase text-muted-foreground">
+                                                        {format(new Date(payload[0].payload.date), 'eeee, d MMM yyyy')}
+                                                    </span>
+                                                    <span className="font-bold text-foreground">
+                                                    {new Intl.NumberFormat('id-ID', {
+                                                        style: 'currency',
+                                                        currency: 'IDR',
+                                                        minimumFractionDigits: 0,
+                                                    }).format(payload[0].value as number)}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )
-                                }
-                                return null
-                            }}
-                        />
-                         <Area
-                            dataKey="netWorth"
-                            type="monotone"
-                            fill="url(#fillNetWorth)"
-                            fillOpacity={1}
-                            stroke="none"
-                            connectNulls
-                        />
-                        <Line
-                            type="monotone"
-                            dataKey="netWorth"
-                            stroke="hsl(var(--primary))"
-                            strokeWidth={2}
-                            dot={<CustomTransactionDot />}
-                             activeDot={{
-                                r: 6,
-                                strokeWidth: 2,
-                                fill: 'hsl(var(--background))',
-                                stroke: 'hsl(var(--primary))',
-                            }}
-                            connectNulls
-                        />
-                    </LineChart>
-                </ChartContainer>
+                                    )
+                                    }
+                                    return null
+                                }}
+                            />
+                            <Area
+                                dataKey="netWorth"
+                                type="monotone"
+                                fill="url(#fillNetWorth)"
+                                fillOpacity={1}
+                                stroke="none"
+                                connectNulls
+                            />
+                            <Line
+                                type="monotone"
+                                dataKey="netWorth"
+                                stroke="hsl(var(--primary))"
+                                strokeWidth={2}
+                                dot={<CustomTransactionDot />}
+                                activeDot={{
+                                    r: 6,
+                                    strokeWidth: 2,
+                                    fill: 'hsl(var(--background))',
+                                    stroke: 'hsl(var(--primary))',
+                                }}
+                                connectNulls
+                            />
+                        </LineChart>
+                    </ChartContainer>
+                )}
             </div>
         </div>
       </div>
