@@ -1,5 +1,20 @@
-import { Cable, Phone, Droplets, Lightbulb, Shield, Car, CreditCard } from 'lucide-react';
+'use client';
+
+import { useState } from 'react';
+import { Cable, Phone, Droplets, Lightbulb, Shield, Car, CreditCard, Sparkles, Loader2, Plus, X } from 'lucide-react';
 import NoiseOverlay from '@/components/noise-overlay';
+import { Button } from '@/components/ui/button';
+import { transactions } from '@/lib/data';
+import { getBillSuggestions } from '@/lib/actions';
+import { type BillDiscoveryOutput } from '@/ai/flows/bill-discovery';
+import { useToast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
+
+const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+}).format(amount);
 
 const billers = [
   { name: 'PLN', subtext: 'Token & Tagihan', icon: Lightbulb },
@@ -12,6 +27,43 @@ const billers = [
 ];
 
 export default function BillsPage() {
+  const [isScanning, setIsScanning] = useState(false);
+  const [aiResult, setAiResult] = useState<BillDiscoveryOutput | null>(null);
+  const { toast } = useToast();
+
+  const handleScanForBills = async () => {
+    setIsScanning(true);
+    setAiResult(null);
+    try {
+      const result = await getBillSuggestions(transactions);
+      if (result.error) {
+        toast({ variant: 'destructive', title: 'Error', description: result.error });
+        setAiResult({ potentialBills: [] });
+      } else {
+        setAiResult(result);
+        if (result.potentialBills.length === 0) {
+          toast({ title: 'All Clear!', description: "We couldn't find any new recurring bills." });
+        }
+      }
+    } catch (e) {
+      toast({ variant: 'destructive', title: 'Error', description: 'An unexpected error occurred.' });
+    }
+    setIsScanning(false);
+  };
+  
+  const dismissSuggestion = (billName: string) => {
+    if (!aiResult) return;
+    setAiResult({
+      ...aiResult,
+      potentialBills: aiResult.potentialBills.filter(b => b.name !== billName)
+    });
+  }
+  
+  const addBill = (billName: string) => {
+    toast({ title: 'Success!', description: `${billName} has been added to your tracked bills.` });
+    dismissSuggestion(billName);
+  }
+
   return (
     <div className="space-y-8 animate-fade-in-up">
       <div>
@@ -19,6 +71,52 @@ export default function BillsPage() {
           Pusat Tagihan
         </h1>
         <p className="text-muted-foreground">Bayar semua tagihan dari satu tempat.</p>
+      </div>
+
+      <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
+        <NoiseOverlay opacity={0.03} />
+        <div className="flex items-center gap-4 mb-4">
+          <Sparkles className="w-8 h-8 text-accent" />
+          <div>
+            <h3 className="font-bold text-white text-lg font-serif">AI Bill Discovery</h3>
+            <p className="text-sm text-red-300">Find recurring subscriptions & bills automatically.</p>
+          </div>
+        </div>
+
+        {aiResult === null && !isScanning && (
+          <Button onClick={handleScanForBills} className="w-full bg-accent/80 hover:bg-accent text-white font-bold">
+            <Sparkles className="w-4 h-4 mr-2" />
+            Scan for Recurring Bills
+          </Button>
+        )}
+
+        {isScanning && (
+          <Button disabled className="w-full bg-accent/80 text-white font-bold">
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Scanning Transactions...
+          </Button>
+        )}
+
+        {aiResult && aiResult.potentialBills.length > 0 && (
+          <div className="space-y-3 mt-4">
+            {aiResult.potentialBills.map(bill => (
+              <div key={bill.name} className="bg-red-950/70 p-4 rounded-lg flex items-center justify-between">
+                <div>
+                  <p className="font-semibold text-white">{bill.name}</p>
+                  <p className="text-xs text-red-300">~{formatCurrency(bill.estimatedAmount)} / month</p>
+                </div>
+                <div className="flex gap-2">
+                   <Button size="sm" variant="outline" className="bg-red-800/50 border-red-700 hover:bg-red-800" onClick={() => addBill(bill.name)}>
+                     <Plus className="w-4 h-4" />
+                   </Button>
+                   <Button size="sm" variant="destructive" className="bg-red-900/80 hover:bg-red-900" onClick={() => dismissSuggestion(bill.name)}>
+                     <X className="w-4 h-4" />
+                   </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 gap-4">

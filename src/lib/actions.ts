@@ -2,6 +2,7 @@
 
 import { personalizedSavingSuggestions, PersonalizedSavingSuggestionsOutput } from "@/ai/flows/saving-opportunities";
 import { budgetAnalysis, BudgetAnalysisOutput } from "@/ai/flows/budget-analysis";
+import { discoverRecurringBills, BillDiscoveryOutput } from "@/ai/flows/bill-discovery";
 import { type Transaction, type Budget } from "./data";
 import { isWithinInterval } from 'date-fns';
 
@@ -92,6 +93,33 @@ export async function getBudgetAnalysis(
             proTip: "Could not generate a tip at this time.",
         };
     }
+}
+
+export async function getBillSuggestions(
+  transactions: Transaction[]
+): Promise<BillDiscoveryOutput & { error?: string }> {
+  try {
+    const transactionHistory = transactions
+      .filter(t => t.amount < 0) // Only consider expenses
+      .map(t => `${t.date}: ${t.description} - ${Math.abs(t.amount)}`)
+      .join('\n');
+
+    if (transactions.length === 0) {
+      return {
+        potentialBills: [],
+      };
+    }
+
+    const result = await discoverRecurringBills({ transactionHistory });
+    return result;
+
+  } catch (error) {
+    console.error("Error getting bill suggestions:", error);
+    return {
+      error: "Failed to get AI-powered bill suggestions. Please try again later.",
+      potentialBills: [],
+    };
+  }
 }
 
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import { Plus, Repeat, Trash2 } from "lucide-react";
+import { Plus, Repeat, Trash2, Coins } from "lucide-react";
 import Link from "next/link";
 import { vaults, accounts, Vault } from '@/lib/data';
 import { Progress } from "@/components/ui/progress";
@@ -113,7 +113,13 @@ export default function VaultsPage() {
                                         <span>Auto-saving {formatCurrency(vault.autoSaveAmount || 0)} / {vault.autoSaveFrequency}</span>
                                     </div>
                                 )}
-                                <p><strong>Stored in:</strong> {getAccountName(vault.destinationAccountId)}</p>
+                                 {vault.roundUpEnabled && (
+                                    <div className="flex items-center gap-2 font-semibold text-sky-400">
+                                        <Coins className="w-3 h-3" />
+                                        <span>Round-up savings active</span>
+                                    </div>
+                                )}
+                                <p className="pt-2"><strong>Stored in:</strong> {getAccountName(vault.destinationAccountId)}</p>
                                 <p><strong>Funded by:</strong> {vault.sourceAccountIds.map(getAccountName).join(', ')}</p>
                             </div>
                         </div>

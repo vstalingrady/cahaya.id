@@ -36,6 +36,7 @@ export type Vault = {
   autoSaveEnabled?: boolean;
   autoSaveFrequency?: 'daily' | 'weekly' | 'monthly';
   autoSaveAmount?: number;
+  roundUpEnabled?: boolean;
 };
 
 export type Beneficiary = {
@@ -138,6 +139,7 @@ export const vaults: Vault[] = [
     autoSaveEnabled: true,
     autoSaveFrequency: 'weekly',
     autoSaveAmount: 250000,
+    roundUpEnabled: true,
   },
   {
     id: 'vault2',
