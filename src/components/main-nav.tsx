@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ArrowLeftRight, PiggyBank, PieChart } from 'lucide-react';
+import { Home, ArrowLeftRight, PiggyBank, PieChart, CircleDollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import NoiseOverlay from './noise-overlay';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Home' },
   { href: '/transfer', icon: ArrowLeftRight, label: 'Pay' },
+  { href: '/budgets', icon: CircleDollarSign, label: 'Budgets' },
   { href: '/insights', icon: PieChart, label: 'Insights' },
   { href: '/vaults', icon: PiggyBank, label: 'Vaults' },
 ];

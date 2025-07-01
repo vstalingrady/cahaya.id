@@ -42,6 +42,11 @@ export type Beneficiary = {
   accountNumber: string;
 };
 
+export type Budget = {
+  category: string;
+  amount: number;
+};
+
 
 export const accounts: Account[] = [
   {
@@ -143,6 +148,15 @@ export const vaults: Vault[] = [
     destinationAccountId: 'bca1',
   }
 ]
+
+export const budgets: Budget[] = [
+  { category: 'Food & Drink', amount: 1500000 },
+  { category: 'Transportation', amount: 500000 },
+  { category: 'Shopping', amount: 1000000 },
+  { category: 'Bills', amount: 500000 },
+  { category: 'Groceries', amount: 750000 },
+  { category: 'Entertainment', amount: 400000 },
+];
 
 export const transactions: Transaction[] = [
   {
