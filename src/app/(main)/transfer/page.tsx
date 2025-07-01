@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -123,7 +124,7 @@ export default function TransferPage() {
             <CarouselContent>
               {transferActions.map((action) => {
                 return (
-                  <CarouselItem key={action.name} className="basis-2/3 md:basis-1/2 pl-4">
+                  <CarouselItem key={action.name} className="basis-1/3 pl-4">
                     <Link
                       href={action.href}
                       className="h-full text-left bg-gradient-to-br from-red-900/60 to-red-800/60 backdrop-blur-xl p-5 rounded-2xl flex flex-col justify-between hover:from-red-800/70 hover:to-red-700/70 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden"
