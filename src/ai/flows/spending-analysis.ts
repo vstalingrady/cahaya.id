@@ -24,12 +24,14 @@ const SpendingAnalysisOutputSchema = z.object({
   category: z
     .string()
     .describe(
-      'The category of the transaction (e.g., Food, Transportation, Entertainment).'n    ),
+      'The category of the transaction (e.g., Food, Transportation, Entertainment).'
+    ),
   subCategory: z
     .string()
     .optional()
     .describe(
-      'A more specific sub-category of the transaction (e.g., Groceries, Gas, Movies).'n    ),
+      'A more specific sub-category of the transaction (e.g., Groceries, Gas, Movies).'
+    ),
   savingOpportunity: z
     .string()
     .optional()
