@@ -1,6 +1,7 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
@@ -8,6 +9,19 @@ import { accounts, transactions } from '@/lib/data';
 import NoiseOverlay from '@/components/noise-overlay';
 import TransactionHistory from '@/components/dashboard/transaction-history';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { 
+  AlertDialog, 
+  AlertDialogAction, 
+  AlertDialogCancel, 
+  AlertDialogContent, 
+  AlertDialogDescription, 
+  AlertDialogFooter, 
+  AlertDialogHeader, 
+  AlertDialogTitle 
+} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 // Helper function to format currency
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
@@ -18,9 +32,33 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
 
 export default function AccountDetailPage() {
   const params = useParams();
+  const router = useRouter();
+  const { toast } = useToast();
   const accountId = params.id as string;
   
+  const [isUnlinkConfirmOpen, setIsUnlinkConfirmOpen] = useState(false);
+  const [pin, setPin] = useState('');
+
   const account = accounts.find(acc => acc.id === accountId);
+  
+  const handleConfirmUnlink = () => {
+    // In a real app, you would verify the PIN.
+    // For this prototype, we just check the length.
+    if (pin.length < 8) return;
+
+    toast({
+        title: "Account Unlinked",
+        description: `The "${account?.name}" account has been unlinked.`,
+    });
+
+    setIsUnlinkConfirmOpen(false);
+    setPin('');
+    
+    // In a real app this would trigger a global state update or API call.
+    // For the prototype, we redirect back to the dashboard. The account will
+    // reappear on a full page reload, which is an acceptable limitation.
+    router.push('/dashboard');
+  };
   
   if (!account) {
     return (
@@ -43,6 +81,38 @@ export default function AccountDetailPage() {
   const accountTransactions = transactions.filter(t => t.accountId === accountId);
 
   return (
+    <>
+    <AlertDialog open={isUnlinkConfirmOpen} onOpenChange={setIsUnlinkConfirmOpen}>
+        <AlertDialogContent className="bg-gradient-to-br from-black via-red-950 to-black text-white border-red-800/50">
+            <AlertDialogHeader>
+            <AlertDialogTitle>Unlink "{account.name}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+                This action cannot be undone. To continue, please enter your 8-character Cuan PIN.
+            </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="py-4">
+            <Input
+                type="password"
+                placeholder="••••••••"
+                maxLength={8}
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                className="bg-red-950/50 border-red-800/50 h-14 text-center text-xl tracking-[0.5em] placeholder:text-red-300/70"
+            />
+            </div>
+            <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPin('')}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+                onClick={handleConfirmUnlink}
+                disabled={pin.length < 8}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+                Unlink Account
+            </AlertDialogAction>
+            </AlertDialogFooter>
+        </AlertDialogContent>
+    </AlertDialog>
+
     <div className="space-y-8 animate-fade-in-up">
       <header className="flex items-center relative">
         <Link href="/dashboard" className="absolute left-0">
@@ -91,6 +161,19 @@ export default function AccountDetailPage() {
           )}
         </div>
       )}
+
+      {account.type !== 'loan' && (
+        <div className="mt-8 pt-6 border-t border-red-800/30 text-center">
+            <Button
+                variant="link"
+                className="text-destructive hover:text-destructive/80 font-bold"
+                onClick={() => setIsUnlinkConfirmOpen(true)}
+            >
+                Unlink this Account
+            </Button>
+        </div>
+      )}
     </div>
+    </>
   );
 }

@@ -1,8 +1,6 @@
 import Link from 'next/link';
 import { type Account } from "@/lib/data";
 import NoiseOverlay from "../noise-overlay";
-import { Button } from '../ui/button';
-import { Trash2, X } from 'lucide-react';
 import React from 'react';
 
 const getAccountIcon = (name: string) => {
@@ -30,10 +28,9 @@ const getAccountIcon = (name: string) => {
 
 type AccountCardProps = {
   account: Account;
-  onDelete: (accountId: string) => void;
 };
 
-export default function AccountCard({ account, onDelete }: AccountCardProps) {
+export default function AccountCard({ account }: AccountCardProps) {
   const formattedAmount = new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -42,12 +39,6 @@ export default function AccountCard({ account, onDelete }: AccountCardProps) {
   }).format(account.balance);
 
   const isLoan = account.type === 'loan';
-
-  const handleDeleteClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation();
-    e.preventDefault();
-    onDelete(account.id);
-  };
 
   const cardContent = (
     <>
@@ -62,15 +53,10 @@ export default function AccountCard({ account, onDelete }: AccountCardProps) {
       <div className="text-right ml-2">
           <div className="font-bold text-lg text-white">{formattedAmount}</div>
       </div>
-      {!isLoan && (
-        <Button variant="ghost" size="icon" onClick={handleDeleteClick} className="w-8 h-8 rounded-full hover:bg-red-700/50 text-red-400 hover:text-red-200 ml-2 flex-shrink-0">
-            <X className="w-4 h-4" />
-        </Button>
-      )}
     </>
   );
 
-  const baseClasses = "bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-3 pr-2 rounded-2xl flex justify-between items-center border border-red-600/20 shadow-2xl relative overflow-hidden";
+  const baseClasses = "bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-3 rounded-2xl flex justify-between items-center border border-red-600/20 shadow-2xl relative overflow-hidden";
 
   if (isLoan) {
     return (
