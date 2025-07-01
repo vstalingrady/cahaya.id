@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { transactions, accounts } from '@/lib/data';
-import { format, isSameDay } from 'date-fns';
+import { format, isSameDay, startOfDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 import NoiseOverlay from '../noise-overlay';
@@ -24,6 +24,13 @@ const getAccountLogo = (accountId: string) => {
     return <div className="w-10 h-10 rounded-lg bg-gray-500 flex-shrink-0"></div>;
 }
 
+const currentNetWorth = accounts
+    .filter(acc => acc.type !== 'loan')
+    .reduce((sum, acc) => sum + acc.balance, 0) - 
+    accounts
+    .filter(acc => acc.type === 'loan')
+    .reduce((sum, acc) => sum + acc.balance, 0);
+
 
 export default function TransactionCalendar() {
     const latestTransactionDate = transactions.length > 0 ? new Date(transactions[0].date) : new Date();
@@ -34,10 +41,22 @@ export default function TransactionCalendar() {
     ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [date]);
 
     const transactionDates = useMemo(() => transactions.map(t => new Date(t.date)), []);
+    
+    const balanceOnSelectedDate = useMemo(() => {
+        if (!date) return currentNetWorth;
+    
+        const selectedDate = new Date(date);
+        selectedDate.setHours(23, 59, 59, 999); // Consider end of day
+    
+        const transactionsAfter = transactions.filter(t => new Date(t.date) > selectedDate);
+        const netChangeAfter = transactionsAfter.reduce((sum, t) => sum + t.amount, 0);
+    
+        return currentNetWorth - netChangeAfter;
+    }, [date]);
 
     const dailySummary = useMemo(() => {
         if (!transactionsOnSelectedDate || transactionsOnSelectedDate.length === 0) {
-            return { spent: 0, received: 0, net: 0, percentage: 0 };
+            return { spent: 0, received: 0, net: 0, percentage: 0, balanceOnDate: balanceOnSelectedDate };
         }
         const spent = transactionsOnSelectedDate
             .filter(t => t.amount < 0)
@@ -47,18 +66,20 @@ export default function TransactionCalendar() {
             .reduce((acc, t) => acc + t.amount, 0);
         
         const net = received - spent;
+        const startOfDayBalance = balanceOnSelectedDate - net;
         
-        const percentage = received > 0 
-            ? (net / received) * 100 
-            : (spent > 0 ? -100 : 0);
+        const percentage = startOfDayBalance > 0 
+            ? (net / startOfDayBalance) * 100 
+            : 0;
 
         return {
             spent,
             received,
             net,
             percentage,
+            balanceOnDate: balanceOnSelectedDate,
         };
-    }, [transactionsOnSelectedDate]);
+    }, [transactionsOnSelectedDate, balanceOnSelectedDate]);
 
     return (
         <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
@@ -83,27 +104,32 @@ export default function TransactionCalendar() {
                     Activity on {date ? format(date, 'PPP') : 'selected date'}
                 </h3>
                 
+                <div className="mb-4 text-center">
+                    <p className="text-sm text-red-300">Balance at end of day</p>
+                    <p className="text-2xl font-black text-white">{formatCurrency(dailySummary.balanceOnDate)}</p>
+                </div>
+
                 <div className="grid grid-cols-3 gap-2 text-center mb-4">
                     <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-between">
                         <p className="text-xs text-red-300">Spent</p>
                         <p className="font-bold text-red-400 text-sm">{formatCurrency(dailySummary.spent)}</p>
-                        <div className="h-3.5" />
+                        <div className="h-[18px]" />
                     </div>
                     <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-between">
                         <p className="text-xs text-red-300">Received</p>
                         <p className="font-bold text-green-400 text-sm">{formatCurrency(dailySummary.received)}</p>
-                        <div className="h-3.5" />
+                        <div className="h-[18px]" />
                     </div>
                     <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-between">
                         <p className="text-xs text-red-300">Net Change</p>
                         <p className={cn("font-bold text-sm", dailySummary.net >= 0 ? 'text-green-400' : 'text-red-400')}>
                             {dailySummary.net >= 0 ? '+' : ''}{formatCurrency(dailySummary.net)}
                         </p>
-                         {(dailySummary.spent > 0 || dailySummary.received > 0) ? (
+                         {(dailySummary.spent > 0 || dailySummary.received > 0) && Math.abs(dailySummary.percentage) > 0.001 ? (
                             <p className={cn("text-xs font-semibold", dailySummary.net >= 0 ? 'text-green-400/70' : 'text-red-400/70')}>
-                                {dailySummary.percentage.toFixed(0)}%
+                                {dailySummary.net >= 0 ? '+' : ''}{dailySummary.percentage.toFixed(2)}%
                             </p>
-                         ) : <div className="h-3.5" /> }
+                         ) : <div className="h-[18px]" /> }
                     </div>
                 </div>
 
