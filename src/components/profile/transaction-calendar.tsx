@@ -34,6 +34,23 @@ export default function TransactionCalendar() {
 
     const transactionDates = useMemo(() => transactions.map(t => new Date(t.date)), []);
 
+    const dailySummary = useMemo(() => {
+        if (!transactionsOnSelectedDate || transactionsOnSelectedDate.length === 0) {
+            return { spent: 0, received: 0, net: 0 };
+        }
+        const spent = transactionsOnSelectedDate
+            .filter(t => t.amount < 0)
+            .reduce((acc, t) => acc + Math.abs(t.amount), 0);
+        const received = transactionsOnSelectedDate
+            .filter(t => t.amount > 0)
+            .reduce((acc, t) => acc + t.amount, 0);
+        return {
+            spent,
+            received,
+            net: received - spent,
+        };
+    }, [transactionsOnSelectedDate]);
+
     return (
         <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
              <NoiseOverlay opacity={0.03} />
@@ -51,8 +68,26 @@ export default function TransactionCalendar() {
             />
             <div className="mt-4 border-t border-red-800/50 pt-4">
                 <h3 className="font-bold text-white mb-2 text-lg">
-                    Transactions on {date ? format(date, 'PPP') : 'selected date'}
+                    Activity on {date ? format(date, 'PPP') : 'selected date'}
                 </h3>
+                
+                <div className="grid grid-cols-3 gap-2 text-center mb-4">
+                    <div className="bg-red-950/50 p-2 rounded-lg">
+                        <p className="text-xs text-red-300">Spent</p>
+                        <p className="font-bold text-red-400">{formatCurrency(dailySummary.spent)}</p>
+                    </div>
+                    <div className="bg-red-950/50 p-2 rounded-lg">
+                        <p className="text-xs text-red-300">Received</p>
+                        <p className="font-bold text-green-400">{formatCurrency(dailySummary.received)}</p>
+                    </div>
+                    <div className="bg-red-950/50 p-2 rounded-lg">
+                        <p className="text-xs text-red-300">Net Change</p>
+                        <p className={cn("font-bold", dailySummary.net >= 0 ? 'text-green-400' : 'text-red-400')}>
+                            {dailySummary.net >= 0 && dailySummary.received > 0 ? '+' : ''}{formatCurrency(dailySummary.net)}
+                        </p>
+                    </div>
+                </div>
+
                 <ScrollArea className="h-72 pr-4 -mr-4">
                     {transactionsOnSelectedDate.length > 0 ? (
                         <div className="space-y-3">
@@ -69,7 +104,7 @@ export default function TransactionCalendar() {
                                         "font-bold font-mono",
                                         t.amount > 0 ? "text-green-400" : "text-red-400"
                                     )}>
-                                        {formatCurrency(t.amount)}
+                                        {t.amount > 0 ? '+' : ''}{formatCurrency(t.amount)}
                                     </p>
                                 </div>
                             ))}
