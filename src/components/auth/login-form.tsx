@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { Fingerprint, Lock, Mail } from 'lucide-react';
+import { Fingerprint, Lock, Phone } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -20,7 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import NoiseOverlay from '../noise-overlay';
 
 const formSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email.' }),
+  phone: z.string().min(10, { message: 'Please enter a valid phone number.' }).regex(/^08[0-9]{8,}$/, { message: 'Must be a valid Indonesian phone number.' }),
   password: z.string().min(1, { message: 'Please enter your password.' }),
 });
 
@@ -31,7 +31,7 @@ export default function LoginForm() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: '',
+      phone: '',
       password: '',
     },
   });
@@ -52,13 +52,13 @@ export default function LoginForm() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
             control={form.control}
-            name="email"
+            name="phone"
             render={({ field }) => (
               <FormItem>
                 <FormControl>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
-                    <Input className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="Email" {...field} />
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
+                    <Input type="tel" className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="Phone Number" {...field} />
                   </div>
                 </FormControl>
                 <FormMessage />
