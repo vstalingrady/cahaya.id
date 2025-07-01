@@ -1,13 +1,19 @@
+export type CryptoHolding = {
+  id: string;
+  name: string;
+  symbol: string;
+  amount: number;
+  value: number; // in IDR
+  logoUrl: string;
+}
+
 export type Account = {
   id: string;
   name: string;
   type: 'bank' | 'e-wallet' | 'investment' | 'loan';
   balance: number;
   last4: string;
-  holding?: {
-    symbol: string;
-    amount: number;
-  };
+  holdings?: CryptoHolding[];
 };
 
 export type Transaction = {
@@ -70,10 +76,11 @@ export const accounts: Account[] = [
     type: 'investment',
     balance: 25400000,
     last4: 'Crpto',
-    holding: {
-      symbol: 'BTC',
-      amount: 0.23,
-    }
+    holdings: [
+      { id: 'btc', name: 'Bitcoin', symbol: 'BTC', amount: 0.23, value: 15000000, logoUrl: 'https://placehold.co/48x48.png' },
+      { id: 'eth', name: 'Ethereum', symbol: 'ETH', amount: 1.5, value: 8000000, logoUrl: 'https://placehold.co/48x48.png' },
+      { id: 'sol', name: 'Solana', symbol: 'SOL', amount: 20, value: 2400000, logoUrl: 'https://placehold.co/48x48.png' },
+    ]
   },
   {
     id: 'kredivo1',

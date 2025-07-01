@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { type Account } from "@/lib/data";
 import NoiseOverlay from "../noise-overlay";
 
@@ -35,24 +36,33 @@ export default function AccountCard({ account }: { account: Account }) {
 
   const isLoan = account.type === 'loan';
 
+  const cardContent = (
+    <>
+      <NoiseOverlay opacity={0.03} />
+      <div className="flex items-center relative z-10">
+          {getAccountIcon(account.name)}
+          <div>
+          <div className="font-bold text-lg text-white">{account.name}</div>
+          <div className="text-muted-foreground text-sm">{isLoan ? "Outstanding debt" : `...${account.last4}`}</div>
+          </div>
+      </div>
+      <div className="text-right relative z-10">
+          <div className="font-bold text-lg text-white">{formattedAmount}</div>
+      </div>
+    </>
+  );
+
+  if (isLoan) {
+    return (
+      <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex justify-between items-center border border-red-600/20 shadow-2xl relative overflow-hidden opacity-70">
+          {cardContent}
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex justify-between items-center border border-red-600/20 shadow-2xl relative overflow-hidden">
-        <NoiseOverlay opacity={0.03} />
-        <div className="flex items-center relative z-10">
-            {getAccountIcon(account.name)}
-            <div>
-            <div className="font-bold text-lg text-white">{account.name}</div>
-            <div className="text-muted-foreground text-sm">{isLoan ? "Outstanding debt" : `...${account.last4}`}</div>
-            </div>
-        </div>
-        <div className="text-right relative z-10">
-            <div className="font-bold text-lg text-white">{formattedAmount}</div>
-            {account.holding && (
-                <div className="text-sm text-muted-foreground font-mono">
-                    {account.holding.amount} {account.holding.symbol}
-                </div>
-            )}
-        </div>
-    </div>
+     <Link href={`/account/${account.id}`} className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex justify-between items-center border border-red-600/20 shadow-2xl relative overflow-hidden hover:from-red-800/60 hover:to-red-700/60 transition-colors duration-300 group">
+       {cardContent}
+    </Link>
   );
 }
