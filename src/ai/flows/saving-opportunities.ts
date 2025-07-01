@@ -41,11 +41,16 @@ const prompt = ai.definePrompt({
   name: 'personalizedSavingSuggestionsPrompt',
   input: {schema: PersonalizedSavingSuggestionsInputSchema},
   output: {schema: PersonalizedSavingSuggestionsOutputSchema},
-  prompt: `You are a personal finance advisor. Analyze the user's spending data and provide personalized saving suggestions.
+  prompt: `You are a personal finance advisor. Analyze the user's spending data and provide personalized, quantitative saving suggestions.
 
-Spending Data: {{{spendingData}}}
+Analyze the user's spending data provided below. Identify the top spending categories and specific high-cost transactions.
 
-Based on this data, suggest practical ways the user can save money. Focus on specific areas where they are overspending and suggest alternatives.
+Spending Data:
+{{{spendingData}}}
+
+Based on this data, provide practical ways the user can save money. Your suggestions must be specific and include numbers.
+For example, instead of saying "spend less on coffee", say "You spent IDR 250,000 on coffee this month. By reducing this by 50%, you could save IDR 125,000."
+Focus on the largest areas of spending to maximize potential savings.
 
 Format your output as a list of concise and actionable suggestions.
 `,

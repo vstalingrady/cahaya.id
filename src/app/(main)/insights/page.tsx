@@ -17,6 +17,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { format } from 'date-fns';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -71,6 +80,7 @@ export default function InsightsPage() {
     const [activeIndex, setActiveIndex] = useState(0);
     const [isGenerating, setIsGenerating] = useState(false);
     const [aiResult, setAiResult] = useState<{suggestions?: string[], error?: string} | null>(null);
+    const [detailCategory, setDetailCategory] = useState<string | null>(null);
 
     const { spendingData, totalSpending, chartConfig } = useMemo(() => {
         const spendingByCategory = transactions
@@ -105,6 +115,12 @@ export default function InsightsPage() {
 
         return { spendingData, totalSpending, chartConfig };
     }, []);
+
+    const categoryTransactions = useMemo(() => {
+        if (!detailCategory) return [];
+        return transactions.filter(t => t.amount < 0 && t.category === detailCategory);
+    }, [detailCategory]);
+
 
     const onPieEnter = (_: any, index: number) => {
         setActiveIndex(index);
@@ -145,7 +161,7 @@ export default function InsightsPage() {
                 <span className="relative z-10">{isGenerating ? 'Analyzing your spending...' : 'Get AI Savings Plan'}</span>
             </Button>
 
-             <AlertDialog open={!!aiResult} onOpenChange={(open) => !open && setAiResult(null)}>
+            <AlertDialog open={!!aiResult} onOpenChange={(open) => !open && setAiResult(null)}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle className="flex items-center gap-2">
@@ -166,6 +182,31 @@ export default function InsightsPage() {
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+            
+            <Dialog open={!!detailCategory} onOpenChange={(open) => { if (!open) setDetailCategory(null); }}>
+                <DialogContent className="bg-gradient-to-br from-black via-red-950 to-black text-white border-red-800/50">
+                    <DialogHeader>
+                        <DialogTitle className="text-primary">Spending in {detailCategory}</DialogTitle>
+                        <DialogDescription>
+                            All transactions for this category this month.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                        {categoryTransactions.length > 0 ? categoryTransactions.map(t => (
+                            <div key={t.id} className="bg-red-950/50 p-3 rounded-lg flex items-center justify-between">
+                                <div>
+                                    <p className="font-semibold text-white">{t.description}</p>
+                                    <p className="text-xs text-red-300">{format(new Date(t.date), 'dd MMM yyyy')}</p>
+                                </div>
+                                <p className="font-bold font-mono text-red-400">{formatCurrency(t.amount)}</p>
+                            </div>
+                        )) : <p className="text-muted-foreground text-center py-4">No transactions found for this category.</p>}
+                    </div>
+                    <DialogFooter>
+                        <Button onClick={() => setDetailCategory(null)} variant="outline">Close</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
             <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
                 <NoiseOverlay opacity={0.03} />
@@ -174,7 +215,7 @@ export default function InsightsPage() {
                     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
-                                <ChartTooltip content={<ChartTooltipContent nameKey="category" />} />
+                                <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
                                 <Pie
                                     activeIndex={activeIndex}
                                     activeShape={renderActiveShape}
@@ -186,9 +227,10 @@ export default function InsightsPage() {
                                     dataKey="value"
                                     nameKey="category"
                                     onMouseEnter={onPieEnter}
+                                    onClick={(data) => setDetailCategory(data.name)}
                                 >
                                      {spendingData.map((entry) => (
-                                        <Cell key={`cell-${entry.category}`} fill={entry.fill} />
+                                        <Cell key={`cell-${entry.category}`} fill={entry.fill} className="cursor-pointer" />
                                     ))}
                                 </Pie>
                             </PieChart>
@@ -199,8 +241,9 @@ export default function InsightsPage() {
                     {spendingData.map((entry, index) => (
                         <div 
                             key={entry.category} 
+                            onClick={() => setDetailCategory(entry.name)}
                             className={cn(
-                                "flex items-center justify-between rounded-lg p-2 transition-colors",
+                                "flex items-center justify-between rounded-lg p-2 transition-colors cursor-pointer hover:bg-red-800/60",
                                 activeIndex === index ? "bg-red-800/50" : ""
                             )}
                         >
