@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import { Wallet, Loader2 } from "lucide-react";
 import NoiseOverlay from "../noise-overlay";
 import { type Transaction } from "@/lib/data";
+import { cn } from '@/lib/utils';
 
 const BalanceChart = dynamic(() => import('./balance-chart'), {
   ssr: false,
