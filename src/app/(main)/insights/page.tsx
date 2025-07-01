@@ -160,7 +160,7 @@ export default function InsightsPage() {
             </Button>
             
             <Dialog open={!!aiResult} onOpenChange={(open) => !open && setAiResult(null)}>
-                <DialogContent className="bg-gradient-to-br from-black via-red-950 to-black text-white border-red-800/50 max-w-md">
+                <DialogContent className="bg-gradient-to-br from-black via-red-950 to-black text-white border-red-800/50 max-w-md max-h-[85vh] flex flex-col">
                      <DialogHeader>
                         {aiResult?.error ? (
                             <DialogTitle className="text-destructive text-center">An Error Occurred</DialogTitle>
@@ -174,7 +174,7 @@ export default function InsightsPage() {
                             </div>
                         )}
                     </DialogHeader>
-                     <div className="pt-6 max-h-[60vh] overflow-y-auto custom-scrollbar pr-4 -mr-4">
+                     <div className="pt-6 flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4">
                         {aiResult?.error ? (
                             <p className="text-center">{aiResult.summary}</p>
                         ) : (

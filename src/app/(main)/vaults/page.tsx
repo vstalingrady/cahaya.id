@@ -1,6 +1,7 @@
 'use client'
 
 import { Plus } from "lucide-react";
+import Link from "next/link";
 import { vaults } from '@/lib/data';
 import { Progress } from "@/components/ui/progress";
 import NoiseOverlay from "@/components/noise-overlay";
@@ -9,6 +10,8 @@ const icons: { [key: string]: string } = {
   "Emergency": "🚨",
   "Holiday": "✈️",
   "New Gadget": "📱",
+  "Home": "🏠",
+  "Wedding": "💍",
 };
 
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
@@ -46,11 +49,11 @@ export default function VaultsPage() {
                 ))}
             </div>
 
-             <button className="w-full bg-gradient-to-r from-red-900/30 to-red-800/30 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-center text-red-300 border-2 border-dashed border-red-600/40 hover:border-red-600/60 transition-all duration-300 relative overflow-hidden group">
+             <Link href="/vaults/add" className="w-full bg-gradient-to-r from-red-900/30 to-red-800/30 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-center text-red-300 border-2 border-dashed border-red-600/40 hover:border-red-600/60 transition-all duration-300 relative overflow-hidden group">
                 <NoiseOverlay opacity={0.02} />
                 <Plus className="w-6 h-6 mr-3 group-hover:text-red-200 transition-colors relative z-10" />
                 <span className="font-semibold group-hover:text-red-200 transition-colors relative z-10">Create New Vault</span>
-            </button>
+            </Link>
         </div>
     );
 }
