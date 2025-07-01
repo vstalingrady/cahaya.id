@@ -29,7 +29,7 @@ import { transactions } from '@/lib/data';
 
 const transferActions = [
   { name: 'Transfer', icon: Send, href: '/transfer/recipients', disabled: false },
-  { name: 'Top Up', icon: Wallet, href: '#', disabled: true },
+  { name: 'Top Up', icon: Wallet, href: '/transfer/top-up', disabled: false },
   { name: 'Tarik/Setor', icon: ArrowDownUp, href: '#', disabled: true },
 ]
 
