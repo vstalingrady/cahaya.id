@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { type Transaction } from "@/lib/data";
 import { ChartConfig, ChartContainer, ChartTooltip } from "../ui/chart";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { cn } from '@/lib/utils';
 
 
 const chartConfig = {
@@ -30,26 +31,37 @@ const CustomTransactionDot = (props: any) => {
     }
 
     const netChange = transactions.reduce((acc, t) => acc + t.amount, 0);
-    let dotColorClass = "fill-primary";
-    if (netChange > 0) dotColorClass = "fill-green-400";
-    if (netChange < 0) dotColorClass = "fill-red-400";
+    const dotColorClass = netChange > 0 ? "fill-green-400" : "fill-red-400";
+    const dotRadius = 5;
 
     return (
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <circle cx={cx} cy={cy} r={5} stroke="hsl(var(--background))" strokeWidth={1.5} className={dotColorClass} />
+                    <circle cx={cx} cy={cy} r={dotRadius} stroke="hsl(var(--background))" strokeWidth={1.5} className={dotColorClass} />
                 </TooltipTrigger>
-                <TooltipContent>
-                    <div className="flex flex-col gap-1">
-                        {transactions.map((t: Transaction) => (
-                            <div key={t.id} className="text-xs">
-                                <p className="font-bold">{t.description}</p>
-                                <p className={t.amount > 0 ? "text-green-400" : "text-red-400"}>
-                                    {formatCurrency(t.amount)}
-                                </p>
-                            </div>
-                        ))}
+                <TooltipContent className="max-w-xs">
+                    <div className="flex flex-col gap-2 p-1">
+                        <div className="flex justify-between items-center font-bold">
+                            <span>{format(payload.date, 'eeee, d MMM')}</span>
+                            <span className={cn('text-sm font-mono', netChange > 0 ? "text-green-400" : "text-red-400")}>
+                                {netChange > 0 ? '+' : ''}{formatCurrency(netChange)}
+                            </span>
+                        </div>
+                        <div className="border-t border-border my-1"></div>
+                        <div className="space-y-2">
+                          {transactions.map((t: Transaction) => (
+                              <div key={t.id} className="text-xs flex justify-between items-center">
+                                  <div>
+                                      <p className="font-semibold text-foreground">{t.description}</p>
+                                      <p className="text-muted-foreground">{t.category}</p>
+                                  </div>
+                                  <p className={cn("font-mono ml-4", t.amount > 0 ? "text-green-400" : "text-red-400")}>
+                                      {formatCurrency(t.amount)}
+                                  </p>
+                              </div>
+                          ))}
+                        </div>
                     </div>
                 </TooltipContent>
             </Tooltip>

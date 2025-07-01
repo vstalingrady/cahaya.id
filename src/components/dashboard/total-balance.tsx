@@ -33,7 +33,12 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
 
   React.useEffect(() => {
     const generateChartData = (currentBalance: number, allTransactions: Transaction[], days: number) => {
-        const today = new Date();
+        // Determine the most recent date from transactions, or use today if none exist
+        const latestTransactionDate = allTransactions.length > 0
+            ? allTransactions.reduce((latest, t) => new Date(t.date) > latest ? new Date(t.date) : latest, new Date(0))
+            : new Date();
+        
+        const today = new Date(latestTransactionDate);
         today.setHours(23, 59, 59, 999);
 
         const startDate = new Date(today);
@@ -63,7 +68,9 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
             });
 
             const dailyChange = dailyTransactions.reduce((sum, t) => sum + t.amount, 0);
-            runningBalance += dailyChange;
+            if (dailyTransactions.length > 0) {
+              runningBalance += dailyChange;
+            }
 
             data.push({
                 date: loopDate,
@@ -72,6 +79,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
             });
         }
 
+        // Ensure the last point correctly reflects the current balance
         if(data.length > 0) {
           data[data.length - 1].netWorth = currentBalance;
         }
@@ -79,13 +87,26 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
         return data;
     };
     
-    // Use a timeout to ensure data processing happens after initial mount, preventing race conditions
+    // Use a timeout to ensure data processing happens after initial mount
     const timer = setTimeout(() => {
         setChartData(generateChartData(amount, transactions, 14));
     }, 1);
 
     return () => clearTimeout(timer);
   }, [amount, transactions]);
+
+  const dailyChange = React.useMemo(() => {
+    if (chartData.length === 0) return 0;
+    const lastDayData = chartData[chartData.length - 1];
+    if (!lastDayData || !lastDayData.transactions) return 0;
+    return lastDayData.transactions.reduce((acc: number, t: Transaction) => acc + t.amount, 0);
+  }, [chartData]);
+
+  const formattedDailyChange = new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+  }).format(dailyChange);
 
   return (
     <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl shadow-2xl border border-red-700/30 relative overflow-hidden">
@@ -96,10 +117,15 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
             <div>
                  <h2 className="text-xs text-muted-foreground mb-1 font-bold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> Total Net Worth</h2>
                 <div className="text-3xl font-black mb-2 text-white">{formattedAmount}</div>
-                <div className="flex items-center text-green-400 text-sm font-semibold">
-                    <span className="text-base mr-1">↗</span>
-                    <span>+ Rp 1.200.000 today</span>
-                </div>
+                 {dailyChange !== 0 && (
+                  <div className={cn(
+                    "flex items-center text-sm font-semibold",
+                    dailyChange > 0 ? "text-green-400" : "text-red-400"
+                  )}>
+                      <span className="text-base mr-1">{dailyChange > 0 ? '↗' : '↘'}</span>
+                      <span>{dailyChange > 0 ? '+' : ''}{formattedDailyChange} today</span>
+                  </div>
+                )}
             </div>
             <div className="h-24 relative">
                 {chartData.length > 0 ? (
