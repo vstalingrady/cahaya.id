@@ -17,6 +17,7 @@ import {
   ArrowDownUp,
   User,
   Clapperboard,
+  ReceiptText,
 } from 'lucide-react';
 import Link from 'next/link';
 import { type CarouselApi } from '@/components/ui/carousel';
@@ -28,19 +29,11 @@ import TransactionHistory from '@/components/dashboard/transaction-history';
 import { transactions } from '@/lib/data';
 
 const transferActions = [
-  { name: 'Transfer', icon: Send, href: '/transfer/recipients', disabled: false },
-  { name: 'Top Up', icon: Wallet, href: '/transfer/top-up', disabled: false },
-  { name: 'Tarik/Setor', icon: ArrowDownUp, href: '#', disabled: true },
-]
-
-const billers = [
-  { name: 'PLN', subtext: 'Token & Tagihan', icon: Lightbulb },
-  { name: 'Pulsa & Data', subtext: 'Telkomsel, XL, etc.', icon: Phone },
-  { name: 'Air PDAM', subtext: 'Tagihan Air', icon: Droplets },
-  { name: 'Internet & TV', subtext: 'IndiHome, First Media', icon: Cable },
-  { name: 'BPJS', subtext: 'Kesehatan', icon: Shield },
-  { name: 'E-Samsat', subtext: 'Pajak Kendaraan', icon: Car },
-  { name: 'Kartu Kredit', subtext: 'Tagihan Kartu', icon: CreditCard },
+  { name: 'Transfer', icon: Send, href: '/transfer/recipients', description: "To any bank account", disabled: false },
+  { name: 'Pay Bills', icon: ReceiptText, href: '/bills', description: "PLN, BPJS, TV, etc.", disabled: false },
+  { name: 'Top Up', icon: Wallet, href: '/transfer/top-up', description: "GoPay, OVO, Pulsa", disabled: false },
+  { name: 'QRIS', icon: QrCode, href: '/transfer/qris', description: "Scan any QR to pay", disabled: false },
+  { name: 'Tarik/Setor', icon: ArrowDownUp, href: '#', description: "Cash withdrawal", disabled: true },
 ];
 
 const recommendedTransactions = [
@@ -81,19 +74,28 @@ export default function TransferPage() {
   const [api, setApi] = useState<CarouselApi>()
   const [current, setCurrent] = useState(0)
   const [count, setCount] = useState(0)
+  
+  const [actionsApi, setActionsApi] = useState<CarouselApi>()
+  const [actionsCurrent, setActionsCurrent] = useState(0)
+  const [actionsCount, setActionsCount] = useState(0)
 
   useEffect(() => {
-    if (!api) {
-      return
-    }
-
+    if (!api) return
     setCount(api.scrollSnapList().length)
     setCurrent(api.selectedScrollSnap())
-
     api.on("select", () => {
       setCurrent(api.selectedScrollSnap())
     })
   }, [api])
+  
+  useEffect(() => {
+    if (!actionsApi) return
+    setActionsCount(actionsApi.scrollSnapList().length)
+    setActionsCurrent(actionsApi.selectedScrollSnap())
+    actionsApi.on("select", () => {
+      setActionsCurrent(actionsApi.selectedScrollSnap())
+    })
+  }, [actionsApi])
 
   return (
     <div className="space-y-8 animate-fade-in-up">
@@ -110,39 +112,41 @@ export default function TransferPage() {
           <TabsTrigger value="recents" className="data-[state=active]:bg-red-700/50 data-[state=active]:text-white">Recents</TabsTrigger>
         </TabsList>
         <TabsContent value="transfer" className="space-y-8 mt-0">
-          <Link href="/transfer/qris" className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
-            <NoiseOverlay opacity={0.03} />
-            <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">
-                <QrCode className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <p className="font-bold text-lg text-white">Pay with QRIS</p>
-              <p className="text-red-300 text-sm">Scan any QR code to pay instantly</p>
-            </div>
-          </Link>
-
           <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold text-white font-serif">Transfer</h2>
-            </div>
-            <div className="grid grid-cols-3 gap-4">
-              {transferActions.map((action) => {
+             <Carousel setApi={setActionsApi} className="w-full -ml-4" opts={{ align: 'start' }}>
+              <CarouselContent>
+                {transferActions.map((action) => {
                   const Component = action.disabled ? 'button' : Link;
                   return (
+                    <CarouselItem key={action.name} className="basis-2/3 md:basis-1/2 pl-4">
                       <Component
-                          key={action.name}
-                          href={action.href!}
-                          disabled={action.disabled}
-                          className="text-center bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex flex-col items-center justify-center hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                        href={action.href!}
+                        disabled={action.disabled}
+                        className="h-full text-left bg-gradient-to-br from-red-900/60 to-red-800/60 backdrop-blur-xl p-5 rounded-2xl flex flex-col justify-between hover:from-red-800/70 hover:to-red-700/70 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                          <NoiseOverlay opacity={0.03} />
-                          <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg mb-3">
+                        <NoiseOverlay opacity={0.03} />
+                        <div className="flex-1">
+                          <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg mb-3 inline-block">
                               <action.icon className="w-6 h-6 text-white" />
                           </div>
-                          <p className="font-semibold text-white text-sm">{action.name}</p>
+                          <p className="font-bold text-lg text-white">{action.name}</p>
+                          <p className="text-red-300 text-sm font-light">{action.description}</p>
+                        </div>
                       </Component>
+                    </CarouselItem>
                   )
               })}
+              </CarouselContent>
+            </Carousel>
+            <div className="flex justify-center space-x-2 pt-2">
+              {Array.from({ length: actionsCount }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => actionsApi?.scrollTo(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${actionsCurrent === i ? 'w-6 bg-primary' : 'w-2 bg-muted-foreground/50 hover:bg-muted-foreground'}`}
+                  aria-label={`Go to slide ${i + 1}`}
+                />
+              ))}
             </div>
           </div>
           
@@ -182,24 +186,6 @@ export default function TransferPage() {
                   className={`h-2 rounded-full transition-all duration-300 ${current === i ? 'w-6 bg-primary' : 'w-2 bg-muted-foreground/50 hover:bg-muted-foreground'}`}
                   aria-label={`Go to slide ${i + 1}`}
                 />
-              ))}
-            </div>
-          </div>
-          
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-white font-serif">Pay Bills</h2>
-            <div className="grid grid-cols-1 gap-4">
-              {billers.map((biller) => (
-                <button key={biller.name} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
-                  <NoiseOverlay opacity={0.03} />
-                  <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">
-                      <biller.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-lg text-white">{biller.name}</p>
-                    <p className="text-red-300 text-sm">{biller.subtext}</p>
-                  </div>
-                </button>
               ))}
             </div>
           </div>
