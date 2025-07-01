@@ -4,6 +4,10 @@ export type Account = {
   type: 'bank' | 'e-wallet' | 'investment' | 'loan';
   balance: number;
   last4: string;
+  holding?: {
+    symbol: string;
+    amount: number;
+  };
 };
 
 export type Transaction = {
@@ -65,7 +69,11 @@ export const accounts: Account[] = [
     name: 'Pintu Crypto',
     type: 'investment',
     balance: 25400000,
-    last4: 'Crpto'
+    last4: 'Crpto',
+    holding: {
+      symbol: 'BTC',
+      amount: 0.23,
+    }
   },
   {
     id: 'kredivo1',

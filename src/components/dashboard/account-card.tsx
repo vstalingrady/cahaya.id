@@ -47,6 +47,11 @@ export default function AccountCard({ account }: { account: Account }) {
         </div>
         <div className="text-right relative z-10">
             <div className="font-bold text-lg text-white">{formattedAmount}</div>
+            {account.holding && (
+                <div className="text-sm text-muted-foreground font-mono">
+                    {account.holding.amount} {account.holding.symbol}
+                </div>
+            )}
         </div>
     </div>
   );
