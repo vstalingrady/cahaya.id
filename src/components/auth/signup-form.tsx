@@ -4,8 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { Lock, Mail, User } from 'lucide-react';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { Lock, Mail, User, Loader2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -18,7 +17,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import NoiseOverlay from '../noise-overlay';
-import { firebaseApp } from '@/lib/firebase';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'Please enter your name.' }),
@@ -29,7 +27,6 @@ const formSchema = z.object({
 export default function SignupForm() {
   const router = useRouter();
   const { toast } = useToast();
-  const auth = getAuth(firebaseApp);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -41,33 +38,16 @@ export default function SignupForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      // In a real app, you would also save the user's name to a database like Firestore
-      // associated with their user UID from the created user.
-      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
-      console.log('User created:', userCredential.user);
+    console.log("Simulating account creation with values:", values);
+    
+    // Simulate a short delay to feel more realistic
+    await new Promise(resolve => setTimeout(resolve, 1000));
       
-      toast({
-        title: "Profile Created!",
-        description: "Now let's secure your account.",
-      });
-      router.push('/setup-security');
-
-    } catch (error: any) {
-        console.error("Firebase signup error:", error);
-        let errorMessage = "An unknown error occurred during signup.";
-        if (error.code === 'auth/email-already-in-use') {
-            errorMessage = "This email is already in use. Please use a different email or log in.";
-        } else if (error.code === 'auth/weak-password') {
-            errorMessage = "The password is too weak. Please choose a stronger password.";
-        }
-        
-        toast({
-            variant: "destructive",
-            title: "Signup Failed",
-            description: errorMessage,
-        });
-    }
+    toast({
+      title: "Profile Created! (Simulated)",
+      description: "Now let's secure your account.",
+    });
+    router.push('/setup-security');
   }
 
   return (
@@ -126,7 +106,11 @@ export default function SignupForm() {
             className="w-full bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white py-5 rounded-2xl font-black text-xl shadow-2xl border border-red-400/30 hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
           >
             <NoiseOverlay opacity={0.05} />
-            <span className="relative z-10">Create Account & Continue</span>
+            {form.formState.isSubmitting ? (
+              <Loader2 className="h-6 w-6 animate-spin" />
+            ) : (
+              <span className="relative z-10">Create Account & Continue</span>
+            )}
             <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </Button>
         </form>
