@@ -66,6 +66,8 @@ const CustomTransactionDot = (props: any) => {
 
 
 export default function TotalBalance({ amount, transactions }: TotalBalanceProps) {
+  const [chartData, setChartData] = React.useState<any[]>([]);
+
   const formattedAmount = new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -73,61 +75,60 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
     maximumFractionDigits: 0,
   }).format(amount);
 
-  const generateChartData = (currentBalance: number, allTransactions: Transaction[], days: number) => {
-      const today = new Date();
-      today.setHours(23, 59, 59, 999); // Set to end of today
+  React.useEffect(() => {
+    const generateChartData = (currentBalance: number, allTransactions: Transaction[], days: number) => {
+        const today = new Date();
+        today.setHours(23, 59, 59, 999);
 
-      const startDate = new Date(today);
-      startDate.setDate(today.getDate() - (days - 1));
-      startDate.setHours(0, 0, 0, 0); // Set to start of the first day
+        const startDate = new Date(today);
+        startDate.setDate(today.getDate() - (days - 1));
+        startDate.setHours(0, 0, 0, 0);
 
-      // Filter transactions within the date range
-      const relevantTransactions = allTransactions.filter(t => {
-          const tDate = new Date(t.date);
-          return tDate >= startDate && tDate <= today;
-      });
+        const relevantTransactions = allTransactions.filter(t => {
+            const tDate = new Date(t.date);
+            return tDate >= startDate && tDate <= today;
+        });
 
-      // Calculate the net worth at the beginning of the period
-      const totalChangeInPeriod = relevantTransactions.reduce((sum, t) => sum + t.amount, 0);
-      let startOfPeriodNetWorth = currentBalance - totalChangeInPeriod;
+        const totalChangeInPeriod = relevantTransactions.reduce((sum, t) => sum + t.amount, 0);
+        let startOfPeriodNetWorth = currentBalance - totalChangeInPeriod;
 
-      const data = [];
-      let runningBalance = startOfPeriodNetWorth;
-      
-      for (let i = 0; i < days; i++) {
-          const loopDate = new Date(startDate);
-          loopDate.setDate(startDate.getDate() + i);
+        const data = [];
+        let runningBalance = startOfPeriodNetWorth;
+        
+        for (let i = 0; i < days; i++) {
+            const loopDate = new Date(startDate);
+            loopDate.setDate(startDate.getDate() + i);
 
-          const dailyTransactions = allTransactions.filter(t => {
-              const tDate = new Date(t.date);
-              return tDate.getFullYear() === loopDate.getFullYear() &&
-                     tDate.getMonth() === loopDate.getMonth() &&
-                     tDate.getDate() === loopDate.getDate();
-          });
+            const dailyTransactions = allTransactions.filter(t => {
+                const tDate = new Date(t.date);
+                return tDate.getFullYear() === loopDate.getFullYear() &&
+                       tDate.getMonth() === loopDate.getMonth() &&
+                       tDate.getDate() === loopDate.getDate();
+            });
 
-          const dailyChange = dailyTransactions.reduce((sum, t) => sum + t.amount, 0);
-          runningBalance += dailyChange;
+            const dailyChange = dailyTransactions.reduce((sum, t) => sum + t.amount, 0);
+            runningBalance += dailyChange;
 
-          data.push({
-              date: loopDate,
-              netWorth: runningBalance,
-              transactions: dailyTransactions,
-          });
-      }
+            data.push({
+                date: loopDate,
+                netWorth: runningBalance,
+                transactions: dailyTransactions,
+            });
+        }
 
-      // Ensure the final day's balance is exactly the current balance
-      if(data.length > 0) {
-        data[data.length - 1].netWorth = currentBalance;
-      }
-      
-      return data;
-  };
+        if(data.length > 0) {
+          data[data.length - 1].netWorth = currentBalance;
+        }
+        
+        return data;
+    };
+    
+    setChartData(generateChartData(amount, transactions, 14));
+  }, [amount, transactions]);
   
-  const chartData = generateChartData(amount, transactions, 14);
-
   const yAxisDomain = React.useMemo(() => {
     if (!chartData || chartData.length === 0) {
-      return ['auto', 'auto']; // Recharts default
+      return ['auto', 'auto'];
     }
     const netWorthValues = chartData.map(d => d.netWorth);
     const yMin = Math.min(...netWorthValues);
