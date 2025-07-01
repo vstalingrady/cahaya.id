@@ -6,17 +6,9 @@ import { cn } from '@/lib/utils';
 import NoiseOverlay from '@/components/noise-overlay';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, Check } from 'lucide-react';
 import { getSavingSuggestions } from '@/lib/actions';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { type PersonalizedSavingSuggestionsOutput } from '@/ai/flows/saving-opportunities';
 import {
   Dialog,
   DialogContent,
@@ -79,7 +71,7 @@ const renderActiveShape = (props: any) => {
 export default function InsightsPage() {
     const [activeIndex, setActiveIndex] = useState(0);
     const [isGenerating, setIsGenerating] = useState(false);
-    const [aiResult, setAiResult] = useState<{suggestions?: string[], error?: string} | null>(null);
+    const [aiResult, setAiResult] = useState<(PersonalizedSavingSuggestionsOutput & { error?: string }) | null>(null);
     const [detailCategory, setDetailCategory] = useState<string | null>(null);
 
     const { spendingData, totalSpending, chartConfig } = useMemo(() => {
@@ -133,7 +125,12 @@ export default function InsightsPage() {
             const result = await getSavingSuggestions(transactions);
             setAiResult(result);
         } catch (e) {
-            setAiResult({ error: "An unexpected error occurred while fetching suggestions." });
+            setAiResult({
+              error: "An unexpected error occurred while fetching suggestions.",
+              spenderType: "Error",
+              summary: "Could not analyze spending data at this time.",
+              suggestions: [],
+            });
         }
         setIsGenerating(false);
     };
@@ -160,28 +157,51 @@ export default function InsightsPage() {
                 )}
                 <span className="relative z-10">{isGenerating ? 'Analyzing your spending...' : 'Get AI Savings Plan'}</span>
             </Button>
-
-            <AlertDialog open={!!aiResult} onOpenChange={(open) => !open && setAiResult(null)}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle className="flex items-center gap-2">
-                           {aiResult?.error ? 'An Error Occurred' : <> <Sparkles className="w-5 h-5 text-accent" /> Your AI-Powered Savings Plan </>}
-                        </AlertDialogTitle>
-                        <AlertDialogDescription asChild>
-                           {aiResult?.error ? (
-                               <p className="pt-4 text-left">{aiResult.error}</p>
-                           ) : (
-                               <ul className="space-y-2 list-disc list-inside pt-4 text-left text-foreground">
-                                   {aiResult?.suggestions?.map((s, i) => <li key={i}>{s}</li>)}
-                               </ul>
-                           )}
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogAction onClick={() => setAiResult(null)}>Got it</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
+            
+            <Dialog open={!!aiResult} onOpenChange={(open) => !open && setAiResult(null)}>
+                <DialogContent className="bg-gradient-to-br from-black via-red-950 to-black text-white border-red-800/50 max-w-md">
+                     <DialogHeader>
+                        {aiResult?.error ? (
+                            <DialogTitle className="text-destructive text-center">An Error Occurred</DialogTitle>
+                        ) : (
+                            <div className="text-center p-6 bg-red-900/30 rounded-t-lg -m-6 mb-0 border-b border-red-800/50">
+                                <Sparkles className="w-12 h-12 text-accent mx-auto mb-4 animate-pulse" />
+                                <p className="text-sm font-bold uppercase tracking-widest text-accent">Your Spender Personality</p>
+                                <DialogTitle className="text-3xl font-black font-serif text-white mt-2">
+                                    {aiResult?.spenderType}
+                                </DialogTitle>
+                            </div>
+                        )}
+                    </DialogHeader>
+                     <div className="pt-6">
+                        {aiResult?.error ? (
+                            <p className="text-center">{aiResult.summary}</p>
+                        ) : (
+                            <div className="space-y-6">
+                                <div>
+                                    <p className="text-red-200 leading-relaxed text-center">{aiResult?.summary}</p>
+                                </div>
+                                <div className="space-y-3">
+                                     <h3 className="font-semibold text-lg text-white font-serif">Your Action Plan:</h3>
+                                     <ul className="space-y-3">
+                                        {aiResult?.suggestions?.map((s, i) => (
+                                            <li key={i} className="flex items-start gap-3 bg-red-950/50 p-4 rounded-xl border border-red-800/30">
+                                                <div className="w-5 h-5 bg-gradient-to-r from-primary to-accent rounded-full flex-shrink-0 mt-1 flex items-center justify-center">
+                                                   <Check className="w-3 h-3 text-white" />
+                                                </div>
+                                                <span className="text-foreground text-sm">{s}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <Button onClick={() => setAiResult(null)} className="w-full bg-primary hover:bg-primary/90 rounded-xl h-12 font-bold text-lg">Got It!</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
             
             <Dialog open={!!detailCategory} onOpenChange={(open) => { if (!open) setDetailCategory(null); }}>
                 <DialogContent className="bg-gradient-to-br from-black via-red-950 to-black text-white border-red-800/50">
