@@ -1,7 +1,9 @@
 'use server';
 
 import { personalizedSavingSuggestions, PersonalizedSavingSuggestionsOutput } from "@/ai/flows/saving-opportunities";
-import { type Transaction } from "./data";
+import { budgetAnalysis, BudgetAnalysisOutput } from "@/ai/flows/budget-analysis";
+import { type Transaction, type Budget } from "./data";
+import { isWithinInterval } from 'date-fns';
 
 export async function getSavingSuggestions(
   transactions: Transaction[]
@@ -47,3 +49,53 @@ export async function getSavingSuggestions(
     };
   }
 }
+
+export async function getBudgetAnalysis(
+    budgets: Budget[],
+    transactions: Transaction[]
+): Promise<BudgetAnalysisOutput & { error?: string }> {
+    try {
+        if (budgets.length === 0) {
+            return {
+                error: "No budgets created. Please create a budget to get an analysis.",
+                coachTitle: "N/A",
+                summary: "You haven't set any budgets yet. Create one to get started!",
+                suggestions: [],
+                proTip: "",
+            };
+        }
+
+        // Calculate spending for each budget
+        const budgetData = budgets.map(budget => {
+            const budgetInterval = { start: new Date(budget.startDate), end: new Date(budget.endDate) };
+            const spent = transactions
+                .filter(t =>
+                    t.category === budget.category &&
+                    t.amount < 0 &&
+                    isWithinInterval(new Date(t.date), budgetInterval)
+                )
+                .reduce((acc, t) => acc + Math.abs(t.amount), 0);
+            
+            return `${budget.name} (${budget.category}): Budget is ${formatCurrency(budget.amount)}, Spent ${formatCurrency(spent)}.`;
+        }).join('\n');
+
+        const result = await budgetAnalysis({ budgetData });
+        return result;
+
+    } catch (error) {
+        console.error("Error getting budget analysis:", error);
+        return {
+            error: "Failed to get AI-powered analysis. Please try again later.",
+            coachTitle: "Error",
+            summary: "An unexpected error occurred while fetching analysis.",
+            suggestions: [],
+            proTip: "Could not generate a tip at this time.",
+        };
+    }
+}
+
+const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  minimumFractionDigits: 0,
+}).format(value);
