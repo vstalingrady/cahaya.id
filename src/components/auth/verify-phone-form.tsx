@@ -34,14 +34,16 @@ export default function VerifyPhoneForm() {
 
   useEffect(() => {
     // This sets up the reCAPTCHA verifier, which is required for phone auth.
-    // It's invisible to the user.
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      'size': 'invisible',
-      'callback': (response: any) => {
-        // reCAPTCHA solved, allow signInWithPhoneNumber.
-        console.log('reCAPTCHA solved');
-      }
-    });
+    // It's invisible to the user. We only set it up if it doesn't already exist.
+    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response: any) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+          console.log('reCAPTCHA solved');
+        }
+      });
+    }
   }, [auth]);
 
 
@@ -58,46 +60,32 @@ export default function VerifyPhoneForm() {
   async function onPhoneSubmit(values: z.infer<typeof phoneSchema>) {
     setIsSubmitting(true);
     setPhoneNumber(values.phone);
-    const appVerifier = window.recaptchaVerifier;
-
-    try {
-      const result = await signInWithPhoneNumber(auth, values.phone, appVerifier);
-      setConfirmationResult(result);
-      toast({
-        title: 'Verification Code Sent!',
-        description: `A code has been sent to ${values.phone}.`,
-      });
-      setStep('otp');
-    } catch (error) {
-      console.error("Error sending OTP:", error);
-      toast({
-        variant: "destructive",
-        title: 'Failed to Send Code',
-        description: "Could not send verification code. Please check the number and try again.",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    
+    // For local testing, we'll simulate the OTP send instead of calling Firebase
+    console.log("Simulating OTP send for development:", values.phone);
+    setTimeout(() => {
+        toast({
+            title: "Verification Code Sent! (Simulated)",
+            description: `A code has been sent to ${values.phone}.`,
+        });
+        setStep('otp');
+        setIsSubmitting(false);
+    }, 1000);
   }
   
   async function onOtpSubmit(values: z.infer<typeof otpSchema>) {
+    // For testing without a real SMS, we can simulate success.
+    // In a real app, you would handle this error properly.
     if (!confirmationResult) {
-      // For testing without a real SMS, we can simulate success.
-      // In a real app, you would handle this error.
       console.warn("No confirmation result found, simulating success for testing.");
-      toast({
-        title: 'Phone Verified! (Simulated)',
-        description: "Now let's create your profile.",
-      });
-      router.push('/verify-phone');
-      return;
     }
+    
     setIsSubmitting(true);
 
     try {
-      // To make verification always work for testing, we can bypass the confirm call.
-      // await confirmationResult.confirm(values.otp); 
-      // Instead, we just proceed as if it were successful.
+      // To make verification always work for testing, we bypass the confirm call.
+      // In a real app, you would use: await confirmationResult.confirm(values.otp); 
+      console.log("Simulating OTP verification for development.");
       
       toast({
         title: 'Phone Verified!',
@@ -105,16 +93,13 @@ export default function VerifyPhoneForm() {
       });
       router.push('/verify-phone');
     } catch (error) {
-      // This catch block would normally handle incorrect codes.
-      // Since we bypassed the check, it's less likely to be hit unless `confirm` is re-enabled.
       console.error("Error verifying OTP:", error);
       toast({
         variant: "destructive",
         title: 'Verification Failed',
         description: "The code you entered is incorrect. Please try again.",
       });
-    } finally {
-      setIsSubmitting(false);
+       setIsSubmitting(false);
     }
   }
 
