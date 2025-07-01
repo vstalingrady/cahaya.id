@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, User, Lock, Mail, Phone, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, User, Mail, Phone, CheckCircle2, UserCog, Cog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import NoiseOverlay from '@/components/noise-overlay';
 import { Badge } from '@/components/ui/badge';
@@ -71,7 +71,10 @@ export default function ProfilePage() {
              <User className="mr-3" /> Update Profile
            </Button>
            <Button variant="outline" className="w-full justify-start text-left font-normal bg-red-950/50 border-red-800/50 h-14 text-base placeholder:text-red-300/70 hover:bg-red-950/80 hover:text-white" disabled>
-             <Lock className="mr-3" /> Update Password
+             <UserCog className="mr-3" /> Pengaturan Akun
+           </Button>
+           <Button variant="outline" className="w-full justify-start text-left font-normal bg-red-950/50 border-red-800/50 h-14 text-base placeholder:text-red-300/70 hover:bg-red-950/80 hover:text-white" disabled>
+             <Cog className="mr-3" /> Pengaturan Aplikasi
            </Button>
         </div>
       </div>
