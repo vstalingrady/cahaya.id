@@ -1,7 +1,11 @@
+
 import Link from 'next/link';
 import { accounts, transactions } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
 import AccountCard from '@/components/dashboard/account-card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import EwalletIcon from '@/components/icons/ewallet-icon';
+import { Briefcase, Landmark, Coins } from 'lucide-react';
 
 export default function DashboardPage() {
     const totalAssets = accounts
@@ -13,6 +17,13 @@ export default function DashboardPage() {
         .reduce((sum, acc) => sum + acc.balance, 0);
         
     const netWorth = totalAssets - totalLiabilities;
+
+    const accountGroups = {
+        bank: accounts.filter(a => a.type === 'bank'),
+        'e-wallet': accounts.filter(a => a.type === 'e-wallet'),
+        investment: accounts.filter(a => a.type === 'investment'),
+        loan: accounts.filter(a => a.type === 'loan'),
+    }
 
     return (
         <div className="space-y-8 animate-fade-in-up">
@@ -36,11 +47,71 @@ export default function DashboardPage() {
                         Link New
                     </Link>
                 </div>
-                <div className="space-y-2">
-                    {accounts.map(account => (
-                        <AccountCard key={account.id} account={account} />
-                    ))}
-                </div>
+                <Accordion type="multiple" defaultValue={['bank', 'e-wallet', 'investment', 'loan']} className="w-full space-y-2">
+                    {accountGroups.bank.length > 0 && (
+                        <AccordionItem value="bank" className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl rounded-2xl border border-red-600/20 shadow-2xl px-5">
+                            <AccordionTrigger>
+                                <div className='flex items-center gap-3'>
+                                    <Landmark className='w-5 h-5 text-red-300' />
+                                    <span className='font-semibold text-white'>Banks</span>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pt-2 space-y-2">
+                                {accountGroups.bank.map(account => (
+                                    <AccountCard key={account.id} account={account} />
+                                ))}
+                            </AccordionContent>
+                        </AccordionItem>
+                    )}
+
+                    {accountGroups['e-wallet'].length > 0 && (
+                         <AccordionItem value="e-wallet" className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl rounded-2xl border border-red-600/20 shadow-2xl px-5">
+                            <AccordionTrigger>
+                                <div className='flex items-center gap-3'>
+                                    <EwalletIcon className='w-5 h-5 text-red-300' />
+                                    <span className='font-semibold text-white'>E-Wallets</span>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pt-2 space-y-2">
+                                {accountGroups['e-wallet'].map(account => (
+                                    <AccountCard key={account.id} account={account} />
+                                ))}
+                            </AccordionContent>
+                        </AccordionItem>
+                    )}
+                    
+                    {accountGroups.investment.length > 0 && (
+                        <AccordionItem value="investment" className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl rounded-2xl border border-red-600/20 shadow-2xl px-5">
+                            <AccordionTrigger>
+                                <div className='flex items-center gap-3'>
+                                    <Briefcase className='w-5 h-5 text-red-300' />
+                                    <span className='font-semibold text-white'>Investments</span>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pt-2 space-y-2">
+                                {accountGroups.investment.map(account => (
+                                    <AccountCard key={account.id} account={account} />
+                                ))}
+                            </AccordionContent>
+                        </AccordionItem>
+                    )}
+
+                    {accountGroups.loan.length > 0 && (
+                         <AccordionItem value="loan" className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl rounded-2xl border border-red-600/20 shadow-2xl px-5">
+                            <AccordionTrigger>
+                                <div className='flex items-center gap-3'>
+                                    <Coins className='w-5 h-5 text-red-300' />
+                                    <span className='font-semibold text-white'>Loans</span>
+                                </div>
+                            </AccordionTrigger>
+                            <AccordionContent className="pt-2 space-y-2">
+                                {accountGroups.loan.map(account => (
+                                    <AccountCard key={account.id} account={account} />
+                                ))}
+                            </AccordionContent>
+                        </AccordionItem>
+                    )}
+                </Accordion>
             </div>
         </div>
     );
