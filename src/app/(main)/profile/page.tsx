@@ -34,8 +34,8 @@ export default function ProfilePage() {
                 <Image 
                     src={user.avatarUrl}
                     alt="User Avatar"
-                    width={128}
-                    height={128}
+                    width={96}
+                    height={96}
                     className="rounded-full border-4 border-red-700/50"
                     data-ai-hint="person avatar"
                 />
@@ -44,22 +44,24 @@ export default function ProfilePage() {
         </div>
 
         <div className="my-8 space-y-4">
-            <div className="flex items-center bg-red-950/50 p-4 rounded-lg">
-                <Mail className="w-5 h-5 text-red-300 mr-4"/>
+            <div className="flex items-start gap-4 bg-red-950/50 p-4 rounded-lg">
+                <Mail className="w-5 h-5 text-red-300 mt-1 flex-shrink-0"/>
                 <div className="flex-1">
-                    <p className="text-sm text-red-300">Email</p>
-                    <p className="text-white font-semibold">{user.email}</p>
+                    <div className="flex justify-between items-center">
+                        <p className="text-sm text-red-300">Email</p>
+                        <Badge variant="outline" className="bg-green-900/50 border-green-700 text-green-300 text-xs">
+                            <CheckCircle2 className="w-3 h-3 mr-1.5"/>
+                            Verified
+                        </Badge>
+                    </div>
+                    <p className="text-white font-semibold mt-0.5">{user.email}</p>
                 </div>
-                <Badge variant="outline" className="bg-green-900/50 border-green-700 text-green-300">
-                    <CheckCircle2 className="w-3 h-3 mr-1.5"/>
-                    Verified
-                </Badge>
             </div>
-            <div className="flex items-center bg-red-950/50 p-4 rounded-lg">
-                <Phone className="w-5 h-5 text-red-300 mr-4"/>
-                <div>
+            <div className="flex items-start gap-4 bg-red-950/50 p-4 rounded-lg">
+                <Phone className="w-5 h-5 text-red-300 mt-1 flex-shrink-0"/>
+                <div className="flex-1">
                     <p className="text-sm text-red-300">Phone</p>
-                    <p className="text-white font-semibold">{user.phone}</p>
+                    <p className="text-white font-semibold mt-0.5">{user.phone}</p>
                 </div>
             </div>
         </div>
