@@ -147,7 +147,7 @@ export const vaults: Vault[] = [
 export const transactions: Transaction[] = [
   {
     id: 'txn1',
-    date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    date: '2024-07-20T10:00:00.000Z',
     description: 'Starbucks Grand Indonesia',
     amount: -55000,
     category: 'Food & Drink',
@@ -155,7 +155,7 @@ export const transactions: Transaction[] = [
   },
   {
     id: 'txn2',
-    date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    date: '2024-07-19T15:30:00.000Z',
     description: 'Gojek Ride',
     amount: -25000,
     category: 'Transportation',
@@ -163,7 +163,7 @@ export const transactions: Transaction[] = [
   },
   {
     id: 'txn3',
-    date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+    date: '2024-07-25T09:00:00.000Z',
     description: 'Salary Deposit',
     amount: 15000000,
     category: 'Income',
@@ -171,7 +171,7 @@ export const transactions: Transaction[] = [
   },
   {
     id: 'txn4',
-    date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+    date: '2024-07-18T18:45:00.000Z',
     description: 'Uniqlo Purchase',
     amount: -799000,
     category: 'Shopping',
@@ -179,7 +179,7 @@ export const transactions: Transaction[] = [
   },
   {
     id: 'txn5',
-    date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+    date: '2024-07-17T11:00:00.000Z',
     description: 'Netflix Subscription',
     amount: -186000,
     category: 'Bills',
@@ -187,7 +187,7 @@ export const transactions: Transaction[] = [
   },
   {
     id: 'txn6',
-    date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+    date: '2024-07-16T13:20:00.000Z',
     description: 'Ranch Market',
     amount: -550000,
     category: 'Groceries',
@@ -195,7 +195,7 @@ export const transactions: Transaction[] = [
   },
    {
     id: 'txn7',
-    date: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+    date: '2024-07-15T20:00:00.000Z',
     description: 'Cinema XXI',
     amount: -100000,
     category: 'Entertainment',
@@ -203,7 +203,7 @@ export const transactions: Transaction[] = [
   },
   {
     id: 'txn8',
-    date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+    date: '2024-07-14T08:30:00.000Z',
     description: 'Kopi Kenangan',
     amount: -22000,
     category: 'Food & Drink',
