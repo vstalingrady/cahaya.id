@@ -33,6 +33,9 @@ export type Vault = {
   targetAmount: number;
   sourceAccountIds: string[];
   destinationAccountId: string;
+  autoSaveEnabled?: boolean;
+  autoSaveFrequency?: 'daily' | 'weekly' | 'monthly';
+  autoSaveAmount?: number;
 };
 
 export type Beneficiary = {
@@ -132,6 +135,9 @@ export const vaults: Vault[] = [
     targetAmount: 10000000,
     sourceAccountIds: ['bca1'],
     destinationAccountId: 'bca1',
+    autoSaveEnabled: true,
+    autoSaveFrequency: 'weekly',
+    autoSaveAmount: 250000,
   },
   {
     id: 'vault2',
@@ -141,6 +147,7 @@ export const vaults: Vault[] = [
     targetAmount: 5000000,
     sourceAccountIds: ['gopay1', 'ovo1'],
     destinationAccountId: 'bca1',
+    autoSaveEnabled: false,
   },
    {
     id: 'vault3',
@@ -150,6 +157,9 @@ export const vaults: Vault[] = [
     targetAmount: 12000000,
     sourceAccountIds: ['bca1', 'gopay1'],
     destinationAccountId: 'bca1',
+    autoSaveEnabled: true,
+    autoSaveFrequency: 'monthly',
+    autoSaveAmount: 1000000,
   }
 ]
 

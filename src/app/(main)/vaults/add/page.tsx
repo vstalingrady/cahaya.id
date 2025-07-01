@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Banknote, Edit, PiggyBank, Wallet } from 'lucide-react';
+import { ArrowLeft, Banknote, Edit, Repeat } from 'lucide-react';
 import Link from 'next/link';
 
 import NoiseOverlay from '@/components/noise-overlay';
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -22,6 +23,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { accounts } from '@/lib/data';
+import { Switch } from '@/components/ui/switch';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { cn } from '@/lib/utils';
+
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'Please enter a name for your vault.' }),
@@ -31,6 +37,17 @@ const formSchema = z.object({
     message: "You have to select at least one funding source.",
   }),
   destinationAccountId: z.string().min(1, { message: 'Please select a destination account.' }),
+  autoSaveEnabled: z.boolean().default(false).optional(),
+  autoSaveFrequency: z.enum(['daily', 'weekly', 'monthly']).optional(),
+  autoSaveAmount: z.coerce.number().optional(),
+}).refine(data => {
+    if (data.autoSaveEnabled) {
+        return !!data.autoSaveFrequency && (data.autoSaveAmount || 0) >= 1000;
+    }
+    return true;
+}, {
+    message: 'Please specify a frequency and an amount of at least IDR 1,000.',
+    path: ['autoSaveAmount'],
 });
 
 const icons = [
@@ -56,6 +73,8 @@ export default function AddVaultPage() {
       icon: '',
       sourceAccountIds: [],
       destinationAccountId: '',
+      autoSaveEnabled: false,
+      autoSaveAmount: 0,
     },
   });
 
@@ -216,6 +235,89 @@ export default function AddVaultPage() {
                 </FormItem>
               )}
             />
+
+             <FormField
+                control={form.control}
+                name="autoSaveEnabled"
+                render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-red-800/50 p-4 bg-red-950/50">
+                    <div className="space-y-0.5">
+                        <FormLabel className="text-base text-red-200">
+                        Enable Auto-Saving
+                        </FormLabel>
+                        <FormDescription className="text-red-300 text-sm">
+                        Automatically transfer money to this vault.
+                        </FormDescription>
+                    </div>
+                    <FormControl>
+                        <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        />
+                    </FormControl>
+                    </FormItem>
+                )}
+            />
+
+            <Collapsible
+                open={form.watch('autoSaveEnabled')}
+                className="w-full space-y-2"
+                >
+                <CollapsibleContent className="space-y-6 pt-4 animate-accordion-down">
+                    <FormField
+                    control={form.control}
+                    name="autoSaveFrequency"
+                    render={({ field }) => (
+                        <FormItem className="space-y-3">
+                        <FormLabel className="text-red-200">Frequency</FormLabel>
+                        <FormControl>
+                            <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="grid grid-cols-3 gap-4"
+                            >
+                             <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'daily' ? 'border-primary' : 'border-red-800/50')}>
+                                <FormControl>
+                                <RadioGroupItem value="daily" id="daily" className="sr-only" />
+                                </FormControl>
+                                <FormLabel htmlFor="daily" className="font-normal cursor-pointer">Daily</FormLabel>
+                            </FormItem>
+                            <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'weekly' ? 'border-primary' : 'border-red-800/50')}>
+                                <FormControl>
+                                <RadioGroupItem value="weekly" id="weekly" className="sr-only" />
+                                </FormControl>
+                                <FormLabel htmlFor="weekly" className="font-normal cursor-pointer">Weekly</FormLabel>
+                            </FormItem>
+                             <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'monthly' ? 'border-primary' : 'border-red-800/50')}>
+                                <FormControl>
+                                <RadioGroupItem value="monthly" id="monthly" className="sr-only" />
+                                </FormControl>
+                                <FormLabel htmlFor="monthly" className="font-normal cursor-pointer">Monthly</FormLabel>
+                            </FormItem>
+                            </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="autoSaveAmount"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel className="text-red-200">Auto-Save Amount</FormLabel>
+                            <FormControl>
+                                <div className="relative">
+                                    <Repeat className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
+                                    <Input type="number" className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="IDR 0" {...field} />
+                                </div>
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </CollapsibleContent>
+            </Collapsible>
 
 
             <Button 

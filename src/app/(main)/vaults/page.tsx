@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Repeat, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { vaults, accounts, Vault } from '@/lib/data';
 import { Progress } from "@/components/ui/progress";
@@ -106,7 +106,13 @@ export default function VaultsPage() {
                                 </Button>
                             </div>
                             <Progress value={(vault.currentAmount / vault.targetAmount) * 100} className="h-2 bg-red-900/80 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-accent" />
-                            <div className="text-xs text-red-400 mt-3">
+                            <div className="text-xs text-red-400 mt-3 space-y-1">
+                                {vault.autoSaveEnabled && (
+                                    <div className="flex items-center gap-2 font-semibold text-green-400">
+                                        <Repeat className="w-3 h-3" />
+                                        <span>Auto-saving {formatCurrency(vault.autoSaveAmount || 0)} / {vault.autoSaveFrequency}</span>
+                                    </div>
+                                )}
                                 <p><strong>Stored in:</strong> {getAccountName(vault.destinationAccountId)}</p>
                                 <p><strong>Funded by:</strong> {vault.sourceAccountIds.map(getAccountName).join(', ')}</p>
                             </div>
