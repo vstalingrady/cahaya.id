@@ -1,10 +1,8 @@
 'use client';
-import { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { PieChart, Pie, ResponsiveContainer, Cell, Sector } from 'recharts';
-import { transactions, accounts } from '@/lib/data';
-import { Badge } from '@/components/ui/badge';
+import { transactions } from '@/lib/data';
 import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
 import NoiseOverlay from '@/components/noise-overlay';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
@@ -20,40 +18,20 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
-const chartConfig = {
-  value: { label: "Spending" },
-  foodAndDrink: { label: "Food & Drink", color: "hsl(var(--chart-1))" },
-  transportation: { label: "Transportation", color: "hsl(var(--chart-2))" },
-  shopping: { label: "Shopping", color: "hsl(var(--chart-3))" },
-  bills: { label: "Bills", color: "hsl(var(--chart-4))" },
-  groceries: { label: "Groceries", color: "hsl(var(--chart-5))" },
-  entertainment: { label: "Entertainment", color: "hsl(var(--chart-1))" },
-} satisfies ChartConfig
-
-const spendingData = [
-  { category: 'foodAndDrink', name: 'Food & Drink', value: 450000, fill: 'var(--color-foodAndDrink)' },
-  { category: 'transportation', name: 'Transportation', value: 150000, fill: 'var(--color-transportation)' },
-  { category: 'shopping', name: 'Shopping', value: 799000, fill: 'var(--color-shopping)' },
-  { category: 'bills', name: 'Bills', value: 186000, fill: 'var(--color-bills)' },
-  { category: 'groceries', name: 'Groceries', value: 550000, fill: 'var(--color-groceries)' },
-  { category: 'entertainment', name: 'Entertainment', value: 100000, fill: 'var(--color-entertainment)' },
-];
-
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
 }).format(amount);
 
-const getAccountLogo = (accountId: string) => {
-    const account = accounts.find(a => a.id === accountId);
-    if (!account) return <div className="w-8 h-8 rounded-lg bg-gray-500"></div>;
-    const name = account.name.toLowerCase();
-    if (name.includes('bca')) return <div className="w-8 h-8 text-xs bg-blue-600 text-white rounded-lg flex items-center justify-center font-black">BCA</div>;
-    if (name.includes('gopay')) return <div className="w-8 h-8 text-xs bg-sky-500 text-white rounded-lg flex items-center justify-center font-black">GP</div>;
-    if (name.includes('ovo')) return <div className="w-8 h-8 text-xs bg-purple-600 text-white rounded-lg flex items-center justify-center font-black">OVO</div>;
-    return <div className="w-8 h-8 rounded-lg bg-gray-500"></div>;
-}
+const slugify = (str: string) =>
+  str
+    .toLowerCase()
+    .trim()
+    .replace(/[ &]+/g, '-')
+    .replace(/[^\w-]+/g, '')
+    .replace(/--+/g, '-')
+    .replace(/-./g, (x) => x[1].toUpperCase());
 
 const renderActiveShape = (props: any) => {
   const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, percent } = props;
@@ -91,9 +69,42 @@ const renderActiveShape = (props: any) => {
 
 export default function InsightsPage() {
     const [activeIndex, setActiveIndex] = useState(0);
-    const activeCategoryName = spendingData[activeIndex]?.name;
     const [isGenerating, setIsGenerating] = useState(false);
     const [aiResult, setAiResult] = useState<{suggestions?: string[], error?: string} | null>(null);
+
+    const { spendingData, totalSpending, chartConfig } = useMemo(() => {
+        const spendingByCategory = transactions
+            .filter((t) => t.amount < 0)
+            .reduce((acc, t) => {
+                const categoryKey = slugify(t.category);
+                if (!acc[categoryKey]) {
+                    acc[categoryKey] = { name: t.category, value: 0 };
+                }
+                acc[categoryKey].value += Math.abs(t.amount);
+                return acc;
+            }, {} as Record<string, { name: string; value: number }>);
+        
+        const totalSpending = Object.values(spendingByCategory).reduce((sum, item) => sum + item.value, 0);
+
+        const spendingData = Object.entries(spendingByCategory)
+            .map(([key, data]) => ({
+                category: key,
+                name: data.name,
+                value: data.value,
+                fill: `var(--color-${key})`,
+            }))
+            .sort((a, b) => b.value - a.value);
+        
+        const chartConfig = spendingData.reduce((acc, item, index) => {
+            acc[item.category] = {
+                label: item.name,
+                color: `hsl(var(--chart-${(index % 5) + 1}))`
+            };
+            return acc;
+        }, { value: { label: "Spending" } } as ChartConfig);
+
+        return { spendingData, totalSpending, chartConfig };
+    }, []);
 
     const onPieEnter = (_: any, index: number) => {
         setActiveIndex(index);
@@ -110,10 +121,6 @@ export default function InsightsPage() {
         }
         setIsGenerating(false);
     };
-
-    const filteredTransactions = activeCategoryName
-        ? transactions.filter(t => t.category === activeCategoryName)
-        : transactions;
 
     return (
         <div className="space-y-8 animate-fade-in-up">
@@ -163,7 +170,7 @@ export default function InsightsPage() {
             <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
                 <NoiseOverlay opacity={0.03} />
                 <h3 className="font-bold text-white text-center mb-4 font-serif">Spending this month</h3>
-                <div className="h-64 w-full">
+                <div className="h-56 w-full">
                     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
@@ -188,28 +195,28 @@ export default function InsightsPage() {
                         </ResponsiveContainer>
                     </ChartContainer>
                 </div>
-            </div>
-
-            <div>
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-bold text-white font-serif">History for <span className="text-accent">{activeCategoryName}</span></h2>
-                </div>
-                <div className="space-y-2">
-                    {filteredTransactions.map(t => (
-                        <div key={t.id} className="bg-gradient-to-r from-red-950/50 to-red-900/50 p-4 rounded-xl flex items-center justify-between">
+                 <div className="mt-6 space-y-2 text-sm">
+                    {spendingData.map((entry, index) => (
+                        <div 
+                            key={entry.category} 
+                            className={cn(
+                                "flex items-center justify-between rounded-lg p-2 transition-colors",
+                                activeIndex === index ? "bg-red-800/50" : ""
+                            )}
+                        >
                             <div className="flex items-center gap-3">
-                                {getAccountLogo(t.accountId)}
-                                <div>
-                                    <p className="font-bold text-white">{t.description}</p>
-                                    <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'dd MMM yyyy')}</p>
-                                </div>
+                                <div 
+                                    className="h-2 w-2 rounded-full" 
+                                    style={{ backgroundColor: chartConfig[entry.category]?.color }} 
+                                />
+                                <span className="font-medium text-white">{entry.name}</span>
                             </div>
-                            <p className={cn(
-                                "font-bold font-mono",
-                                t.amount > 0 ? "text-green-400" : "text-red-400"
-                            )}>
-                                {formatCurrency(t.amount)}
-                            </p>
+                            <div className="text-right">
+                                <span className="font-semibold text-white">{formatCurrency(entry.value)}</span>
+                                <span className="ml-2 text-muted-foreground">
+                                    {totalSpending > 0 ? ((entry.value / totalSpending) * 100).toFixed(0) : 0}%
+                                </span>
+                            </div>
                         </div>
                     ))}
                 </div>
