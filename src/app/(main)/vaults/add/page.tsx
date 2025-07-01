@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Banknote, Edit, Tag } from 'lucide-react';
+import { ArrowLeft, Banknote, Edit, PiggyBank, Wallet } from 'lucide-react';
 import Link from 'next/link';
 
 import NoiseOverlay from '@/components/noise-overlay';
@@ -20,11 +20,17 @@ import {
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Checkbox } from '@/components/ui/checkbox';
+import { accounts } from '@/lib/data';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'Please enter a name for your vault.' }),
   targetAmount: z.coerce.number().min(100000, { message: 'Minimum target amount is IDR 100,000.' }),
   icon: z.string().min(1, { message: 'Please select an icon.' }),
+  sourceAccountIds: z.array(z.string()).refine(value => value.some(item => item), {
+    message: "You have to select at least one funding source.",
+  }),
+  destinationAccountId: z.string().min(1, { message: 'Please select a destination account.' }),
 });
 
 const icons = [
@@ -34,6 +40,9 @@ const icons = [
   { value: 'Home', label: '🏠 Home' },
   { value: 'Wedding', label: '💍 Wedding' },
 ];
+
+const fundingAccounts = accounts.filter(acc => acc.type === 'bank' || acc.type === 'e-wallet');
+const destinationAccounts = accounts.filter(acc => acc.type === 'bank');
 
 export default function AddVaultPage() {
   const router = useRouter();
@@ -45,6 +54,8 @@ export default function AddVaultPage() {
       name: '',
       targetAmount: 0,
       icon: '',
+      sourceAccountIds: [],
+      destinationAccountId: '',
     },
   });
 
@@ -132,6 +143,80 @@ export default function AddVaultPage() {
                 </FormItem>
               )}
             />
+
+            <FormField
+              control={form.control}
+              name="sourceAccountIds"
+              render={() => (
+                <FormItem>
+                   <div className="mb-4">
+                    <FormLabel className="text-red-200 text-base">Funding Sources</FormLabel>
+                   </div>
+                   <div className="space-y-2">
+                    {fundingAccounts.map((account) => (
+                      <FormField
+                        key={account.id}
+                        control={form.control}
+                        name="sourceAccountIds"
+                        render={({ field }) => {
+                          return (
+                            <FormItem
+                              key={account.id}
+                              className="flex flex-row items-start space-x-3 space-y-0 bg-red-950/50 p-4 rounded-xl"
+                            >
+                              <FormControl>
+                                <Checkbox
+                                  checked={field.value?.includes(account.id)}
+                                  onCheckedChange={(checked) => {
+                                    return checked
+                                      ? field.onChange([...(field.value || []), account.id])
+                                      : field.onChange(
+                                          field.value?.filter(
+                                            (value) => value !== account.id
+                                          )
+                                        )
+                                  }}
+                                />
+                              </FormControl>
+                              <FormLabel className="font-normal text-white">
+                                {account.name}
+                              </FormLabel>
+                            </FormItem>
+                          )
+                        }}
+                      />
+                    ))}
+                   </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="destinationAccountId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-red-200">Destination Account</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="bg-red-950/50 border-red-800/50 h-14 text-base placeholder:text-red-300/70">
+                        <SelectValue placeholder="Select a bank account for this vault" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {destinationAccounts.map(account => (
+                        <SelectItem key={account.id} value={account.id}>
+                          {account.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
 
             <Button 
                 type="submit" 

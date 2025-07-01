@@ -31,6 +31,8 @@ export type Vault = {
   icon: string;
   currentAmount: number;
   targetAmount: number;
+  sourceAccountIds: string[];
+  destinationAccountId: string;
 };
 
 export type Beneficiary = {
@@ -118,21 +120,27 @@ export const vaults: Vault[] = [
     name: 'Emergency Fund',
     icon: 'Emergency',
     currentAmount: 2000000,
-    targetAmount: 10000000
+    targetAmount: 10000000,
+    sourceAccountIds: ['bca1'],
+    destinationAccountId: 'bca1',
   },
   {
     id: 'vault2',
     name: 'Bali Holiday',
     icon: 'Holiday',
     currentAmount: 1500000,
-    targetAmount: 5000000
+    targetAmount: 5000000,
+    sourceAccountIds: ['gopay1', 'ovo1'],
+    destinationAccountId: 'bca1',
   },
    {
     id: 'vault3',
     name: 'New Phone',
     icon: 'New Gadget',
     currentAmount: 850000,
-    targetAmount: 12000000
+    targetAmount: 12000000,
+    sourceAccountIds: ['bca1', 'gopay1'],
+    destinationAccountId: 'bca1',
   }
 ]
 
