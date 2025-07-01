@@ -7,10 +7,10 @@ import NoiseOverlay from '@/components/noise-overlay';
 const topUpServices = [
   { name: 'GoPay', icon: Wallet, description: 'Top up your GoPay e-wallet' },
   { name: 'OVO', icon: Wallet, description: 'Top up your OVO e-wallet' },
-  { name: 'Pulsa', icon: Phone, description: 'Prepaid mobile credit' },
-  { name: 'Paket Data', icon: Wifi, description: 'Mobile data packages' },
-  { name: 'Token Listrik', icon: Lightbulb, description: 'Prepaid electricity (PLN)' },
-  { name: 'Voucher Game', icon: Gamepad2, description: 'Mobile Legends, Free Fire, etc.' },
+  { name: 'Mobile Credit', icon: Phone, description: 'Prepaid mobile credit' },
+  { name: 'Data Package', icon: Wifi, description: 'Mobile data packages' },
+  { name: 'Electricity Token', icon: Lightbulb, description: 'Prepaid electricity (PLN)' },
+  { name: 'Game Voucher', icon: Gamepad2, description: 'Mobile Legends, Free Fire, etc.' },
 ];
 
 export default function TopUpPage() {

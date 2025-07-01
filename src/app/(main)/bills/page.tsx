@@ -17,13 +17,13 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
 }).format(amount);
 
 const billers = [
-  { name: 'PLN', subtext: 'Token & Tagihan', icon: Lightbulb },
-  { name: 'Pulsa & Data', subtext: 'Telkomsel, XL, etc.', icon: Phone },
-  { name: 'Air PDAM', subtext: 'Tagihan Air', icon: Droplets },
+  { name: 'PLN', subtext: 'Token & Bills', icon: Lightbulb },
+  { name: 'Credit & Data', subtext: 'Telkomsel, XL, etc.', icon: Phone },
+  { name: 'PDAM Water', subtext: 'Water Bill', icon: Droplets },
   { name: 'Internet & TV', subtext: 'IndiHome, First Media', icon: Cable },
-  { name: 'BPJS', subtext: 'Kesehatan', icon: Shield },
-  { name: 'E-Samsat', subtext: 'Pajak Kendaraan', icon: Car },
-  { name: 'Kartu Kredit', subtext: 'Tagihan Kartu', icon: CreditCard },
+  { name: 'BPJS', subtext: 'Healthcare', icon: Shield },
+  { name: 'E-Samsat', subtext: 'Vehicle Tax', icon: Car },
+  { name: 'Credit Card', subtext: 'Card Bill', icon: CreditCard },
 ];
 
 export default function BillsPage() {
@@ -68,9 +68,9 @@ export default function BillsPage() {
     <div className="space-y-8 animate-fade-in-up">
       <div>
         <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
-          Pusat Tagihan
+          Bill Center
         </h1>
-        <p className="text-muted-foreground">Bayar semua tagihan dari satu tempat.</p>
+        <p className="text-muted-foreground">Pay all your bills from one place.</p>
       </div>
 
       <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">

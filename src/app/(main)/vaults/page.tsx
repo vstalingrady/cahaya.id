@@ -86,7 +86,7 @@ export default function VaultsPage() {
                     <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
                         Cuan Vaults
                     </h1>
-                    <p className="text-muted-foreground">Simpan untuk semua tujuanmu.</p>
+                    <p className="text-muted-foreground">Save for all your goals.</p>
                 </div>
 
                 <div className="space-y-4">

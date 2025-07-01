@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -26,7 +25,7 @@ import { transactions } from '@/lib/data';
 const transferActions = [
   { name: 'Transfer', icon: Send, href: '/transfer/recipients', description: "To any bank account" },
   { name: 'Pay Bills', icon: ReceiptText, href: '/bills', description: "PLN, BPJS, TV, etc." },
-  { name: 'Top Up', icon: Wallet, href: '/transfer/top-up', description: "GoPay, OVO, Pulsa" },
+  { name: 'Top Up', icon: Wallet, href: '/transfer/top-up', description: "GoPay, OVO, Credit" },
 ];
 
 const recommendedTransactions = [

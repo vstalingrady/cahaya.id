@@ -71,10 +71,10 @@ export default function ProfilePage() {
              <User className="mr-3" /> Update Profile
            </Button>
            <Button variant="outline" className="w-full justify-start text-left font-normal bg-red-950/50 border-red-800/50 h-14 text-base placeholder:text-red-300/70 hover:bg-red-950/80 hover:text-white" disabled>
-             <UserCog className="mr-3" /> Pengaturan Akun
+             <UserCog className="mr-3" /> Account Settings
            </Button>
            <Button variant="outline" className="w-full justify-start text-left font-normal bg-red-950/50 border-red-800/50 h-14 text-base placeholder:text-red-300/70 hover:bg-red-950/80 hover:text-white" disabled>
-             <Cog className="mr-3" /> Pengaturan Aplikasi
+             <Cog className="mr-3" /> App Settings
            </Button>
         </div>
       </div>

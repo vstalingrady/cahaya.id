@@ -142,7 +142,7 @@ export default function InsightsPage() {
                 <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
                     Insights
                 </h1>
-                <p className="text-muted-foreground">Lacak semua pengeluaranmu.</p>
+                <p className="text-muted-foreground">Track all your expenses.</p>
             </div>
 
             <Button 
@@ -240,7 +240,7 @@ export default function InsightsPage() {
                     <DialogHeader>
                         <DialogTitle className="text-primary">Spending in {detailCategory}</DialogTitle>
                         <DialogDescription>
-                            All transactions for this category this month.
+                            All transactions for this category.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
