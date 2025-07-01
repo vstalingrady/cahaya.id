@@ -37,7 +37,7 @@ export default function TransactionCalendar() {
 
     const dailySummary = useMemo(() => {
         if (!transactionsOnSelectedDate || transactionsOnSelectedDate.length === 0) {
-            return { spent: 0, received: 0, net: 0 };
+            return { spent: 0, received: 0, net: 0, percentage: 0 };
         }
         const spent = transactionsOnSelectedDate
             .filter(t => t.amount < 0)
@@ -45,10 +45,18 @@ export default function TransactionCalendar() {
         const received = transactionsOnSelectedDate
             .filter(t => t.amount > 0)
             .reduce((acc, t) => acc + t.amount, 0);
+        
+        const net = received - spent;
+        
+        const percentage = received > 0 
+            ? (net / received) * 100 
+            : (spent > 0 ? -100 : 0);
+
         return {
             spent,
             received,
-            net: received - spent,
+            net,
+            percentage,
         };
     }, [transactionsOnSelectedDate]);
 
@@ -75,20 +83,27 @@ export default function TransactionCalendar() {
                     Activity on {date ? format(date, 'PPP') : 'selected date'}
                 </h3>
                 
-                <div className="flex gap-2 text-center mb-4">
-                    <div className="bg-red-950/50 p-2 rounded-lg flex-1 min-w-0">
+                <div className="grid grid-cols-3 gap-2 text-center mb-4">
+                    <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-between">
                         <p className="text-xs text-red-300">Spent</p>
-                        <p className="font-bold text-red-400 truncate">{formatCurrency(dailySummary.spent)}</p>
+                        <p className="font-bold text-red-400 text-sm">{formatCurrency(dailySummary.spent)}</p>
+                        <div className="h-3.5" />
                     </div>
-                    <div className="bg-red-950/50 p-2 rounded-lg flex-1 min-w-0">
+                    <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-between">
                         <p className="text-xs text-red-300">Received</p>
-                        <p className="font-bold text-green-400 truncate">{formatCurrency(dailySummary.received)}</p>
+                        <p className="font-bold text-green-400 text-sm">{formatCurrency(dailySummary.received)}</p>
+                        <div className="h-3.5" />
                     </div>
-                    <div className="bg-red-950/50 p-2 rounded-lg flex-1 min-w-0">
+                    <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-between">
                         <p className="text-xs text-red-300">Net Change</p>
-                        <p className={cn("font-bold truncate", dailySummary.net >= 0 ? 'text-green-400' : 'text-red-400')}>
-                            {dailySummary.net > 0 ? '+' : ''}{formatCurrency(dailySummary.net)}
+                        <p className={cn("font-bold text-sm", dailySummary.net >= 0 ? 'text-green-400' : 'text-red-400')}>
+                            {dailySummary.net >= 0 ? '+' : ''}{formatCurrency(dailySummary.net)}
                         </p>
+                         {(dailySummary.spent > 0 || dailySummary.received > 0) ? (
+                            <p className={cn("text-xs font-semibold", dailySummary.net >= 0 ? 'text-green-400/70' : 'text-red-400/70')}>
+                                {dailySummary.percentage.toFixed(0)}%
+                            </p>
+                         ) : <div className="h-3.5" /> }
                     </div>
                 </div>
 
