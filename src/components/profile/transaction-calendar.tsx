@@ -26,7 +26,8 @@ const getAccountLogo = (accountId: string) => {
 
 
 export default function TransactionCalendar() {
-    const [date, setDate] = useState<Date | undefined>(new Date());
+    const latestTransactionDate = transactions.length > 0 ? new Date(transactions[0].date) : new Date();
+    const [date, setDate] = useState<Date | undefined>(latestTransactionDate);
     
     const transactionsOnSelectedDate = useMemo(() => transactions.filter(t => 
         date && isSameDay(new Date(t.date), date)
@@ -54,18 +55,21 @@ export default function TransactionCalendar() {
     return (
         <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
              <NoiseOverlay opacity={0.03} />
-            <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                className="rounded-md [&>div]:w-full"
-                modifiers={{
-                    hasTransaction: transactionDates,
-                }}
-                modifiersClassNames={{
-                    hasTransaction: 'underline decoration-primary/50 underline-offset-4',
-                }}
-            />
+            <div className="flex justify-center">
+                <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    className="rounded-md"
+                    modifiers={{
+                        hasTransaction: transactionDates,
+                    }}
+                    modifiersClassNames={{
+                        hasTransaction: 'underline decoration-primary/50 underline-offset-4',
+                    }}
+                    defaultMonth={date}
+                />
+            </div>
             <div className="mt-4 border-t border-red-800/50 pt-4">
                 <h3 className="font-bold text-white mb-2 text-lg">
                     Activity on {date ? format(date, 'PPP') : 'selected date'}
