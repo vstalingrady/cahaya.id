@@ -33,8 +33,7 @@ const currentNetWorth = accounts
 
 
 export default function TransactionCalendar() {
-    const latestTransactionDate = transactions.length > 0 ? new Date(transactions[0].date) : new Date();
-    const [date, setDate] = useState<Date | undefined>(latestTransactionDate);
+    const [date, setDate] = useState<Date>(new Date());
     
     const transactionsOnSelectedDate = useMemo(() => transactions.filter(t => 
         date && isSameDay(new Date(t.date), date)
@@ -88,7 +87,11 @@ export default function TransactionCalendar() {
                 <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={setDate}
+                    onSelect={(newDate) => {
+                        if (newDate) {
+                            setDate(newDate);
+                        }
+                    }}
                     className="rounded-md"
                     modifiers={{
                         hasTransaction: transactionDates,
@@ -110,17 +113,15 @@ export default function TransactionCalendar() {
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-center mb-4">
-                    <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-between">
+                    <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-center min-h-[90px]">
                         <p className="text-xs text-red-300">Spent</p>
                         <p className="font-bold text-red-400 text-sm">{formatCurrency(dailySummary.spent)}</p>
-                        <div className="h-[18px]" />
                     </div>
-                    <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-between">
+                    <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-center min-h-[90px]">
                         <p className="text-xs text-red-300">Received</p>
                         <p className="font-bold text-green-400 text-sm">{formatCurrency(dailySummary.received)}</p>
-                        <div className="h-[18px]" />
                     </div>
-                    <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-between">
+                    <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-center min-h-[90px]">
                         <p className="text-xs text-red-300">Net Change</p>
                         <p className={cn("font-bold text-sm", dailySummary.net >= 0 ? 'text-green-400' : 'text-red-400')}>
                             {dailySummary.net >= 0 ? '+' : ''}{formatCurrency(dailySummary.net)}
@@ -129,7 +130,7 @@ export default function TransactionCalendar() {
                             <p className={cn("text-xs font-semibold", dailySummary.net >= 0 ? 'text-green-400/70' : 'text-red-400/70')}>
                                 {dailySummary.net >= 0 ? '+' : ''}{dailySummary.percentage.toFixed(2)}%
                             </p>
-                         ) : <div className="h-[18px]" /> }
+                         ) : null }
                     </div>
                 </div>
 
