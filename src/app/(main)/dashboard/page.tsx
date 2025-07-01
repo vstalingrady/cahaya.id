@@ -48,7 +48,9 @@ export default function DashboardPage() {
                     </h1>
                 </div>
                 <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-accent rounded-2xl shadow-2xl border-red-500/20" data-ai-hint="person avatar"></div>
+                  <Link href="/profile">
+                    <div className="w-12 h-12 bg-gradient-to-br from-red-600 to-accent rounded-2xl shadow-2xl border-red-500/20 cursor-pointer" data-ai-hint="person avatar"></div>
+                  </Link>
                 </div>
             </header>
 
