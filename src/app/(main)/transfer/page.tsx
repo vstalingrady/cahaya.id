@@ -110,7 +110,7 @@ export default function TransferPage() {
           <TabsTrigger value="recents" className="data-[state=active]:bg-red-700/50 data-[state=active]:text-white">Recents</TabsTrigger>
         </TabsList>
         <TabsContent value="transfer" className="space-y-8 mt-0">
-          <button className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
+          <Link href="/transfer/qris" className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
             <NoiseOverlay opacity={0.03} />
             <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">
                 <QrCode className="w-6 h-6 text-white" />
@@ -119,7 +119,7 @@ export default function TransferPage() {
               <p className="font-bold text-lg text-white">Pay with QRIS</p>
               <p className="text-red-300 text-sm">Scan any QR code to pay instantly</p>
             </div>
-          </button>
+          </Link>
 
           <div className="space-y-4">
             <div className="flex justify-between items-center">
