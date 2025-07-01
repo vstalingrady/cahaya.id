@@ -120,7 +120,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
             <div>
                  <div className="flex justify-between items-center mb-1">
                     <h2 className="text-xs text-muted-foreground font-bold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> Total Net Worth</h2>
-                    <Link href="/profile" passHref>
+                    <Link href="/history" passHref>
                       <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full hover:bg-red-700/50 text-red-300 hover:text-red-200 -mr-2">
                           <Calendar className="w-4 h-4" />
                       </Button>

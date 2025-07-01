@@ -12,6 +12,7 @@ const routes = [
   { path: '/dashboard', name: 'Dashboard' },
   { path: '/transfer', name: 'Pay (Bills & Transfer)' },
   { path: '/vaults', name: 'Vaults Page' },
+  { path: '/history', name: 'Transaction History Calendar' },
 ];
 
 export default function DevMenuPage() {

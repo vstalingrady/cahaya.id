@@ -1,10 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, User, Lock, History } from 'lucide-react';
-import TransactionCalendar from '@/components/profile/transaction-calendar';
+import { ArrowLeft, User, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import NoiseOverlay from '@/components/noise-overlay';
 
 export default function ProfilePage() {
   return (
@@ -29,13 +27,6 @@ export default function ProfilePage() {
            </Button>
         </div>
       </div>
-      
-      <div className="space-y-4">
-         <h2 className="text-xl font-semibold text-white font-serif flex items-center gap-2"><History /> Transaction History</h2>
-         <p className="text-muted-foreground">Select a date to view all transactions from that day.</p>
-         <TransactionCalendar />
-      </div>
-
     </div>
   );
 }
