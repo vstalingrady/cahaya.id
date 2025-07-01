@@ -7,6 +7,18 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import NoiseOverlay from '@/components/noise-overlay';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Button } from '@/components/ui/button';
+import { Loader2, Sparkles } from 'lucide-react';
+import { getSavingSuggestions } from '@/lib/actions';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const chartConfig = {
   value: { label: "Spending" },
@@ -80,9 +92,23 @@ const renderActiveShape = (props: any) => {
 export default function InsightsPage() {
     const [activeIndex, setActiveIndex] = useState(0);
     const activeCategoryName = spendingData[activeIndex]?.name;
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [aiResult, setAiResult] = useState<{suggestions?: string[], error?: string} | null>(null);
 
     const onPieEnter = (_: any, index: number) => {
         setActiveIndex(index);
+    };
+
+    const handleGetSuggestions = async () => {
+        setIsGenerating(true);
+        setAiResult(null);
+        try {
+            const result = await getSavingSuggestions(transactions);
+            setAiResult(result);
+        } catch (e) {
+            setAiResult({ error: "An unexpected error occurred while fetching suggestions." });
+        }
+        setIsGenerating(false);
     };
 
     const filteredTransactions = activeCategoryName
@@ -97,6 +123,42 @@ export default function InsightsPage() {
                 </h1>
                 <p className="text-muted-foreground">Lacak semua pengeluaranmu.</p>
             </div>
+
+            <Button 
+                onClick={handleGetSuggestions} 
+                disabled={isGenerating} 
+                className="w-full bg-gradient-to-r from-accent to-primary/80 text-white py-5 rounded-2xl font-black text-lg shadow-2xl border border-red-400/30 hover:shadow-primary/25 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
+            >
+                <NoiseOverlay opacity={0.05} />
+                {isGenerating ? (
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                ) : (
+                    <Sparkles className="w-6 h-6" />
+                )}
+                <span className="relative z-10">{isGenerating ? 'Analyzing your spending...' : 'Get AI Savings Plan'}</span>
+            </Button>
+
+             <AlertDialog open={!!aiResult} onOpenChange={(open) => !open && setAiResult(null)}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle className="flex items-center gap-2">
+                           {aiResult?.error ? 'An Error Occurred' : <> <Sparkles className="w-5 h-5 text-accent" /> Your AI-Powered Savings Plan </>}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription asChild>
+                           {aiResult?.error ? (
+                               <p className="pt-4 text-left">{aiResult.error}</p>
+                           ) : (
+                               <ul className="space-y-2 list-disc list-inside pt-4 text-left text-foreground">
+                                   {aiResult?.suggestions?.map((s, i) => <li key={i}>{s}</li>)}
+                               </ul>
+                           )}
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogAction onClick={() => setAiResult(null)}>Got it</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
                 <NoiseOverlay opacity={0.03} />
