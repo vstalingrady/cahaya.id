@@ -291,25 +291,25 @@ export default function InsightsPage() {
                 </div>
                  <div className="mt-6 space-y-2 text-sm">
                     {spendingData.map((entry, index) => (
-                        <div 
-                            key={entry.category} 
+                        <div
+                            key={entry.category}
                             onClick={() => setDetailCategory(entry.name)}
                             className={cn(
                                 "flex items-center justify-between rounded-lg p-2 transition-colors cursor-pointer hover:bg-red-800/60",
                                 activeIndex === index ? "bg-red-800/50" : ""
                             )}
                         >
-                            <div className="flex items-center gap-3">
-                                <div 
-                                    className="h-2 w-2 rounded-full" 
-                                    style={{ backgroundColor: chartConfig[entry.category]?.color }} 
+                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                <div
+                                    className="h-2 w-2 rounded-full flex-shrink-0"
+                                    style={{ backgroundColor: chartConfig[entry.category]?.color }}
                                 />
-                                <span className="font-medium text-white">{entry.name}</span>
+                                <span className="font-medium text-white truncate">{entry.name}</span>
                             </div>
-                            <div className="text-right">
+                            <div className="flex items-baseline justify-end gap-x-2 ml-4 flex-shrink-0">
                                 <span className="font-semibold text-white">{formatCurrency(entry.value)}</span>
-                                <span className="ml-2 text-muted-foreground">
-                                    {totalSpending > 0 ? ((entry.value / totalSpending) * 100).toFixed(0) : 0}%
+                                <span className="w-[4ch] text-right font-mono text-muted-foreground">
+                                    {totalSpending > 0 ? `${((entry.value / totalSpending) * 100).toFixed(0)}%` : '0%'}
                                 </span>
                             </div>
                         </div>

@@ -75,19 +75,19 @@ export default function TransactionCalendar() {
                     Activity on {date ? format(date, 'PPP') : 'selected date'}
                 </h3>
                 
-                <div className="grid grid-cols-3 gap-2 text-center mb-4">
-                    <div className="bg-red-950/50 p-2 rounded-lg">
+                <div className="flex gap-2 text-center mb-4">
+                    <div className="bg-red-950/50 p-2 rounded-lg flex-1 min-w-0">
                         <p className="text-xs text-red-300">Spent</p>
-                        <p className="font-bold text-red-400">{formatCurrency(dailySummary.spent)}</p>
+                        <p className="font-bold text-red-400 truncate">{formatCurrency(dailySummary.spent)}</p>
                     </div>
-                    <div className="bg-red-950/50 p-2 rounded-lg">
+                    <div className="bg-red-950/50 p-2 rounded-lg flex-1 min-w-0">
                         <p className="text-xs text-red-300">Received</p>
-                        <p className="font-bold text-green-400">{formatCurrency(dailySummary.received)}</p>
+                        <p className="font-bold text-green-400 truncate">{formatCurrency(dailySummary.received)}</p>
                     </div>
-                    <div className="bg-red-950/50 p-2 rounded-lg">
+                    <div className="bg-red-950/50 p-2 rounded-lg flex-1 min-w-0">
                         <p className="text-xs text-red-300">Net Change</p>
-                        <p className={cn("font-bold", dailySummary.net >= 0 ? 'text-green-400' : 'text-red-400')}>
-                            {dailySummary.net >= 0 && dailySummary.received > 0 ? '+' : ''}{formatCurrency(dailySummary.net)}
+                        <p className={cn("font-bold truncate", dailySummary.net >= 0 ? 'text-green-400' : 'text-red-400')}>
+                            {dailySummary.net > 0 ? '+' : ''}{formatCurrency(dailySummary.net)}
                         </p>
                     </div>
                 </div>
