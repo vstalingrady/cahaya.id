@@ -199,12 +199,18 @@ export default function TransferPage() {
         </div>
 
         <Link
-            href="/transfer/qris"
-            className="w-full bg-card p-5 rounded-2xl flex items-center justify-center text-muted-foreground border-2 border-dashed border-primary/50 hover:border-solid hover:border-primary hover:bg-gradient-to-r hover:from-primary hover:to-accent transition-all duration-300 group"
+          href="/transfer/qris"
+          className="group relative w-full p-[2px] rounded-2xl bg-transparent hover:bg-gradient-to-r from-primary to-accent transition-all duration-300"
         >
-            <span className="font-semibold text-xl text-white transition-colors relative z-10 flex items-center gap-3">
-                Pay with <Image src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS Logo" width={80} height={25} className="dark:invert" />
-            </span>
+          {/* Dashed border overlay - visible by default, hides on hover */}
+          <div className="absolute inset-0 rounded-2xl border-2 border-dashed border-primary/50 group-hover:opacity-0 transition-opacity"></div>
+          
+          {/* Inner content area with card background */}
+          <div className="w-full h-full bg-card rounded-[calc(1rem-2px)] p-5 flex items-center justify-center">
+              <span className="font-semibold text-xl text-muted-foreground group-hover:text-white transition-colors flex items-center gap-3">
+                  Pay with <Image src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS Logo" width={80} height={25} className="dark:invert" />
+              </span>
+          </div>
         </Link>
         
         <div className="space-y-4">
@@ -270,7 +276,7 @@ export default function TransferPage() {
                 <Link
                   key={action.name}
                   href={action.href}
-                  className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg shadow-primary/10 group"
+                  className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg group"
                 >
                   <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg">
                       <action.icon className="w-6 h-6 text-white" />
