@@ -200,9 +200,9 @@ export default function TransferPage() {
 
         <Link
             href="/transfer/qris"
-            className="w-full bg-card p-5 rounded-2xl flex items-center justify-center text-muted-foreground border-2 border-dashed border-border hover:border-primary/80 hover:text-primary transition-all duration-300 group"
+            className="w-full bg-card p-5 rounded-2xl flex items-center justify-center text-muted-foreground border-2 border-dashed border-primary/50 hover:border-solid hover:border-primary hover:bg-gradient-to-r hover:from-primary hover:to-accent transition-all duration-300 group"
         >
-            <span className="font-semibold text-xl text-white group-hover:text-primary transition-colors relative z-10 flex items-center gap-3">
+            <span className="font-semibold text-xl text-white transition-colors relative z-10 flex items-center gap-3">
                 Pay with <Image src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS Logo" width={80} height={25} className="dark:invert" />
             </span>
         </Link>
@@ -235,7 +235,7 @@ export default function TransferPage() {
                           <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
                             <X className="w-4 h-4" />
                           </Button>
-                          <div className="bg-primary/20 text-primary w-10 h-10 flex items-center justify-center rounded-xl">
+                          <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg">
                             {getIcon(fav.icon)}
                           </div>
                           <div>
@@ -255,7 +255,7 @@ export default function TransferPage() {
                         onClick={() => emblaApi?.scrollTo(index)}
                         className={cn(
                             "w-2 h-2 rounded-full transition-all duration-300",
-                            index === selectedIndex ? "bg-primary w-6" : "bg-muted hover:bg-muted-foreground/50"
+                            index === selectedIndex ? "bg-accent w-6" : "bg-muted hover:bg-muted-foreground/50"
                         )}
                     />
                 ))}
