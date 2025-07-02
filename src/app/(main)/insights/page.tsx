@@ -18,7 +18,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { format, addMonths, isBefore, getDate, parseISO } from 'date-fns';
+import { format, addMonths, isBefore, getDate, parseISO, subDays, startOfMonth, startOfYear, isEqual } from 'date-fns';
 import { getBillSuggestions } from '@/lib/actions';
 import { type BillDiscoveryOutput } from '@/ai/flows/bill-discovery';
 import { useToast } from '@/hooks/use-toast';
@@ -29,6 +29,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { type DateRange } from 'react-day-picker';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -105,13 +107,16 @@ type ManualSubscription = {
     firstDetectedDate: string; // We'll store nextBillDate here as a string
 }
 
-
 export default function InsightsPage() {
     // Spending Analysis State
     const [activeIndex, setActiveIndex] = useState(0);
     const [isGenerating, setIsGenerating] = useState(false);
     const [aiResult, setAiResult] = useState<(PersonalizedSavingSuggestionsOutput & { error?: string }) | null>(null);
     const [detailCategory, setDetailCategory] = useState<string | null>(null);
+    const [dateRange, setDateRange] = useState<DateRange | undefined>({
+      from: subDays(new Date(), 29),
+      to: new Date(),
+    });
 
     // Subscription Tracker State
     const [isScanning, setIsScanning] = useState(false);
@@ -127,9 +132,38 @@ export default function InsightsPage() {
     });
     
     // --- DERIVED STATE & LOGIC ---
+    
+    const allTimeDateRange = useMemo(() => {
+        if (transactions.length === 0) {
+            return { from: new Date(), to: new Date() };
+        }
+        const dates = transactions.map(t => new Date(t.date));
+        return {
+            from: new Date(Math.min(...dates.map(d => d.getTime()))),
+            to: new Date(Math.max(...dates.map(d => d.getTime())))
+        };
+    }, []);
+
+    const datePresets = useMemo(() => [
+      { label: "Last 7 Days", range: { from: subDays(new Date(), 6), to: new Date() } },
+      { label: "Last 14 Days", range: { from: subDays(new Date(), 13), to: new Date() } },
+      { label: "Last 30 Days", range: { from: subDays(new Date(), 29), to: new Date() } },
+      { label: "This Month", range: { from: startOfMonth(new Date()), to: new Date() } },
+      { label: "Last 3 Months", range: { from: subDays(new Date(), 89), to: new Date() } },
+      { label: "This Year", range: { from: startOfYear(new Date()), to: new Date() } },
+      { label: "All Time", range: allTimeDateRange },
+    ], [allTimeDateRange]);
 
     const { spendingData, totalSpending, chartConfig } = useMemo(() => {
-        const spendingByCategory = transactions
+        const filteredTransactions = transactions.filter(t => {
+            if (!dateRange?.from) return true;
+            const transactionDate = new Date(t.date);
+            const toDate = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from);
+            toDate.setHours(23, 59, 59, 999);
+            return transactionDate >= dateRange.from && transactionDate <= toDate;
+        });
+
+        const spendingByCategory = filteredTransactions
             .filter((t) => t.amount < 0)
             .reduce((acc, t) => {
                 const categoryKey = slugify(t.category);
@@ -152,12 +186,28 @@ export default function InsightsPage() {
         }, { value: { label: "Spending" } } as ChartConfig);
 
         return { spendingData, totalSpending, chartConfig };
-    }, []);
+    }, [dateRange]);
+
+    const filteredTransactionsForAI = useMemo(() => {
+      if (!dateRange?.from) return transactions;
+      const toDate = dateRange.to ?? new Date();
+      return transactions.filter(t => {
+          const transactionDate = new Date(t.date);
+          return transactionDate >= dateRange.from! && transactionDate <= toDate;
+      });
+    }, [dateRange]);
 
     const categoryTransactions = useMemo(() => {
-        if (!detailCategory) return [];
-        return transactions.filter(t => t.amount < 0 && t.category === detailCategory);
-    }, [detailCategory]);
+      if (!detailCategory || !dateRange?.from) return [];
+      const toDate = dateRange.to ?? new Date();
+      return transactions.filter(t => {
+          const transactionDate = new Date(t.date);
+          return t.amount < 0 && 
+                 t.category === detailCategory &&
+                 transactionDate >= dateRange.from! &&
+                 transactionDate <= toDate;
+      });
+    }, [detailCategory, dateRange]);
 
     const combinedSubscriptions = useMemo(() => {
         const aiSubs = aiScanResult?.potentialBills || [];
@@ -195,7 +245,7 @@ export default function InsightsPage() {
         setIsGenerating(true);
         setAiResult(null);
         try {
-            const result = await getSavingSuggestions(transactions);
+            const result = await getSavingSuggestions(filteredTransactionsForAI);
             setAiResult(result);
         } catch (e) {
             setAiResult({ error: "An unexpected error occurred.", spenderType: "Error", summary: "Could not analyze spending.", suggestions: [], investmentPlan: "", localDeals: [] });
@@ -244,6 +294,62 @@ export default function InsightsPage() {
               {/* Spending Tab */}
               <TabsContent value="spending" className="mt-6">
                 <div className="space-y-4">
+                  <div className="bg-card p-4 rounded-2xl border border-border shadow-lg shadow-primary/10 space-y-4">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          id="date"
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal bg-input border-border h-12 text-base",
+                            !dateRange && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {dateRange?.from ? (
+                            dateRange.to ? (
+                              <>
+                                {format(dateRange.from, "LLL dd, y")} -{" "}
+                                {format(dateRange.to, "LLL dd, y")}
+                              </>
+                            ) : (
+                              format(dateRange.from, "LLL dd, y")
+                            )
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          initialFocus
+                          mode="range"
+                          defaultMonth={dateRange?.from}
+                          selected={dateRange}
+                          onSelect={setDateRange}
+                          numberOfMonths={1}
+                        />
+                      </PopoverContent>
+                    </Popover>
+
+                    <ScrollArea className="w-full whitespace-nowrap">
+                      <div className="flex w-max space-x-2 pb-2">
+                        {datePresets.map((preset, index) => (
+                          <Button
+                            key={index}
+                            variant={dateRange && preset.range.from && dateRange.from && isEqual(preset.range.from, dateRange.from) && preset.range.to && dateRange.to && isEqual(preset.range.to, dateRange.to) ? 'default' : 'outline'}
+                            size="sm"
+                            className="h-8 px-3"
+                            onClick={() => setDateRange(preset.range)}
+                          >
+                            {preset.label}
+                          </Button>
+                        ))}
+                      </div>
+                      <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
+                  </div>
+
                   <Button onClick={handleGetSuggestions} disabled={isGenerating} className="w-full bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30 py-5 rounded-2xl font-semibold text-lg shadow-lg h-auto">
                       {isGenerating ? <Loader2 className="w-6 h-6 animate-spin" /> : <Sparkles className="w-6 h-6" />}
                       <span>{isGenerating ? 'Analyzing your spending...' : 'Get AI Financial Plan'}</span>
@@ -251,31 +357,37 @@ export default function InsightsPage() {
                   <div className="bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg shadow-primary/10">
                       <h3 className="font-semibold text-white text-center mb-4 font-serif">Spending this month</h3>
                       <div className="h-56 w-full">
+                         {spendingData.length > 0 ? (
                           <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
                               <ResponsiveContainer width="100%" height="100%"><PieChart>
                                   <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
                                   <Pie activeIndex={activeIndex} activeShape={renderActiveShape} data={spendingData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} dataKey="value" nameKey="category" onMouseEnter={onPieEnter} onClick={handlePieClick}>
-                                      {spendingData.map((entry) => (<Cell key={`cell-${entry.category}`} fill={cn(chartConfig[entry.category].color)} />))}
+                                      {spendingData.map((entry) => (<Cell key={`cell-${entry.category}`} fill={cn(chartConfig[entry.category]?.color)} />))}
                                   </Pie>
                               </PieChart></ResponsiveContainer>
                           </ChartContainer>
+                         ) : (
+                            <div className="flex items-center justify-center h-full text-muted-foreground">No spending in this period.</div>
+                         )}
                       </div>
-                      <div className="mt-6 space-y-2 text-sm">
-                          {spendingData.map((entry, index) => (
-                              <div key={entry.category} onClick={() => setDetailCategory(entry.name)} className={cn("flex items-center justify-between rounded-lg p-2 transition-colors cursor-pointer hover:bg-secondary/60", activeIndex === index ? "bg-secondary" : "")}>
-                                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                                      <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: chartConfig[entry.category]?.color }} />
-                                      <span className="font-medium text-white truncate">{entry.name}</span>
-                                  </div>
-                                  <div className="flex items-baseline justify-end gap-x-2 ml-4 flex-shrink-0">
-                                      <span className="font-semibold text-white">{formatCurrency(entry.value)}</span>
-                                      <span className="w-[4ch] text-right font-mono text-muted-foreground">
-                                          {totalSpending > 0 ? `${((entry.value / totalSpending) * 100).toFixed(0)}%` : '0%'}
-                                      </span>
-                                  </div>
-                              </div>
-                          ))}
-                      </div>
+                      {spendingData.length > 0 && (
+                        <div className="mt-6 space-y-2 text-sm">
+                            {spendingData.map((entry, index) => (
+                                <div key={entry.category} onClick={() => setDetailCategory(entry.name)} className={cn("flex items-center justify-between rounded-lg p-2 transition-colors cursor-pointer hover:bg-secondary/60", activeIndex === index ? "bg-secondary" : "")}>
+                                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                                        <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: chartConfig[entry.category]?.color }} />
+                                        <span className="font-medium text-white truncate">{entry.name}</span>
+                                    </div>
+                                    <div className="flex items-baseline justify-end gap-x-2 ml-4 flex-shrink-0">
+                                        <span className="font-semibold text-white">{formatCurrency(entry.value)}</span>
+                                        <span className="w-[4ch] text-right font-mono text-muted-foreground">
+                                            {totalSpending > 0 ? `${((entry.value / totalSpending) * 100).toFixed(0)}%` : '0%'}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                      )}
                   </div>
                 </div>
               </TabsContent>
