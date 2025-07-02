@@ -89,54 +89,30 @@ export default function TransferPage() {
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
-  const [tweenValues, setTweenValues] = useState<number[]>([]);
 
   const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
+    if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
   }, []);
 
-  const TWEEN_FACTOR_BASE = 0.5;
-
-  const onScroll = useCallback(() => {
-    if (!emblaApi) return;
-
-    const engine = emblaApi.internalEngine();
-    const scrollProgress = emblaApi.scrollProgress();
-
-    const tweenValues = emblaApi.scrollSnapList().map((scrollSnap, index) => {
-      let diffToTarget = scrollSnap - scrollProgress;
-      const slidesInView = emblaApi.slidesInView();
-
-      if (engine.options.loop) {
-        engine.slideLooper.loopPoints.forEach((loopPoint) => {
-          const target = loopPoint.target();
-          if (index === loopPoint.index && target !== 0) {
-            const sign = Math.sign(target);
-            if (sign === -1) {
-              diffToTarget = scrollSnap - (1 + scrollProgress);
-            }
-            if (sign === 1) {
-              diffToTarget = scrollSnap + (1 - scrollProgress);
-            }
-          }
-        });
-      }
-      const TWEEN_FACTOR = TWEEN_FACTOR_BASE * emblaApi.scrollSnapList().length;
-      const tweenValue = 1 - Math.abs(diffToTarget * TWEEN_FACTOR);
-      return Math.max(0, tweenValue);
-    });
-    setTweenValues(tweenValues);
-  }, [emblaApi]);
-
   useEffect(() => {
     if (!emblaApi) return;
-    onScroll();
-    setScrollSnaps(emblaApi.scrollSnapList());
+
+    const updateSnaps = () => setScrollSnaps(emblaApi.scrollSnapList());
+    
+    onSelect(emblaApi);
+    updateSnaps();
+
     emblaApi.on('select', onSelect);
-    emblaApi.on('scroll', onScroll);
-    emblaApi.on('reInit', onScroll);
     emblaApi.on('reInit', onSelect);
-  }, [emblaApi, onSelect, onScroll]);
+    emblaApi.on('reInit', updateSnaps);
+
+    return () => {
+        emblaApi.off('select', onSelect);
+        emblaApi.off('reInit', onSelect);
+        emblaApi.off('reInit', updateSnaps);
+    };
+  }, [emblaApi, onSelect]);
 
   const form = useForm<z.infer<typeof favoriteSchema>>({
     resolver: zodResolver(favoriteSchema),
@@ -234,9 +210,9 @@ export default function TransferPage() {
         <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white font-serif">Favorites</h2>
-              <div className="flex items-center">
-                <Button variant="ghost" size="sm" onClick={() => setIsAddDialogOpen(true)}>
-                  <Plus className="w-4 h-4 mr-1" /> Add
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => setIsAddDialogOpen(true)}>
+                  <Plus className="w-5 h-5" />
                 </Button>
                 <Button variant="link" size="sm" className="text-primary pr-0">
                   See All
@@ -250,11 +226,7 @@ export default function TransferPage() {
                   {favorites.map((fav, index) => (
                     <div
                       key={fav.id}
-                      className="flex-grow-0 flex-shrink-0 basis-2/5 pl-4 transition-transform duration-200"
-                      style={{
-                        opacity: tweenValues[index],
-                        transform: `scale(${0.8 + 0.2 * tweenValues[index]})`,
-                      }}
+                      className="flex-grow-0 flex-shrink-0 basis-2/5 pl-4"
                     >
                       <div className="relative group flex-shrink-0 w-full h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg shadow-primary/10 transition-colors cursor-pointer">
                           <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
