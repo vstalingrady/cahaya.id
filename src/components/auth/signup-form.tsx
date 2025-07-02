@@ -15,7 +15,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'Please enter your name.' }),
@@ -25,7 +24,6 @@ const formSchema = z.object({
 
 export default function SignupForm() {
   const router = useRouter();
-  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,16 +35,10 @@ export default function SignupForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("Simulating account creation with values:", values);
-    
-    // Simulate a short delay to feel more realistic
-    await new Promise(resolve => setTimeout(resolve, 1000));
-      
-    toast({
-      title: "Profile Created! (Simulated)",
-      description: "Now let's secure your account.",
-    });
-    router.push('/setup-security');
+    // Store form data in session storage to pass to the next page
+    sessionStorage.setItem('signupData', JSON.stringify(values));
+    // Redirect to the terms of service page
+    router.push('/terms-of-service');
   }
 
   return (
@@ -106,7 +98,7 @@ export default function SignupForm() {
             {form.formState.isSubmitting ? (
               <Loader2 className="h-6 w-6 animate-spin" />
             ) : (
-              <span className="relative z-10">Create Account & Continue</span>
+              <span className="relative z-10">Review & Continue</span>
             )}
           </Button>
         </form>
