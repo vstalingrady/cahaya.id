@@ -146,11 +146,6 @@ export default function TransferPage() {
     );
   }, [searchQuery, transactions]);
   
-  const getIcon = (iconName: string) => {
-    const IconComponent = availableIcons[iconName as IconName] || Wallet;
-    return <IconComponent className="w-6 h-6 text-white" />;
-  };
-
   return (
     <>
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -199,16 +194,13 @@ export default function TransferPage() {
           <p className="text-muted-foreground">Your central hub for all payments.</p>
         </div>
 
-        <Link
-          href="/transfer/qris"
-          className="w-full block p-[2px] rounded-2xl bg-gradient-to-r from-primary to-accent group"
-        >
-          <div className="w-full h-full bg-card rounded-[calc(1rem-2px)] p-5 flex items-center justify-center border-2 border-dashed border-card group-hover:border-transparent transition-colors">
+        <div className="p-[2px] rounded-2xl bg-gradient-to-r from-primary to-accent group">
+          <div className="w-full h-full bg-card rounded-[calc(1rem-2px)] p-5 flex items-center justify-center border-2 border-dashed border-card">
               <span className="font-semibold text-xl text-white flex items-center gap-3">
                   Pay with <Image src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS Logo" width={80} height={37} className="dark:invert w-20 h-auto" />
               </span>
           </div>
-        </Link>
+        </div>
         
         <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -226,28 +218,31 @@ export default function TransferPage() {
             <div className="w-full">
               <div className="overflow-hidden" ref={emblaRef}>
                 <div className="flex -ml-4">
-                  {favorites.map((fav, index) => (
-                    <div
-                      key={fav.id}
-                      className="flex-grow-0 flex-shrink-0 basis-3/5 pl-4 min-w-0"
-                    >
-                      <div className={cn(
-                        "relative group flex-shrink-0 w-full h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-all duration-300 ease-out",
-                         index === selectedIndex ? 'scale-100 opacity-100 shadow-primary/20' : 'scale-90 opacity-60'
-                      )}>
-                          <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                            <X className="w-4 h-4" />
-                          </Button>
-                          <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg">
-                            {getIcon(fav.icon)}
-                          </div>
-                          <div>
-                            <p className="font-semibold text-white truncate">{fav.name}</p>
-                            <p className="text-sm text-muted-foreground font-mono">{formatCurrency(fav.amount)}</p>
-                          </div>
+                  {favorites.map((fav, index) => {
+                    const Icon = availableIcons[fav.icon as IconName] || Wallet;
+                    return (
+                      <div
+                        key={fav.id}
+                        className="flex-grow-0 flex-shrink-0 basis-3/5 pl-4 min-w-0"
+                      >
+                        <div className={cn(
+                          "relative group flex-shrink-0 w-full h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-all duration-300 ease-out",
+                          index === selectedIndex ? 'scale-100 opacity-100 shadow-primary/20' : 'scale-90 opacity-60'
+                        )}>
+                            <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                              <X className="w-4 h-4" />
+                            </Button>
+                            <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg">
+                              <Icon className="w-6 h-6 text-white" />
+                            </div>
+                            <div>
+                              <p className="font-semibold text-white truncate">{fav.name}</p>
+                              <p className="text-sm text-muted-foreground font-mono">{formatCurrency(fav.amount)}</p>
+                            </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
 
