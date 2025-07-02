@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -68,12 +69,12 @@ export default function WelcomePage() {
   }, [api]);
 
   return (
-    <div className="w-full h-screen bg-background text-white overflow-hidden">
+    <div className="w-full h-screen bg-background text-white">
       <Carousel setApi={setApi} className="w-full h-full">
         <CarouselContent className="-ml-0">
           {slides.map((slide, index) => (
             <CarouselItem key={index} className="pl-0">
-              <div className="relative w-full h-screen flex items-center justify-center p-6 overflow-hidden">
+              <div className="relative w-full h-screen flex flex-col items-center justify-center p-6 overflow-y-auto">
                 <div className="absolute inset-0 bg-hero-glow animate-hero-glow -z-10"></div>
                 
                 {slide.type === 'hero' && (
@@ -90,7 +91,7 @@ export default function WelcomePage() {
 
                 {slide.type === 'feature' && (
                    <div className={cn(
-                       "flex flex-col items-center justify-center gap-8 max-w-6xl mx-auto lg:gap-16",
+                       "flex flex-col items-center justify-center gap-8 max-w-6xl mx-auto lg:gap-16 w-full",
                        slide.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'
                     )}>
                     <div className="flex-1 text-center lg:text-left animate-fade-in-up">
