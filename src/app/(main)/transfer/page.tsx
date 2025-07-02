@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, type ElementType } from 'react';
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react'
 import Image from 'next/image';
 import {
@@ -53,14 +53,14 @@ const favoriteSchema = z.object({
   icon: z.string().min(1, { message: 'An icon is required.' }),
 });
 
-const availableIcons: { [key: string]: React.ReactNode } = {
-  User: <User />,
-  Clapperboard: <Clapperboard />,
-  CreditCard: <CreditCard />,
-  Wallet: <Wallet />,
-  ShoppingCart: <ShoppingCart />,
-  Home: <Home />,
-  Building: <Building />,
+const availableIcons: { [key: string]: ElementType } = {
+  User,
+  Clapperboard,
+  CreditCard,
+  Wallet,
+  ShoppingCart,
+  Home,
+  Building,
 };
 type IconName = keyof typeof availableIcons;
 
@@ -147,7 +147,8 @@ export default function TransferPage() {
   }, [searchQuery, transactions]);
   
   const getIcon = (iconName: string) => {
-    return availableIcons[iconName as IconName] || <Wallet />;
+    const IconComponent = availableIcons[iconName as IconName] || Wallet;
+    return <IconComponent className="w-6 h-6 text-white" />;
   };
 
   return (
@@ -200,9 +201,9 @@ export default function TransferPage() {
 
         <Link
           href="/transfer/qris"
-          className="w-full block p-[2px] rounded-2xl bg-gradient-to-r from-primary to-accent"
+          className="w-full block p-[2px] rounded-2xl bg-gradient-to-r from-primary to-accent group"
         >
-          <div className="w-full h-full bg-card rounded-[calc(1rem-2px)] p-5 flex items-center justify-center">
+          <div className="w-full h-full bg-card rounded-[calc(1rem-2px)] p-5 flex items-center justify-center border-2 border-dashed border-card group-hover:border-transparent transition-colors">
               <span className="font-semibold text-xl text-white flex items-center gap-3">
                   Pay with <Image src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS Logo" width={80} height={37} className="dark:invert w-20 h-auto" />
               </span>
@@ -237,7 +238,7 @@ export default function TransferPage() {
                           <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
                             <X className="w-4 h-4" />
                           </Button>
-                          <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg text-white">
+                          <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg">
                             {getIcon(fav.icon)}
                           </div>
                           <div>
