@@ -12,6 +12,7 @@ import {
   type CarouselApi,
 } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
+import { ArrowRight } from 'lucide-react';
 
 export default function WelcomePage() {
   const [api, setApi] = React.useState<CarouselApi>();
@@ -27,24 +28,24 @@ export default function WelcomePage() {
       type: 'feature',
       title: 'One Dashboard, Total Control.',
       description: 'See your complete financial picture. BCA, GoPay, OVO, Bibit—all your accounts, one stunning dashboard. Finally understand your true net worth in real-time.',
-      imgSrc: 'https://placehold.co/600x400.png',
-      imgHint: 'finance dashboard',
+      imgSrc: 'https://placehold.co/800x600.png',
+      imgHint: 'finance dashboard modern',
       reverse: false
     },
     {
       type: 'feature',
       title: 'Pay Any Bill, From Any Source.',
       description: 'Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.',
-      imgSrc: 'https://placehold.co/600x400.png',
-      imgHint: 'bill payment',
+      imgSrc: 'https://placehold.co/800x600.png',
+      imgHint: 'bill payment ui',
       reverse: true
     },
     {
       type: 'feature',
       title: 'Save Smarter with Cuan Vaults.',
       description: 'Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.',
-      imgSrc: 'https://placehold.co/600x400.png',
-      imgHint: 'savings goal',
+      imgSrc: 'https://placehold.co/800x600.png',
+      imgHint: 'savings goals progress',
       reverse: false
     },
     {
@@ -76,7 +77,7 @@ export default function WelcomePage() {
                 {slide.type === 'hero' && (
                   <div className="text-center relative z-10 animate-fade-in-up">
                      <CuanLogo className="w-28 h-auto mx-auto mb-8" />
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line">
+                    <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line">
                       {slide.title}
                     </h1>
                      <p className="text-lg text-muted-foreground max-w-xl mx-auto my-8 font-light">
@@ -96,12 +97,12 @@ export default function WelcomePage() {
                       </p>
                     </div>
                     <div className="flex-1 mt-8 lg:mt-0 w-full max-w-md animate-fade-in-up [animation-delay:0.2s]">
-                      <div className="bg-card p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50">
+                      <div className="bg-card/50 p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50 backdrop-blur-sm">
                         <Image 
                             src={slide.imgSrc!}
                             alt={slide.title!}
-                            width={600}
-                            height={400}
+                            width={800}
+                            height={600}
                             data-ai-hint={slide.imgHint!}
                             className="rounded-2xl shadow-lg"
                           />
@@ -112,14 +113,14 @@ export default function WelcomePage() {
 
                 {slide.type === 'cta' && (
                   <div className="text-center relative z-10 animate-fade-in-up">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif">
+                    <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif">
                       {slide.title}
                     </h2>
                      <p className="text-lg text-muted-foreground max-w-xl mx-auto my-8 font-light">
                       {slide.description}
                     </p>
                     <Button asChild size="lg" className="w-64 h-14 text-lg animate-slow-pulse">
-                      <Link href="/signup">Create Free Account</Link>
+                      <Link href="/signup">Create Free Account <ArrowRight className="ml-2" /></Link>
                     </Button>
                      <div className="mt-8 text-center">
                         <p className="text-sm text-muted-foreground">
