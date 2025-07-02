@@ -18,7 +18,6 @@ import Link from 'next/link';
 import { type CarouselApi } from '@/components/ui/carousel';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Input } from '@/components/ui/input';
-import NoiseOverlay from '@/components/noise-overlay';
 import TransactionHistory from '@/components/dashboard/transaction-history';
 import { transactions } from '@/lib/data';
 
@@ -102,7 +101,7 @@ export default function TransferPage() {
   return (
     <div className="space-y-8 animate-fade-in-up">
       <div>
-        <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+        <h1 className="text-3xl font-bold mb-1 text-primary font-serif">
           Pay & Transfer
         </h1>
         <p className="text-muted-foreground">Your central hub for all payments.</p>
@@ -110,11 +109,10 @@ export default function TransferPage() {
 
        <Link 
           href="/transfer/qris"
-          className="w-full bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-center text-red-200 border-2 border-dashed border-red-600/40 hover:border-red-500/80 transition-all duration-300 relative overflow-hidden group"
+          className="w-full bg-card p-5 rounded-2xl flex items-center justify-center text-muted-foreground border-2 border-dashed border-border hover:border-primary/80 hover:text-primary transition-all duration-300 group"
       >
-          <NoiseOverlay opacity={0.02} />
-          <QrCode className="w-8 h-8 mr-4 text-primary group-hover:text-accent transition-colors relative z-10" />
-          <span className="font-bold text-xl text-white group-hover:text-red-100 transition-colors relative z-10">Pay with QRIS</span>
+          <QrCode className="w-8 h-8 mr-4 text-primary group-hover:text-primary/80 transition-colors relative z-10" />
+          <span className="font-semibold text-xl text-white group-hover:text-primary transition-colors relative z-10">Pay with QRIS</span>
       </Link>
 
        <div className="space-y-4">
@@ -126,15 +124,14 @@ export default function TransferPage() {
                   <CarouselItem key={action.name} className="basis-1/3 pl-4">
                     <Link
                       href={action.href}
-                      className="h-full text-left bg-gradient-to-br from-red-900/60 to-red-800/60 backdrop-blur-xl p-5 rounded-2xl flex flex-col justify-between hover:from-red-800/70 hover:to-red-700/70 transition-all duration-300 border border-red-600/20 shadow-lg group relative overflow-hidden"
+                      className="h-full text-left bg-card backdrop-blur-xl p-5 rounded-2xl flex flex-col justify-between hover:bg-secondary transition-all duration-300 border border-border shadow-lg group"
                     >
-                      <NoiseOverlay opacity={0.03} />
                       <div className="flex-1">
-                        <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg mb-3 inline-block">
+                        <div className="bg-primary p-3 rounded-xl shadow-lg mb-3 inline-block">
                             <action.icon className="w-6 h-6 text-white" />
                         </div>
-                        <p className="font-bold text-lg text-white">{action.name}</p>
-                        <p className="text-red-300 text-sm font-light">{action.description}</p>
+                        <p className="font-semibold text-lg text-white">{action.name}</p>
+                        <p className="text-muted-foreground text-sm font-light">{action.description}</p>
                       </div>
                     </Link>
                   </CarouselItem>
@@ -166,15 +163,14 @@ export default function TransferPage() {
                       href={rec.href}
                       // @ts-ignore
                       disabled={rec.disabled}
-                      className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-lg group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg group disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      <NoiseOverlay opacity={0.03} />
-                      <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">
+                      <div className="bg-primary p-3 rounded-xl shadow-lg">
                         <rec.icon className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <p className="font-bold text-lg text-white">{rec.name}</p>
-                        <p className="text-red-300 text-sm font-mono">{formatCurrency(rec.amount)}</p>
+                        <p className="font-semibold text-lg text-white">{rec.name}</p>
+                        <p className="text-muted-foreground text-sm font-mono">{formatCurrency(rec.amount)}</p>
                       </div>
                     </Component>
                   </CarouselItem>
@@ -197,11 +193,11 @@ export default function TransferPage() {
         <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white font-serif">Recent Transactions</h2>
              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                     type="text"
                     placeholder="Search transactions..."
-                    className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70"
+                    className="bg-input border-border h-14 pl-12 text-base placeholder:text-muted-foreground"
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                 />

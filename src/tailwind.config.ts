@@ -9,9 +9,8 @@ export default {
   ],
   theme: {
     fontFamily: {
-      sans: ['"Inter"', 'sans-serif'],
+      sans: ['var(--font-inter)', 'sans-serif'],
       serif: ['"Lora"', 'serif'],
-      code: ['monospace'],
     },
     extend: {
       colors: {
@@ -87,9 +86,9 @@ export default {
           'to': { transform: 'rotateY(360deg)' },
         },
         'border-color-cycle': {
-          '0%, 100%': { 'border-color': '#f87171' }, // red-400
-          '33%': { 'border-color': '#4ade80' }, // green-400
-          '66%': { 'border-color': '#60a5fa' }, // blue-400
+          '0%, 100%': { 'border-color': 'hsl(var(--primary))' }, 
+          '33%': { 'border-color': 'hsl(var(--accent))' }, 
+          '66%': { 'border-color': 'hsl(var(--primary))' }, 
         },
         'flash': {
           '0%, 100%': { opacity: '0' },

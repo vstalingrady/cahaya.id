@@ -4,7 +4,6 @@ import * as React from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Wallet, Loader2, Calendar } from "lucide-react";
-import NoiseOverlay from "../noise-overlay";
 import { type Transaction } from "@/lib/data";
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -112,16 +111,14 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
   }).format(dailyChange);
 
   return (
-    <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl shadow-lg border border-red-700/30 relative overflow-hidden">
-      <NoiseOverlay opacity={0.1} />
-      <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent"></div>
+    <div className="bg-card backdrop-blur-xl p-5 rounded-2xl shadow-lg border border-border relative overflow-hidden">
       <div className="relative z-10">
         <div className="flex flex-col gap-4">
             <div>
                  <div className="flex justify-between items-center mb-1">
                     <h2 className="text-xs text-muted-foreground font-bold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> Total Net Worth</h2>
                     <Link href="/history" passHref>
-                      <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full hover:bg-red-700/50 text-red-300 hover:text-red-200 -mr-2">
+                      <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full hover:bg-secondary/50 text-muted-foreground hover:text-foreground -mr-2">
                           <Calendar className="w-4 h-4" />
                       </Button>
                     </Link>
@@ -137,7 +134,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                   </div>
                 )}
             </div>
-            <div className="h-40 relative">
+            <div className="h-48 relative -mx-5">
                 {chartData.length > 0 ? (
                     <BalanceChart chartData={chartData} />
                 ) : (

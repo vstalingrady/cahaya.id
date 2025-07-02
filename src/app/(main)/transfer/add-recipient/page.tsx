@@ -18,7 +18,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import NoiseOverlay from '@/components/noise-overlay';
 import Link from 'next/link';
 
 const formSchema = z.object({
@@ -68,13 +67,12 @@ export default function AddRecipientPage() {
         <Link href="/transfer" className="absolute left-0">
           <ArrowLeft className="w-6 h-6 text-white" />
         </Link>
-        <h1 className="text-2xl font-bold mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+        <h1 className="text-2xl font-bold mx-auto text-primary font-serif">
           Add Recipient
         </h1>
       </header>
 
-      <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
-        <NoiseOverlay opacity={0.03} />
+      <div className="bg-card backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -82,10 +80,10 @@ export default function AddRecipientPage() {
               name="bankName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-red-200">Recipient Bank</FormLabel>
+                  <FormLabel className="text-muted-foreground">Recipient Bank</FormLabel>
                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                        <SelectTrigger className="bg-red-950/50 border-red-800/50 h-14 text-base placeholder:text-red-300/70">
+                        <SelectTrigger className="bg-input border-border h-14 text-base placeholder:text-muted-foreground">
                             <SelectValue placeholder="Select a bank" />
                         </SelectTrigger>
                     </FormControl>
@@ -107,11 +105,11 @@ export default function AddRecipientPage() {
                 name="accountNumber"
                 render={({ field }) => (
                 <FormItem>
-                    <FormLabel className="text-red-200">Account Number</FormLabel>
+                    <FormLabel className="text-muted-foreground">Account Number</FormLabel>
                     <FormControl>
                     <div className="relative">
-                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
-                        <Input type="number" className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="e.g. 1234567890" {...field} />
+                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input type="number" className="bg-input border-border h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="e.g. 1234567890" {...field} />
                     </div>
                     </FormControl>
                     <FormMessage />
@@ -124,11 +122,11 @@ export default function AddRecipientPage() {
                 name="name"
                 render={({ field }) => (
                 <FormItem>
-                    <FormLabel className="text-red-200">Recipient Name</FormLabel>
+                    <FormLabel className="text-muted-foreground">Recipient Name</FormLabel>
                     <FormControl>
                     <div className="relative">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
-                        <Input className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="e.g. Vstalin Grady" {...field} />
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input className="bg-input border-border h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="e.g. Vstalin Grady" {...field} />
                     </div>
                     </FormControl>
                     <FormMessage />
@@ -138,10 +136,9 @@ export default function AddRecipientPage() {
 
             <Button 
                 type="submit" 
-                className="w-full bg-gradient-to-r from-primary to-accent text-white py-5 rounded-2xl font-bold text-xl shadow-lg border border-red-400/30 hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto mt-4"
+                className="w-full bg-primary text-primary-foreground py-5 rounded-2xl font-semibold text-xl shadow-lg border-border hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 h-auto mt-4"
             >
-                <NoiseOverlay opacity={0.05} />
-                <span className="relative z-10">Verify & Save Recipient</span>
+                Verify & Save Recipient
             </Button>
           </form>
         </Form>

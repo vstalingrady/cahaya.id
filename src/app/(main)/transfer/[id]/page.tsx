@@ -7,7 +7,6 @@ import { useRouter, useParams } from 'next/navigation';
 import { ArrowLeft, Banknote, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
-import NoiseOverlay from '@/components/noise-overlay';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -91,7 +90,7 @@ export default function InitiateTransferPage() {
                 <Link href="/transfer" className="absolute left-0">
                     <ArrowLeft className="w-6 h-6 text-white" />
                 </Link>
-                <h1 className="text-2xl font-bold mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+                <h1 className="text-2xl font-bold mx-auto text-primary font-serif">
                     Error
                 </h1>
             </header>
@@ -109,15 +108,14 @@ export default function InitiateTransferPage() {
                 <ArrowLeft className="w-6 h-6 text-white" />
             </Link>
             <div className="text-center mx-auto">
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+                <h1 className="text-2xl font-bold text-primary font-serif">
                     Transfer to {recipient.name}
                 </h1>
                 <p className="text-sm text-muted-foreground">{recipient.bankName} &bull; {recipient.accountNumber}</p>
             </div>
         </header>
         
-         <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
-            <NoiseOverlay opacity={0.03} />
+         <div className="bg-card backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <FormField
@@ -125,10 +123,10 @@ export default function InitiateTransferPage() {
                   name="fromAccountId"
                   render={({ field }) => (
                     <FormItem>
-                        <FormLabel className="text-red-200">From Account</FormLabel>
+                        <FormLabel className="text-muted-foreground">From Account</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                            <SelectTrigger className="bg-red-950/50 border-red-800/50 h-14 text-base placeholder:text-red-300/70">
+                            <SelectTrigger className="bg-input border-border h-14 text-base placeholder:text-muted-foreground">
                                 <SelectValue placeholder="Select an account" />
                             </SelectTrigger>
                         </FormControl>
@@ -153,11 +151,11 @@ export default function InitiateTransferPage() {
                     name="amount"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel className="text-red-200">Amount</FormLabel>
+                        <FormLabel className="text-muted-foreground">Amount</FormLabel>
                         <FormControl>
                         <div className="relative">
-                            <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
-                            <Input type="number" className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="IDR 0" {...field} />
+                            <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                            <Input type="number" className="bg-input border-border h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="IDR 0" {...field} />
                         </div>
                         </FormControl>
                         <FormMessage />
@@ -170,11 +168,11 @@ export default function InitiateTransferPage() {
                     name="notes"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel className="text-red-200">Notes (Optional)</FormLabel>
+                        <FormLabel className="text-muted-foreground">Notes (Optional)</FormLabel>
                         <FormControl>
                         <div className="relative">
-                            <MessageSquare className="absolute left-4 top-5 w-5 h-5 text-red-300" />
-                            <Textarea className="bg-red-950/50 border-red-800/50 pl-12 text-base placeholder:text-red-300/70" placeholder="For lunch yesterday" {...field} />
+                            <MessageSquare className="absolute left-4 top-5 w-5 h-5 text-muted-foreground" />
+                            <Textarea className="bg-input border-border pl-12 text-base placeholder:text-muted-foreground" placeholder="For lunch yesterday" {...field} />
                         </div>
                         </FormControl>
                         <FormMessage />
@@ -183,26 +181,26 @@ export default function InitiateTransferPage() {
                 />
 
                 {Number(amount) >= 10000 && (
-                <div className="space-y-3 bg-red-950/60 p-5 rounded-2xl border border-red-800/50">
+                <div className="space-y-3 bg-secondary p-5 rounded-2xl border border-border">
                     <div className="flex justify-between items-center text-sm">
-                    <span className="text-red-300">Transfer Amount</span>
+                    <span className="text-muted-foreground">Transfer Amount</span>
                     <span className="font-mono text-white">{formatCurrency(Number(amount))}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                    <span className="text-red-300">BI-FAST Fee</span>
+                    <span className="text-muted-foreground">BI-FAST Fee</span>
                     <span className="font-mono text-white">{formatCurrency(BI_FAST_FEE)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                    <span className="text-red-300">Bank API Fee</span>
+                    <span className="text-muted-foreground">Bank API Fee</span>
                     <span className="font-mono text-white">{formatCurrency(BANK_API_FEE)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                    <span className="text-red-300">Cuan Service Fee</span>
+                    <span className="text-muted-foreground">Cuan Service Fee</span>
                     <span className="font-mono text-white">{formatCurrency(CUAN_FEE)}</span>
                     </div>
-                    <div className="flex justify-between items-center font-bold text-base pt-3 mt-2 border-t border-red-800/50">
+                    <div className="flex justify-between items-center font-bold text-base pt-3 mt-2 border-t border-border/50">
                     <span className="text-white">Total Debited</span>
-                    <span className="font-mono text-accent">{formatCurrency(Number(amount) + TOTAL_FEE)}</span>
+                    <span className="font-mono text-primary">{formatCurrency(Number(amount) + TOTAL_FEE)}</span>
                     </div>
                 </div>
                 )}
@@ -210,10 +208,9 @@ export default function InitiateTransferPage() {
 
                 <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-primary to-accent text-white py-5 rounded-2xl font-bold text-xl shadow-lg border border-red-400/30 hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
+                    className="w-full bg-primary text-primary-foreground py-5 rounded-2xl font-semibold text-xl shadow-lg border-border hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 h-auto"
                 >
-                    <NoiseOverlay opacity={0.05} />
-                    <span className="relative z-10">Confirm & Transfer</span>
+                    Confirm & Transfer
                 </Button>
               </form>
             </Form>

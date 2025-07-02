@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Banknote, Edit, Repeat, Coins } from 'lucide-react';
 import Link from 'next/link';
 
-import NoiseOverlay from '@/components/noise-overlay';
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -97,13 +96,12 @@ export default function AddVaultPage() {
         <Link href="/vaults" className="absolute left-0">
           <ArrowLeft className="w-6 h-6 text-white" />
         </Link>
-        <h1 className="text-2xl font-bold mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+        <h1 className="text-2xl font-bold mx-auto text-primary font-serif">
           Create New Vault
         </h1>
       </header>
 
-      <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
-        <NoiseOverlay opacity={0.03} />
+      <div className="bg-card p-8 rounded-2xl border border-border shadow-lg">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -111,11 +109,11 @@ export default function AddVaultPage() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-red-200">Vault Name</FormLabel>
+                  <FormLabel className="text-muted-foreground">Vault Name</FormLabel>
                   <FormControl>
                     <div className="relative">
-                        <Edit className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
-                        <Input className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="e.g. Japan Trip 2025" {...field} />
+                        <Edit className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input className="bg-input border-border h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="e.g. Japan Trip 2025" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -128,11 +126,11 @@ export default function AddVaultPage() {
               name="targetAmount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-red-200">Target Amount</FormLabel>
+                  <FormLabel className="text-muted-foreground">Target Amount</FormLabel>
                   <FormControl>
                     <div className="relative">
-                        <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
-                        <Input type="number" className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="IDR 0" {...field} />
+                        <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input type="number" className="bg-input border-border h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="IDR 0" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -145,10 +143,10 @@ export default function AddVaultPage() {
               name="icon"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-red-200">Icon</FormLabel>
+                  <FormLabel className="text-muted-foreground">Icon</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-red-950/50 border-red-800/50 h-14 text-base placeholder:text-red-300/70">
+                      <SelectTrigger className="bg-input border-border h-14 text-base placeholder:text-muted-foreground">
                         <SelectValue placeholder="Select an icon for your goal" />
                       </SelectTrigger>
                     </FormControl>
@@ -171,8 +169,8 @@ export default function AddVaultPage() {
               render={() => (
                 <FormItem>
                    <div className="mb-4">
-                    <FormLabel className="text-red-200 text-base">Funding Sources</FormLabel>
-                    <FormDescription className="text-red-300 text-sm">
+                    <FormLabel className="text-foreground text-base">Funding Sources</FormLabel>
+                    <FormDescription className="text-muted-foreground text-sm">
                       Select accounts to fund auto-saving and round-ups.
                     </FormDescription>
                    </div>
@@ -186,7 +184,7 @@ export default function AddVaultPage() {
                           return (
                             <FormItem
                               key={account.id}
-                              className="flex flex-row items-start space-x-3 space-y-0 bg-red-950/50 p-4 rounded-xl"
+                              className="flex flex-row items-start space-x-3 space-y-0 bg-secondary p-4 rounded-xl"
                             >
                               <FormControl>
                                 <Checkbox
@@ -221,10 +219,10 @@ export default function AddVaultPage() {
               name="destinationAccountId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-red-200">Destination Account</FormLabel>
+                  <FormLabel className="text-muted-foreground">Destination Account</FormLabel>
                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-red-950/50 border-red-800/50 h-14 text-base placeholder:text-red-300/70">
+                      <SelectTrigger className="bg-input border-border h-14 text-base placeholder:text-muted-foreground">
                         <SelectValue placeholder="Select a bank account for this vault" />
                       </SelectTrigger>
                     </FormControl>
@@ -236,7 +234,7 @@ export default function AddVaultPage() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormDescription className="text-red-300 text-sm">
+                  <FormDescription className="text-muted-foreground text-sm">
                       This account will hold the money for your vault.
                   </FormDescription>
                   <FormMessage />
@@ -249,12 +247,12 @@ export default function AddVaultPage() {
                     control={form.control}
                     name="autoSaveEnabled"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border border-red-800/50 p-4 bg-red-950/50">
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4 bg-secondary">
                         <div className="space-y-0.5">
-                            <FormLabel className="text-base text-red-200 flex items-center gap-2">
+                            <FormLabel className="text-base text-foreground flex items-center gap-2">
                             <Repeat className="w-4 h-4" /> Enable Auto-Saving
                             </FormLabel>
-                            <FormDescription className="text-red-300 text-sm">
+                            <FormDescription className="text-muted-foreground text-sm">
                             Automatically transfer money to this vault.
                             </FormDescription>
                         </div>
@@ -278,26 +276,26 @@ export default function AddVaultPage() {
                         name="autoSaveFrequency"
                         render={({ field }) => (
                             <FormItem className="space-y-3">
-                            <FormLabel className="text-red-200">Frequency</FormLabel>
+                            <FormLabel className="text-muted-foreground">Frequency</FormLabel>
                             <FormControl>
                                 <RadioGroup
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
                                 className="grid grid-cols-3 gap-4"
                                 >
-                                <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'daily' ? 'border-primary' : 'border-red-800/50')}>
+                                <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'daily' ? 'border-primary' : 'border-border')}>
                                     <FormControl>
                                     <RadioGroupItem value="daily" id="daily" className="sr-only" />
                                     </FormControl>
                                     <FormLabel htmlFor="daily" className="font-normal cursor-pointer">Daily</FormLabel>
                                 </FormItem>
-                                <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'weekly' ? 'border-primary' : 'border-red-800/50')}>
+                                <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'weekly' ? 'border-primary' : 'border-border')}>
                                     <FormControl>
                                     <RadioGroupItem value="weekly" id="weekly" className="sr-only" />
                                     </FormControl>
                                     <FormLabel htmlFor="weekly" className="font-normal cursor-pointer">Weekly</FormLabel>
                                 </FormItem>
-                                <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'monthly' ? 'border-primary' : 'border-red-800/50')}>
+                                <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'monthly' ? 'border-primary' : 'border-border')}>
                                     <FormControl>
                                     <RadioGroupItem value="monthly" id="monthly" className="sr-only" />
                                     </FormControl>
@@ -314,11 +312,11 @@ export default function AddVaultPage() {
                             name="autoSaveAmount"
                             render={({ field }) => (
                                 <FormItem>
-                                <FormLabel className="text-red-200">Auto-Save Amount</FormLabel>
+                                <FormLabel className="text-muted-foreground">Auto-Save Amount</FormLabel>
                                 <FormControl>
                                     <div className="relative">
-                                        <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
-                                        <Input type="number" className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="IDR 0" {...field} />
+                                        <Banknote className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                                        <Input type="number" className="bg-input border-border h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="IDR 0" {...field} />
                                     </div>
                                 </FormControl>
                                 <FormMessage />
@@ -332,12 +330,12 @@ export default function AddVaultPage() {
                     control={form.control}
                     name="roundUpEnabled"
                     render={({ field }) => (
-                        <FormItem className="flex flex-row items-center justify-between rounded-lg border border-red-800/50 p-4 bg-red-950/50">
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4 bg-secondary">
                         <div className="space-y-0.5">
-                            <FormLabel className="text-base text-red-200 flex items-center gap-2">
+                            <FormLabel className="text-base text-foreground flex items-center gap-2">
                              <Coins className="w-4 h-4" /> Enable Round-Up Savings
                             </FormLabel>
-                            <FormDescription className="text-red-300 text-sm">
+                            <FormDescription className="text-muted-foreground text-sm">
                             Automatically save spare change from purchases.
                             </FormDescription>
                         </div>
@@ -354,10 +352,9 @@ export default function AddVaultPage() {
 
             <Button 
                 type="submit" 
-                className="w-full bg-gradient-to-r from-primary to-accent text-white py-5 rounded-2xl font-bold text-xl shadow-lg border border-red-400/30 hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto mt-4"
+                className="w-full bg-primary text-primary-foreground py-5 rounded-2xl font-semibold text-xl shadow-lg border-border hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 h-auto mt-4"
             >
-                <NoiseOverlay opacity={0.05} />
-                <span className="relative z-10">Create Vault</span>
+                Create Vault
             </Button>
           </form>
         </Form>

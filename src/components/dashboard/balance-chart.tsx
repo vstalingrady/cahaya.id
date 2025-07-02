@@ -44,7 +44,7 @@ const CustomTransactionDot = (props: any) => {
                         <circle cx={cx} cy={cy} r={dotRadius} strokeWidth={2} className={cn("transition-all", dotColorClass)} />
                     </g>
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs bg-gradient-to-br from-black via-red-950 to-black text-white border-red-800/50 rounded-xl p-0">
+                <TooltipContent className="max-w-xs bg-popover text-popover-foreground border-border rounded-xl p-0">
                     <div className="flex flex-col gap-2 p-3">
                         <div className="flex justify-between items-center font-bold">
                             <span className="text-white">{format(payload.date, 'eeee, d MMM')}</span>
@@ -52,13 +52,13 @@ const CustomTransactionDot = (props: any) => {
                                 {netChange > 0 ? '+' : ''}{formatCurrency(netChange)}
                             </span>
                         </div>
-                        <div className="border-t border-red-800/50 my-1"></div>
+                        <div className="border-t border-border/50 my-1"></div>
                         <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
                           {transactions.map((t: Transaction) => (
                               <div key={t.id} className="text-xs flex justify-between items-center">
                                   <div>
                                       <p className="font-semibold text-white">{t.description}</p>
-                                      <p className="text-red-300">{t.category}</p>
+                                      <p className="text-muted-foreground">{t.category}</p>
                                   </div>
                                   <p className={cn("font-mono ml-4", t.amount > 0 ? "text-green-400" : "text-red-400")}>
                                       {formatCurrency(t.amount)}
@@ -135,12 +135,12 @@ export default function BalanceChart({ chartData }: BalanceChartProps) {
                     <linearGradient id="fillNetWorth" x1="0" y1="0" x2="0" y2="1">
                         <stop
                             offset="5%"
-                            stopColor="hsl(var(--accent))"
+                            stopColor="hsl(var(--primary))"
                             stopOpacity={0.4}
                         />
                         <stop
                             offset="95%"
-                            stopColor="hsl(var(--accent))"
+                            stopColor="hsl(var(--primary))"
                             stopOpacity={0.05}
                         />
                     </linearGradient>
@@ -149,7 +149,7 @@ export default function BalanceChart({ chartData }: BalanceChartProps) {
                       <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={1} />
                     </linearGradient>
                 </defs>
-                <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeDasharray="3 3" opacity={0.2} />
+                <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeDasharray="3 3" opacity={0.5} />
                 <XAxis
                     dataKey="date"
                     tickLine={false}
@@ -176,13 +176,13 @@ export default function BalanceChart({ chartData }: BalanceChartProps) {
                     content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                         return (
-                            <div className="rounded-xl border border-red-800/50 bg-gradient-to-br from-black via-red-950 to-black backdrop-blur-sm p-2 shadow-lg">
+                            <div className="rounded-xl border border-border bg-popover p-2 shadow-lg">
                                 <div className="grid grid-cols-1 gap-1">
                                     <div className="flex flex-col">
-                                        <span className="text-[0.70rem] uppercase text-red-300">
+                                        <span className="text-xs uppercase text-muted-foreground">
                                             {format(new Date(payload[0].payload.date), 'eeee, d MMM yyyy')}
                                         </span>
-                                        <span className="font-bold text-lg text-white">
+                                        <span className="font-bold text-lg text-foreground">
                                         {new Intl.NumberFormat('id-ID', {
                                             style: 'currency',
                                             currency: 'IDR',

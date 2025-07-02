@@ -8,7 +8,6 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import NoiseOverlay from '@/components/noise-overlay';
 import { cn } from '@/lib/utils';
 
 export default function QrisPage() {
@@ -68,14 +67,13 @@ export default function QrisPage() {
         <Link href="/transfer" className="absolute left-0">
           <ArrowLeft className="w-6 h-6 text-white" />
         </Link>
-        <h1 className="text-2xl font-bold mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+        <h1 className="text-2xl font-bold mx-auto text-primary font-serif">
           Pay with QRIS
         </h1>
       </header>
 
       <div className="flex flex-col items-center justify-center space-y-6">
-        <div className="relative w-full max-w-xs aspect-square bg-black/50 rounded-2xl overflow-hidden border-4 border-red-900/80 shadow-lg">
-          <NoiseOverlay opacity={0.02} />
+        <div className="relative w-full max-w-xs aspect-square bg-black/50 rounded-2xl overflow-hidden border-4 border-border/80 shadow-lg">
           
           <video
             ref={videoRef}
@@ -89,7 +87,7 @@ export default function QrisPage() {
           />
 
           <div className="absolute inset-0 flex items-center justify-center p-4">
-            {hasCameraPermission === null && <Loader2 className="w-12 h-12 text-red-400 animate-spin" />}
+            {hasCameraPermission === null && <Loader2 className="w-12 h-12 text-primary animate-spin" />}
             {hasCameraPermission === false && (
                 <Alert variant="destructive" className="bg-destructive/80 border-red-500 text-white text-center">
                   <AlertTitle>Camera Access Required</AlertTitle>
@@ -117,9 +115,8 @@ export default function QrisPage() {
         <Button
           onClick={handleScan}
           disabled={!isCameraReady || isScanning}
-          className="w-full max-w-xs bg-gradient-to-r from-primary to-accent text-white py-5 rounded-2xl font-bold text-xl shadow-lg border border-red-400/30 hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
+          className="w-full max-w-xs bg-primary text-primary-foreground py-5 rounded-2xl font-semibold text-xl shadow-lg border border-border hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 h-auto"
         >
-          <NoiseOverlay opacity={0.05} />
           {isScanning ? (
             <>
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />

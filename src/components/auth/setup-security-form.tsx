@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
@@ -8,8 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import NoiseOverlay from '../noise-overlay';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 
 export default function SetupSecurityForm() {
@@ -25,9 +23,9 @@ export default function SetupSecurityForm() {
 
   // Mapping from Tailwind class to RGBA for the radial gradient
   const flashColorMap: { [key: string]: string } = {
-    'bg-red-500/80': 'rgba(239, 68, 68, 0.8)',
+    'bg-primary/80': 'rgba(122, 72, 240, 0.8)', // --primary
     'bg-green-500/80': 'rgba(34, 197, 94, 0.8)',
-    'bg-blue-400/80': 'rgba(96, 165, 250, 0.8)',
+    'bg-sky-400/80': 'rgba(56, 189, 248, 0.8)',
   };
 
   useEffect(() => {
@@ -65,7 +63,7 @@ export default function SetupSecurityForm() {
             videoRef.current.srcObject = null;
         }
     };
-  }, [activeTab, toast]);
+  }, [activeTab, toast, scanStep]);
 
   const handleSetupComplete = (method: string) => {
     toast({
@@ -81,7 +79,7 @@ export default function SetupSecurityForm() {
     // Simulate aligning face for 2 seconds
     setTimeout(() => {
       // Start flash sequence
-      const colors = ['bg-red-500/80', 'bg-green-500/80', 'bg-blue-400/80'];
+      const colors = ['bg-primary/80', 'bg-green-500/80', 'bg-sky-400/80'];
       let flashIndex = 0;
       
       const flash = () => {
@@ -116,27 +114,26 @@ export default function SetupSecurityForm() {
         <div
           className="fixed inset-0 z-50 pointer-events-none"
           style={{
-            background: `radial-gradient(ellipse 30% 45% at 50% 50%, transparent, transparent 50%, ${flashColorMap[flashColor]})`
+            background: `radial-gradient(ellipse 30% 45% at 50% 50%, transparent, transparent 50%, ${flashColorMap[flashColor as keyof typeof flashColorMap]})`
           }}
         ></div>
       )}
-      <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
-        <NoiseOverlay opacity={0.03} />
+      <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-2xl">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-red-950/50 border-red-800/50">
-            <TabsTrigger value="face" className="data-[state=active]:bg-red-700/50 data-[state=active]:text-white">
+          <TabsList className="grid w-full grid-cols-3 bg-secondary border-border">
+            <TabsTrigger value="face" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
               <Camera className="w-5 h-5 mr-2" /> Face ID
             </TabsTrigger>
-            <TabsTrigger value="fingerprint" className="data-[state=active]:bg-red-700/50 data-[state=active]:text-white">
+            <TabsTrigger value="fingerprint" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
               <Fingerprint className="w-5 h-5 mr-2" /> Fingerprint
             </TabsTrigger>
-            <TabsTrigger value="pin" className="data-[state=active]:bg-red-700/50 data-[state=active]:text-white">
+            <TabsTrigger value="pin" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
               <Lock className="w-5 h-5 mr-2" /> PIN
             </TabsTrigger>
           </TabsList>
           <TabsContent value="face" className="mt-6">
             <div className="flex flex-col items-center space-y-6">
-               <Alert className="text-center text-red-200 bg-red-950/40 border-red-800/60">
+               <Alert className="text-center text-muted-foreground bg-secondary border-border">
                 <AlertDescription>
                   {scanStep === 'scanning'
                     ? "Hold still, the screen will flash to illuminate your face."
@@ -145,8 +142,8 @@ export default function SetupSecurityForm() {
               </Alert>
 
               <div className={cn(
-                "relative w-64 h-80 rounded-[50%] overflow-hidden border-4 flex items-center justify-center",
-                scanStep === 'scanning' ? 'animate-border-color-cycle' : 'border-red-900/80',
+                "relative w-64 h-80 rounded-[50%] overflow-hidden border-4 flex items-center justify-center transition-colors",
+                scanStep === 'scanning' ? 'animate-border-color-cycle' : 'border-border',
                 scanStep === 'complete' ? 'border-green-500' : ''
               )}>
                 <video ref={videoRef} className={cn("w-full h-full object-cover scale-x-[-1] transition-opacity duration-300", isCameraActive ? 'opacity-100' : 'opacity-0')} autoPlay muted playsInline />
@@ -155,9 +152,9 @@ export default function SetupSecurityForm() {
 
                 {!isCameraActive && (
                     <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-black/50">
-                        {hasCameraPermission === null && <Loader2 className="w-12 h-12 text-red-400 animate-spin" />}
-                        {hasCameraPermission === false && <Camera className="w-12 h-12 text-red-400" />}
-                        <p className="text-sm text-red-300 mt-2">
+                        {hasCameraPermission === null && <Loader2 className="w-12 h-12 text-primary animate-spin" />}
+                        {hasCameraPermission === false && <Camera className="w-12 h-12 text-muted-foreground" />}
+                        <p className="text-sm text-muted-foreground mt-2">
                           {hasCameraPermission === null ? "Requesting camera..." : "Camera unavailable"}
                         </p>
                     </div>
@@ -168,7 +165,7 @@ export default function SetupSecurityForm() {
                  <Button 
                     onClick={handleStartScan}
                     disabled={!hasCameraPermission}
-                    className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105"
+                    className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105"
                  >
                     Start Scan
                  </Button>
@@ -176,7 +173,7 @@ export default function SetupSecurityForm() {
               {scanStep === 'scanning' && (
                  <Button 
                     disabled
-                    className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg"
+                    className="w-full bg-primary/80 text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg"
                  >
                     <Loader2 className="w-6 h-6 mr-3 animate-spin" />
                     Scanning...
@@ -185,7 +182,7 @@ export default function SetupSecurityForm() {
                {scanStep === 'complete' && (
                  <Button 
                     disabled
-                    className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl font-bold text-lg shadow-lg"
+                    className="w-full bg-green-500 hover:bg-green-500/90 text-white py-4 rounded-xl font-semibold text-lg shadow-lg"
                  >
                     <Check className="w-6 h-6 mr-3" />
                     Face ID Configured
@@ -195,11 +192,11 @@ export default function SetupSecurityForm() {
           </TabsContent>
           <TabsContent value="fingerprint" className="mt-6">
               <div className="flex flex-col items-center space-y-8 pt-8 pb-4">
-                  <p className="text-center text-red-200">Place your finger on the scanner to register your fingerprint.</p>
-                  <Fingerprint className="w-48 h-48 text-red-400/50" />
+                  <p className="text-center text-muted-foreground">Place your finger on the scanner to register your fingerprint.</p>
+                  <Fingerprint className="w-48 h-48 text-primary/30" />
                   <Button 
                       onClick={() => handleSetupComplete('Fingerprint')}
-                      className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105"
+                      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105"
                   >
                       Register Fingerprint
                   </Button>
@@ -207,12 +204,12 @@ export default function SetupSecurityForm() {
           </TabsContent>
           <TabsContent value="pin" className="mt-6">
               <div className="flex flex-col items-center space-y-6 pt-8">
-                   <p className="text-center text-red-200">Create an 8-character PIN with numbers and letters for secure access.</p>
+                   <p className="text-center text-muted-foreground">Create an 8-character PIN with numbers and letters for secure access.</p>
                    <div className="relative w-full">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input 
                           type="password" 
-                          className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-red-300/70" 
+                          className="bg-input border-border h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
                           placeholder="••••••••"
                           value={pin}
                           onChange={handlePinChange}
@@ -222,7 +219,7 @@ export default function SetupSecurityForm() {
                    <Button 
                       onClick={() => handleSetupComplete('Cuan PIN')}
                       disabled={pin.length < 8}
-                      className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105"
+                      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105"
                   >
                       Set PIN
                   </Button>

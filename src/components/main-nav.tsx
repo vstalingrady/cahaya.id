@@ -18,7 +18,7 @@ export default function MainNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-black/50 backdrop-blur-lg border-t border-red-500/20 relative">
+    <nav className="bg-background/70 backdrop-blur-lg border-t border-border relative">
       <NoiseOverlay opacity={0.03} />
       <div className="flex justify-around items-center h-20">
         {navItems.map((item) => {
@@ -28,13 +28,13 @@ export default function MainNav() {
               <div
                 className={cn(
                   'flex flex-col items-center gap-1 p-2 rounded-lg transition-all duration-300 w-full',
-                  isActive ? 'text-primary' : 'text-muted-foreground hover:text-accent'
+                  isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary/80'
                 )}
               >
                 <item.icon className="w-6 h-6" />
                 <span className="text-xs font-semibold">{item.label}</span>
                 {isActive && (
-                    <div className="w-8 h-1 bg-gradient-to-r from-primary to-accent rounded-full mt-1"></div>
+                    <div className="w-8 h-1 bg-primary rounded-full mt-1"></div>
                 )}
               </div>
             </Link>

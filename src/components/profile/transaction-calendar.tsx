@@ -6,7 +6,6 @@ import { transactions, accounts } from '@/lib/data';
 import { format, isSameDay, startOfDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
-import NoiseOverlay from '../noise-overlay';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -18,9 +17,9 @@ const getAccountLogo = (accountId: string) => {
     const account = accounts.find(a => a.id === accountId);
     if (!account) return <div className="w-10 h-10 rounded-lg bg-gray-500 flex-shrink-0"></div>;
     const name = account.name.toLowerCase();
-    if (name.includes('bca')) return <div className="w-10 h-10 text-xs bg-blue-600 text-white rounded-lg flex items-center justify-center font-black flex-shrink-0">BCA</div>;
-    if (name.includes('gopay')) return <div className="w-10 h-10 text-xs bg-sky-500 text-white rounded-lg flex items-center justify-center font-black flex-shrink-0">GP</div>;
-    if (name.includes('ovo')) return <div className="w-10 h-10 text-xs bg-purple-600 text-white rounded-lg flex items-center justify-center font-black flex-shrink-0">OVO</div>;
+    if (name.includes('bca')) return <div className="w-10 h-10 text-xs bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold flex-shrink-0">BCA</div>;
+    if (name.includes('gopay')) return <div className="w-10 h-10 text-xs bg-sky-500 text-white rounded-lg flex items-center justify-center font-bold flex-shrink-0">GP</div>;
+    if (name.includes('ovo')) return <div className="w-10 h-10 text-xs bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold flex-shrink-0">OVO</div>;
     return <div className="w-10 h-10 rounded-lg bg-gray-500 flex-shrink-0"></div>;
 }
 
@@ -81,8 +80,7 @@ export default function TransactionCalendar() {
     }, [transactionsOnSelectedDate, balanceOnSelectedDate]);
 
     return (
-        <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
-             <NoiseOverlay opacity={0.03} />
+        <div className="bg-card p-5 rounded-2xl border border-border shadow-lg">
             <div className="flex justify-center">
                 <Calendar
                     mode="single"
@@ -102,27 +100,27 @@ export default function TransactionCalendar() {
                     defaultMonth={date}
                 />
             </div>
-            <div className="mt-4 border-t border-red-800/50 pt-4">
+            <div className="mt-4 border-t border-border/50 pt-4">
                 <h3 className="font-bold text-white mb-2 text-lg">
                     Activity on {date ? format(date, 'PPP') : 'selected date'}
                 </h3>
                 
                 <div className="mb-4 text-center">
-                    <p className="text-sm text-red-300">Balance at end of day</p>
+                    <p className="text-sm text-muted-foreground">Balance at end of day</p>
                     <p className="text-2xl font-bold text-white">{formatCurrency(dailySummary.balanceOnDate)}</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-center mb-4">
-                    <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-center min-h-[90px]">
-                        <p className="text-xs text-red-300">Spent</p>
+                    <div className="bg-secondary p-3 rounded-lg flex flex-col justify-center min-h-[90px]">
+                        <p className="text-xs text-muted-foreground">Spent</p>
                         <p className="font-bold text-red-400 text-sm">{formatCurrency(dailySummary.spent)}</p>
                     </div>
-                    <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-center min-h-[90px]">
-                        <p className="text-xs text-red-300">Received</p>
+                    <div className="bg-secondary p-3 rounded-lg flex flex-col justify-center min-h-[90px]">
+                        <p className="text-xs text-muted-foreground">Received</p>
                         <p className="font-bold text-green-400 text-sm">{formatCurrency(dailySummary.received)}</p>
                     </div>
-                    <div className="bg-red-950/50 p-3 rounded-lg flex flex-col justify-center min-h-[90px]">
-                        <p className="text-xs text-red-300">Net Change</p>
+                    <div className="bg-secondary p-3 rounded-lg flex flex-col justify-center min-h-[90px]">
+                        <p className="text-xs text-muted-foreground">Net Change</p>
                         <p className={cn("font-bold text-sm", dailySummary.net >= 0 ? 'text-green-400' : 'text-red-400')}>
                             {dailySummary.net >= 0 ? '+' : ''}{formatCurrency(dailySummary.net)}
                         </p>
@@ -138,12 +136,12 @@ export default function TransactionCalendar() {
                     {transactionsOnSelectedDate.length > 0 ? (
                         <div className="space-y-3">
                             {transactionsOnSelectedDate.map(t => (
-                                <div key={t.id} className="bg-red-950/50 p-3 rounded-lg flex items-center justify-between">
+                                <div key={t.id} className="bg-secondary p-3 rounded-lg flex items-center justify-between">
                                     <div className="flex items-center gap-3">
                                         {getAccountLogo(t.accountId)}
                                         <div>
                                             <p className="font-semibold text-white">{t.description}</p>
-                                            <p className="text-xs text-red-300">{format(new Date(t.date), 'p')}</p>
+                                            <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'p')}</p>
                                         </div>
                                     </div>
                                     <p className={cn(

@@ -3,7 +3,6 @@ import React, { useState, useMemo } from 'react';
 import { PieChart, Pie, ResponsiveContainer, Cell, Sector } from 'recharts';
 import { transactions } from '@/lib/data';
 import { cn } from '@/lib/utils';
-import NoiseOverlay from '@/components/noise-overlay';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import { Loader2, Sparkles, Check, Info } from 'lucide-react';
@@ -139,7 +138,7 @@ export default function InsightsPage() {
     return (
         <div className="space-y-8 animate-fade-in-up">
             <div>
-                <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+                <h1 className="text-3xl font-bold mb-1 text-primary font-serif">
                     Insights
                 </h1>
                 <p className="text-muted-foreground">Track all your expenses.</p>
@@ -148,9 +147,8 @@ export default function InsightsPage() {
             <Button 
                 onClick={handleGetSuggestions} 
                 disabled={isGenerating} 
-                className="w-full bg-gradient-to-r from-accent to-primary/80 text-white py-5 rounded-2xl font-bold text-lg shadow-lg border border-red-400/30 hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
+                className="w-full bg-primary text-primary-foreground py-5 rounded-2xl font-semibold text-lg shadow-lg border border-border hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 h-auto"
             >
-                <NoiseOverlay opacity={0.05} />
                 {isGenerating ? (
                     <Loader2 className="w-6 h-6 animate-spin" />
                 ) : (
@@ -160,14 +158,14 @@ export default function InsightsPage() {
             </Button>
             
             <Dialog open={!!aiResult} onOpenChange={(open) => !open && setAiResult(null)}>
-                <DialogContent className="bg-gradient-to-br from-black via-red-950 to-black text-white border-red-800/50 max-w-md max-h-[85vh] flex flex-col">
+                <DialogContent className="bg-popover text-popover-foreground border-border max-w-md max-h-[85vh] flex flex-col">
                      <DialogHeader>
                         {aiResult?.error ? (
                             <DialogTitle className="text-destructive text-center">An Error Occurred</DialogTitle>
                         ) : (
-                            <div className="text-center p-6 bg-red-900/30 rounded-t-lg -m-6 mb-0 border-b border-red-800/50">
-                                <Sparkles className="w-12 h-12 text-accent mx-auto mb-4 animate-pulse" />
-                                <p className="text-sm font-bold uppercase tracking-widest text-accent">Your Spender Personality</p>
+                            <div className="text-center p-6 bg-secondary rounded-t-lg -m-6 mb-0 border-b border-border">
+                                <Sparkles className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
+                                <p className="text-sm font-semibold uppercase tracking-widest text-primary">Your Spender Personality</p>
                                 <DialogTitle className="text-3xl font-bold font-serif text-white mt-2">
                                     {aiResult?.spenderType}
                                 </DialogTitle>
@@ -180,7 +178,7 @@ export default function InsightsPage() {
                         ) : (
                             <div className="space-y-6">
                                 <div>
-                                    <p className="text-red-200 leading-relaxed text-center">{aiResult?.summary}</p>
+                                    <p className="text-muted-foreground leading-relaxed text-center">{aiResult?.summary}</p>
                                 </div>
                                 
                                 {aiResult?.suggestions && aiResult.suggestions.length > 0 && (
@@ -188,8 +186,8 @@ export default function InsightsPage() {
                                         <h3 className="font-semibold text-lg text-white font-serif">Your Action Plan:</h3>
                                         <ul className="space-y-3">
                                             {aiResult.suggestions.map((s, i) => (
-                                                <li key={`sugg-${i}`} className="flex items-start gap-3 bg-red-950/50 p-4 rounded-xl border border-red-800/30">
-                                                    <div className="w-5 h-5 bg-gradient-to-r from-primary to-accent rounded-full flex-shrink-0 mt-1 flex items-center justify-center">
+                                                <li key={`sugg-${i}`} className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
+                                                    <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center">
                                                     <Check className="w-3 h-3 text-white" />
                                                     </div>
                                                     <span className="text-foreground text-sm">{s}</span>
@@ -202,8 +200,8 @@ export default function InsightsPage() {
                                 {aiResult?.investmentPlan && (
                                     <div className="space-y-3">
                                         <h3 className="font-semibold text-lg text-white font-serif">Investment Idea:</h3>
-                                        <div className="flex items-start gap-3 bg-red-950/50 p-4 rounded-xl border border-red-800/30">
-                                            <div className="w-5 h-5 bg-gradient-to-r from-green-500 to-green-700 rounded-full flex-shrink-0 mt-1 flex items-center justify-center">
+                                        <div className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
+                                            <div className="w-5 h-5 bg-green-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center">
                                                 <Info className="w-3 h-3 text-white" />
                                             </div>
                                             <span className="text-foreground text-sm">{aiResult.investmentPlan}</span>
@@ -216,8 +214,8 @@ export default function InsightsPage() {
                                         <h3 className="font-semibold text-lg text-white font-serif">Local Deals For You:</h3>
                                         <ul className="space-y-3">
                                             {aiResult.localDeals.map((deal, i) => (
-                                                <li key={`deal-${i}`} className="flex items-start gap-3 bg-red-950/50 p-4 rounded-xl border border-red-800/30">
-                                                    <div className="w-5 h-5 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full flex-shrink-0 mt-1 flex items-center justify-center">
+                                                <li key={`deal-${i}`} className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
+                                                    <div className="w-5 h-5 bg-blue-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center">
                                                         <Check className="w-3 h-3 text-white" />
                                                     </div>
                                                     <span className="text-foreground text-sm">{deal}</span>
@@ -230,13 +228,13 @@ export default function InsightsPage() {
                         )}
                     </div>
                     <DialogFooter className="pt-4">
-                        <Button onClick={() => setAiResult(null)} className="w-full bg-primary hover:bg-primary/90 rounded-xl h-12 font-bold text-lg">Got It!</Button>
+                        <Button onClick={() => setAiResult(null)} className="w-full bg-primary hover:bg-primary/90 rounded-xl h-12 font-semibold text-lg">Got It!</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
             
             <Dialog open={!!detailCategory} onOpenChange={(open) => { if (!open) setDetailCategory(null); }}>
-                <DialogContent className="bg-gradient-to-br from-black via-red-950 to-black text-white border-red-800/50">
+                <DialogContent className="bg-popover border-border">
                     <DialogHeader>
                         <DialogTitle className="text-primary">Spending in {detailCategory}</DialogTitle>
                         <DialogDescription>
@@ -245,12 +243,12 @@ export default function InsightsPage() {
                     </DialogHeader>
                     <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
                         {categoryTransactions.length > 0 ? categoryTransactions.map(t => (
-                            <div key={t.id} className="bg-red-950/50 p-3 rounded-lg flex items-center justify-between">
+                            <div key={t.id} className="bg-secondary p-3 rounded-lg flex items-center justify-between">
                                 <div>
                                     <p className="font-semibold text-white">{t.description}</p>
-                                    <p className="text-xs text-red-300">{format(new Date(t.date), 'dd MMM yyyy')}</p>
+                                    <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'dd MMM yyyy')}</p>
                                 </div>
-                                <p className="font-bold font-mono text-red-400">{formatCurrency(t.amount)}</p>
+                                <p className="font-semibold font-mono text-red-400">{formatCurrency(t.amount)}</p>
                             </div>
                         )) : <p className="text-muted-foreground text-center py-4">No transactions found for this category.</p>}
                     </div>
@@ -260,9 +258,8 @@ export default function InsightsPage() {
                 </DialogContent>
             </Dialog>
 
-            <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
-                <NoiseOverlay opacity={0.03} />
-                <h3 className="font-bold text-white text-center mb-4 font-serif">Spending this month</h3>
+            <div className="bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg">
+                <h3 className="font-semibold text-white text-center mb-4 font-serif">Spending this month</h3>
                 <div className="h-56 w-full">
                     <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
@@ -295,8 +292,8 @@ export default function InsightsPage() {
                             key={entry.category}
                             onClick={() => setDetailCategory(entry.name)}
                             className={cn(
-                                "flex items-center justify-between rounded-lg p-2 transition-colors cursor-pointer hover:bg-red-800/60",
-                                activeIndex === index ? "bg-red-800/50" : ""
+                                "flex items-center justify-between rounded-lg p-2 transition-colors cursor-pointer hover:bg-secondary/60",
+                                activeIndex === index ? "bg-secondary" : ""
                             )}
                         >
                             <div className="flex items-center gap-3 flex-1 min-w-0">

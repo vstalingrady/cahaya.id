@@ -12,15 +12,15 @@ const FeatureSection = ({ title, description, imgSrc, imgHint, reverse = false }
       <section className="h-screen flex items-center justify-center p-6 lg:p-12">
         <div className={`flex flex-col ${reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center justify-center gap-8 lg:gap-16 max-w-5xl mx-auto`}>
           <div className="flex-1 text-center lg:text-left">
-            <h2 className={`text-4xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif`}>
+            <h2 className={`text-4xl lg:text-6xl font-bold mb-6 text-primary font-serif`}>
               {title}
             </h2>
-            <p className={`text-lg lg:text-xl leading-relaxed text-red-200`}>
+            <p className={`text-lg lg:text-xl leading-relaxed text-muted-foreground`}>
               {description}
             </p>
           </div>
           <div className="flex-1 mt-8 lg:mt-0 w-full max-w-sm">
-            <div className={`bg-gradient-to-br from-red-900/50 to-red-800/50 p-4 rounded-3xl backdrop-blur-xl border shadow-lg border-red-600/20`}>
+            <div className={`bg-card p-4 rounded-3xl border shadow-lg border-border/50`}>
                <Image 
                   src={imgSrc}
                   alt={title}
@@ -70,12 +70,12 @@ export default function WelcomePage() {
     // Hero Section
     <section key="hero" className="h-screen flex flex-col justify-center items-center text-center p-6 relative z-10">
       <div className="mb-8">
-        <h1 className="text-5xl lg:text-7xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight font-serif">
+        <h1 className="text-5xl lg:text-7xl font-bold mb-4 text-primary leading-tight font-serif">
           All your money,<br />in one place.
         </h1>
-        <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto mb-6 rounded-full"></div>
+        <div className="w-24 h-1 bg-primary mx-auto mb-6 rounded-full"></div>
       </div>
-      <p className="text-red-200 text-xl max-w-2xl mx-auto mb-12 font-light">Welcome to Cuan. The secure, unified way to manage your entire financial life from a single, beautiful app.</p>
+      <p className="text-muted-foreground text-xl max-w-2xl mx-auto mb-12 font-light">Welcome to Cuan. The secure, unified way to manage your entire financial life from a single, beautiful app.</p>
     </section>,
 
     // Feature Section 1
@@ -89,10 +89,10 @@ export default function WelcomePage() {
 
     // Connect Everything Section
     <section key="connect" className="h-screen flex flex-col items-center justify-center p-6 lg:p-12 text-center">
-      <h2 className="text-4xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+      <h2 className="text-4xl lg:text-6xl font-bold mb-6 text-primary font-serif">
         Connect Everything in Seconds.
       </h2>
-      <p className="text-lg lg:text-xl text-red-200 leading-relaxed max-w-3xl mx-auto mb-12">
+      <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-12">
         Link your banks, e-wallets, and investment apps with official, secure APIs. We never see or store your credentials.
       </p>
       <div className="relative w-full h-48 flex items-center justify-center [perspective:1000px]">
@@ -105,7 +105,7 @@ export default function WelcomePage() {
                 className="absolute w-full h-full"
                 style={{ transform: `rotateY(${angle}deg) translateZ(150px)` }}
               >
-                <div className={`flex items-center justify-center w-32 h-32 rounded-3xl ${logo.color} text-xl font-black shadow-2xl border border-white/10 ${logo.name === 'Jago' ? 'text-black' : 'text-white'}`}>
+                <div className={`flex items-center justify-center w-32 h-32 rounded-3xl ${logo.color} text-xl font-bold shadow-2xl border border-white/10 ${logo.name === 'Jago' ? 'text-black' : 'text-white'}`}>
                   {logo.name}
                 </div>
               </div>
@@ -147,27 +147,25 @@ export default function WelcomePage() {
     // Final CTA
     <section key="cta" className="h-screen flex flex-col justify-center items-center text-center p-6 relative z-10">
       <div className="mb-8">
-        <h1 className="text-5xl lg:text-7xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight font-serif">
+        <h1 className="text-5xl lg:text-7xl font-bold mb-4 text-primary leading-tight font-serif">
           Ready to<br/>take control?
         </h1>
       </div>
-      <p className="text-red-200 text-xl max-w-2xl mx-auto mb-12 font-light">Join Cuan today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.</p>
+      <p className="text-muted-foreground text-xl max-w-2xl mx-auto mb-12 font-light">Join Cuan today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.</p>
       <div className="space-y-4 relative z-10">
         <Link 
           href="/signup"
-          className="block w-64 bg-gradient-to-r from-primary to-accent text-white py-4 rounded-xl font-bold text-lg shadow-lg border border-red-400/30 hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group text-center"
+          className="block w-64 bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg border border-border hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group text-center"
         >
-          <NoiseOverlay opacity={0.05} />
-          <span className="relative z-10">Create Account</span>
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+          Create Account
         </Link>
-        <Link href="/login" className="block w-full text-red-300 py-3 font-semibold hover:text-red-200 transition-colors text-center">Log In</Link>
+        <Link href="/login" className="block w-full text-muted-foreground py-3 font-semibold hover:text-foreground transition-colors text-center">Log In</Link>
       </div>
     </section>
   ];
 
   return (
-    <div className="w-full max-w-md mx-auto bg-gradient-to-br from-black via-red-950 to-black text-white h-screen relative overflow-hidden">
+    <div className="w-full bg-background text-white h-screen relative overflow-hidden">
       <NoiseOverlay opacity={0.03} />
 
       <Carousel setApi={setApi} className="w-full h-full">

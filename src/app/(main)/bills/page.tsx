@@ -2,13 +2,11 @@
 
 import { useState } from 'react';
 import { Cable, Phone, Droplets, Lightbulb, Shield, Car, CreditCard, Sparkles, Loader2, Plus, X } from 'lucide-react';
-import NoiseOverlay from '@/components/noise-overlay';
 import { Button } from '@/components/ui/button';
 import { transactions } from '@/lib/data';
 import { getBillSuggestions } from '@/lib/actions';
 import { type BillDiscoveryOutput } from '@/ai/flows/bill-discovery';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -67,31 +65,30 @@ export default function BillsPage() {
   return (
     <div className="space-y-8 animate-fade-in-up">
       <div>
-        <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+        <h1 className="text-3xl font-bold mb-1 text-primary font-serif">
           Bill Center
         </h1>
         <p className="text-muted-foreground">Pay all your bills from one place.</p>
       </div>
 
-      <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
-        <NoiseOverlay opacity={0.03} />
+      <div className="bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg">
         <div className="flex items-center gap-4 mb-4">
-          <Sparkles className="w-8 h-8 text-accent" />
+          <Sparkles className="w-8 h-8 text-primary" />
           <div>
-            <h3 className="font-bold text-white text-lg font-serif">AI Bill Discovery</h3>
-            <p className="text-sm text-red-300">Find recurring subscriptions & bills automatically.</p>
+            <h3 className="font-semibold text-white text-lg font-serif">AI Bill Discovery</h3>
+            <p className="text-sm text-muted-foreground">Find recurring subscriptions & bills automatically.</p>
           </div>
         </div>
 
         {aiResult === null && !isScanning && (
-          <Button onClick={handleScanForBills} className="w-full bg-accent/80 hover:bg-accent text-white font-bold">
+          <Button onClick={handleScanForBills} className="w-full bg-primary/80 hover:bg-primary text-white font-semibold">
             <Sparkles className="w-4 h-4 mr-2" />
             Scan for Recurring Bills
           </Button>
         )}
 
         {isScanning && (
-          <Button disabled className="w-full bg-accent/80 text-white font-bold">
+          <Button disabled className="w-full bg-primary/80 text-white font-semibold">
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             Scanning Transactions...
           </Button>
@@ -100,16 +97,16 @@ export default function BillsPage() {
         {aiResult && aiResult.potentialBills.length > 0 && (
           <div className="space-y-3 mt-4">
             {aiResult.potentialBills.map(bill => (
-              <div key={bill.name} className="bg-red-950/70 p-4 rounded-lg flex items-center justify-between">
+              <div key={bill.name} className="bg-secondary p-4 rounded-lg flex items-center justify-between">
                 <div>
                   <p className="font-semibold text-white">{bill.name}</p>
-                  <p className="text-xs text-red-300">~{formatCurrency(bill.estimatedAmount)} / month</p>
+                  <p className="text-xs text-muted-foreground">~{formatCurrency(bill.estimatedAmount)} / month</p>
                 </div>
                 <div className="flex gap-2">
-                   <Button size="sm" variant="outline" className="bg-red-800/50 border-red-700 hover:bg-red-800" onClick={() => addBill(bill.name)}>
+                   <Button size="sm" variant="outline" className="bg-primary/20 border-primary/50 text-primary hover:bg-primary/30" onClick={() => addBill(bill.name)}>
                      <Plus className="w-4 h-4" />
                    </Button>
-                   <Button size="sm" variant="destructive" className="bg-red-900/80 hover:bg-red-900" onClick={() => dismissSuggestion(bill.name)}>
+                   <Button size="sm" variant="ghost" className="hover:bg-secondary" onClick={() => dismissSuggestion(bill.name)}>
                      <X className="w-4 h-4" />
                    </Button>
                 </div>
@@ -121,14 +118,13 @@ export default function BillsPage() {
 
       <div className="grid grid-cols-1 gap-4">
         {billers.map((biller) => (
-          <button key={biller.name} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-lg group relative overflow-hidden">
-            <NoiseOverlay opacity={0.03} />
-            <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">
+          <button key={biller.name} className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg group">
+            <div className="bg-primary p-3 rounded-xl shadow-lg">
                 <biller.icon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <p className="font-bold text-lg text-white">{biller.name}</p>
-              <p className="text-red-300 text-sm">{biller.subtext}</p>
+              <p className="font-semibold text-lg text-white">{biller.name}</p>
+              <p className="text-muted-foreground text-sm">{biller.subtext}</p>
             </div>
           </button>
         ))}

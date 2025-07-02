@@ -12,7 +12,6 @@ import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationRes
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import NoiseOverlay from '../noise-overlay';
 import { firebaseApp } from '@/lib/firebase';
 
 const phoneSchema = z.object({
@@ -104,9 +103,8 @@ export default function VerifyPhoneForm() {
   }
 
   return (
-    <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
+    <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-2xl">
       <div id="recaptcha-container"></div>
-      <NoiseOverlay opacity={0.03} />
       {step === 'phone' ? (
         <Form {...phoneForm}>
           <form onSubmit={phoneForm.handleSubmit(onPhoneSubmit)} className="space-y-6">
@@ -117,15 +115,15 @@ export default function VerifyPhoneForm() {
                 <FormItem>
                   <FormControl>
                     <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
-                      <Input className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-base placeholder:text-red-300/70" placeholder="e.g. +6281234567890" {...field} />
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <Input className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="e.g. +6281234567890" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isSubmitting} className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105 h-auto">
+            <Button type="submit" disabled={isSubmitting} className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto">
               {isSubmitting ? <Loader2 className="w-5 h-5 mr-3 animate-spin" /> : <MessageCircle className="w-5 h-5 mr-3" />}
               {isSubmitting ? 'Sending...' : 'Send Code'}
             </Button>
@@ -134,7 +132,7 @@ export default function VerifyPhoneForm() {
       ) : (
         <Form {...otpForm}>
           <form onSubmit={otpForm.handleSubmit(onOtpSubmit)} className="space-y-6">
-            <p className="text-center text-red-200 text-sm">Enter the 6-digit code sent to <span className="font-bold">{phoneNumber}</span>.</p>
+            <p className="text-center text-muted-foreground text-sm">Enter the 6-digit code sent to <span className="font-bold text-foreground">{phoneNumber}</span>.</p>
             <FormField
               control={otpForm.control}
               name="otp"
@@ -142,9 +140,9 @@ export default function VerifyPhoneForm() {
                 <FormItem>
                   <FormControl>
                     <div className="relative">
-                      <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-300" />
+                      <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input 
-                        className="bg-red-950/50 border-red-800/50 h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-red-300/70" 
+                        className="bg-input h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
                         placeholder="••••••"
                         maxLength={6}
                         {...field} />
@@ -154,11 +152,11 @@ export default function VerifyPhoneForm() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isSubmitting} className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105 h-auto">
+            <Button type="submit" disabled={isSubmitting} className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto">
               {isSubmitting && <Loader2 className="w-5 h-5 mr-3 animate-spin" />}
               {isSubmitting ? 'Verifying...' : 'Verify & Continue'}
             </Button>
-            <Button variant="link" onClick={() => setStep('phone')} className="w-full text-red-300 hover:text-red-200">
+            <Button variant="link" onClick={() => setStep('phone')} className="w-full text-muted-foreground hover:text-foreground">
                 Use a different number
             </Button>
           </form>
