@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
+import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react'
 import {
   ChevronRight,
   QrCode,
@@ -30,6 +31,7 @@ import * as z from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 
 
 const transferActions = [
@@ -78,6 +80,63 @@ export default function TransferPage() {
   const [favorites, setFavorites] = useState<FavoriteTransaction[]>(initialFavorites);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    align: 'center',
+    containScroll: 'trimSnaps'
+  });
+
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+  const [tweenValues, setTweenValues] = useState<number[]>([]);
+
+  const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, []);
+
+  const TWEEN_FACTOR_BASE = 0.5;
+
+  const onScroll = useCallback(() => {
+    if (!emblaApi) return;
+
+    const engine = emblaApi.internalEngine();
+    const scrollProgress = emblaApi.scrollProgress();
+
+    const tweenValues = emblaApi.scrollSnapList().map((scrollSnap, index) => {
+      let diffToTarget = scrollSnap - scrollProgress;
+      const slidesInView = emblaApi.slidesInView();
+
+      if (engine.options.loop) {
+        engine.slideLooper.loopPoints.forEach((loopPoint) => {
+          const target = loopPoint.target();
+          if (index === loopPoint.index && target !== 0) {
+            const sign = Math.sign(target);
+            if (sign === -1) {
+              diffToTarget = scrollSnap - (1 + scrollProgress);
+            }
+            if (sign === 1) {
+              diffToTarget = scrollSnap + (1 - scrollProgress);
+            }
+          }
+        });
+      }
+      const TWEEN_FACTOR = TWEEN_FACTOR_BASE * emblaApi.scrollSnapList().length;
+      const tweenValue = 1 - Math.abs(diffToTarget * TWEEN_FACTOR);
+      return Math.max(0, tweenValue);
+    });
+    setTweenValues(tweenValues);
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onScroll();
+    setScrollSnaps(emblaApi.scrollSnapList());
+    emblaApi.on('select', onSelect);
+    emblaApi.on('scroll', onScroll);
+    emblaApi.on('reInit', onScroll);
+    emblaApi.on('reInit', onSelect);
+  }, [emblaApi, onSelect, onScroll]);
 
   const form = useForm<z.infer<typeof favoriteSchema>>({
     resolver: zodResolver(favoriteSchema),
@@ -173,27 +232,60 @@ export default function TransferPage() {
         </Link>
         
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-white font-serif">Favorites</h2>
-           <div className="flex space-x-4 overflow-x-auto pb-4 -mb-4 custom-scrollbar">
-              {favorites.map((fav) => (
-                <div key={fav.id} className="relative group flex-shrink-0 w-40 h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg shadow-primary/10 hover:border-primary/50 transition-colors cursor-pointer">
-                    <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                      <X className="w-4 h-4" />
-                    </Button>
-                    <div className="bg-primary/20 text-primary w-10 h-10 flex items-center justify-center rounded-xl">
-                      {getIcon(fav.icon)}
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white font-serif">Favorites</h2>
+              <div className="flex items-center">
+                <Button variant="ghost" size="sm" onClick={() => setIsAddDialogOpen(true)}>
+                  <Plus className="w-4 h-4 mr-1" /> Add
+                </Button>
+                <Button variant="link" size="sm" className="text-primary pr-0">
+                  See All
+                </Button>
+              </div>
+            </div>
+            
+            <div className="w-full">
+              <div className="overflow-hidden" ref={emblaRef}>
+                <div className="flex -ml-4">
+                  {favorites.map((fav, index) => (
+                    <div
+                      key={fav.id}
+                      className="flex-grow-0 flex-shrink-0 basis-2/5 pl-4 transition-transform duration-200"
+                      style={{
+                        opacity: tweenValues[index],
+                        transform: `scale(${0.8 + 0.2 * tweenValues[index]})`,
+                      }}
+                    >
+                      <div className="relative group flex-shrink-0 w-full h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg shadow-primary/10 transition-colors cursor-pointer">
+                          <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                            <X className="w-4 h-4" />
+                          </Button>
+                          <div className="bg-primary/20 text-primary w-10 h-10 flex items-center justify-center rounded-xl">
+                            {getIcon(fav.icon)}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-white truncate">{fav.name}</p>
+                            <p className="text-sm text-muted-foreground font-mono">{formatCurrency(fav.amount)}</p>
+                          </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-semibold text-white truncate">{fav.name}</p>
-                      <p className="text-sm text-muted-foreground font-mono">{formatCurrency(fav.amount)}</p>
-                    </div>
+                  ))}
                 </div>
-              ))}
-               <button onClick={() => setIsAddDialogOpen(true)} className="flex-shrink-0 w-40 h-40 bg-card p-4 rounded-2xl flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed border-border hover:border-primary/80 hover:text-primary transition-all duration-300 group">
-                  <Plus className="w-8 h-8 mb-2" />
-                  <span className="font-semibold text-center">Add New Favorite</span>
-              </button>
-          </div>
+              </div>
+
+              <div className="flex justify-center gap-2 mt-4">
+                {scrollSnaps.map((_, index) => (
+                    <button 
+                        key={index} 
+                        onClick={() => emblaApi?.scrollTo(index)}
+                        className={cn(
+                            "w-2 h-2 rounded-full transition-all duration-300",
+                            index === selectedIndex ? "bg-primary w-6" : "bg-muted hover:bg-muted-foreground/50"
+                        )}
+                    />
+                ))}
+              </div>
+            </div>
         </div>
 
         <div className="space-y-4">
