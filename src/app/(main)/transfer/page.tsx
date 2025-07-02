@@ -102,7 +102,7 @@ export default function TransferPage() {
   return (
     <div className="space-y-8 animate-fade-in-up">
       <div>
-        <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+        <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
           Pay & Transfer
         </h1>
         <p className="text-muted-foreground">Your central hub for all payments.</p>
@@ -114,7 +114,7 @@ export default function TransferPage() {
       >
           <NoiseOverlay opacity={0.02} />
           <QrCode className="w-8 h-8 mr-4 text-primary group-hover:text-accent transition-colors relative z-10" />
-          <span className="font-black text-xl text-white group-hover:text-red-100 transition-colors relative z-10">Pay with QRIS</span>
+          <span className="font-bold text-xl text-white group-hover:text-red-100 transition-colors relative z-10">Pay with QRIS</span>
       </Link>
 
        <div className="space-y-4">
@@ -126,7 +126,7 @@ export default function TransferPage() {
                   <CarouselItem key={action.name} className="basis-1/3 pl-4">
                     <Link
                       href={action.href}
-                      className="h-full text-left bg-gradient-to-br from-red-900/60 to-red-800/60 backdrop-blur-xl p-5 rounded-2xl flex flex-col justify-between hover:from-red-800/70 hover:to-red-700/70 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden"
+                      className="h-full text-left bg-gradient-to-br from-red-900/60 to-red-800/60 backdrop-blur-xl p-5 rounded-2xl flex flex-col justify-between hover:from-red-800/70 hover:to-red-700/70 transition-all duration-300 border border-red-600/20 shadow-lg group relative overflow-hidden"
                     >
                       <NoiseOverlay opacity={0.03} />
                       <div className="flex-1">
@@ -166,7 +166,7 @@ export default function TransferPage() {
                       href={rec.href}
                       // @ts-ignore
                       disabled={rec.disabled}
-                      className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-lg group relative overflow-hidden disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <NoiseOverlay opacity={0.03} />
                       <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">

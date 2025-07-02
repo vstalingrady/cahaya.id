@@ -81,7 +81,7 @@ export default function TransactionCalendar() {
     }, [transactionsOnSelectedDate, balanceOnSelectedDate]);
 
     return (
-        <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
+        <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
              <NoiseOverlay opacity={0.03} />
             <div className="flex justify-center">
                 <Calendar
@@ -109,7 +109,7 @@ export default function TransactionCalendar() {
                 
                 <div className="mb-4 text-center">
                     <p className="text-sm text-red-300">Balance at end of day</p>
-                    <p className="text-2xl font-black text-white">{formatCurrency(dailySummary.balanceOnDate)}</p>
+                    <p className="text-2xl font-bold text-white">{formatCurrency(dailySummary.balanceOnDate)}</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-center mb-4">

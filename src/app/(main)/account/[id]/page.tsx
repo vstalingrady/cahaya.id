@@ -67,7 +67,7 @@ export default function AccountDetailPage() {
             <Link href="/dashboard" className="absolute left-0">
                 <ArrowLeft className="w-6 h-6 text-white" />
             </Link>
-            <h1 className="text-2xl font-black mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+            <h1 className="text-2xl font-bold mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
                 Error
             </h1>
         </header>
@@ -119,7 +119,7 @@ export default function AccountDetailPage() {
           <ArrowLeft className="w-6 h-6 text-white" />
         </Link>
         <div className="text-center mx-auto">
-          <h1 className="text-2xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             {account.name}
           </h1>
           <p className="text-lg font-bold text-white">{formatCurrency(account.balance)}</p>
@@ -131,7 +131,7 @@ export default function AccountDetailPage() {
           <h2 className="text-xl font-semibold text-white font-serif">Portfolio Holdings</h2>
           <div className="grid grid-cols-1 gap-4">
             {account.holdings.map(holding => (
-              <div key={holding.id} className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between border border-red-600/20 shadow-2xl relative overflow-hidden">
+              <div key={holding.id} className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between border border-red-600/20 shadow-lg relative overflow-hidden">
                 <NoiseOverlay opacity={0.03} />
                 <div className="flex items-center gap-4">
                    <Image src={holding.logoUrl} alt={holding.name} width={48} height={48} className="rounded-full" data-ai-hint={`${holding.name} coin`} />

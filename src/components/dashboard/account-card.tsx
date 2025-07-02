@@ -56,7 +56,7 @@ export default function AccountCard({ account }: AccountCardProps) {
     </>
   );
 
-  const baseClasses = "bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-3 rounded-2xl flex justify-between items-center border border-red-600/20 shadow-2xl relative overflow-hidden";
+  const baseClasses = "bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-3 rounded-2xl flex justify-between items-center border border-red-600/20 shadow-lg relative overflow-hidden";
 
   if (isLoan) {
     return (

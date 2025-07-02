@@ -13,10 +13,10 @@ export default function BcaAuthPage() {
       </div>
 
       <div className="text-center mb-8 relative z-10">
-        <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-2xl border border-red-500/20">
-          <span className="text-white font-black text-2xl">BCA</span>
+        <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg border border-red-500/20">
+          <span className="text-white font-bold text-2xl">BCA</span>
         </div>
-        <h1 className="text-2xl font-black mb-3 bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent font-serif">Authorize Cuan to access your BCA account</h1>
+        <h1 className="text-2xl font-bold mb-3 bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent font-serif">Authorize Cuan to access your BCA account</h1>
       </div>
 
       <div className="space-y-5 mb-8 relative z-10">
@@ -47,7 +47,7 @@ export default function BcaAuthPage() {
       <div className="space-y-4 relative z-10">
         <Link 
           href="/dashboard"
-          className="block text-center w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-5 rounded-2xl font-black text-lg shadow-2xl hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105 relative overflow-hidden"
+          className="block text-center w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105 relative overflow-hidden"
         >
           <NoiseOverlay opacity={0.05} />
           <span className="relative z-10">Authorize</span>

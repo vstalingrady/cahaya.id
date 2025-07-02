@@ -112,7 +112,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
   }).format(dailyChange);
 
   return (
-    <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl shadow-2xl border border-red-700/30 relative overflow-hidden">
+    <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl shadow-lg border border-red-700/30 relative overflow-hidden">
       <NoiseOverlay opacity={0.1} />
       <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent"></div>
       <div className="relative z-10">
@@ -126,7 +126,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                       </Button>
                     </Link>
                  </div>
-                <div className="text-3xl font-black mb-2 text-white">{formattedAmount}</div>
+                <div className="text-3xl font-bold mb-2 text-white">{formattedAmount}</div>
                  {dailyChange !== 0 && (
                   <div className={cn(
                     "flex items-center text-sm font-semibold",

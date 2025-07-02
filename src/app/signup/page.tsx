@@ -16,7 +16,7 @@ export default function SignupPage() {
 
       <div className="relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-black mb-4 bg-gradient-to-r from-red-400 via-red-500 to-red-600 bg-clip-text text-transparent font-serif">Create your Account</h1>
+          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">Create your Account</h1>
           <p className="text-red-100 text-lg font-light">Let's start by verifying your phone number.</p>
         </div>
         <VerifyPhoneForm />

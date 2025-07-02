@@ -67,13 +67,13 @@ export default function BillsPage() {
   return (
     <div className="space-y-8 animate-fade-in-up">
       <div>
-        <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+        <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
           Bill Center
         </h1>
         <p className="text-muted-foreground">Pay all your bills from one place.</p>
       </div>
 
-      <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
         <NoiseOverlay opacity={0.03} />
         <div className="flex items-center gap-4 mb-4">
           <Sparkles className="w-8 h-8 text-accent" />
@@ -121,7 +121,7 @@ export default function BillsPage() {
 
       <div className="grid grid-cols-1 gap-4">
         {billers.map((biller) => (
-          <button key={biller.name} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
+          <button key={biller.name} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center gap-5 hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-lg group relative overflow-hidden">
             <NoiseOverlay opacity={0.03} />
             <div className="bg-gradient-to-br from-red-500 to-red-700 p-3 rounded-xl shadow-lg">
                 <biller.icon className="w-6 h-6 text-white" />

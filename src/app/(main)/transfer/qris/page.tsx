@@ -68,13 +68,13 @@ export default function QrisPage() {
         <Link href="/transfer" className="absolute left-0">
           <ArrowLeft className="w-6 h-6 text-white" />
         </Link>
-        <h1 className="text-2xl font-black mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+        <h1 className="text-2xl font-bold mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
           Pay with QRIS
         </h1>
       </header>
 
       <div className="flex flex-col items-center justify-center space-y-6">
-        <div className="relative w-full max-w-xs aspect-square bg-black/50 rounded-2xl overflow-hidden border-4 border-red-900/80 shadow-2xl">
+        <div className="relative w-full max-w-xs aspect-square bg-black/50 rounded-2xl overflow-hidden border-4 border-red-900/80 shadow-lg">
           <NoiseOverlay opacity={0.02} />
           
           <video
@@ -117,7 +117,7 @@ export default function QrisPage() {
         <Button
           onClick={handleScan}
           disabled={!isCameraReady || isScanning}
-          className="w-full max-w-xs bg-gradient-to-r from-primary to-accent text-white py-5 rounded-2xl font-black text-xl shadow-2xl border border-red-400/30 hover:shadow-primary/25 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
+          className="w-full max-w-xs bg-gradient-to-r from-primary to-accent text-white py-5 rounded-2xl font-bold text-xl shadow-lg border border-red-400/30 hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
         >
           <NoiseOverlay opacity={0.05} />
           {isScanning ? (

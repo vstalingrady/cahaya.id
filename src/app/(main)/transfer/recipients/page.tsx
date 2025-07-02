@@ -34,7 +34,7 @@ export default function SelectRecipientPage() {
                 <Link href="/transfer" className="absolute left-0">
                     <ArrowLeft className="w-6 h-6 text-white" />
                 </Link>
-                <h1 className="text-2xl font-black mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+                <h1 className="text-2xl font-bold mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
                     Select Recipient
                 </h1>
             </header>
@@ -59,7 +59,7 @@ export default function SelectRecipientPage() {
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                 {filteredBeneficiaries.map((beneficiary) => (
-                    <Link key={beneficiary.id} href={`/transfer/${beneficiary.id}`} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-2xl group relative overflow-hidden">
+                    <Link key={beneficiary.id} href={`/transfer/${beneficiary.id}`} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl flex items-center justify-between hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300 border border-red-600/20 shadow-lg group relative overflow-hidden">
                         <NoiseOverlay opacity={0.03} />
                         <div className="flex items-center gap-3">
                             {getBankLogo(beneficiary.bankName)}

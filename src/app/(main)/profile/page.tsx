@@ -21,12 +21,12 @@ export default function ProfilePage() {
         <Link href="/dashboard" className="absolute left-0">
           <ArrowLeft className="w-6 h-6 text-white" />
         </Link>
-        <h1 className="text-2xl font-black mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+        <h1 className="text-2xl font-bold mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
           Profile & Settings
         </h1>
       </header>
 
-      <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
         <NoiseOverlay opacity={0.03} />
         
         <div className="flex flex-col items-center text-center">
@@ -40,7 +40,7 @@ export default function ProfilePage() {
                     data-ai-hint="person avatar"
                 />
             </div>
-            <h2 className="text-2xl font-bold text-white font-serif">{user.name}</h2>
+            <h2 className="text-xl font-semibold text-white font-serif">{user.name}</h2>
         </div>
 
         <div className="my-8 space-y-4">

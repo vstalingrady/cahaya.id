@@ -187,7 +187,7 @@ export default function BudgetsPage() {
                         <div className="text-center p-6 bg-red-900/30 rounded-t-lg -m-6 mb-0 border-b border-red-800/50">
                             <Sparkles className="w-12 h-12 text-accent mx-auto mb-4 animate-pulse" />
                             <p className="text-sm font-bold uppercase tracking-widest text-accent">Your AI Budget Coach</p>
-                            <DialogTitle className="text-3xl font-black font-serif text-white mt-2">
+                            <DialogTitle className="text-3xl font-bold font-serif text-white mt-2">
                                 {aiResult?.coachTitle}
                             </DialogTitle>
                         </div>
@@ -241,7 +241,7 @@ export default function BudgetsPage() {
         <div className="space-y-8 animate-fade-in-up">
             <div className="flex justify-between items-start">
                 <div>
-                    <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+                    <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
                         Smart Budgets
                     </h1>
                     <p className="text-muted-foreground">Set spending limits for custom periods.</p>
@@ -259,7 +259,7 @@ export default function BudgetsPage() {
                     const remaining = budget.amount - spent;
 
                     return (
-                        <button key={budget.id} onClick={() => setSelectedBudget(budget)} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300">
+                        <button key={budget.id} onClick={() => setSelectedBudget(budget)} className="w-full text-left bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden hover:from-red-800/60 hover:to-red-700/60 transition-all duration-300">
                             <NoiseOverlay opacity={0.03} />
                             <div className="flex items-start justify-between mb-3">
                                 <div>

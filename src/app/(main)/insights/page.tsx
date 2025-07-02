@@ -139,7 +139,7 @@ export default function InsightsPage() {
     return (
         <div className="space-y-8 animate-fade-in-up">
             <div>
-                <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+                <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
                     Insights
                 </h1>
                 <p className="text-muted-foreground">Track all your expenses.</p>
@@ -148,7 +148,7 @@ export default function InsightsPage() {
             <Button 
                 onClick={handleGetSuggestions} 
                 disabled={isGenerating} 
-                className="w-full bg-gradient-to-r from-accent to-primary/80 text-white py-5 rounded-2xl font-black text-lg shadow-2xl border border-red-400/30 hover:shadow-primary/25 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
+                className="w-full bg-gradient-to-r from-accent to-primary/80 text-white py-5 rounded-2xl font-bold text-lg shadow-lg border border-red-400/30 hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
             >
                 <NoiseOverlay opacity={0.05} />
                 {isGenerating ? (
@@ -168,7 +168,7 @@ export default function InsightsPage() {
                             <div className="text-center p-6 bg-red-900/30 rounded-t-lg -m-6 mb-0 border-b border-red-800/50">
                                 <Sparkles className="w-12 h-12 text-accent mx-auto mb-4 animate-pulse" />
                                 <p className="text-sm font-bold uppercase tracking-widest text-accent">Your Spender Personality</p>
-                                <DialogTitle className="text-3xl font-black font-serif text-white mt-2">
+                                <DialogTitle className="text-3xl font-bold font-serif text-white mt-2">
                                     {aiResult?.spenderType}
                                 </DialogTitle>
                             </div>
@@ -260,7 +260,7 @@ export default function InsightsPage() {
                 </DialogContent>
             </Dialog>
 
-            <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
+            <div className="bg-gradient-to-r from-red-950/50 to-red-900/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
                 <NoiseOverlay opacity={0.03} />
                 <h3 className="font-bold text-white text-center mb-4 font-serif">Spending this month</h3>
                 <div className="h-56 w-full">

@@ -12,7 +12,7 @@ const FeatureSection = ({ title, description, imgSrc, imgHint, reverse = false }
       <section className="h-screen flex items-center justify-center p-6 lg:p-12">
         <div className={`flex flex-col ${reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center justify-center gap-8 lg:gap-16 max-w-5xl mx-auto`}>
           <div className="flex-1 text-center lg:text-left">
-            <h2 className={`text-4xl lg:text-6xl font-black mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif`}>
+            <h2 className={`text-4xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif`}>
               {title}
             </h2>
             <p className={`text-lg lg:text-xl leading-relaxed text-red-200`}>
@@ -75,7 +75,7 @@ export default function WelcomePage() {
         <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-gradient-to-r from-red-600/30 to-rose-600/30 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
       </div>
       <div className="mb-8">
-        <h1 className="text-6xl lg:text-8xl font-black mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight font-serif">
+        <h1 className="text-5xl lg:text-7xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight font-serif">
           All your money,<br />in one place.
         </h1>
         <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto mb-6 rounded-full"></div>
@@ -94,7 +94,7 @@ export default function WelcomePage() {
 
     // Connect Everything Section
     <section key="connect" className="h-screen flex flex-col items-center justify-center p-6 lg:p-12 text-center">
-      <h2 className="text-4xl lg:text-6xl font-black mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+      <h2 className="text-4xl lg:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
         Connect Everything in Seconds.
       </h2>
       <p className="text-lg lg:text-xl text-red-200 leading-relaxed max-w-3xl mx-auto mb-12">
@@ -152,7 +152,7 @@ export default function WelcomePage() {
     // Final CTA
     <section key="cta" className="h-screen flex flex-col justify-center items-center text-center p-6 relative z-10">
       <div className="mb-8">
-        <h1 className="text-6xl lg:text-8xl font-black mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight font-serif">
+        <h1 className="text-5xl lg:text-7xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight font-serif">
           Ready to<br/>take control?
         </h1>
       </div>
@@ -160,7 +160,7 @@ export default function WelcomePage() {
       <div className="space-y-4 relative z-10">
         <Link 
           href="/signup"
-          className="block w-64 bg-gradient-to-r from-primary to-accent text-white py-5 rounded-2xl font-black text-xl shadow-2xl border border-red-400/30 hover:shadow-primary/25 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group text-center"
+          className="block w-64 bg-gradient-to-r from-primary to-accent text-white py-4 rounded-xl font-bold text-lg shadow-lg border border-red-400/30 hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group text-center"
         >
           <NoiseOverlay opacity={0.05} />
           <span className="relative z-10">Create Account</span>

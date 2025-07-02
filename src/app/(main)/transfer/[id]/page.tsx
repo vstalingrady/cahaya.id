@@ -91,7 +91,7 @@ export default function InitiateTransferPage() {
                 <Link href="/transfer" className="absolute left-0">
                     <ArrowLeft className="w-6 h-6 text-white" />
                 </Link>
-                <h1 className="text-2xl font-black mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+                <h1 className="text-2xl font-bold mx-auto bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
                     Error
                 </h1>
             </header>
@@ -109,14 +109,14 @@ export default function InitiateTransferPage() {
                 <ArrowLeft className="w-6 h-6 text-white" />
             </Link>
             <div className="text-center mx-auto">
-                <h1 className="text-2xl font-black bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
                     Transfer to {recipient.name}
                 </h1>
                 <p className="text-sm text-muted-foreground">{recipient.bankName} &bull; {recipient.accountNumber}</p>
             </div>
         </header>
         
-         <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
+         <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
             <NoiseOverlay opacity={0.03} />
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -210,7 +210,7 @@ export default function InitiateTransferPage() {
 
                 <Button 
                     type="submit" 
-                    className="w-full bg-gradient-to-r from-primary to-accent text-white py-5 rounded-2xl font-black text-xl shadow-2xl border border-red-400/30 hover:shadow-primary/25 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
+                    className="w-full bg-gradient-to-r from-primary to-accent text-white py-5 rounded-2xl font-bold text-xl shadow-lg border border-red-400/30 hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
                 >
                     <NoiseOverlay opacity={0.05} />
                     <span className="relative z-10">Confirm & Transfer</span>

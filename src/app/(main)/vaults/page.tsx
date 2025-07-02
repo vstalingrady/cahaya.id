@@ -83,7 +83,7 @@ export default function VaultsPage() {
 
             <div className="space-y-8 animate-fade-in-up">
                 <div>
-                    <h1 className="text-3xl font-black mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+                    <h1 className="text-3xl font-bold mb-1 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
                         Cuan Vaults
                     </h1>
                     <p className="text-muted-foreground">Save for all your goals.</p>
@@ -91,7 +91,7 @@ export default function VaultsPage() {
 
                 <div className="space-y-4">
                     {vaultsList.map(vault => (
-                        <div key={vault.id} className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
+                        <div key={vault.id} className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-5 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
                             <NoiseOverlay opacity={0.03} />
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-4">

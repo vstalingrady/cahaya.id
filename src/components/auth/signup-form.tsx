@@ -51,7 +51,7 @@ export default function SignupForm() {
   }
 
   return (
-    <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-2xl relative overflow-hidden">
+    <div className="bg-gradient-to-r from-red-900/50 to-red-800/50 backdrop-blur-xl p-8 rounded-2xl border border-red-600/20 shadow-lg relative overflow-hidden">
       <NoiseOverlay opacity={0.03} />
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -103,7 +103,7 @@ export default function SignupForm() {
           <Button 
             type="submit" 
             disabled={form.formState.isSubmitting}
-            className="w-full bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white py-5 rounded-2xl font-black text-xl shadow-2xl border border-red-400/30 hover:shadow-red-500/25 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
+            className="w-full bg-gradient-to-r from-primary to-accent text-white py-4 rounded-xl font-bold text-lg shadow-lg border border-red-400/30 hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group h-auto"
           >
             <NoiseOverlay opacity={0.05} />
             {form.formState.isSubmitting ? (
@@ -111,7 +111,7 @@ export default function SignupForm() {
             ) : (
               <span className="relative z-10">Create Account & Continue</span>
             )}
-            <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-red-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-accent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </Button>
         </form>
       </Form>
