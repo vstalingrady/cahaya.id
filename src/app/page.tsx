@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -14,73 +14,82 @@ import {
 import { cn } from '@/lib/utils';
 import { ArrowRight, Landmark } from 'lucide-react';
 import EwalletIcon from '@/components/icons/ewallet-icon';
+import { accounts as initialAccounts, transactions, type Account } from '@/lib/data';
+import TotalBalance from '@/components/dashboard/total-balance';
+import AccountCard from '@/components/dashboard/account-card';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+
 
 const FeatureShowcase = () => {
-  const logos = [
-    { name: 'BCA', class: 'bg-blue-600' },
-    { name: 'GP', fullName: 'GoPay', class: 'bg-sky-500' },
-    { name: 'OVO', class: 'bg-purple-600' },
-    { name: 'BB', fullName: 'Bibit', class: 'bg-green-600' },
-    { name: 'PT', fullName: 'Pintu', class: 'bg-indigo-600' },
-    { name: 'MDR', fullName: 'Mandiri', class: 'bg-sky-700' },
-    { name: 'BNI', class: 'bg-orange-600' },
-    { name: 'AJ', fullName: 'Ajaib', class: 'bg-teal-500' },
-  ];
-  const animationDuration = 30; // in seconds
+    const { netWorth, accountGroups } = useMemo(() => {
+        const accountList = initialAccounts;
+        const totalAssets = accountList
+            .filter(acc => acc.type !== 'loan')
+            .reduce((sum, acc) => sum + acc.balance, 0);
+        
+        const totalLiabilities = accountList
+            .filter(acc => acc.type === 'loan')
+            .reduce((sum, acc) => sum + acc.balance, 0);
+            
+        const netWorth = totalAssets - totalLiabilities;
+
+        const accountGroups = {
+            bank: accountList.filter(a => a.type === 'bank'),
+            'e-wallet': accountList.filter(a => a.type === 'e-wallet'),
+        };
+
+        return { netWorth, accountGroups };
+    }, []);
 
   return (
-    <div className="relative w-full flex flex-col items-center justify-center -mt-8">
-      {/* Halo Carousel */}
-      <div className="relative w-full h-48 mb-[-3rem] z-10" style={{ perspective: '800px' }}>
-        <div className="relative w-full h-full" style={{ transformStyle: 'preserve-3d' }}>
-          <div
-            className="absolute w-full h-full animate-spin-3d"
-            style={{ animationDuration: `${animationDuration}s`, transformStyle: 'preserve-3d' }}
-          >
-            {logos.map((logo, index) => {
-              const angle = (360 / logos.length) * index;
-              const delay = (animationDuration / logos.length) * index;
-              return (
-                <div
-                  key={logo.name}
-                  className="absolute top-[calc(50%-24px)] left-[calc(50%-24px)] w-12 h-12"
-                  style={{ transform: `rotateY(${angle}deg) translateZ(120px)` }}
-                >
-                  <div
-                    className={cn(
-                      'w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg animate-fade-and-scale',
-                      logo.class
-                    )}
-                    style={{ animationDuration: `${animationDuration / 2}s`, animationDelay: `-${delay}s` }}
-                  >
-                    {logo.name}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+    <div className="bg-card/50 p-2 md:p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50 backdrop-blur-sm overflow-hidden">
+        <div className="w-[420px] h-[750px] md:w-full md:h-full transform scale-[0.8] md:scale-100 origin-top-left pointer-events-none select-none">
+            <div className="space-y-6 p-6">
+                <header>
+                    <h1 className="text-3xl font-bold text-white font-serif">
+                        Good morning, Vstalin
+                    </h1>
+                </header>
 
-      {/* Feature Replica */}
-      <div className="w-full max-w-sm bg-card/50 p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50 backdrop-blur-sm">
-        <div className="space-y-3">
-           <div className="bg-secondary/50 p-3 rounded-xl border border-border/30">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Net Worth</p>
-                <p className="text-2xl font-bold text-white">IDR 287,178,502</p>
-            </div>
-            <div className="bg-secondary/50 p-3 rounded-xl border border-border/30 space-y-2">
-                <div className="flex items-center gap-2">
-                    <Landmark className="w-4 h-4 text-primary" />
-                    <p className="font-semibold text-white">Banks</p>
-                </div>
-                 <div className="flex items-center gap-2">
-                    <EwalletIcon className="w-4 h-4 text-primary" />
-                    <p className="font-semibold text-white">E-Wallets</p>
+                <TotalBalance title="Total Net Worth" amount={netWorth} transactions={transactions} showHistoryLink={false} />
+
+                <div>
+                    <h2 className="text-xl font-semibold text-white font-serif">Your Accounts</h2>
+                    <Accordion type="multiple" defaultValue={['bank', 'e-wallet']} className="w-full space-y-2 mt-4">
+                        {accountGroups.bank.length > 0 && (
+                            <AccordionItem value="bank" className="bg-card/80 backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
+                                <AccordionTrigger className="hover:no-underline">
+                                    <div className='flex items-center gap-3'>
+                                        <Landmark className='w-5 h-5 text-primary/80' />
+                                        <span className='font-semibold text-white'>Banks</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="pt-2 space-y-2">
+                                    {accountGroups.bank.map(account => (
+                                        <AccountCard key={account.id} account={account} />
+                                    ))}
+                                </AccordionContent>
+                            </AccordionItem>
+                        )}
+                        {accountGroups['e-wallet'].length > 0 && (
+                            <AccordionItem value="e-wallet" className="bg-card/80 backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
+                                <AccordionTrigger className="hover:no-underline">
+                                    <div className='flex items-center gap-3'>
+                                        <EwalletIcon className='w-5 h-5 text-primary/80' />
+                                        <span className='font-semibold text-white'>E-Wallets</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="pt-2 space-y-2">
+                                    {accountGroups['e-wallet'].map(account => (
+                                        <AccountCard key={account.id} account={account} />
+                                    ))}
+                                </AccordionContent>
+                            </AccordionItem>
+                        )}
+                    </Accordion>
                 </div>
             </div>
         </div>
-      </div>
     </div>
   );
 };
@@ -98,8 +107,8 @@ export default function WelcomePage() {
     },
     {
       type: 'feature',
-      title: 'A Halo of Your Finances.',
-      description: 'See your complete financial picture. BCA, GoPay, OVO, Bibit—all your accounts, orbiting in one stunning dashboard. Finally understand your true net worth in real-time.',
+      title: 'Connect Everything. See Everything.',
+      description: 'BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.',
       customComponent: <FeatureShowcase />,
       reverse: false
     },
@@ -168,8 +177,8 @@ export default function WelcomePage() {
                       </p>
                     </div>
                     <div className="flex-1 mt-8 lg:mt-0 w-full max-w-md animate-fade-in-up [animation-delay:0.2s]">
-                      <div className={cn(slide.customComponent ? "" : "bg-card/50 p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50 backdrop-blur-sm")}>
-                        {slide.customComponent ? slide.customComponent : (
+                      {slide.customComponent ? slide.customComponent : (
+                        <div className="bg-card/50 p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50 backdrop-blur-sm">
                           <Image 
                               src={slide.imgSrc!}
                               alt={slide.title!}
@@ -178,8 +187,8 @@ export default function WelcomePage() {
                               data-ai-hint={slide.imgHint!}
                               className="rounded-2xl shadow-lg"
                             />
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

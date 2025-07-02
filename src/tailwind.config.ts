@@ -77,14 +77,6 @@ export default {
             height: '0',
           },
         },
-        'spin-3d': {
-          'from': { transform: 'rotateY(0deg)' },
-          'to': { transform: 'rotateY(360deg)' },
-        },
-        'fade-and-scale': {
-          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
-          '50%': { opacity: '0.3', transform: 'scale(0.5)' },
-        },
         'fade-in-up': {
           'from': { opacity: '0', transform: 'translateY(10px)' },
           'to': { opacity: '1', transform: 'translateY(0)' },
@@ -97,8 +89,6 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'spin-3d': 'spin-3d 25s linear infinite',
-        'fade-and-scale': 'fade-and-scale 15s ease-in-out infinite',
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'hero-glow': 'hero-glow 35s ease-in-out infinite',
       },
