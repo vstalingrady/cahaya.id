@@ -9,7 +9,7 @@ export default {
   ],
   theme: {
     fontFamily: {
-      sans: ['"Poppins"', 'sans-serif'],
+      sans: ['"Inter"', 'sans-serif'],
       serif: ['"Lora"', 'serif'],
       code: ['monospace'],
     },
