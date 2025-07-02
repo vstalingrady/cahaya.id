@@ -1,11 +1,9 @@
-
 'use client';
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react'
 import {
   ChevronRight,
-  QrCode,
   Send,
   Wallet,
   ReceiptText,
@@ -33,6 +31,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import QrisLogo from '@/components/icons/qris-logo';
 
 
 const transferActions = [
@@ -199,12 +198,13 @@ export default function TransferPage() {
           <p className="text-muted-foreground">Your central hub for all payments.</p>
         </div>
 
-        <Link 
+        <Link
             href="/transfer/qris"
             className="w-full bg-card p-5 rounded-2xl flex items-center justify-center text-muted-foreground border-2 border-dashed border-border hover:border-primary/80 hover:text-primary transition-all duration-300 group"
         >
-            <QrCode className="w-8 h-8 mr-4 text-primary group-hover:text-primary/80 transition-colors relative z-10" />
-            <span className="font-semibold text-xl text-white group-hover:text-primary transition-colors relative z-10">Pay with QRIS</span>
+            <span className="font-semibold text-xl text-white group-hover:text-primary transition-colors relative z-10 flex items-center gap-3">
+                Pay with <QrisLogo className="w-20" />
+            </span>
         </Link>
         
         <div className="space-y-4">
@@ -229,7 +229,7 @@ export default function TransferPage() {
                       className="flex-grow-0 flex-shrink-0 basis-3/5 pl-4 min-w-0"
                     >
                       <div className={cn(
-                        "relative group flex-shrink-0 w-full h-48 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-all duration-300 ease-out",
+                        "relative group flex-shrink-0 w-full h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-all duration-300 ease-out",
                          index === selectedIndex ? 'scale-100 opacity-100 shadow-primary/20' : 'scale-90 opacity-60'
                       )}>
                           <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
