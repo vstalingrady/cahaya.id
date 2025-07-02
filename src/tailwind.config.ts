@@ -104,12 +104,12 @@ export default {
         },
         'pulsing-glow': {
           '0%, 100%': { 
-            boxShadow: '0 0 20px -5px hsl(var(--primary) / 0.3), 0 0 10px -5px hsl(var(--accent) / 0.2)',
+            boxShadow: '0 0 15px -5px hsl(var(--primary) / 0.2)',
             transform: 'scale(1)',
           },
           '50%': { 
-            boxShadow: '0 0 35px 0px hsl(var(--primary) / 0.4), 0 0 20px -5px hsl(var(--accent) / 0.3)',
-            transform: 'scale(1.025)',
+            boxShadow: '0 0 25px 0px hsl(var(--primary) / 0.3)',
+            transform: 'scale(1.015)',
           },
         },
       },
@@ -122,7 +122,7 @@ export default {
         'flash': 'flash 0.5s ease-out',
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'hero-glow': 'hero-glow 15s ease-in-out infinite',
-        'pulsing-glow': 'pulsing-glow 12s ease-in-out infinite',
+        'pulsing-glow': 'pulsing-glow 15s ease-in-out infinite',
       },
     },
   },
