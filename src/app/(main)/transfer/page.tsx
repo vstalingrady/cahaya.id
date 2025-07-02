@@ -226,7 +226,7 @@ export default function TransferPage() {
                   {favorites.map((fav, index) => (
                     <div
                       key={fav.id}
-                      className="flex-grow-0 flex-shrink-0 basis-2/5 pl-4"
+                      className="flex-grow-0 flex-shrink-0 basis-2/5 pl-4 min-w-0"
                     >
                       <div className={cn(
                         "relative group flex-shrink-0 w-full h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-all duration-300 ease-out",
