@@ -67,7 +67,7 @@ export default function QrisPage() {
         <Link href="/transfer" className="absolute left-0">
           <ArrowLeft className="w-6 h-6 text-white" />
         </Link>
-        <h1 className="text-2xl font-bold mx-auto text-primary font-serif">
+        <h1 className="text-2xl font-bold mx-auto text-accent font-serif">
           Pay with QRIS
         </h1>
       </header>

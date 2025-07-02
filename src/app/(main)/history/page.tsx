@@ -19,7 +19,7 @@ export default function HistoryPage() {
         <Link href="/dashboard" className="absolute left-0">
           <ArrowLeft className="w-6 h-6 text-white" />
         </Link>
-        <h1 className="text-2xl font-bold mx-auto text-primary font-serif">
+        <h1 className="text-2xl font-bold mx-auto text-accent font-serif">
           Transaction History
         </h1>
       </header>

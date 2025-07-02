@@ -65,7 +65,7 @@ export default function BillsPage() {
   return (
     <div className="space-y-8 animate-fade-in-up">
       <div>
-        <h1 className="text-3xl font-bold mb-1 text-primary font-serif">
+        <h1 className="text-3xl font-bold mb-1 text-accent font-serif">
           Bill Center
         </h1>
         <p className="text-muted-foreground">Pay all your bills from one place.</p>

@@ -192,7 +192,7 @@ export default function TransferPage() {
 
       <div className="space-y-8 animate-fade-in-up">
         <div>
-          <h1 className="text-3xl font-bold mb-1 text-primary font-serif">
+          <h1 className="text-3xl font-bold mb-1 text-accent font-serif">
             Pay & Transfer
           </h1>
           <p className="text-muted-foreground">Your central hub for all payments.</p>

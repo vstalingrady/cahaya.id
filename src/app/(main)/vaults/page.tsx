@@ -82,7 +82,7 @@ export default function VaultsPage() {
 
             <div className="space-y-8 animate-fade-in-up">
                 <div>
-                    <h1 className="text-3xl font-bold mb-1 text-primary font-serif">
+                    <h1 className="text-3xl font-bold mb-1 text-accent font-serif">
                         Cuan Vaults
                     </h1>
                     <p className="text-muted-foreground">Save for all your goals.</p>

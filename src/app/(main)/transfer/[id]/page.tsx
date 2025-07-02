@@ -90,7 +90,7 @@ export default function InitiateTransferPage() {
                 <Link href="/transfer" className="absolute left-0">
                     <ArrowLeft className="w-6 h-6 text-white" />
                 </Link>
-                <h1 className="text-2xl font-bold mx-auto text-primary font-serif">
+                <h1 className="text-2xl font-bold mx-auto text-accent font-serif">
                     Error
                 </h1>
             </header>
@@ -108,7 +108,7 @@ export default function InitiateTransferPage() {
                 <ArrowLeft className="w-6 h-6 text-white" />
             </Link>
             <div className="text-center mx-auto">
-                <h1 className="text-2xl font-bold text-primary font-serif">
+                <h1 className="text-2xl font-bold text-accent font-serif">
                     Transfer to {recipient.name}
                 </h1>
                 <p className="text-sm text-muted-foreground">{recipient.bankName} &bull; {recipient.accountNumber}</p>

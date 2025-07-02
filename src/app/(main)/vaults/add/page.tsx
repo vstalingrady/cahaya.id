@@ -96,7 +96,7 @@ export default function AddVaultPage() {
         <Link href="/vaults" className="absolute left-0">
           <ArrowLeft className="w-6 h-6 text-white" />
         </Link>
-        <h1 className="text-2xl font-bold mx-auto text-primary font-serif">
+        <h1 className="text-2xl font-bold mx-auto text-accent font-serif">
           Create New Vault
         </h1>
       </header>
@@ -283,19 +283,19 @@ export default function AddVaultPage() {
                                 defaultValue={field.value}
                                 className="grid grid-cols-3 gap-4"
                                 >
-                                <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'daily' ? 'border-primary' : 'border-border')}>
+                                <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'daily' ? 'border-accent' : 'border-border')}>
                                     <FormControl>
                                     <RadioGroupItem value="daily" id="daily" className="sr-only" />
                                     </FormControl>
                                     <FormLabel htmlFor="daily" className="font-normal cursor-pointer">Daily</FormLabel>
                                 </FormItem>
-                                <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'weekly' ? 'border-primary' : 'border-border')}>
+                                <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'weekly' ? 'border-accent' : 'border-border')}>
                                     <FormControl>
                                     <RadioGroupItem value="weekly" id="weekly" className="sr-only" />
                                     </FormControl>
                                     <FormLabel htmlFor="weekly" className="font-normal cursor-pointer">Weekly</FormLabel>
                                 </FormItem>
-                                <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'monthly' ? 'border-primary' : 'border-border')}>
+                                <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'monthly' ? 'border-accent' : 'border-border')}>
                                     <FormControl>
                                     <RadioGroupItem value="monthly" id="monthly" className="sr-only" />
                                     </FormControl>
