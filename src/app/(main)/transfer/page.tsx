@@ -226,10 +226,10 @@ export default function TransferPage() {
                   {favorites.map((fav, index) => (
                     <div
                       key={fav.id}
-                      className="flex-grow-0 flex-shrink-0 basis-2/5 pl-4 min-w-0"
+                      className="flex-grow-0 flex-shrink-0 basis-3/5 pl-4 min-w-0"
                     >
                       <div className={cn(
-                        "relative group flex-shrink-0 w-full h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-all duration-300 ease-out",
+                        "relative group flex-shrink-0 w-full h-48 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-all duration-300 ease-out",
                          index === selectedIndex ? 'scale-100 opacity-100 shadow-primary/20' : 'scale-90 opacity-60'
                       )}>
                           <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
