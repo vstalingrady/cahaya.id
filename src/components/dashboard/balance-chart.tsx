@@ -1,10 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { Line, LineChart, Area, XAxis, YAxis } from "recharts";
+import { Line, LineChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from "recharts";
 import { format } from 'date-fns';
 import { type Transaction } from "@/lib/data";
-import { ChartConfig, ChartContainer, ChartTooltip } from "../ui/chart";
+import { ChartConfig, ChartContainer } from "../ui/chart";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
 import { cn } from '@/lib/utils';
 
@@ -27,34 +27,38 @@ const CustomTransactionDot = (props: any) => {
     const { transactions } = payload as { transactions: Transaction[], date: Date, netWorth: number };
 
     if (!transactions || transactions.length === 0) {
-        return <circle cx={cx} cy={cy} r={3} fill="hsl(var(--primary))" stroke="hsl(var(--background))" strokeWidth={1.5} />;
+        // Render a smaller, subtle dot for days with no transactions
+        return <circle cx={cx} cy={cy} r={2} fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth={1} />;
     }
 
     const netChange = transactions.reduce((acc, t) => acc + t.amount, 0);
-    const dotColorClass = netChange > 0 ? "fill-green-400" : "fill-red-400";
+    const dotColorClass = netChange > 0 ? "fill-green-400 stroke-green-300" : "fill-red-400 stroke-red-300";
     const dotRadius = 5;
 
     return (
-        <TooltipProvider>
+        <TooltipProvider delayDuration={0}>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <circle cx={cx} cy={cy} r={dotRadius} stroke="hsl(var(--background))" strokeWidth={1.5} className={dotColorClass} />
+                    <g>
+                        {/* Adding an outer ring for pulse effect on hover via CSS */}
+                        <circle cx={cx} cy={cy} r={dotRadius} strokeWidth={2} className={cn("transition-all", dotColorClass)} />
+                    </g>
                 </TooltipTrigger>
-                <TooltipContent className="max-w-xs">
-                    <div className="flex flex-col gap-2 p-1">
+                <TooltipContent className="max-w-xs bg-gradient-to-br from-black via-red-950 to-black text-white border-red-800/50 rounded-xl p-0">
+                    <div className="flex flex-col gap-2 p-3">
                         <div className="flex justify-between items-center font-bold">
-                            <span>{format(payload.date, 'eeee, d MMM')}</span>
+                            <span className="text-white">{format(payload.date, 'eeee, d MMM')}</span>
                             <span className={cn('text-sm font-mono', netChange > 0 ? "text-green-400" : "text-red-400")}>
                                 {netChange > 0 ? '+' : ''}{formatCurrency(netChange)}
                             </span>
                         </div>
-                        <div className="border-t border-border my-1"></div>
-                        <div className="space-y-2">
+                        <div className="border-t border-red-800/50 my-1"></div>
+                        <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
                           {transactions.map((t: Transaction) => (
                               <div key={t.id} className="text-xs flex justify-between items-center">
                                   <div>
-                                      <p className="font-semibold text-foreground">{t.description}</p>
-                                      <p className="text-muted-foreground">{t.category}</p>
+                                      <p className="font-semibold text-white">{t.description}</p>
+                                      <p className="text-red-300">{t.category}</p>
                                   </div>
                                   <p className={cn("font-mono ml-4", t.amount > 0 ? "text-green-400" : "text-red-400")}>
                                       {formatCurrency(t.amount)}
@@ -85,7 +89,7 @@ export default function BalanceChart({ chartData }: BalanceChartProps) {
         const getNiceDomain = (min: number, max: number, tickCount: number = 4) => {
             const range = max - min;
             if (range <= 0) {
-                const buffer = Math.abs(min * 0.1) || 1;
+                const buffer = Math.abs(min * 0.1) || 1000;
                 return [min - buffer, max + buffer];
             }
 
@@ -109,11 +113,14 @@ export default function BalanceChart({ chartData }: BalanceChartProps) {
     }, [chartData]);
 
     const formatYAxisTick = (tick: number) => {
-        if (tick >= 1_000_000) {
+        if (Math.abs(tick) >= 1_000_000_000) {
+            return `${(tick / 1_000_000_000).toFixed(1)}B`;
+        }
+        if (Math.abs(tick) >= 1_000_000) {
             return `${(tick / 1_000_000).toFixed(1)}M`;
         }
-        if (tick >= 1_000) {
-            return `${(tick / 1_000).toFixed(0)}K`;
+        if (Math.abs(tick) >= 1_000) {
+            return `${Math.round(tick / 1_000)}K`;
         }
         return tick.toString();
     };
@@ -122,31 +129,36 @@ export default function BalanceChart({ chartData }: BalanceChartProps) {
         <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
             <LineChart
                 data={chartData}
-                margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                margin={{ top: 5, right: 5, left: -15, bottom: 5 }}
             >
                 <defs>
                     <linearGradient id="fillNetWorth" x1="0" y1="0" x2="0" y2="1">
                         <stop
                             offset="5%"
-                            stopColor="hsl(var(--primary))"
+                            stopColor="hsl(var(--accent))"
                             stopOpacity={0.4}
                         />
                         <stop
                             offset="95%"
-                            stopColor="hsl(var(--primary))"
+                            stopColor="hsl(var(--accent))"
                             stopOpacity={0.05}
                         />
                     </linearGradient>
+                    <linearGradient id="strokeNetWorth" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={1} />
+                      <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={1} />
+                    </linearGradient>
                 </defs>
+                <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeDasharray="3 3" opacity={0.2} />
                 <XAxis
                     dataKey="date"
                     tickLine={false}
                     axisLine={false}
                     stroke="hsl(var(--muted-foreground))"
                     tickMargin={8}
-                    tickFormatter={(value) => format(new Date(value), 'd')}
+                    tickFormatter={(value) => format(new Date(value), 'd MMM')}
                     interval="preserveStartEnd"
-                    minTickGap={20}
+                    minTickGap={40}
                 />
                 <YAxis
                     dataKey="netWorth"
@@ -155,22 +167,22 @@ export default function BalanceChart({ chartData }: BalanceChartProps) {
                     axisLine={false}
                     stroke="hsl(var(--muted-foreground))"
                     tickMargin={5}
-                    width={35}
+                    width={60}
                     tickFormatter={formatYAxisTick}
                     tickCount={4}
                 />
-                <ChartTooltip
+                <RechartsTooltip
                     cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1.5, strokeDasharray: "3 3" }}
                     content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                         return (
-                            <div className="rounded-lg border bg-background/80 backdrop-blur-sm p-2 shadow-sm">
-                                <div className="grid grid-cols-1 gap-2">
+                            <div className="rounded-xl border border-red-800/50 bg-gradient-to-br from-black via-red-950 to-black backdrop-blur-sm p-2 shadow-lg">
+                                <div className="grid grid-cols-1 gap-1">
                                     <div className="flex flex-col">
-                                        <span className="text-[0.70rem] uppercase text-muted-foreground">
+                                        <span className="text-[0.70rem] uppercase text-red-300">
                                             {format(new Date(payload[0].payload.date), 'eeee, d MMM yyyy')}
                                         </span>
-                                        <span className="font-bold text-foreground">
+                                        <span className="font-bold text-lg text-white">
                                         {new Intl.NumberFormat('id-ID', {
                                             style: 'currency',
                                             currency: 'IDR',
@@ -196,14 +208,13 @@ export default function BalanceChart({ chartData }: BalanceChartProps) {
                 <Line
                     type="monotone"
                     dataKey="netWorth"
-                    stroke="hsl(var(--primary))"
-                    strokeWidth={2}
+                    stroke="url(#strokeNetWorth)"
+                    strokeWidth={3}
                     dot={<CustomTransactionDot />}
                     activeDot={{
-                        r: 6,
+                        r: 8,
                         strokeWidth: 2,
                         fill: 'hsl(var(--background))',
-                        stroke: 'hsl(var(--primary))',
                     }}
                     connectNulls
                 />
