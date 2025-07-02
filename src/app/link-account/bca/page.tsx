@@ -7,11 +7,6 @@ export default function BcaAuthPage() {
     <div className="w-full max-w-md mx-auto bg-gradient-to-br from-white via-red-50 to-red-100 text-slate-900 p-6 min-h-screen relative overflow-hidden">
       <NoiseOverlay opacity={0.02} />
       
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-red-200/30 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-red-300/30 to-transparent rounded-full blur-3xl"></div>
-      </div>
-
       <div className="text-center mb-8 relative z-10">
         <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-red-800 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg border border-red-500/20">
           <span className="text-white font-bold text-2xl">BCA</span>

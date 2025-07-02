@@ -7,11 +7,6 @@ export default function LinkAccountPage() {
     <div className="w-full max-w-md mx-auto bg-gradient-to-br from-black via-red-950 to-black text-white p-6 min-h-screen relative overflow-hidden">
       <NoiseOverlay />
       
-      <div className="absolute inset-0 overflow-hidden -z-10">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-red-500/10 to-transparent rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-red-600/10 to-transparent rounded-full blur-3xl"></div>
-      </div>
-
       <div className="mb-8 relative z-10">
         <h1 className="text-3xl font-bold mb-3 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">Let's get you connected.</h1>
         <p className="text-red-200 leading-relaxed">Select an account to link. We use official and secure bank APIs to connect. We never store your login credentials.</p>

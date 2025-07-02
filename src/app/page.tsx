@@ -20,7 +20,7 @@ const FeatureSection = ({ title, description, imgSrc, imgHint, reverse = false }
             </p>
           </div>
           <div className="flex-1 mt-8 lg:mt-0 w-full max-w-sm">
-            <div className={`bg-gradient-to-br from-red-900/50 to-red-800/50 p-4 rounded-3xl backdrop-blur-xl border shadow-2xl border-red-600/20`}>
+            <div className={`bg-gradient-to-br from-red-900/50 to-red-800/50 p-4 rounded-3xl backdrop-blur-xl border shadow-lg border-red-600/20`}>
                <Image 
                   src={imgSrc}
                   alt={title}
@@ -69,11 +69,6 @@ export default function WelcomePage() {
   const slides = [
     // Hero Section
     <section key="hero" className="h-screen flex flex-col justify-center items-center text-center p-6 relative z-10">
-      <div className="absolute inset-0 overflow-hidden -z-10">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-red-500/20 to-pink-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute top-1/2 left-1/2 w-32 h-32 bg-gradient-to-r from-red-600/30 to-rose-600/30 rounded-full blur-2xl animate-pulse" style={{ animationDelay: '0.5s' }}></div>
-      </div>
       <div className="mb-8">
         <h1 className="text-5xl lg:text-7xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight font-serif">
           All your money,<br />in one place.
