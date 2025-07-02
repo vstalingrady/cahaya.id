@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -12,87 +12,8 @@ import {
   type CarouselApi,
 } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
-import { ArrowRight, Landmark } from 'lucide-react';
-import EwalletIcon from '@/components/icons/ewallet-icon';
-import { accounts as initialAccounts, transactions, type Account } from '@/lib/data';
-import TotalBalance from '@/components/dashboard/total-balance';
-import AccountCard from '@/components/dashboard/account-card';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-
-
-const FeatureShowcase = () => {
-    const { netWorth, accountGroups } = useMemo(() => {
-        const accountList = initialAccounts;
-        const totalAssets = accountList
-            .filter(acc => acc.type !== 'loan')
-            .reduce((sum, acc) => sum + acc.balance, 0);
-        
-        const totalLiabilities = accountList
-            .filter(acc => acc.type === 'loan')
-            .reduce((sum, acc) => sum + acc.balance, 0);
-            
-        const netWorth = totalAssets - totalLiabilities;
-
-        const accountGroups = {
-            bank: accountList.filter(a => a.type === 'bank'),
-            'e-wallet': accountList.filter(a => a.type === 'e-wallet'),
-        };
-
-        return { netWorth, accountGroups };
-    }, []);
-
-  return (
-    <div className="bg-card/50 p-2 md:p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50 backdrop-blur-sm overflow-hidden">
-        <div className="w-[420px] h-[750px] md:w-full md:h-full transform scale-[0.8] md:scale-100 origin-top-left pointer-events-none select-none">
-            <div className="space-y-6 p-6">
-                <header>
-                    <h1 className="text-3xl font-bold text-white font-serif">
-                        Good morning, Vstalin
-                    </h1>
-                </header>
-
-                <TotalBalance title="Total Net Worth" amount={netWorth} transactions={transactions} showHistoryLink={false} />
-
-                <div>
-                    <h2 className="text-xl font-semibold text-white font-serif">Your Accounts</h2>
-                    <Accordion type="multiple" defaultValue={['bank', 'e-wallet']} className="w-full space-y-2 mt-4">
-                        {accountGroups.bank.length > 0 && (
-                            <AccordionItem value="bank" className="bg-card/80 backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
-                                <AccordionTrigger className="hover:no-underline">
-                                    <div className='flex items-center gap-3'>
-                                        <Landmark className='w-5 h-5 text-primary/80' />
-                                        <span className='font-semibold text-white'>Banks</span>
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="pt-2 space-y-2">
-                                    {accountGroups.bank.map(account => (
-                                        <AccountCard key={account.id} account={account} />
-                                    ))}
-                                </AccordionContent>
-                            </AccordionItem>
-                        )}
-                        {accountGroups['e-wallet'].length > 0 && (
-                            <AccordionItem value="e-wallet" className="bg-card/80 backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
-                                <AccordionTrigger className="hover:no-underline">
-                                    <div className='flex items-center gap-3'>
-                                        <EwalletIcon className='w-5 h-5 text-primary/80' />
-                                        <span className='font-semibold text-white'>E-Wallets</span>
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="pt-2 space-y-2">
-                                    {accountGroups['e-wallet'].map(account => (
-                                        <AccountCard key={account.id} account={account} />
-                                    ))}
-                                </AccordionContent>
-                            </AccordionItem>
-                        )}
-                    </Accordion>
-                </div>
-            </div>
-        </div>
-    </div>
-  );
-};
+import { ArrowRight } from 'lucide-react';
+import PhoneMockup from '@/components/phone-mockup';
 
 
 export default function WelcomePage() {
@@ -109,14 +30,15 @@ export default function WelcomePage() {
       type: 'feature',
       title: 'Connect Everything. See Everything.',
       description: 'BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.',
-      customComponent: <FeatureShowcase />,
+      imgSrc: 'https://placehold.co/375x812.png',
+      imgHint: 'app dashboard',
       reverse: false
     },
     {
       type: 'feature',
       title: 'Pay Any Bill, From Any Source.',
       description: 'Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.',
-      imgSrc: 'https://placehold.co/800x600.png',
+      imgSrc: 'https://placehold.co/375x812.png',
       imgHint: 'bill payment ui',
       reverse: true
     },
@@ -124,7 +46,7 @@ export default function WelcomePage() {
       type: 'feature',
       title: 'Save Smarter with Cuan Vaults.',
       description: 'Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.',
-      imgSrc: 'https://placehold.co/800x600.png',
+      imgSrc: 'https://placehold.co/375x812.png',
       imgHint: 'savings goals progress',
       reverse: false
     },
@@ -167,7 +89,10 @@ export default function WelcomePage() {
                 )}
 
                 {slide.type === 'feature' && (
-                   <div className={`flex flex-col ${slide.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center justify-center gap-8 lg:gap-16 max-w-5xl mx-auto`}>
+                   <div className={cn(
+                       "flex flex-col items-center justify-center gap-8 max-w-6xl mx-auto lg:gap-16",
+                       slide.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'
+                    )}>
                     <div className="flex-1 text-center lg:text-left animate-fade-in-up">
                       <h2 className="text-3xl lg:text-4xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
                         {slide.title}
@@ -176,19 +101,17 @@ export default function WelcomePage() {
                         {slide.description}
                       </p>
                     </div>
-                    <div className="flex-1 mt-8 lg:mt-0 w-full max-w-md animate-fade-in-up [animation-delay:0.2s]">
-                      {slide.customComponent ? slide.customComponent : (
-                        <div className="bg-card/50 p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50 backdrop-blur-sm">
-                          <Image 
-                              src={slide.imgSrc!}
-                              alt={slide.title!}
-                              width={800}
-                              height={600}
-                              data-ai-hint={slide.imgHint!}
-                              className="rounded-2xl shadow-lg"
-                            />
-                        </div>
-                      )}
+                    <div className="flex-1 mt-8 lg:mt-0 w-full flex justify-center animate-fade-in-up [animation-delay:0.2s]">
+                      <PhoneMockup>
+                        <Image 
+                            src={slide.imgSrc!}
+                            alt={slide.title!}
+                            width={375}
+                            height={812}
+                            data-ai-hint={slide.imgHint!}
+                            className="object-cover w-full h-full"
+                          />
+                      </PhoneMockup>
                     </div>
                   </div>
                 )}
