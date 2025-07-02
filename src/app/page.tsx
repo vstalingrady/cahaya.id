@@ -74,7 +74,7 @@ export default function WelcomePage() {
           {slides.map((slide, index) => (
             <CarouselItem key={index} className="pl-0">
               <div className="relative w-full h-screen flex flex-col items-center justify-center p-6 overflow-hidden">
-                <div className="absolute inset-0 bg-hero-glow animate-hero-glow -z-10"></div>
+                <div className="absolute inset-0 bg-hero-glow -z-10"></div>
                 
                 {slide.type === 'hero' && (
                   <div className="text-center relative z-10 animate-fade-in-up">
@@ -90,7 +90,7 @@ export default function WelcomePage() {
 
                 {slide.type === 'feature' && (
                    <div className={cn(
-                       "flex flex-col items-center justify-center gap-8 max-w-6xl mx-auto lg:gap-16 w-full",
+                       "flex flex-col items-center justify-center gap-4 max-w-6xl mx-auto lg:gap-16 w-full",
                        slide.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'
                     )}>
                     <div className="flex-1 text-center lg:text-left animate-fade-in-up">
@@ -101,7 +101,7 @@ export default function WelcomePage() {
                         {slide.description}
                       </p>
                     </div>
-                    <div className="flex-1 mt-8 lg:mt-0 w-full flex justify-center animate-fade-in-up [animation-delay:0.2s]">
+                    <div className="flex-1 mt-4 lg:mt-0 w-full flex justify-center animate-fade-in-up [animation-delay:0.2s]">
                       <PhoneMockup>
                         <Image 
                             src={slide.imgSrc!}
