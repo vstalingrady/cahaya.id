@@ -272,8 +272,8 @@ export default function TransferPage() {
                   href={action.href}
                   className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg shadow-primary/10 group"
                 >
-                  <div className="bg-secondary p-3 rounded-xl shadow-lg">
-                      <action.icon className="w-6 h-6" stroke="url(#icon-gradient)" />
+                  <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg">
+                      <action.icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <p className="font-semibold text-lg text-white">{action.name}</p>

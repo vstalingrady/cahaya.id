@@ -66,10 +66,10 @@ export default function DashboardPage() {
                 <Accordion type="multiple" defaultValue={['bank', 'e-wallet', 'investment', 'loan']} className="w-full space-y-2">
                     {accountGroups.bank.length > 0 && (
                         <AccordionItem value="bank" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
-                            <AccordionTrigger className="hover:no-underline">
+                            <AccordionTrigger className="hover:no-underline text-white">
                                 <div className='flex items-center gap-3'>
-                                    <Landmark className='w-5 h-5' stroke="url(#icon-gradient)" />
-                                    <span className='font-semibold text-white'>Banks</span>
+                                    <Landmark className='w-5 h-5' />
+                                    <span className='font-semibold'>Banks</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="pt-2 space-y-2">
@@ -82,10 +82,10 @@ export default function DashboardPage() {
 
                     {accountGroups['e-wallet'].length > 0 && (
                         <AccordionItem value="e-wallet" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
-                            <AccordionTrigger className="hover:no-underline">
+                            <AccordionTrigger className="hover:no-underline text-white">
                                 <div className='flex items-center gap-3'>
-                                    <EwalletIcon className='w-5 h-5' stroke="url(#icon-gradient)" />
-                                    <span className='font-semibold text-white'>E-Wallets</span>
+                                    <EwalletIcon className='w-5 h-5' />
+                                    <span className='font-semibold'>E-Wallets</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="pt-2 space-y-2">
@@ -98,10 +98,10 @@ export default function DashboardPage() {
                     
                     {accountGroups.investment.length > 0 && (
                         <AccordionItem value="investment" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
-                            <AccordionTrigger className="hover:no-underline">
+                            <AccordionTrigger className="hover:no-underline text-white">
                                 <div className='flex items-center gap-3'>
-                                    <Briefcase className='w-5 h-5' stroke="url(#icon-gradient)" />
-                                    <span className='font-semibold text-white'>Investments</span>
+                                    <Briefcase className='w-5 h-5' />
+                                    <span className='font-semibold'>Investments</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="pt-2 space-y-2">
@@ -114,10 +114,10 @@ export default function DashboardPage() {
 
                     {accountGroups.loan.length > 0 && (
                         <AccordionItem value="loan" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
-                            <AccordionTrigger className="hover:no-underline">
+                            <AccordionTrigger className="hover:no-underline text-white">
                                 <div className='flex items-center gap-3'>
-                                    <Coins className='w-5 h-5' stroke="url(#icon-gradient)" />
-                                    <span className='font-semibold text-white'>Loans</span>
+                                    <Coins className='w-5 h-5' />
+                                    <span className='font-semibold'>Loans</span>
                                 </div>
                             </AccordionTrigger>
                             <AccordionContent className="pt-2 space-y-2">
