@@ -91,16 +91,16 @@ export default function WelcomePage() {
                 )}
                 
                 {slide.type === 'feature_showcase' && (
-                  <div className="w-full h-full overflow-hidden">
-                    <div className="flex flex-col items-center text-center max-w-lg mx-auto animate-fade-in-up z-10 pt-20 px-6">
+                  <div className="flex flex-col items-center justify-center h-full animate-fade-in-up px-6 text-center w-full">
+                    <div className="max-w-lg mx-auto">
                       <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
                         {slide.title}
                       </h2>
-                      <p className="text-base leading-relaxed text-muted-foreground">
+                      <p className="text-base leading-relaxed text-muted-foreground mb-6">
                         {slide.description}
                       </p>
                     </div>
-                    <div className="absolute bottom-0 translate-y-[65%] w-full flex justify-center pointer-events-none">
+                    <div className="scale-[0.75] origin-top -mt-4">
                        <WelcomePhoneMockup src={slide.mockupSrc!} />
                     </div>
                   </div>
