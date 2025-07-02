@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
-import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
+import Image from 'next/image';
 
 
 export default function WelcomePage() {
@@ -58,12 +58,12 @@ export default function WelcomePage() {
   }, [api]);
 
   return (
-    <div className="w-full h-screen bg-background text-white overflow-hidden">
+    <div className="w-full h-screen bg-background text-white">
       <Carousel setApi={setApi} className="w-full h-full">
         <CarouselContent className="-ml-0">
           {slides.map((slide, index) => (
-            <CarouselItem key={index} className="pl-0">
-              <div className="relative w-full h-screen flex flex-col items-center justify-center p-6 overflow-hidden">
+            <CarouselItem key={index} className="pl-0 basis-full overflow-hidden">
+              <div className="relative w-full h-screen flex flex-col items-center justify-center p-6">
                 <div className="absolute inset-0 bg-hero-glow -z-10"></div>
                 
                 {slide.type === 'hero' && (
@@ -90,17 +90,22 @@ export default function WelcomePage() {
                 )}
                 
                 {slide.type === 'feature_showcase' && (
-                  <div className="flex flex-col items-center justify-center h-full animate-fade-in-up px-6 text-center w-full overflow-hidden">
-                    <div className="max-w-lg mx-auto">
-                      <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
-                        {slide.title}
-                      </h2>
-                      <p className="text-base leading-relaxed text-muted-foreground mb-6">
-                        {slide.description}
-                      </p>
-                    </div>
-                    <div className="scale-[0.75] origin-top -mt-4">
-                       <WelcomeDashboardMockup />
+                  <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto animate-fade-in-up">
+                    <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
+                      {slide.title}
+                    </h2>
+                    <p className="text-base leading-relaxed text-muted-foreground mb-8">
+                      {slide.description}
+                    </p>
+                    <div className="relative w-full max-w-sm rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-2">
+                       <Image
+                        src="https://placehold.co/600x400.png"
+                        alt="CuanFlex Dashboard Preview"
+                        width={600}
+                        height={400}
+                        className="rounded-xl"
+                        data-ai-hint="app dashboard finance"
+                      />
                     </div>
                   </div>
                 )}
