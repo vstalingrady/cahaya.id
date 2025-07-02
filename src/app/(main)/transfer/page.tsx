@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react'
+import Image from 'next/image';
 import {
   ChevronRight,
   Send,
@@ -31,7 +32,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import QrisLogo from '@/components/icons/qris-logo';
 
 
 const transferActions = [
@@ -203,7 +203,7 @@ export default function TransferPage() {
             className="w-full bg-card p-5 rounded-2xl flex items-center justify-center text-muted-foreground border-2 border-dashed border-border hover:border-primary/80 hover:text-primary transition-all duration-300 group"
         >
             <span className="font-semibold text-xl text-white group-hover:text-primary transition-colors relative z-10 flex items-center gap-3">
-                Pay with <QrisLogo className="w-20" />
+                Pay with <Image src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS Logo" width={80} height={25} className="dark:invert" />
             </span>
         </Link>
         
