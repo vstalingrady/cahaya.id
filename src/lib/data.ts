@@ -55,6 +55,14 @@ export type Budget = {
   endDate: string; // "YYYY-MM-DD"
 };
 
+export type FavoriteTransaction = {
+  id: string;
+  name: string;
+  amount: number;
+  icon: string;
+  category: string;
+};
+
 
 export const accounts: Account[] = [
   {
@@ -169,6 +177,13 @@ export const budgets: Budget[] = [
   { id: 'bud1', name: 'Monthly Food & Drink', category: 'Food & Drink', amount: 5000000, startDate: '2024-07-01', endDate: '2024-07-31' },
   { id: 'bud2', name: 'Monthly Transport', category: 'Transportation', amount: 1500000, startDate: '2024-07-01', endDate: '2024-07-31' },
   { id: 'bud3', name: 'July Shopping', category: 'Shopping', amount: 10000000, startDate: '2024-07-01', endDate: '2024-07-31' },
+];
+
+export const favoriteTransactions: FavoriteTransaction[] = [
+  { id: 'fav1', name: 'Transfer to Mom', amount: 1000000, icon: 'User', category: 'Family' },
+  { id: 'fav2', name: 'Pay Netflix', amount: 186000, icon: 'Clapperboard', category: 'Bills' },
+  { id: 'fav3', name: 'Pay Kredivo', amount: 1250000, icon: 'CreditCard', category: 'Bills' },
+  { id: 'fav4', name: 'Top Up GoPay', amount: 200000, icon: 'Wallet', category: 'Top Up' },
 ];
 
 export const transactions: Transaction[] = [
