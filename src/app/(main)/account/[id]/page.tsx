@@ -62,7 +62,7 @@ export default function AccountDetailPage() {
             <Link href="/dashboard" className="absolute left-0">
                 <ArrowLeft className="w-6 h-6 text-white" />
             </Link>
-            <h1 className="text-2xl font-bold mx-auto text-accent font-serif">
+            <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Error
             </h1>
         </header>
@@ -113,7 +113,7 @@ export default function AccountDetailPage() {
         <Link href="/dashboard" className="absolute left-0">
           <ArrowLeft className="w-6 h-6 text-white" />
         </Link>
-        <h1 className="text-2xl font-bold mx-auto text-accent font-serif">
+        <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           {account.name}
         </h1>
       </header>

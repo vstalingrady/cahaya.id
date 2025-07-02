@@ -279,7 +279,7 @@ export default function InsightsPage() {
         <>
         <div className="space-y-8 animate-fade-in-up">
             <div>
-                <h1 className="text-3xl font-bold mb-1 text-accent font-serif">
+                <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                     Insights
                 </h1>
                 <p className="text-muted-foreground">Understand your money, take control.</p>

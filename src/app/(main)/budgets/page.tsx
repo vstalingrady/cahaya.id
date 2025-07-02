@@ -240,7 +240,7 @@ export default function BudgetsPage() {
         <div className="space-y-8 animate-fade-in-up">
             <div className="flex justify-between items-start">
                 <div>
-                    <h1 className="text-3xl font-bold mb-1 text-accent font-serif">
+                    <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Smart Budgets
                     </h1>
                     <p className="text-muted-foreground">Set spending limits for custom periods.</p>
