@@ -194,13 +194,16 @@ export default function TransferPage() {
           <p className="text-muted-foreground">Your central hub for all payments.</p>
         </div>
 
-        <div className="p-[2px] rounded-2xl bg-gradient-to-r from-primary to-accent group">
-          <div className="w-full h-full bg-card rounded-[calc(1rem-2px)] p-5 flex items-center justify-center border-2 border-dashed border-card">
+        <Link
+            href="/transfer/qris"
+            className="p-[2px] rounded-2xl bg-gradient-to-r from-primary to-accent block group"
+        >
+          <div className="w-full h-full bg-card rounded-[calc(1rem-2px)] p-5 flex items-center justify-center border-2 border-transparent">
               <span className="font-semibold text-xl text-white flex items-center gap-3">
                   Pay with <Image src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS Logo" width={80} height={37} className="dark:invert w-20 h-auto" />
               </span>
           </div>
-        </div>
+        </Link>
         
         <div className="space-y-4">
             <div className="flex justify-between items-center">
@@ -233,7 +236,7 @@ export default function TransferPage() {
                               <X className="w-4 h-4" />
                             </Button>
                             <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg">
-                              <Icon className="w-6 h-6 text-white" />
+                              <Icon className="w-6 h-6" color="white" />
                             </div>
                             <div>
                               <p className="font-semibold text-white truncate">{fav.name}</p>
