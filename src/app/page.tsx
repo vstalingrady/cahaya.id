@@ -78,11 +78,11 @@ export default function WelcomePage() {
                 
                 {slide.type === 'hero' && (
                   <div className="text-center relative z-10 animate-fade-in-up">
-                     <CuanLogo className="w-28 h-auto mx-auto mb-8" />
-                    <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line">
+                     <CuanLogo className="w-24 h-auto mx-auto mb-8" />
+                    <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line">
                       {slide.title}
                     </h1>
-                     <p className="text-lg text-muted-foreground max-w-xl mx-auto my-8 font-light">
+                     <p className="text-base text-muted-foreground max-w-xl mx-auto my-6 font-light">
                       {slide.description}
                     </p>
                   </div>
@@ -94,10 +94,10 @@ export default function WelcomePage() {
                        slide.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'
                     )}>
                     <div className="flex-1 text-center lg:text-left animate-fade-in-up">
-                      <h2 className="text-3xl lg:text-4xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
+                      <h2 className="text-2xl lg:text-3xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
                         {slide.title}
                       </h2>
-                      <p className="text-lg leading-relaxed text-muted-foreground">
+                      <p className="text-base leading-relaxed text-muted-foreground">
                         {slide.description}
                       </p>
                     </div>
@@ -106,10 +106,10 @@ export default function WelcomePage() {
                         <Image 
                             src={slide.imgSrc!}
                             alt={slide.title!}
-                            width={375}
-                            height={812}
+                            fill
+                            sizes="(max-width: 768px) 100vw, 33vw"
                             data-ai-hint={slide.imgHint!}
-                            className="object-cover w-full h-full"
+                            className="object-cover"
                           />
                       </PhoneMockup>
                     </div>
