@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Calendar } from '@/components/ui/calendar';
 import { transactions, accounts } from '@/lib/data';
-import { format, isSameDay, startOfDay } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
 
@@ -32,11 +32,20 @@ const currentNetWorth = accounts
 
 
 export default function TransactionCalendar() {
-    const [date, setDate] = useState<Date>(new Date());
+    // Find the latest transaction date to use as the default.
+    const latestTransactionDate = useMemo(() => 
+        transactions.length > 0 
+            ? new Date(Math.max(...transactions.map(t => new Date(t.date).getTime())))
+            : new Date(), 
+    []);
     
-    const transactionsOnSelectedDate = useMemo(() => transactions.filter(t => 
-        date && isSameDay(new Date(t.date), date)
-    ).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()), [date]);
+    const [date, setDate] = useState<Date | undefined>(latestTransactionDate);
+    
+    const transactionsOnSelectedDate = useMemo(() => {
+        if (!date) return [];
+        return transactions.filter(t => isSameDay(new Date(t.date), date))
+               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    }, [date]);
 
     const transactionDates = useMemo(() => transactions.map(t => new Date(t.date)), []);
     
@@ -85,11 +94,7 @@ export default function TransactionCalendar() {
                 <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={(newDate) => {
-                        if (newDate) {
-                            setDate(newDate);
-                        }
-                    }}
+                    onSelect={setDate}
                     className="rounded-md"
                     modifiers={{
                         hasTransaction: transactionDates,
@@ -146,7 +151,7 @@ export default function TransactionCalendar() {
                                     </div>
                                     <p className={cn(
                                         "font-bold font-mono",
-                                        t.amount > 0 ? "text-green-400" : "text-red-400"
+                                        t.amount > 0 ? "text-green-400" : "text-destructive"
                                     )}>
                                         {t.amount > 0 ? '+' : ''}{formatCurrency(t.amount)}
                                     </p>
