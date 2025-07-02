@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import CuanLogo from '@/components/cuanflex-logo';
 import {
@@ -13,8 +12,6 @@ import {
 } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
-import PhoneMockup from '@/components/phone-mockup';
-
 
 export default function WelcomePage() {
   const [api, setApi] = React.useState<CarouselApi>();
@@ -30,25 +27,16 @@ export default function WelcomePage() {
       type: 'feature',
       title: 'Connect Everything. See Everything.',
       description: 'BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.',
-      imgSrc: 'https://placehold.co/375x812.png',
-      imgHint: 'app dashboard',
-      reverse: false
     },
     {
       type: 'feature',
       title: 'Pay Any Bill, From Any Source.',
       description: 'Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.',
-      imgSrc: 'https://placehold.co/375x812.png',
-      imgHint: 'bill payment ui',
-      reverse: true
     },
     {
       type: 'feature',
       title: 'Save Smarter with Cuan Vaults.',
       description: 'Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.',
-      imgSrc: 'https://placehold.co/375x812.png',
-      imgHint: 'savings goals progress',
-      reverse: false
     },
     {
       type: 'cta',
@@ -89,30 +77,13 @@ export default function WelcomePage() {
                 )}
 
                 {slide.type === 'feature' && (
-                   <div className={cn(
-                       "flex flex-col items-center justify-center gap-4 max-w-6xl mx-auto lg:gap-16 w-full",
-                       slide.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'
-                    )}>
-                    <div className="flex-1 text-center lg:text-left animate-fade-in-up">
-                      <h2 className="text-xl lg:text-2xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
+                   <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto animate-fade-in-up">
+                      <h2 className="text-xl lg:text-2xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
                         {slide.title}
                       </h2>
                       <p className="text-sm leading-relaxed text-muted-foreground">
                         {slide.description}
                       </p>
-                    </div>
-                    <div className="flex-1 mt-4 lg:mt-0 w-full flex justify-center animate-fade-in-up [animation-delay:0.2s]">
-                      <PhoneMockup>
-                        <Image 
-                            src={slide.imgSrc!}
-                            alt={slide.title!}
-                            fill
-                            sizes="(max-width: 768px) 100vw, 33vw"
-                            data-ai-hint={slide.imgHint!}
-                            className="object-cover"
-                          />
-                      </PhoneMockup>
-                    </div>
                   </div>
                 )}
 
