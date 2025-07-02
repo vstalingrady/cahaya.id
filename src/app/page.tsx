@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
-import WelcomePhoneMockup from '@/components/welcome-phone-mockup';
+import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
 
 
 export default function WelcomePage() {
@@ -29,7 +29,6 @@ export default function WelcomePage() {
       type: 'feature_showcase',
       title: 'Connect Everything. See Everything.',
       description: 'BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.',
-      mockupSrc: '/dashboard'
     },
     {
       type: 'feature',
@@ -91,7 +90,7 @@ export default function WelcomePage() {
                 )}
                 
                 {slide.type === 'feature_showcase' && (
-                  <div className="flex flex-col items-center justify-center h-full animate-fade-in-up px-6 text-center w-full">
+                  <div className="flex flex-col items-center justify-center h-full animate-fade-in-up px-6 text-center w-full overflow-hidden">
                     <div className="max-w-lg mx-auto">
                       <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
                         {slide.title}
@@ -101,7 +100,7 @@ export default function WelcomePage() {
                       </p>
                     </div>
                     <div className="scale-[0.75] origin-top -mt-4">
-                       <WelcomePhoneMockup src={slide.mockupSrc!} />
+                       <WelcomeDashboardMockup />
                     </div>
                   </div>
                 )}
