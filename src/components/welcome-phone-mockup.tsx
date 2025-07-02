@@ -9,12 +9,12 @@ type WelcomePhoneMockupProps = {
 
 export default function WelcomePhoneMockup({ src, className }: WelcomePhoneMockupProps) {
   return (
-    <div className={cn("relative mx-auto border-neutral-800 bg-neutral-900 border-[8px] rounded-t-[2.5rem] h-[700px] w-[350px] shadow-2xl shadow-primary/20 pointer-events-none", className)}>
-      <div className="w-[140px] h-[18px] bg-neutral-900 top-0 rounded-b-[1rem] left-1/2 -translate-x-1/2 absolute z-10"></div>
+    <div className={cn("relative mx-auto border-neutral-800 bg-neutral-900 border-[8px] rounded-t-[2.5rem] h-[600px] w-[300px] shadow-2xl shadow-primary/20", className)}>
+      <div className="w-[120px] h-[18px] bg-neutral-900 top-0 rounded-b-[1rem] left-1/2 -translate-x-1/2 absolute z-10"></div>
       <div className="rounded-t-[2rem] w-full h-full overflow-hidden bg-background">
         <iframe
           src={src}
-          className="w-full h-full scale-[1.01] origin-top border-0"
+          className="w-full h-full scale-[1.01] origin-top border-0 pointer-events-none"
           scrolling="no"
           // Sandbox to prevent any actions from within the iframe
           sandbox="" 

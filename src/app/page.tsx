@@ -63,8 +63,8 @@ export default function WelcomePage() {
       <Carousel setApi={setApi} className="w-full h-full">
         <CarouselContent className="-ml-0">
           {slides.map((slide, index) => (
-            <CarouselItem key={index} className="pl-0 overflow-hidden">
-              <div className="relative w-full h-screen flex flex-col items-center justify-center p-6">
+            <CarouselItem key={index} className="pl-0">
+              <div className="relative w-full h-screen flex flex-col items-center justify-center p-6 overflow-hidden">
                 <div className="absolute inset-0 bg-hero-glow -z-10"></div>
                 
                 {slide.type === 'hero' && (
@@ -91,8 +91,8 @@ export default function WelcomePage() {
                 )}
                 
                 {slide.type === 'feature_showcase' && (
-                  <>
-                    <div className="flex flex-col items-center text-center max-w-lg mx-auto animate-fade-in-up z-10 absolute top-1/4 left-0 right-0 px-6">
+                  <div className="w-full h-full overflow-hidden">
+                    <div className="flex flex-col items-center text-center max-w-lg mx-auto animate-fade-in-up z-10 pt-20 px-6">
                       <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
                         {slide.title}
                       </h2>
@@ -100,10 +100,10 @@ export default function WelcomePage() {
                         {slide.description}
                       </p>
                     </div>
-                    <div className="absolute bottom-0 translate-y-1/2 w-full flex justify-center">
+                    <div className="absolute bottom-0 translate-y-[65%] w-full flex justify-center pointer-events-none">
                        <WelcomePhoneMockup src={slide.mockupSrc!} />
                     </div>
-                  </>
+                  </div>
                 )}
 
                 {slide.type === 'cta' && (
