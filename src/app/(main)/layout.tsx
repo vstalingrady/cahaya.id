@@ -1,5 +1,4 @@
 import MainNav from '@/components/main-nav';
-import NoiseOverlay from '@/components/noise-overlay';
 
 export default function MainAppLayout({
   children,
@@ -8,8 +7,6 @@ export default function MainAppLayout({
 }) {
   return (
     <div className="w-full max-w-md mx-auto bg-background text-white min-h-screen relative flex flex-col">
-      <NoiseOverlay />
-      
       <main className="flex-1 overflow-y-auto p-6 relative z-10 pb-24">
         {children}
       </main>

@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Line, LineChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from "recharts";
+import { Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ComposedChart } from "recharts";
 import { format } from 'date-fns';
 import { type Transaction } from "@/lib/data";
 import { ChartConfig, ChartContainer } from "../ui/chart";
@@ -12,8 +12,12 @@ import { cn } from '@/lib/utils';
 const chartConfig = {
   netWorth: {
     label: "Net Worth",
-    color: "hsl(var(--primary))",
+    color: "hsl(var(--chart-1))",
   },
+  transactions: {
+    label: "Transactions",
+    color: "hsl(var(--chart-2))",
+  }
 } satisfies ChartConfig;
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
@@ -27,12 +31,11 @@ const CustomTransactionDot = (props: any) => {
     const { transactions } = payload as { transactions: Transaction[], date: Date, netWorth: number };
 
     if (!transactions || transactions.length === 0) {
-        // Render a smaller, subtle dot for days with no transactions
-        return <circle cx={cx} cy={cy} r={2} fill="hsl(var(--primary))" stroke="hsl(var(--primary))" strokeWidth={1} />;
+        return <circle cx={cx} cy={cy} r={2} fill="hsl(var(--primary))" stroke="hsl(var(--background))" strokeWidth={1} />;
     }
 
     const netChange = transactions.reduce((acc, t) => acc + t.amount, 0);
-    const dotColorClass = netChange > 0 ? "fill-green-400 stroke-green-300" : "fill-red-400 stroke-red-300";
+    const dotColorClass = netChange > 0 ? "fill-green-400 stroke-green-300" : "fill-destructive stroke-red-400";
     const dotRadius = 5;
 
     return (
@@ -40,7 +43,7 @@ const CustomTransactionDot = (props: any) => {
             <Tooltip>
                 <TooltipTrigger asChild>
                     <g>
-                        {/* Adding an outer ring for pulse effect on hover via CSS */}
+                        <circle cx={cx} cy={cy} r={dotRadius+3} fill="hsl(var(--primary) / 0.3)" className="animate-pulse" />
                         <circle cx={cx} cy={cy} r={dotRadius} strokeWidth={2} className={cn("transition-all", dotColorClass)} />
                     </g>
                 </TooltipTrigger>
@@ -48,7 +51,7 @@ const CustomTransactionDot = (props: any) => {
                     <div className="flex flex-col gap-2 p-3">
                         <div className="flex justify-between items-center font-bold">
                             <span className="text-white">{format(payload.date, 'eeee, d MMM')}</span>
-                            <span className={cn('text-sm font-mono', netChange > 0 ? "text-green-400" : "text-red-400")}>
+                            <span className={cn('text-sm font-mono', netChange > 0 ? "text-green-400" : "text-destructive")}>
                                 {netChange > 0 ? '+' : ''}{formatCurrency(netChange)}
                             </span>
                         </div>
@@ -60,7 +63,7 @@ const CustomTransactionDot = (props: any) => {
                                       <p className="font-semibold text-white">{t.description}</p>
                                       <p className="text-muted-foreground">{t.category}</p>
                                   </div>
-                                  <p className={cn("font-mono ml-4", t.amount > 0 ? "text-green-400" : "text-red-400")}>
+                                  <p className={cn("font-mono ml-4", t.amount > 0 ? "text-green-400" : "text-destructive")}>
                                       {formatCurrency(t.amount)}
                                   </p>
                               </div>
@@ -127,7 +130,7 @@ export default function BalanceChart({ chartData }: BalanceChartProps) {
 
     return (
         <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
-            <LineChart
+            <ComposedChart
                 data={chartData}
                 margin={{ top: 5, right: 5, left: -15, bottom: 5 }}
             >
@@ -176,7 +179,7 @@ export default function BalanceChart({ chartData }: BalanceChartProps) {
                     content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                         return (
-                            <div className="rounded-xl border border-border bg-popover p-2 shadow-lg">
+                            <div className="rounded-xl border border-border bg-popover/80 backdrop-blur-sm p-2 shadow-lg">
                                 <div className="grid grid-cols-1 gap-1">
                                     <div className="flex flex-col">
                                         <span className="text-xs uppercase text-muted-foreground">
@@ -201,24 +204,13 @@ export default function BalanceChart({ chartData }: BalanceChartProps) {
                     dataKey="netWorth"
                     type="monotone"
                     fill="url(#fillNetWorth)"
-                    fillOpacity={1}
-                    stroke="none"
-                    connectNulls
-                />
-                <Line
-                    type="monotone"
-                    dataKey="netWorth"
                     stroke="url(#strokeNetWorth)"
-                    strokeWidth={3}
+                    strokeWidth={2}
                     dot={<CustomTransactionDot />}
-                    activeDot={{
-                        r: 8,
-                        strokeWidth: 2,
-                        fill: 'hsl(var(--background))',
-                    }}
+                    activeDot={false}
                     connectNulls
                 />
-            </LineChart>
+            </ComposedChart>
         </ChartContainer>
     );
 }

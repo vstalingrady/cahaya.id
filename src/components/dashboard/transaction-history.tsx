@@ -34,7 +34,7 @@ export default function TransactionHistory({ transactions }: { transactions: Tra
                 </div>
                 <p className={cn(
                     "font-semibold font-mono",
-                    t.amount > 0 ? "text-green-400" : "text-red-400"
+                    t.amount > 0 ? "text-green-400" : "text-destructive"
                 )}>
                     {formatCurrency(t.amount)}
                 </p>

@@ -35,7 +35,6 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
 
   React.useEffect(() => {
     const generateChartData = (currentBalance: number, allTransactions: Transaction[], days: number) => {
-        // Determine the most recent date from transactions, or use today if none exist
         const latestTransactionDate = allTransactions.length > 0
             ? allTransactions.reduce((latest, t) => new Date(t.date) > latest ? new Date(t.date) : latest, new Date(0))
             : new Date();
@@ -81,7 +80,6 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
             });
         }
 
-        // Ensure the last point correctly reflects the current balance
         if(data.length > 0) {
           data[data.length - 1].netWorth = currentBalance;
         }
@@ -89,7 +87,6 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
         return data;
     };
     
-    // Use a timeout to ensure data processing happens after initial mount
     const timer = setTimeout(() => {
         setChartData(generateChartData(amount, transactions, 14));
     }, 1);
@@ -111,12 +108,12 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
   }).format(dailyChange);
 
   return (
-    <div className="bg-card backdrop-blur-xl p-5 rounded-2xl shadow-lg border border-border relative overflow-hidden">
+    <div className="bg-card p-5 rounded-2xl shadow-lg border border-border/50 relative overflow-hidden bg-gradient-to-br from-card to-primary/10">
       <div className="relative z-10">
         <div className="flex flex-col gap-4">
             <div>
                  <div className="flex justify-between items-center mb-1">
-                    <h2 className="text-xs text-muted-foreground font-bold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> Total Net Worth</h2>
+                    <h2 className="text-xs text-muted-foreground font-semibold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> Total Net Worth</h2>
                     <Link href="/history" passHref>
                       <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full hover:bg-secondary/50 text-muted-foreground hover:text-foreground -mr-2">
                           <Calendar className="w-4 h-4" />
@@ -127,7 +124,7 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
                  {dailyChange !== 0 && (
                   <div className={cn(
                     "flex items-center text-sm font-semibold",
-                    dailyChange > 0 ? "text-green-400" : "text-red-400"
+                    dailyChange > 0 ? "text-green-400" : "text-destructive"
                   )}>
                       <span className="text-base mr-1">{dailyChange > 0 ? '↗' : '↘'}</span>
                       <span>{dailyChange > 0 ? '+' : ''}{formattedDailyChange} today</span>

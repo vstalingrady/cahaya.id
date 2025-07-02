@@ -87,7 +87,6 @@ export default function InsightsPage() {
                 category: key,
                 name: data.name,
                 value: data.value,
-                fill: `var(--color-${key})`,
             }))
             .sort((a, b) => b.value - a.value);
         
@@ -163,7 +162,7 @@ export default function InsightsPage() {
                         {aiResult?.error ? (
                             <DialogTitle className="text-destructive text-center">An Error Occurred</DialogTitle>
                         ) : (
-                            <div className="text-center p-6 bg-secondary rounded-t-lg -m-6 mb-0 border-b border-border">
+                            <div className="text-center p-6 bg-secondary/50 rounded-t-lg -m-6 mb-0 border-b border-border">
                                 <Sparkles className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
                                 <p className="text-sm font-semibold uppercase tracking-widest text-primary">Your Spender Personality</p>
                                 <DialogTitle className="text-3xl font-bold font-serif text-white mt-2">
@@ -248,7 +247,7 @@ export default function InsightsPage() {
                                     <p className="font-semibold text-white">{t.description}</p>
                                     <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'dd MMM yyyy')}</p>
                                 </div>
-                                <p className="font-semibold font-mono text-red-400">{formatCurrency(t.amount)}</p>
+                                <p className="font-semibold font-mono text-destructive">{formatCurrency(t.amount)}</p>
                             </div>
                         )) : <p className="text-muted-foreground text-center py-4">No transactions found for this category.</p>}
                     </div>
@@ -278,8 +277,8 @@ export default function InsightsPage() {
                                     onMouseEnter={onPieEnter}
                                     onClick={handlePieClick}
                                 >
-                                     {spendingData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                                     {spendingData.map((entry) => (
+                                        <Cell key={`cell-${entry.category}`} fill={cn(chartConfig[entry.category].color)} />
                                     ))}
                                 </Pie>
                             </PieChart>

@@ -16,19 +16,19 @@
     --secondary-foreground: 260 10% 98%;
     --muted: 260 20% 12%;
     --muted-foreground: 260 10% 65%;
-    --accent: 262 85% 68%;
+    --accent: 350 78% 55%;
     --accent-foreground: 260 10% 98%;
-    --destructive: 0 63% 31%;
+    --destructive: 0 63% 41%;
     --destructive-foreground: 0 0% 98%;
     --border: 260 20% 12%;
     --input: 260 20% 12%;
     --ring: 262 80% 58%;
     --radius: 0.8rem;
     --chart-1: 262 80% 58%;
-    --chart-2: 262 70% 68%;
+    --chart-2: 350 78% 55%;
     --chart-3: 262 60% 78%;
-    --chart-4: 262 50% 48%;
-    --chart-5: 262 40% 38%;
+    --chart-4: 350 70% 65%;
+    --chart-5: 262 50% 48%;
   }
 }
 
@@ -56,5 +56,9 @@
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--primary));
+  }
+
+  .bg-gradient-hero {
+    background-image: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(var(--primary) / 0.3), transparent);
   }
 }

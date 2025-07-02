@@ -167,7 +167,7 @@ export default function BudgetsPage() {
                                     <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'dd MMM yyyy')}</p>
                                 </div>
                             </div>
-                            <p className="font-semibold font-mono text-red-400">{formatCurrency(t.amount)}</p>
+                            <p className="font-semibold font-mono text-destructive">{formatCurrency(t.amount)}</p>
                         </div>
                     )) : <p className="text-muted-foreground text-center py-4">No spending in this budget yet.</p>}
                 </div>
@@ -271,7 +271,7 @@ export default function BudgetsPage() {
                             <Progress value={progress} className={`h-3 bg-secondary ${getProgressColor(progress)}`} />
                             <div className="flex justify-between text-sm mt-2">
                                 <p className="text-muted-foreground font-medium">{formatCurrency(spent)} <span className="text-muted-foreground/70">of {formatCurrency(budget.amount)}</span></p>
-                                <p className={`font-bold ${remaining < 0 ? 'text-destructive' : 'text-green-400'}`}>
+                                <p className={`font-semibold ${remaining < 0 ? 'text-destructive' : 'text-green-400'}`}>
                                     {formatCurrency(Math.abs(remaining))} {remaining < 0 ? 'over' : 'left'}
                                 </p>
                             </div>

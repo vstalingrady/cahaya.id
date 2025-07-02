@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: 'Welcome to Cuan. The secure way to manage your finances.',
 };
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
 export default function RootLayout({
   children,

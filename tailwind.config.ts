@@ -9,9 +9,8 @@ export default {
   ],
   theme: {
     fontFamily: {
-      sans: ['"Inter"', 'sans-serif'],
+      sans: ['var(--font-sans)', 'sans-serif'],
       serif: ['"Lora"', 'serif'],
-      code: ['monospace'],
     },
     extend: {
       colors: {
@@ -49,11 +48,11 @@ export default {
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
         chart: {
-          '1': 'var(--chart-1)',
-          '2': 'var(--chart-2)',
-          '3': 'var(--chart-3)',
-          '4': 'var(--chart-4)',
-          '5': 'var(--chart-5)',
+          '1': 'hsl(var(--chart-1))',
+          '2': 'hsl(var(--chart-2))',
+          '3': 'hsl(var(--chart-3))',
+          '4': 'hsl(var(--chart-4))',
+          '5': 'hsl(var(--chart-5))',
         },
       },
       borderRadius: {
@@ -87,9 +86,9 @@ export default {
           'to': { transform: 'rotateY(360deg)' },
         },
         'border-color-cycle': {
-          '0%, 100%': { 'border-color': '#f87171' }, // red-400
-          '33%': { 'border-color': '#4ade80' }, // green-400
-          '66%': { 'border-color': '#60a5fa' }, // blue-400
+          '0%, 100%': { 'border-color': 'hsl(var(--primary))' }, 
+          '33%': { 'border-color': 'hsl(var(--accent))' }, 
+          '66%': { 'border-color': 'hsl(var(--primary))' }, 
         },
         'flash': {
           '0%, 100%': { opacity: '0' },
@@ -103,7 +102,7 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'spin': 'spin 4s linear infinite',
+        'spin': 'spin 1.5s linear infinite',
         'spin-3d': 'spin-3d 25s linear infinite',
         'border-color-cycle': 'border-color-cycle 4s linear infinite',
         'flash': 'flash 0.5s ease-out',

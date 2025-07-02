@@ -5,14 +5,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { type CarouselApi } from '@/components/ui/carousel';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
-import NoiseOverlay from '@/components/noise-overlay';
+import { Button } from '@/components/ui/button';
 
 const FeatureSection = ({ title, description, imgSrc, imgHint, reverse = false }: { title: string, description: string, imgSrc: string, imgHint: string, reverse?: boolean }) => {
     return (
       <section className="h-screen flex items-center justify-center p-6 lg:p-12">
         <div className={`flex flex-col ${reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center justify-center gap-8 lg:gap-16 max-w-5xl mx-auto`}>
           <div className="flex-1 text-center lg:text-left">
-            <h2 className={`text-4xl lg:text-6xl font-bold mb-6 text-primary font-serif`}>
+            <h2 className={`text-4xl lg:text-5xl font-bold mb-6 text-primary font-serif`}>
               {title}
             </h2>
             <p className={`text-lg lg:text-xl leading-relaxed text-muted-foreground`}>
@@ -73,7 +73,7 @@ export default function WelcomePage() {
         <h1 className="text-5xl lg:text-7xl font-bold mb-4 text-primary leading-tight font-serif">
           All your money,<br />in one place.
         </h1>
-        <div className="w-24 h-1 bg-primary mx-auto mb-6 rounded-full"></div>
+        <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto mb-6 rounded-full"></div>
       </div>
       <p className="text-muted-foreground text-xl max-w-2xl mx-auto mb-12 font-light">Welcome to Cuan. The secure, unified way to manage your entire financial life from a single, beautiful app.</p>
     </section>,
@@ -89,7 +89,7 @@ export default function WelcomePage() {
 
     // Connect Everything Section
     <section key="connect" className="h-screen flex flex-col items-center justify-center p-6 lg:p-12 text-center">
-      <h2 className="text-4xl lg:text-6xl font-bold mb-6 text-primary font-serif">
+      <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-primary font-serif">
         Connect Everything in Seconds.
       </h2>
       <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-12">
@@ -152,22 +152,19 @@ export default function WelcomePage() {
         </h1>
       </div>
       <p className="text-muted-foreground text-xl max-w-2xl mx-auto mb-12 font-light">Join Cuan today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.</p>
-      <div className="space-y-4 relative z-10">
-        <Link 
-          href="/signup"
-          className="block w-64 bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg border border-border hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 relative overflow-hidden group text-center"
-        >
-          Create Account
-        </Link>
-        <Link href="/login" className="block w-full text-muted-foreground py-3 font-semibold hover:text-foreground transition-colors text-center">Log In</Link>
+      <div className="space-y-4 relative z-10 flex flex-col items-center">
+        <Button asChild size="lg" className="w-64 h-14 text-lg">
+           <Link href="/signup">Create Account</Link>
+        </Button>
+        <Button asChild variant="link" className="text-muted-foreground hover:text-white">
+           <Link href="/login">Log In</Link>
+        </Button>
       </div>
     </section>
   ];
 
   return (
-    <div className="w-full bg-background text-white h-screen relative overflow-hidden">
-      <NoiseOverlay opacity={0.03} />
-
+    <div className="w-full bg-background text-white h-screen relative overflow-hidden bg-gradient-hero">
       <Carousel setApi={setApi} className="w-full h-full">
         <CarouselContent>
           {slides.map((slide, index) => (
