@@ -1,13 +1,11 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import {
-  Plus,
   ChevronRight,
   QrCode,
   Send,
   Wallet,
-  ArrowDownUp,
   User,
   Clapperboard,
   CreditCard,
@@ -15,8 +13,6 @@ import {
   Search,
 } from 'lucide-react';
 import Link from 'next/link';
-import { type CarouselApi } from '@/components/ui/carousel';
-import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Input } from '@/components/ui/input';
 import TransactionHistory from '@/components/dashboard/transaction-history';
 import { transactions } from '@/lib/data';
@@ -62,14 +58,6 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
 
 
 export default function TransferPage() {
-  const [api, setApi] = useState<CarouselApi>()
-  const [current, setCurrent] = useState(0)
-  const [count, setCount] = useState(0)
-  
-  const [actionsApi, setActionsApi] = useState<CarouselApi>()
-  const [actionsCurrent, setActionsCurrent] = useState(0)
-  const [actionsCount, setActionsCount] = useState(0)
-  
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredTransactions = useMemo(() => {
@@ -79,24 +67,6 @@ export default function TransferPage() {
       t.category.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [searchQuery]);
-
-  useEffect(() => {
-    if (!api) return
-    setCount(api.scrollSnapList().length)
-    setCurrent(api.selectedScrollSnap())
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap())
-    })
-  }, [api])
-  
-  useEffect(() => {
-    if (!actionsApi) return
-    setActionsCount(actionsApi.scrollSnapList().length)
-    setActionsCurrent(actionsApi.selectedScrollSnap())
-    actionsApi.on("select", () => {
-      setActionsCurrent(actionsApi.selectedScrollSnap())
-    })
-  }, [actionsApi])
 
   return (
     <div className="space-y-8 animate-fade-in-up">
@@ -117,76 +87,51 @@ export default function TransferPage() {
 
        <div className="space-y-4">
           <h2 className="text-xl font-semibold text-white font-serif">Services</h2>
-          <Carousel setApi={setActionsApi} className="w-full -ml-4" opts={{ align: 'start' }}>
-            <CarouselContent>
-              {transferActions.map((action) => {
-                return (
-                  <CarouselItem key={action.name} className="basis-1/3 pl-4">
-                    <Link
-                      href={action.href}
-                      className="h-full text-left bg-card backdrop-blur-xl p-5 rounded-2xl flex flex-col justify-between hover:bg-secondary transition-all duration-300 border border-border shadow-lg group"
-                    >
-                      <div className="flex-1">
-                        <div className="bg-primary p-3 rounded-xl shadow-lg mb-3 inline-block">
-                            <action.icon className="w-6 h-6 text-white" />
-                        </div>
-                        <p className="font-semibold text-lg text-white">{action.name}</p>
-                        <p className="text-muted-foreground text-sm font-light">{action.description}</p>
-                      </div>
-                    </Link>
-                  </CarouselItem>
-                )
-            })}
-            </CarouselContent>
-          </Carousel>
-          <div className="flex justify-center space-x-2 pt-2">
-            {Array.from({ length: actionsCount }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => actionsApi?.scrollTo(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${actionsCurrent === i ? 'w-6 bg-primary' : 'w-2 bg-muted-foreground/50 hover:bg-muted-foreground'}`}
-                aria-label={`Go to slide ${i + 1}`}
-              />
+          <div className="grid grid-cols-1 gap-4">
+            {transferActions.map((action) => (
+              <Link
+                key={action.name}
+                href={action.href}
+                className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg group"
+              >
+                <div className="bg-primary p-3 rounded-xl shadow-lg">
+                    <action.icon className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-lg text-white">{action.name}</p>
+                  <p className="text-muted-foreground text-sm">{action.description}</p>
+                </div>
+              </Link>
             ))}
           </div>
         </div>
         
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-white font-serif">Recommended</h2>
-          <Carousel setApi={setApi} className="w-full" opts={{ loop: true }}>
-            <CarouselContent>
+           <div className="grid grid-cols-1 gap-4">
               {recommendedTransactions.map((rec) => {
                 const Component = rec.disabled ? 'button' : Link;
                 return (
-                  <CarouselItem key={rec.id}>
-                    <Component
-                      href={rec.href}
-                      // @ts-ignore
-                      disabled={rec.disabled}
-                      className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg group disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <div className="bg-primary p-3 rounded-xl shadow-lg">
-                        <rec.icon className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-lg text-white">{rec.name}</p>
-                        <p className="text-muted-foreground text-sm font-mono">{formatCurrency(rec.amount)}</p>
-                      </div>
-                    </Component>
-                  </CarouselItem>
+                  <Component
+                    key={rec.id}
+                    href={rec.href}
+                    // @ts-ignore
+                    disabled={rec.disabled}
+                    className="w-full text-left bg-card p-5 rounded-2xl flex items-center justify-between hover:bg-secondary transition-all duration-300 border border-border shadow-lg group disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <div className="flex items-center gap-3">
+                        <div className="bg-primary p-3 rounded-xl shadow-lg">
+                          <rec.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <p className="font-semibold text-lg text-white">{rec.name}</p>
+                          <p className="text-muted-foreground text-sm font-mono">{formatCurrency(rec.amount)}</p>
+                        </div>
+                    </div>
+                     <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                  </Component>
                 );
               })}
-            </CarouselContent>
-          </Carousel>
-          <div className="flex justify-center space-x-2 pt-2">
-            {Array.from({ length: count }).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => api?.scrollTo(i)}
-                className={`h-2 rounded-full transition-all duration-300 ${current === i ? 'w-6 bg-primary' : 'w-2 bg-muted-foreground/50 hover:bg-muted-foreground'}`}
-                aria-label={`Go to slide ${i + 1}`}
-              />
-            ))}
           </div>
         </div>
       
