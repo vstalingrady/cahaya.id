@@ -83,7 +83,7 @@ export default function TransferPage() {
 
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
-    align: 'center',
+    align: 'start',
   });
 
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -196,9 +196,9 @@ export default function TransferPage() {
 
         <Link
             href="/transfer/qris"
-            className="p-[2px] rounded-2xl bg-gradient-to-r from-primary to-accent block group"
+            className="p-[2px] rounded-2xl bg-gradient-to-r from-primary to-accent block"
         >
-          <div className="w-full h-full bg-card rounded-[calc(1rem-2px)] p-5 flex items-center justify-center border-2 border-transparent">
+          <div className="w-full h-full bg-card rounded-[calc(1rem-2px)] p-5 flex items-center justify-center border-2 border-dashed border-card">
               <span className="font-semibold text-xl text-white flex items-center gap-3">
                   Pay with <Image src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS Logo" width={80} height={37} className="dark:invert w-20 h-auto" />
               </span>
@@ -226,17 +226,17 @@ export default function TransferPage() {
                     return (
                       <div
                         key={fav.id}
-                        className="flex-grow-0 flex-shrink-0 basis-3/5 pl-4 min-w-0"
+                        className="flex-shrink-0 pl-4"
                       >
                         <div className={cn(
-                          "relative group flex-shrink-0 w-full h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-all duration-300 ease-out",
+                          "relative group w-40 h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-all duration-300 ease-out",
                           index === selectedIndex ? 'scale-100 opacity-100 shadow-primary/20' : 'scale-90 opacity-60'
                         )}>
                             <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
                               <X className="w-4 h-4" />
                             </Button>
                             <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg">
-                              <Icon className="w-6 h-6" color="white" />
+                              <Icon className="w-6 h-6" stroke="white" />
                             </div>
                             <div>
                               <p className="font-semibold text-white truncate">{fav.name}</p>
