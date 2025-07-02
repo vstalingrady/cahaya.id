@@ -118,7 +118,7 @@ export default function WelcomePage() {
                      <p className="text-lg text-muted-foreground max-w-xl mx-auto my-8 font-light">
                       {slide.description}
                     </p>
-                    <Button asChild size="lg" className="w-64 h-14 text-lg animate-pulsing-glow">
+                    <Button asChild size="lg" className="w-64 h-14 text-lg animate-slow-pulse">
                       <Link href="/signup">Create Free Account</Link>
                     </Button>
                      <div className="mt-8 text-center">
