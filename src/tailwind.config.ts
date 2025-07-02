@@ -99,17 +99,17 @@ export default {
           'to': { opacity: '1', transform: 'translateY(0)' },
         },
         'hero-glow': {
-          '0%, 100%': { opacity: '0.9', transform: 'scale(1)' },
-          '50%': { opacity: '1', transform: 'scale(1.03)' },
+          '0%, 100%': { opacity: '0.9', transform: 'scale(1.02)' },
+          '50%': { opacity: '1', transform: 'scale(1.05)' },
         },
         'pulsing-glow': {
           '0%, 100%': { 
-            boxShadow: '0 0 15px -5px hsl(var(--primary) / 0.4), 0 0 8px -5px hsl(var(--accent) / 0.3)',
+            boxShadow: '0 0 20px -5px hsl(var(--primary) / 0.3), 0 0 10px -5px hsl(var(--accent) / 0.2)',
             transform: 'scale(1)',
           },
           '50%': { 
-            boxShadow: '0 0 25px 0px hsl(var(--primary) / 0.5), 0 0 15px -5px hsl(var(--accent) / 0.4)',
-            transform: 'scale(1.03)',
+            boxShadow: '0 0 35px 0px hsl(var(--primary) / 0.4), 0 0 20px -5px hsl(var(--accent) / 0.3)',
+            transform: 'scale(1.025)',
           },
         },
       },
@@ -121,8 +121,8 @@ export default {
         'border-color-cycle': 'border-color-cycle 4s linear infinite',
         'flash': 'flash 0.5s ease-out',
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
-        'hero-glow': 'hero-glow 12s ease-in-out infinite',
-        'pulsing-glow': 'pulsing-glow 8s ease-in-out infinite',
+        'hero-glow': 'hero-glow 15s ease-in-out infinite',
+        'pulsing-glow': 'pulsing-glow 12s ease-in-out infinite',
       },
     },
   },
