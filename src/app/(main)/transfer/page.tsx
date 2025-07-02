@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react'
-import QrisLogo from '@/components/icons/qris-logo';
+import Image from 'next/image';
 import {
   ChevronRight,
   Send,
@@ -200,15 +200,13 @@ export default function TransferPage() {
 
         <Link
           href="/transfer/qris"
-          className="group relative w-full p-[2px] rounded-2xl bg-transparent hover:bg-gradient-to-r from-primary to-accent transition-all duration-300"
+          className="group relative w-full p-[2px] rounded-2xl bg-transparent transition-all duration-300"
         >
-          {/* Dashed border overlay - visible by default, hides on hover */}
-          <div className="absolute inset-0 rounded-2xl border-2 border-dashed border-primary/50 group-hover:opacity-0 transition-opacity"></div>
+          <div className="absolute inset-0 rounded-2xl border-2 border-dashed border-primary/50 group-hover:border-transparent group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent transition-all"></div>
           
-          {/* Inner content area with card background */}
           <div className="w-full h-full bg-card rounded-[calc(1rem-2px)] p-5 flex items-center justify-center">
               <span className="font-semibold text-xl text-muted-foreground group-hover:text-white transition-colors flex items-center gap-3">
-                  Pay with <QrisLogo className="w-20 h-auto dark:invert" />
+                  Pay with <Image src="https://upload.wikimedia.org/wikipedia/commons/9/9f/QRIS_logo.svg" alt="QRIS Logo" width={80} height={37} className="dark:invert w-20 h-auto" />
               </span>
           </div>
         </Link>
