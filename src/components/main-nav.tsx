@@ -18,7 +18,7 @@ export default function MainNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-background/70 backdrop-blur-lg border-t border-border relative">
+    <nav className="bg-background/70 backdrop-blur-lg border-t border-border relative shadow-[0_-5px_25px_-10px_hsl(var(--primary)/0.2)]">
       <NoiseOverlay opacity={0.03} />
       <div className="flex justify-around items-center h-20">
         {navItems.map((item) => {

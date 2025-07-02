@@ -153,7 +153,7 @@ export default function WelcomePage() {
       </div>
       <p className="text-muted-foreground text-xl max-w-2xl mx-auto mb-12 font-light">Join Cuan today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.</p>
       <div className="space-y-4 relative z-10 flex flex-col items-center">
-        <Button asChild size="lg" className="w-64 h-14 text-lg">
+        <Button asChild size="lg" className="w-64 h-14 text-lg animate-pulsing-glow">
            <Link href="/signup">Create Account</Link>
         </Button>
         <Button asChild variant="link" className="text-muted-foreground hover:text-white">
@@ -164,7 +164,7 @@ export default function WelcomePage() {
   ];
 
   return (
-    <div className="w-full bg-background text-white h-screen relative overflow-hidden bg-gradient-hero">
+    <div className="w-full bg-background text-white h-screen relative overflow-hidden">
       <Carousel setApi={setApi} className="w-full h-full">
         <CarouselContent>
           {slides.map((slide, index) => (

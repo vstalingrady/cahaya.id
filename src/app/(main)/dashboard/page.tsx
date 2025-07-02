@@ -65,7 +65,7 @@ export default function DashboardPage() {
                 </div>
                 <Accordion type="multiple" defaultValue={['bank', 'e-wallet', 'investment', 'loan']} className="w-full space-y-2">
                     {accountGroups.bank.length > 0 && (
-                        <AccordionItem value="bank" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg px-5">
+                        <AccordionItem value="bank" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
                             <AccordionTrigger className="hover:no-underline">
                                 <div className='flex items-center gap-3'>
                                     <Landmark className='w-5 h-5 text-primary/80' />
@@ -81,7 +81,7 @@ export default function DashboardPage() {
                     )}
 
                     {accountGroups['e-wallet'].length > 0 && (
-                        <AccordionItem value="e-wallet" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg px-5">
+                        <AccordionItem value="e-wallet" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
                             <AccordionTrigger className="hover:no-underline">
                                 <div className='flex items-center gap-3'>
                                     <EwalletIcon className='w-5 h-5 text-primary/80' />
@@ -97,7 +97,7 @@ export default function DashboardPage() {
                     )}
                     
                     {accountGroups.investment.length > 0 && (
-                        <AccordionItem value="investment" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg px-5">
+                        <AccordionItem value="investment" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
                             <AccordionTrigger className="hover:no-underline">
                                 <div className='flex items-center gap-3'>
                                     <Briefcase className='w-5 h-5 text-primary/80' />
@@ -113,7 +113,7 @@ export default function DashboardPage() {
                     )}
 
                     {accountGroups.loan.length > 0 && (
-                        <AccordionItem value="loan" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg px-5">
+                        <AccordionItem value="loan" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
                             <AccordionTrigger className="hover:no-underline">
                                 <div className='flex items-center gap-3'>
                                     <Coins className='w-5 h-5 text-primary/80' />
