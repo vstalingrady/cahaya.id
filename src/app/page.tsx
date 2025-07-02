@@ -12,45 +12,79 @@ import {
   type CarouselApi,
 } from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Landmark } from 'lucide-react';
+import EwalletIcon from '@/components/icons/ewallet-icon';
 
-const LogoSphere = () => {
+const FeatureShowcase = () => {
   const logos = [
     { name: 'BCA', class: 'bg-blue-600' },
     { name: 'GP', fullName: 'GoPay', class: 'bg-sky-500' },
     { name: 'OVO', class: 'bg-purple-600' },
     { name: 'BB', fullName: 'Bibit', class: 'bg-green-600' },
     { name: 'PT', fullName: 'Pintu', class: 'bg-indigo-600' },
-    { name: 'AJ', fullName: 'Ajaib', class: 'bg-teal-500' },
-    { name: 'KR', fullName: 'Kredivo', class: 'bg-orange-500' },
     { name: 'MDR', fullName: 'Mandiri', class: 'bg-sky-700' },
     { name: 'BNI', class: 'bg-orange-600' },
+    { name: 'AJ', fullName: 'Ajaib', class: 'bg-teal-500' },
   ];
+  const animationDuration = 30; // in seconds
 
   return (
-    <div className="flex items-center justify-center w-full h-80" style={{ perspective: '1000px' }}>
-      <div className="relative w-64 h-64 animate-spin-3d" style={{ transformStyle: 'preserve-3d' }}>
-        {logos.map((logo, index) => {
-          const angle = (360 / logos.length) * index;
-          return (
-            <div
-              key={logo.fullName || logo.name}
-              className={cn(
-                'absolute top-[calc(50%-32px)] left-[calc(50%-32px)] w-16 h-16 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg',
-                logo.class
-              )}
-              style={{
-                transform: `rotateY(${angle}deg) translateZ(150px)`,
-              }}
-            >
-              {logo.name}
+    <div className="relative w-full flex flex-col items-center justify-center -mt-8">
+      {/* Halo Carousel */}
+      <div className="relative w-full h-48 mb-[-3rem] z-10" style={{ perspective: '800px' }}>
+        <div className="relative w-full h-full" style={{ transformStyle: 'preserve-3d' }}>
+          <div
+            className="absolute w-full h-full animate-spin-3d"
+            style={{ animationDuration: `${animationDuration}s`, transformStyle: 'preserve-3d' }}
+          >
+            {logos.map((logo, index) => {
+              const angle = (360 / logos.length) * index;
+              const delay = (animationDuration / logos.length) * index;
+              return (
+                <div
+                  key={logo.name}
+                  className="absolute top-[calc(50%-24px)] left-[calc(50%-24px)] w-12 h-12"
+                  style={{ transform: `rotateY(${angle}deg) translateZ(120px)` }}
+                >
+                  <div
+                    className={cn(
+                      'w-12 h-12 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg animate-fade-and-scale',
+                      logo.class
+                    )}
+                    style={{ animationDuration: `${animationDuration / 2}s`, animationDelay: `-${delay}s` }}
+                  >
+                    {logo.name}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Feature Replica */}
+      <div className="w-full max-w-sm bg-card/50 p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50 backdrop-blur-sm">
+        <div className="space-y-3">
+           <div className="bg-secondary/50 p-3 rounded-xl border border-border/30">
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">Total Net Worth</p>
+                <p className="text-2xl font-bold text-white">IDR 287,178,502</p>
             </div>
-          );
-        })}
+            <div className="bg-secondary/50 p-3 rounded-xl border border-border/30 space-y-2">
+                <div className="flex items-center gap-2">
+                    <Landmark className="w-4 h-4 text-primary" />
+                    <p className="font-semibold text-white">Banks</p>
+                </div>
+                 <div className="flex items-center gap-2">
+                    <EwalletIcon className="w-4 h-4 text-primary" />
+                    <p className="font-semibold text-white">E-Wallets</p>
+                </div>
+            </div>
+        </div>
       </div>
     </div>
   );
 };
+
 
 export default function WelcomePage() {
   const [api, setApi] = React.useState<CarouselApi>();
@@ -64,9 +98,9 @@ export default function WelcomePage() {
     },
     {
       type: 'feature',
-      title: 'One Dashboard, Total Control.',
-      description: 'See your complete financial picture. BCA, GoPay, OVO, Bibit—all your accounts, one stunning dashboard. Finally understand your true net worth in real-time.',
-      customComponent: <LogoSphere />,
+      title: 'A Halo of Your Finances.',
+      description: 'See your complete financial picture. BCA, GoPay, OVO, Bibit—all your accounts, orbiting in one stunning dashboard. Finally understand your true net worth in real-time.',
+      customComponent: <FeatureShowcase />,
       reverse: false
     },
     {
@@ -105,9 +139,9 @@ export default function WelcomePage() {
   return (
     <div className="w-full h-screen bg-background text-white overflow-hidden">
       <Carousel setApi={setApi} className="w-full h-full">
-        <CarouselContent>
+        <CarouselContent className="-ml-0">
           {slides.map((slide, index) => (
-            <CarouselItem key={index}>
+            <CarouselItem key={index} className="pl-0">
               <div className="relative w-full h-screen flex items-center justify-center p-6 overflow-hidden">
                 <div className="absolute inset-0 bg-hero-glow animate-hero-glow -z-10"></div>
                 
@@ -134,7 +168,7 @@ export default function WelcomePage() {
                       </p>
                     </div>
                     <div className="flex-1 mt-8 lg:mt-0 w-full max-w-md animate-fade-in-up [animation-delay:0.2s]">
-                      <div className="bg-card/50 p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50 backdrop-blur-sm">
+                      <div className={cn(slide.customComponent ? "" : "bg-card/50 p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50 backdrop-blur-sm")}>
                         {slide.customComponent ? slide.customComponent : (
                           <Image 
                               src={slide.imgSrc!}
@@ -152,16 +186,16 @@ export default function WelcomePage() {
 
                 {slide.type === 'cta' && (
                   <div className="text-center relative z-10 animate-fade-in-up">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif">
+                    <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif">
                       {slide.title}
                     </h2>
-                     <p className="text-lg text-muted-foreground max-w-xl mx-auto my-8 font-light">
+                     <p className="text-base text-muted-foreground max-w-lg mx-auto my-6 font-light">
                       {slide.description}
                     </p>
                     <Button asChild size="lg" className="w-64 h-14 text-lg animate-slow-pulse">
                       <Link href="/signup">Create Free Account <ArrowRight className="ml-2" /></Link>
                     </Button>
-                     <div className="mt-8 text-center">
+                     <div className="mt-6 text-center">
                         <p className="text-sm text-muted-foreground">
                             Already have an account?{' '}
                             <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">
@@ -171,7 +205,6 @@ export default function WelcomePage() {
                     </div>
                   </div>
                 )}
-
               </div>
             </CarouselItem>
           ))}
