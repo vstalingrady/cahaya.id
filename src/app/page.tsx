@@ -76,35 +76,27 @@ export default function WelcomePage() {
                 
                 {slide.type === 'hero' && (
                   <div className="text-center relative z-10 animate-fade-in-up">
-                     <CuanLogo className="w-32 h-auto mx-auto mb-8" />
-                    <h1 className="text-5xl lg:text-7xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line">
+                     <CuanLogo className="w-28 h-auto mx-auto mb-8" />
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line">
                       {slide.title}
                     </h1>
-                     <p className="text-muted-foreground text-xl max-w-2xl mx-auto my-8 font-light">
+                     <p className="text-lg text-muted-foreground max-w-xl mx-auto my-8 font-light">
                       {slide.description}
                     </p>
-                    <div className="flex justify-center items-center gap-4">
-                      <Button asChild variant="ghost" className="text-muted-foreground hover:text-white hover:bg-white/10 text-lg">
-                        <Link href="/login">Log In</Link>
-                      </Button>
-                      <Button asChild size="lg" className="w-64 h-14 text-lg animate-pulsing-glow">
-                        <Link href="/signup">Create Account</Link>
-                      </Button>
-                    </div>
                   </div>
                 )}
 
                 {slide.type === 'feature' && (
-                   <div className={`flex flex-col ${slide.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center justify-center gap-8 lg:gap-16 max-w-6xl mx-auto`}>
+                   <div className={`flex flex-col ${slide.reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center justify-center gap-8 lg:gap-16 max-w-5xl mx-auto`}>
                     <div className="flex-1 text-center lg:text-left animate-fade-in-up">
-                      <h2 className="text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
+                      <h2 className="text-3xl lg:text-4xl font-bold mb-6 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
                         {slide.title}
                       </h2>
-                      <p className="text-lg lg:text-xl leading-relaxed text-muted-foreground">
+                      <p className="text-lg leading-relaxed text-muted-foreground">
                         {slide.description}
                       </p>
                     </div>
-                    <div className="flex-1 mt-8 lg:mt-0 w-full max-w-sm animate-fade-in-up [animation-delay:0.2s]">
+                    <div className="flex-1 mt-8 lg:mt-0 w-full max-w-md animate-fade-in-up [animation-delay:0.2s]">
                       <div className="bg-card p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50">
                         <Image 
                             src={slide.imgSrc!}
@@ -121,15 +113,23 @@ export default function WelcomePage() {
 
                 {slide.type === 'cta' && (
                   <div className="text-center relative z-10 animate-fade-in-up">
-                    <h2 className="text-5xl lg:text-7xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif">
+                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif">
                       {slide.title}
                     </h2>
-                     <p className="text-muted-foreground text-xl max-w-2xl mx-auto my-8 font-light">
+                     <p className="text-lg text-muted-foreground max-w-xl mx-auto my-8 font-light">
                       {slide.description}
                     </p>
                     <Button asChild size="lg" className="w-64 h-14 text-lg animate-pulsing-glow">
                       <Link href="/signup">Create Free Account</Link>
                     </Button>
+                     <div className="mt-8 text-center">
+                        <p className="text-sm text-muted-foreground">
+                            Already have an account?{' '}
+                            <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">
+                              Log In
+                            </Link>
+                        </p>
+                    </div>
                   </div>
                 )}
 
