@@ -131,7 +131,7 @@ export default function AccountDetailPage() {
           <h2 className="text-xl font-semibold text-white font-serif">Portfolio Holdings</h2>
           <div className="grid grid-cols-1 gap-4">
             {account.holdings.map(holding => (
-              <div key={holding.id} className="bg-card p-5 rounded-2xl flex items-center justify-between border border-border shadow-lg">
+              <div key={holding.id} className="bg-card p-5 rounded-2xl flex items-center justify-between border border-border shadow-lg shadow-primary/10">
                 <div className="flex items-center gap-4">
                    <Image src={holding.logoUrl} alt={holding.name} width={48} height={48} className="rounded-full" data-ai-hint={`${holding.name} coin`} />
                   <div>

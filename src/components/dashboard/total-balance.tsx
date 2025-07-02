@@ -110,7 +110,7 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
   }).format(dailyChange);
 
   return (
-    <div className="bg-card p-5 rounded-2xl shadow-lg shadow-primary/20 border border-border/50 relative overflow-hidden bg-gradient-to-br from-card to-primary/10">
+    <div className="bg-card p-5 rounded-2xl shadow-lg shadow-primary/10 border border-border/50 relative overflow-hidden bg-gradient-to-br from-card to-primary/10">
       <div className="relative z-10">
         <div className="flex flex-col gap-4">
             <div>

@@ -176,7 +176,7 @@ export default function TransferPage() {
           <h2 className="text-xl font-semibold text-white font-serif">Favorites</h2>
            <div className="flex space-x-4 overflow-x-auto pb-4 -mb-4 custom-scrollbar">
               {favorites.map((fav) => (
-                <div key={fav.id} className="relative group flex-shrink-0 w-40 h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg hover:border-primary/50 transition-colors cursor-pointer">
+                <div key={fav.id} className="relative group flex-shrink-0 w-40 h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg shadow-primary/10 hover:border-primary/50 transition-colors cursor-pointer">
                     <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
                       <X className="w-4 h-4" />
                     </Button>
@@ -203,7 +203,7 @@ export default function TransferPage() {
                 <Link
                   key={action.name}
                   href={action.href}
-                  className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg group"
+                  className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg shadow-primary/10 group"
                 >
                   <div className="bg-primary p-3 rounded-xl shadow-lg">
                       <action.icon className="w-6 h-6 text-white" />

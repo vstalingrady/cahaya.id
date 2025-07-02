@@ -45,7 +45,7 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg">
+    <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField

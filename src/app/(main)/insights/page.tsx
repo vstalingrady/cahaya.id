@@ -248,7 +248,7 @@ export default function InsightsPage() {
                       {isGenerating ? <Loader2 className="w-6 h-6 animate-spin" /> : <Sparkles className="w-6 h-6" />}
                       <span>{isGenerating ? 'Analyzing your spending...' : 'Get AI Financial Plan'}</span>
                   </Button>
-                  <div className="bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg">
+                  <div className="bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg shadow-primary/10">
                       <h3 className="font-semibold text-white text-center mb-4 font-serif">Spending this month</h3>
                       <div className="h-56 w-full">
                           <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
@@ -283,7 +283,7 @@ export default function InsightsPage() {
               {/* Subscriptions Tab */}
               <TabsContent value="subscriptions" className="mt-6">
                  <div className="space-y-4">
-                  <div className="bg-card p-5 rounded-2xl shadow-lg border border-border/50">
+                  <div className="bg-card p-5 rounded-2xl shadow-lg shadow-primary/10 border border-border/50">
                       <div className="flex items-center justify-between gap-4">
                           <div>
                               <h3 className="font-semibold text-white text-lg font-serif">Manage Subscriptions</h3>
@@ -338,7 +338,7 @@ export default function InsightsPage() {
                       </div>
                   </div>
                   
-                  <div className="bg-card p-5 rounded-2xl shadow-lg border border-border/50">
+                  <div className="bg-card p-5 rounded-2xl shadow-lg shadow-primary/10 border border-border/50">
                      <Calendar
                         month={calendarMonth}
                         onMonthChange={setCalendarMonth}
@@ -350,7 +350,7 @@ export default function InsightsPage() {
 
                   {combinedSubscriptions.length > 0 && (
                       <>
-                          <div className="bg-card p-5 rounded-2xl shadow-lg border border-border/50 bg-gradient-to-br from-card to-primary/10">
+                          <div className="bg-card p-5 rounded-2xl shadow-lg shadow-primary/10 border border-border/50 bg-gradient-to-br from-card to-primary/10">
                               <h3 className="text-sm text-muted-foreground font-semibold uppercase tracking-wide">Total Monthly Costs</h3>
                               <p className="text-3xl font-bold text-white mt-1">{formatCurrency(totalMonthlyCost)}</p>
                               <p className="text-muted-foreground text-sm mt-1">from {combinedSubscriptions.length} subscriptions</p>
@@ -360,7 +360,7 @@ export default function InsightsPage() {
                               {combinedSubscriptions.map(bill => {
                                   const Icon = getSubscriptionIcon(bill.name);
                                   return (
-                                    <div key={bill.name} className="w-full text-left bg-card p-4 rounded-xl flex items-center justify-between border border-border shadow-lg">
+                                    <div key={bill.name} className="w-full text-left bg-card p-4 rounded-xl flex items-center justify-between border border-border shadow-lg shadow-primary/10">
                                         <div className="flex items-center gap-4">
                                             <div className="bg-secondary p-3 rounded-lg"><Icon className="w-5 h-5 text-primary" /></div>
                                             <div>

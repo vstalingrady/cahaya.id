@@ -118,7 +118,7 @@ export default function SetupSecurityForm() {
           }}
         ></div>
       )}
-      <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-2xl">
+      <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-secondary border-border">
             <TabsTrigger value="face" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">

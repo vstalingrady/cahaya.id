@@ -90,7 +90,7 @@ export default function VaultsPage() {
 
                 <div className="space-y-4">
                     {vaultsList.map(vault => (
-                        <div key={vault.id} className="bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg">
+                        <div key={vault.id} className="bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg shadow-primary/10">
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-4">
                                     <div className="text-3xl">{icons[vault.icon] || '💰'}</div>

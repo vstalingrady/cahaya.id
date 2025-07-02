@@ -25,7 +25,7 @@ export default function ProfilePage() {
         </h1>
       </header>
 
-      <div className="bg-card backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg">
+      <div className="bg-card backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
         
         <div className="flex flex-col items-center text-center">
             <div className="relative mb-4">

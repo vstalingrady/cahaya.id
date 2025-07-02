@@ -20,7 +20,7 @@ const FeatureSection = ({ title, description, imgSrc, imgHint, reverse = false }
             </p>
           </div>
           <div className="flex-1 mt-8 lg:mt-0 w-full max-w-sm">
-            <div className={`bg-card p-4 rounded-3xl border shadow-lg border-border/50`}>
+            <div className={`bg-card p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50`}>
                <Image 
                   src={imgSrc}
                   alt={title}

@@ -101,7 +101,7 @@ export default function AddVaultPage() {
         </h1>
       </header>
 
-      <div className="bg-card p-8 rounded-2xl border border-border shadow-lg">
+      <div className="bg-card p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
@@ -352,7 +352,7 @@ export default function AddVaultPage() {
 
             <Button 
                 type="submit" 
-                className="w-full bg-primary text-primary-foreground py-5 rounded-2xl font-semibold text-xl shadow-lg border-border hover:shadow-primary/20 transition-all duration-300 transform hover:scale-105 h-auto mt-4"
+                className="w-full bg-primary text-primary-foreground py-5 rounded-2xl font-semibold text-xl shadow-lg border-border hover:shadow-primary/10 transition-all duration-300 transform hover:scale-105 h-auto mt-4"
             >
                 Create Vault
             </Button>

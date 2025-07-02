@@ -103,7 +103,7 @@ export default function VerifyPhoneForm() {
   }
 
   return (
-    <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-2xl">
+    <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
       <div id="recaptcha-container"></div>
       {step === 'phone' ? (
         <Form {...phoneForm}>

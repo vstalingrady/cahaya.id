@@ -258,7 +258,7 @@ export default function BudgetsPage() {
                     const remaining = budget.amount - spent;
 
                     return (
-                        <button key={budget.id} onClick={() => setSelectedBudget(budget)} className="w-full text-left bg-card p-5 rounded-2xl border border-border shadow-lg transition-all duration-300 hover:border-primary/50">
+                        <button key={budget.id} onClick={() => setSelectedBudget(budget)} className="w-full text-left bg-card p-5 rounded-2xl border border-border shadow-lg shadow-primary/10 transition-all duration-300 hover:border-primary/50">
                             <div className="flex items-start justify-between mb-3">
                                 <div>
                                     <p className="font-bold text-lg text-white">{budget.name}</p>

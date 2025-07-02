@@ -58,7 +58,7 @@ export default function SelectRecipientPage() {
                 </div>
                 <div className="grid grid-cols-1 gap-4">
                 {filteredBeneficiaries.map((beneficiary) => (
-                    <Link key={beneficiary.id} href={`/transfer/${beneficiary.id}`} className="w-full text-left bg-card p-5 rounded-2xl flex items-center justify-between hover:bg-secondary transition-all duration-300 border border-border shadow-lg group">
+                    <Link key={beneficiary.id} href={`/transfer/${beneficiary.id}`} className="w-full text-left bg-card p-5 rounded-2xl flex items-center justify-between hover:bg-secondary transition-all duration-300 border border-border shadow-lg shadow-primary/10 group">
                         <div className="flex items-center gap-3">
                             {getBankLogo(beneficiary.bankName)}
                             <div>

@@ -71,7 +71,7 @@ export default function BillsPage() {
         <p className="text-muted-foreground">Pay all your bills from one place.</p>
       </div>
 
-      <div className="bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg">
+      <div className="bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg shadow-primary/10">
         <div className="flex items-center gap-4 mb-4">
           <Sparkles className="w-8 h-8 text-primary" />
           <div>
@@ -118,7 +118,7 @@ export default function BillsPage() {
 
       <div className="grid grid-cols-1 gap-4">
         {billers.map((biller) => (
-          <button key={biller.name} className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg group">
+          <button key={biller.name} className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg shadow-primary/10 group">
             <div className="bg-primary p-3 rounded-xl shadow-lg">
                 <biller.icon className="w-6 h-6 text-white" />
             </div>
