@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
@@ -84,7 +85,6 @@ export default function TransferPage() {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: 'center',
-    containScroll: 'trimSnaps'
   });
 
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -211,7 +211,7 @@ export default function TransferPage() {
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white font-serif">Favorites</h2>
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => setIsAddDialogOpen(true)}>
+                 <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => setIsAddDialogOpen(true)}>
                   <Plus className="w-5 h-5" />
                 </Button>
                 <Button variant="link" size="sm" className="text-primary pr-0">
@@ -228,7 +228,10 @@ export default function TransferPage() {
                       key={fav.id}
                       className="flex-grow-0 flex-shrink-0 basis-2/5 pl-4"
                     >
-                      <div className="relative group flex-shrink-0 w-full h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg shadow-primary/10 transition-colors cursor-pointer">
+                      <div className={cn(
+                        "relative group flex-shrink-0 w-full h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-all duration-300 ease-out",
+                         index === selectedIndex ? 'scale-100 opacity-100 shadow-primary/20' : 'scale-90 opacity-60'
+                      )}>
                           <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
                             <X className="w-4 h-4" />
                           </Button>
