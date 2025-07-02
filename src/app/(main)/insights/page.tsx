@@ -17,7 +17,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { format, addMonths, isBefore, getDate } from 'date-fns';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { format, addMonths, isBefore, getDate, parseISO } from 'date-fns';
 import { getBillSuggestions } from '@/lib/actions';
 import { type BillDiscoveryOutput } from '@/ai/flows/bill-discovery';
 import { useToast } from '@/hooks/use-toast';
@@ -79,8 +80,8 @@ const getSubscriptionIcon = (name: string) => {
     return ReceiptText;
 };
 
-const calculateNextBillDate = (firstDateStr: string) => {
-    const firstDate = new Date(firstDateStr);
+const calculateNextBillDate = (firstDateStr: string): Date => {
+    const firstDate = parseISO(firstDateStr);
     const today = new Date();
     
     let nextDate = new Date(today.getFullYear(), today.getMonth(), getDate(firstDate));
@@ -88,8 +89,8 @@ const calculateNextBillDate = (firstDateStr: string) => {
     if (isBefore(nextDate, today)) {
         nextDate = addMonths(nextDate, 1);
     }
-
-    return format(nextDate, 'd MMM yyyy');
+    
+    return nextDate;
 };
 
 const addSubSchema = z.object({
@@ -106,46 +107,27 @@ type ManualSubscription = {
 
 
 export default function InsightsPage() {
-    // State for Spending Analysis
+    // Spending Analysis State
     const [activeIndex, setActiveIndex] = useState(0);
     const [isGenerating, setIsGenerating] = useState(false);
     const [aiResult, setAiResult] = useState<(PersonalizedSavingSuggestionsOutput & { error?: string }) | null>(null);
     const [detailCategory, setDetailCategory] = useState<string | null>(null);
 
-    // State for Subscription Tracker
+    // Subscription Tracker State
     const [isScanning, setIsScanning] = useState(false);
     const [aiScanResult, setAiScanResult] = useState<BillDiscoveryOutput | null>(null);
     const [manualSubscriptions, setManualSubscriptions] = useState<ManualSubscription[]>([]);
     const [isAddSubDialogOpen, setIsAddSubDialogOpen] = useState(false);
+    const [calendarMonth, setCalendarMonth] = useState(new Date());
     const { toast } = useToast();
 
     const addSubForm = useForm<z.infer<typeof addSubSchema>>({
       resolver: zodResolver(addSubSchema),
       defaultValues: { name: '', amount: 1000 },
     });
-
-    const onAddSubSubmit = (values: z.infer<typeof addSubSchema>) => {
-      const newSub: ManualSubscription = {
-        name: values.name,
-        estimatedAmount: values.amount,
-        firstDetectedDate: values.nextBillDate.toISOString(),
-      };
-      setManualSubscriptions([...manualSubscriptions, newSub]);
-      toast({ title: 'Subscription Added!', description: `${values.name} has been added.` });
-      setIsAddSubDialogOpen(false);
-      addSubForm.reset();
-    };
-
-    const combinedSubscriptions = useMemo(() => {
-        const aiSubs = aiScanResult?.potentialBills || [];
-        return [...aiSubs, ...manualSubscriptions];
-    }, [aiScanResult, manualSubscriptions]);
     
-    const totalMonthlyCost = useMemo(() => {
-      return combinedSubscriptions.reduce((acc, bill) => acc + bill.estimatedAmount, 0);
-    }, [combinedSubscriptions]);
+    // --- DERIVED STATE & LOGIC ---
 
-    // Spending Analysis Logic
     const { spendingData, totalSpending, chartConfig } = useMemo(() => {
         const spendingByCategory = transactions
             .filter((t) => t.amount < 0)
@@ -176,6 +158,35 @@ export default function InsightsPage() {
         if (!detailCategory) return [];
         return transactions.filter(t => t.amount < 0 && t.category === detailCategory);
     }, [detailCategory]);
+
+    const combinedSubscriptions = useMemo(() => {
+        const aiSubs = aiScanResult?.potentialBills || [];
+        return [...aiSubs, ...manualSubscriptions].map(sub => ({
+            ...sub,
+            nextBillDate: calculateNextBillDate(sub.firstDetectedDate)
+        })).sort((a, b) => a.nextBillDate.getTime() - b.nextBillDate.getTime());
+    }, [aiScanResult, manualSubscriptions]);
+    
+    const billDates = useMemo(() => combinedSubscriptions.map(s => s.nextBillDate), [combinedSubscriptions]);
+    
+    const totalMonthlyCost = useMemo(() => {
+      return combinedSubscriptions.reduce((acc, bill) => acc + bill.estimatedAmount, 0);
+    }, [combinedSubscriptions]);
+
+
+    // --- HANDLER FUNCTIONS ---
+
+    const onAddSubSubmit = (values: z.infer<typeof addSubSchema>) => {
+      const newSub: ManualSubscription = {
+        name: values.name,
+        estimatedAmount: values.amount,
+        firstDetectedDate: values.nextBillDate.toISOString(),
+      };
+      setManualSubscriptions([...manualSubscriptions, newSub]);
+      toast({ title: 'Subscription Added!', description: `${values.name} has been added.` });
+      setIsAddSubDialogOpen(false);
+      addSubForm.reset();
+    };
 
     const onPieEnter = (_: any, index: number) => setActiveIndex(index);
     const handlePieClick = (_: any, index: number) => setActiveIndex(index);
@@ -211,9 +222,11 @@ export default function InsightsPage() {
         }
         setIsScanning(false);
     };
-
+    
+    // --- RENDER ---
 
     return (
+        <>
         <div className="space-y-8 animate-fade-in-up">
             <div>
                 <h1 className="text-3xl font-bold mb-1 text-primary font-serif">
@@ -222,15 +235,16 @@ export default function InsightsPage() {
                 <p className="text-muted-foreground">Understand your money, take control.</p>
             </div>
 
-            <div className="space-y-8">
-              {/* --- SPENDING ANALYSIS --- */}
-              <div className="space-y-4">
-                  <h2 className="text-xl font-semibold text-white font-serif">Spending Overview</h2>
-                   <Button 
-                      onClick={handleGetSuggestions} 
-                      disabled={isGenerating} 
-                      className="w-full bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30 py-5 rounded-2xl font-semibold text-lg shadow-lg h-auto"
-                  >
+            <Tabs defaultValue="spending" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 bg-card border-border">
+                <TabsTrigger value="spending">Spending</TabsTrigger>
+                <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+              </TabsList>
+
+              {/* Spending Tab */}
+              <TabsContent value="spending" className="mt-6">
+                <div className="space-y-4">
+                  <Button onClick={handleGetSuggestions} disabled={isGenerating} className="w-full bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30 py-5 rounded-2xl font-semibold text-lg shadow-lg h-auto">
                       {isGenerating ? <Loader2 className="w-6 h-6 animate-spin" /> : <Sparkles className="w-6 h-6" />}
                       <span>{isGenerating ? 'Analyzing your spending...' : 'Get AI Financial Plan'}</span>
                   </Button>
@@ -238,14 +252,12 @@ export default function InsightsPage() {
                       <h3 className="font-semibold text-white text-center mb-4 font-serif">Spending this month</h3>
                       <div className="h-56 w-full">
                           <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-                              <ResponsiveContainer width="100%" height="100%">
-                                  <PieChart>
-                                      <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
-                                      <Pie activeIndex={activeIndex} activeShape={renderActiveShape} data={spendingData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} dataKey="value" nameKey="category" onMouseEnter={onPieEnter} onClick={handlePieClick}>
-                                          {spendingData.map((entry) => (<Cell key={`cell-${entry.category}`} fill={cn(chartConfig[entry.category].color)} />))}
-                                      </Pie>
-                                  </PieChart>
-                              </ResponsiveContainer>
+                              <ResponsiveContainer width="100%" height="100%"><PieChart>
+                                  <ChartTooltip content={<ChartTooltipContent nameKey="name" />} />
+                                  <Pie activeIndex={activeIndex} activeShape={renderActiveShape} data={spendingData} cx="50%" cy="50%" innerRadius={60} outerRadius={80} dataKey="value" nameKey="category" onMouseEnter={onPieEnter} onClick={handlePieClick}>
+                                      {spendingData.map((entry) => (<Cell key={`cell-${entry.category}`} fill={cn(chartConfig[entry.category].color)} />))}
+                                  </Pie>
+                              </PieChart></ResponsiveContainer>
                           </ChartContainer>
                       </div>
                       <div className="mt-6 space-y-2 text-sm">
@@ -265,11 +277,12 @@ export default function InsightsPage() {
                           ))}
                       </div>
                   </div>
-              </div>
+                </div>
+              </TabsContent>
 
-              {/* --- SUBSCRIPTION TRACKER --- */}
-              <div className="space-y-4">
-                  <h2 className="text-xl font-semibold text-white font-serif">Recurring Subscriptions</h2>
+              {/* Subscriptions Tab */}
+              <TabsContent value="subscriptions" className="mt-6">
+                 <div className="space-y-4">
                   <div className="bg-card p-5 rounded-2xl shadow-lg border border-border/50">
                       <div className="flex items-center justify-between gap-4">
                           <div>
@@ -300,7 +313,7 @@ export default function InsightsPage() {
                                                   <FormItem><FormLabel>Monthly Amount (IDR)</FormLabel><FormControl><Input type="number" placeholder="e.g. 186000" {...field} /></FormControl><FormMessage /></FormItem>
                                               )}/>
                                               <FormField control={addSubForm.control} name="nextBillDate" render={({ field }) => (
-                                                  <FormItem className="flex flex-col"><FormLabel>Next Bill Date</FormLabel>
+                                                  <FormItem className="flex flex-col"><FormLabel>First Bill Date</FormLabel>
                                                       <Popover><PopoverTrigger asChild>
                                                           <FormControl>
                                                               <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !field.value && "text-muted-foreground")}>
@@ -324,6 +337,16 @@ export default function InsightsPage() {
                           </div>
                       </div>
                   </div>
+                  
+                  <div className="bg-card p-5 rounded-2xl shadow-lg border border-border/50">
+                     <Calendar
+                        month={calendarMonth}
+                        onMonthChange={setCalendarMonth}
+                        modifiers={{ billDate: billDates }}
+                        modifiersClassNames={{ billDate: 'day-bill-date' }}
+                        className="w-full"
+                      />
+                  </div>
 
                   {combinedSubscriptions.length > 0 && (
                       <>
@@ -333,21 +356,21 @@ export default function InsightsPage() {
                               <p className="text-muted-foreground text-sm mt-1">from {combinedSubscriptions.length} subscriptions</p>
                           </div>
                           
-                          <div className="space-y-4">
+                          <div className="space-y-3">
                               {combinedSubscriptions.map(bill => {
                                   const Icon = getSubscriptionIcon(bill.name);
                                   return (
-                                    <div key={bill.name} className="w-full text-left bg-card p-5 rounded-2xl flex items-center justify-between border border-border shadow-lg">
+                                    <div key={bill.name} className="w-full text-left bg-card p-4 rounded-xl flex items-center justify-between border border-border shadow-lg">
                                         <div className="flex items-center gap-4">
-                                            <div className="bg-primary/20 p-3 rounded-xl shadow-lg"><Icon className="w-6 h-6 text-primary" /></div>
+                                            <div className="bg-secondary p-3 rounded-lg"><Icon className="w-5 h-5 text-primary" /></div>
                                             <div>
-                                              <p className="font-semibold text-lg text-white">{bill.name}</p>
-                                              <p className="text-muted-foreground text-sm font-semibold">{formatCurrency(bill.estimatedAmount)}<span className="font-normal text-muted-foreground/70"> / mo</span></p>
+                                              <p className="font-semibold text-white">{bill.name}</p>
+                                              <p className="text-muted-foreground text-sm font-semibold">{formatCurrency(bill.estimatedAmount)}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-sm text-muted-foreground">Next Bill</p>
-                                            <p className="font-semibold text-white">{calculateNextBillDate(bill.firstDetectedDate)}</p>
+                                            <p className="text-xs text-muted-foreground">Next Bill</p>
+                                            <p className="font-semibold text-white">{format(bill.nextBillDate, 'd MMM')}</p>
                                         </div>
                                     </div>
                                   )
@@ -363,84 +386,86 @@ export default function InsightsPage() {
                       </div>
                   )}
 
-              </div>
-            </div>
-
-            {/* --- DIALOGS FOR SPENDING ANALYSIS --- */}
-            <Dialog open={!!aiResult} onOpenChange={(open) => !open && setAiResult(null)}>
-                <DialogContent className="bg-popover text-popover-foreground border-border max-w-md max-h-[85vh] flex flex-col">
-                     <DialogHeader>{aiResult?.error ? (<DialogTitle className="text-destructive text-center">An Error Occurred</DialogTitle>) : (
-                         <div className="text-center p-6 bg-secondary/50 rounded-t-lg -m-6 mb-0 border-b border-border">
-                             <Sparkles className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
-                             <p className="text-sm font-semibold uppercase tracking-widest text-primary">Your Spender Personality</p>
-                             <DialogTitle className="text-3xl font-bold font-serif text-white mt-2">{aiResult?.spenderType}</DialogTitle>
-                         </div>
-                     )}</DialogHeader>
-                     <div className="pt-6 flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4">
-                        {aiResult?.error ? (<p className="text-center">{aiResult.summary}</p>) : (
-                            <div className="space-y-6">
-                                <div><p className="text-muted-foreground leading-relaxed text-center">{aiResult?.summary}</p></div>
-                                {aiResult?.suggestions && aiResult.suggestions.length > 0 && (
-                                    <div className="space-y-3">
-                                        <h3 className="font-semibold text-lg text-white font-serif">Your Action Plan:</h3>
-                                        <ul className="space-y-3">
-                                            {aiResult.suggestions.map((s, i) => (
-                                                <li key={`sugg-${i}`} className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
-                                                    <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
-                                                    <span className="text-foreground text-sm">{s}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                                {aiResult?.investmentPlan && (
-                                    <div className="space-y-3">
-                                        <h3 className="font-semibold text-lg text-white font-serif">Investment Idea:</h3>
-                                        <div className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
-                                            <div className="w-5 h-5 bg-green-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Info className="w-3 h-3 text-white" /></div>
-                                            <span className="text-foreground text-sm">{aiResult.investmentPlan}</span>
-                                        </div>
-                                    </div>
-                                )}
-                                {aiResult?.localDeals && aiResult.localDeals.length > 0 && (
-                                     <div className="space-y-3">
-                                        <h3 className="font-semibold text-lg text-white font-serif">Local Deals For You:</h3>
-                                        <ul className="space-y-3">
-                                            {aiResult.localDeals.map((deal, i) => (
-                                                <li key={`deal-${i}`} className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
-                                                    <div className="w-5 h-5 bg-blue-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
-                                                    <span className="text-foreground text-sm">{deal}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                    <DialogFooter className="pt-4"><Button onClick={() => setAiResult(null)} className="w-full bg-primary hover:bg-primary/90 rounded-xl h-12 font-semibold text-lg">Got It!</Button></DialogFooter>
-                </DialogContent>
-            </Dialog>
-            <Dialog open={!!detailCategory} onOpenChange={(open) => { if (!open) setDetailCategory(null); }}>
-                <DialogContent className="bg-popover border-border">
-                    <DialogHeader>
-                        <DialogTitle className="text-primary">Spending in {detailCategory}</DialogTitle>
-                        <DialogDescription>All transactions for this category.</DialogDescription>
-                    </DialogHeader>
-                    <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
-                        {categoryTransactions.length > 0 ? categoryTransactions.map(t => (
-                            <div key={t.id} className="bg-secondary p-3 rounded-lg flex items-center justify-between">
-                                <div>
-                                    <p className="font-semibold text-white">{t.description}</p>
-                                    <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'dd MMM yyyy')}</p>
-                                </div>
-                                <p className="font-semibold font-mono text-destructive">{formatCurrency(t.amount)}</p>
-                            </div>
-                        )) : <p className="text-muted-foreground text-center py-4">No transactions found for this category.</p>}
-                    </div>
-                    <DialogFooter><Button onClick={() => setDetailCategory(null)} variant="outline">Close</Button></DialogFooter>
-                </DialogContent>
-            </Dialog>
+                 </div>
+              </TabsContent>
+            </Tabs>
         </div>
+
+        {/* DIALOGS */}
+        <Dialog open={!!aiResult} onOpenChange={(open) => !open && setAiResult(null)}>
+            <DialogContent className="bg-popover text-popover-foreground border-border max-w-md max-h-[85vh] flex flex-col">
+                 <DialogHeader>{aiResult?.error ? (<DialogTitle className="text-destructive text-center">An Error Occurred</DialogTitle>) : (
+                     <div className="text-center p-6 bg-secondary/50 rounded-t-lg -m-6 mb-0 border-b border-border">
+                         <Sparkles className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
+                         <p className="text-sm font-semibold uppercase tracking-widest text-primary">Your Spender Personality</p>
+                         <DialogTitle className="text-3xl font-bold font-serif text-white mt-2">{aiResult?.spenderType}</DialogTitle>
+                     </div>
+                 )}</DialogHeader>
+                 <div className="pt-6 flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4">
+                    {aiResult?.error ? (<p className="text-center">{aiResult.summary}</p>) : (
+                        <div className="space-y-6">
+                            <div><p className="text-muted-foreground leading-relaxed text-center">{aiResult?.summary}</p></div>
+                            {aiResult?.suggestions && aiResult.suggestions.length > 0 && (
+                                <div className="space-y-3">
+                                    <h3 className="font-semibold text-lg text-white font-serif">Your Action Plan:</h3>
+                                    <ul className="space-y-3">
+                                        {aiResult.suggestions.map((s, i) => (
+                                            <li key={`sugg-${i}`} className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
+                                                <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
+                                                <span className="text-foreground text-sm">{s}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                            {aiResult?.investmentPlan && (
+                                <div className="space-y-3">
+                                    <h3 className="font-semibold text-lg text-white font-serif">Investment Idea:</h3>
+                                    <div className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
+                                        <div className="w-5 h-5 bg-green-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Info className="w-3 h-3 text-white" /></div>
+                                        <span className="text-foreground text-sm">{aiResult.investmentPlan}</span>
+                                    </div>
+                                </div>
+                            )}
+                            {aiResult?.localDeals && aiResult.localDeals.length > 0 && (
+                                 <div className="space-y-3">
+                                    <h3 className="font-semibold text-lg text-white font-serif">Local Deals For You:</h3>
+                                    <ul className="space-y-3">
+                                        {aiResult.localDeals.map((deal, i) => (
+                                            <li key={`deal-${i}`} className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
+                                                <div className="w-5 h-5 bg-blue-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
+                                                <span className="text-foreground text-sm">{deal}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+                <DialogFooter className="pt-4"><Button onClick={() => setAiResult(null)} className="w-full bg-primary hover:bg-primary/90 rounded-xl h-12 font-semibold text-lg">Got It!</Button></DialogFooter>
+            </DialogContent>
+        </Dialog>
+        <Dialog open={!!detailCategory} onOpenChange={(open) => { if (!open) setDetailCategory(null); }}>
+            <DialogContent className="bg-popover border-border">
+                <DialogHeader>
+                    <DialogTitle className="text-primary">Spending in {detailCategory}</DialogTitle>
+                    <DialogDescription>All transactions for this category.</DialogDescription>
+                </DialogHeader>
+                <div className="space-y-2 max-h-[50vh] overflow-y-auto pr-2 custom-scrollbar">
+                    {categoryTransactions.length > 0 ? categoryTransactions.map(t => (
+                        <div key={t.id} className="bg-secondary p-3 rounded-lg flex items-center justify-between">
+                            <div>
+                                <p className="font-semibold text-white">{t.description}</p>
+                                <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'dd MMM yyyy')}</p>
+                            </div>
+                            <p className="font-semibold font-mono text-destructive">{formatCurrency(t.amount)}</p>
+                        </div>
+                    )) : <p className="text-muted-foreground text-center py-4">No transactions found for this category.</p>}
+                </div>
+                <DialogFooter><Button onClick={() => setDetailCategory(null)} variant="outline">Close</Button></DialogFooter>
+            </DialogContent>
+        </Dialog>
+        </>
     );
 }

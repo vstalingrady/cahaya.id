@@ -61,4 +61,22 @@
   .bg-gradient-hero {
     background-image: radial-gradient(ellipse 80% 50% at 50% -20%, hsl(var(--primary) / 0.3), transparent);
   }
+  
+  .day-bill-date {
+    position: relative;
+  }
+  .day-bill-date::after {
+    content: '';
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: hsl(var(--accent));
+  }
+  .day-selected.day-bill-date::after {
+     background-color: hsl(var(--primary-foreground));
+  }
 }
