@@ -14,6 +14,44 @@ import {
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
 
+const LogoSphere = () => {
+  const logos = [
+    { name: 'BCA', class: 'bg-blue-600' },
+    { name: 'GP', fullName: 'GoPay', class: 'bg-sky-500' },
+    { name: 'OVO', class: 'bg-purple-600' },
+    { name: 'BB', fullName: 'Bibit', class: 'bg-green-600' },
+    { name: 'PT', fullName: 'Pintu', class: 'bg-indigo-600' },
+    { name: 'AJ', fullName: 'Ajaib', class: 'bg-teal-500' },
+    { name: 'KR', fullName: 'Kredivo', class: 'bg-orange-500' },
+    { name: 'MDR', fullName: 'Mandiri', class: 'bg-sky-700' },
+    { name: 'BNI', class: 'bg-orange-600' },
+  ];
+
+  return (
+    <div className="flex items-center justify-center w-full h-80" style={{ perspective: '1000px' }}>
+      <div className="relative w-64 h-64 animate-spin-3d" style={{ transformStyle: 'preserve-3d' }}>
+        {logos.map((logo, index) => {
+          const angle = (360 / logos.length) * index;
+          return (
+            <div
+              key={logo.fullName || logo.name}
+              className={cn(
+                'absolute top-[calc(50%-32px)] left-[calc(50%-32px)] w-16 h-16 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg',
+                logo.class
+              )}
+              style={{
+                transform: `rotateY(${angle}deg) translateZ(150px)`,
+              }}
+            >
+              {logo.name}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 export default function WelcomePage() {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
@@ -28,8 +66,7 @@ export default function WelcomePage() {
       type: 'feature',
       title: 'One Dashboard, Total Control.',
       description: 'See your complete financial picture. BCA, GoPay, OVO, Bibit—all your accounts, one stunning dashboard. Finally understand your true net worth in real-time.',
-      imgSrc: 'https://placehold.co/800x600.png',
-      imgHint: 'finance dashboard modern',
+      customComponent: <LogoSphere />,
       reverse: false
     },
     {
@@ -98,14 +135,16 @@ export default function WelcomePage() {
                     </div>
                     <div className="flex-1 mt-8 lg:mt-0 w-full max-w-md animate-fade-in-up [animation-delay:0.2s]">
                       <div className="bg-card/50 p-4 rounded-3xl border shadow-lg shadow-primary/10 border-border/50 backdrop-blur-sm">
-                        <Image 
-                            src={slide.imgSrc!}
-                            alt={slide.title!}
-                            width={800}
-                            height={600}
-                            data-ai-hint={slide.imgHint!}
-                            className="rounded-2xl shadow-lg"
-                          />
+                        {slide.customComponent ? slide.customComponent : (
+                          <Image 
+                              src={slide.imgSrc!}
+                              alt={slide.title!}
+                              width={800}
+                              height={600}
+                              data-ai-hint={slide.imgHint!}
+                              className="rounded-2xl shadow-lg"
+                            />
+                        )}
                       </div>
                     </div>
                   </div>
