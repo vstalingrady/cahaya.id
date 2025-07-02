@@ -11,6 +11,7 @@ const routes = [
   { path: '/link-account/bca', name: 'Link Account (BCA Auth)' },
   { path: '/dashboard', name: 'Dashboard' },
   { path: '/transfer', name: 'Pay (Bills & Transfer)' },
+  { path: '/subscriptions', name: 'Subscriptions Tracker' },
   { path: '/vaults', name: 'Vaults Page' },
   { path: '/history', name: 'Transaction History Calendar' },
 ];
