@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Calendar } from '@/components/ui/calendar';
-import { transactions, accounts } from '@/lib/data';
+import { accounts, type Transaction } from '@/lib/data';
 import { format, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
@@ -23,21 +23,13 @@ const getAccountLogo = (accountId: string) => {
     return <div className="w-10 h-10 rounded-lg bg-gray-500 flex-shrink-0"></div>;
 }
 
-const currentNetWorth = accounts
-    .filter(acc => acc.type !== 'loan')
-    .reduce((sum, acc) => sum + acc.balance, 0) - 
-    accounts
-    .filter(acc => acc.type === 'loan')
-    .reduce((sum, acc) => sum + acc.balance, 0);
 
-
-export default function TransactionCalendar() {
-    // Find the latest transaction date to use as the default.
+export default function TransactionCalendar({ transactions, currentBalance }: { transactions: Transaction[], currentBalance: number }) {
     const latestTransactionDate = useMemo(() => 
         transactions.length > 0 
             ? new Date(Math.max(...transactions.map(t => new Date(t.date).getTime())))
             : new Date(), 
-    []);
+    [transactions]);
     
     const [date, setDate] = useState<Date | undefined>(latestTransactionDate);
     
@@ -45,12 +37,12 @@ export default function TransactionCalendar() {
         if (!date) return [];
         return transactions.filter(t => isSameDay(new Date(t.date), date))
                .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    }, [date]);
+    }, [date, transactions]);
 
-    const transactionDates = useMemo(() => transactions.map(t => new Date(t.date)), []);
+    const transactionDates = useMemo(() => transactions.map(t => new Date(t.date)), [transactions]);
     
     const balanceOnSelectedDate = useMemo(() => {
-        if (!date) return currentNetWorth;
+        if (!date) return currentBalance;
     
         const selectedDate = new Date(date);
         selectedDate.setHours(23, 59, 59, 999); // Consider end of day
@@ -58,8 +50,8 @@ export default function TransactionCalendar() {
         const transactionsAfter = transactions.filter(t => new Date(t.date) > selectedDate);
         const netChangeAfter = transactionsAfter.reduce((sum, t) => sum + t.amount, 0);
     
-        return currentNetWorth - netChangeAfter;
-    }, [date]);
+        return currentBalance - netChangeAfter;
+    }, [date, transactions, currentBalance]);
 
     const dailySummary = useMemo(() => {
         if (!transactionsOnSelectedDate || transactionsOnSelectedDate.length === 0) {
@@ -87,6 +79,16 @@ export default function TransactionCalendar() {
             balanceOnDate: balanceOnSelectedDate,
         };
     }, [transactionsOnSelectedDate, balanceOnSelectedDate]);
+    
+    // When the transactions prop changes (e.g., user navigates between accounts),
+    // update the selected date to the latest transaction in the new set.
+    React.useEffect(() => {
+      const newLatestDate = transactions.length > 0
+        ? new Date(Math.max(...transactions.map(t => new Date(t.date).getTime())))
+        : new Date();
+      setDate(newLatestDate);
+    }, [transactions]);
+
 
     return (
         <div className="bg-card p-5 rounded-2xl border border-border shadow-lg">

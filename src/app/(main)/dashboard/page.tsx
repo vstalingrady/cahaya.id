@@ -54,7 +54,7 @@ export default function DashboardPage() {
                 </div>
             </header>
 
-            <TotalBalance amount={netWorth} transactions={transactions} />
+            <TotalBalance title="Total Net Worth" amount={netWorth} transactions={transactions} showHistoryLink={true} />
 
             <div>
                 <div className="flex justify-between items-center mb-4">

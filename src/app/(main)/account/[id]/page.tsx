@@ -6,7 +6,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft } from 'lucide-react';
 import { accounts, transactions } from '@/lib/data';
-import TransactionHistory from '@/components/dashboard/transaction-history';
+import TransactionCalendar from '@/components/profile/transaction-calendar';
+import TotalBalance from '@/components/dashboard/total-balance';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { 
@@ -22,7 +23,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
-// Helper function to format currency
+// This currency formatter can be moved to a utils file if used in more places
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -41,8 +42,6 @@ export default function AccountDetailPage() {
   const account = accounts.find(acc => acc.id === accountId);
   
   const handleConfirmUnlink = () => {
-    // In a real app, you would verify the PIN.
-    // For this prototype, we just check the length.
     if (pin.length < 8) return;
 
     toast({
@@ -53,9 +52,6 @@ export default function AccountDetailPage() {
     setIsUnlinkConfirmOpen(false);
     setPin('');
     
-    // In a real app this would trigger a global state update or API call.
-    // For the prototype, we redirect back to the dashboard. The account will
-    // reappear on a full page reload, which is an acceptable limitation.
     router.push('/dashboard');
   };
   
@@ -117,13 +113,18 @@ export default function AccountDetailPage() {
         <Link href="/dashboard" className="absolute left-0">
           <ArrowLeft className="w-6 h-6 text-white" />
         </Link>
-        <div className="text-center mx-auto">
-          <h1 className="text-2xl font-bold text-primary font-serif">
-            {account.name}
-          </h1>
-          <p className="text-lg font-semibold text-white">{formatCurrency(account.balance)}</p>
-        </div>
+        <h1 className="text-2xl font-bold mx-auto text-primary font-serif">
+          {account.name}
+        </h1>
       </header>
+      
+      {/* Reusable balance chart component */}
+      <TotalBalance
+        title="Current Balance"
+        amount={account.balance}
+        transactions={accountTransactions}
+        showHistoryLink={false}
+      />
 
       {account.type === 'investment' && account.holdings && (
         <div className="space-y-4">
@@ -151,9 +152,9 @@ export default function AccountDetailPage() {
          <div className="space-y-4">
           <h2 className="text-xl font-semibold text-white font-serif">Transaction History</h2>
           {accountTransactions.length > 0 ? (
-            <TransactionHistory transactions={accountTransactions} />
+            <TransactionCalendar transactions={accountTransactions} currentBalance={account.balance} />
           ) : (
-            <div className="bg-card p-4 rounded-xl text-center text-muted-foreground border border-border">
+            <div className="bg-card p-6 rounded-xl text-center text-muted-foreground border border-border">
                 No transactions for this account yet.
             </div>
           )}

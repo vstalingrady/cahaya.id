@@ -19,11 +19,13 @@ const BalanceChart = dynamic(() => import('./balance-chart'), {
 
 
 type TotalBalanceProps = {
+  title: string;
   amount: number;
   transactions: Transaction[];
+  showHistoryLink?: boolean;
 };
 
-export default function TotalBalance({ amount, transactions }: TotalBalanceProps) {
+export default function TotalBalance({ title, amount, transactions, showHistoryLink = false }: TotalBalanceProps) {
   const [chartData, setChartData] = React.useState<any[]>([]);
 
   const formattedAmount = new Intl.NumberFormat('id-ID', {
@@ -113,12 +115,14 @@ export default function TotalBalance({ amount, transactions }: TotalBalanceProps
         <div className="flex flex-col gap-4">
             <div>
                  <div className="flex justify-between items-center mb-1">
-                    <h2 className="text-xs text-muted-foreground font-semibold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> Total Net Worth</h2>
-                    <Link href="/history" passHref>
-                      <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full hover:bg-secondary/50 text-muted-foreground hover:text-foreground -mr-2">
-                          <Calendar className="w-4 h-4" />
-                      </Button>
-                    </Link>
+                    <h2 className="text-xs text-muted-foreground font-semibold uppercase tracking-wide flex items-center gap-2"><Wallet className="w-4 h-4" /> {title}</h2>
+                    {showHistoryLink && (
+                      <Link href="/history" passHref>
+                        <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full hover:bg-secondary/50 text-muted-foreground hover:text-foreground -mr-2">
+                            <Calendar className="w-4 h-4" />
+                        </Button>
+                      </Link>
+                    )}
                  </div>
                 <div className="text-3xl font-bold mb-2 text-white">{formattedAmount}</div>
                  {dailyChange !== 0 && (
