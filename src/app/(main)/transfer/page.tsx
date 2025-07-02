@@ -229,14 +229,14 @@ export default function TransferPage() {
                         className="flex-shrink-0 pl-4"
                       >
                         <div className={cn(
-                          "relative group w-40 h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-all duration-300 ease-out",
+                          "relative group w-40 h-40 aspect-square bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-all duration-300 ease-out",
                           index === selectedIndex ? 'scale-100 opacity-100 shadow-primary/20' : 'scale-90 opacity-60'
                         )}>
                             <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
                               <X className="w-4 h-4" />
                             </Button>
-                            <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg">
-                              <Icon className="w-6 h-6" stroke="white" />
+                            <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg text-white">
+                              <Icon className="w-6 h-6" />
                             </div>
                             <div>
                               <p className="font-semibold text-white truncate">{fav.name}</p>
