@@ -91,9 +91,6 @@ export default function WelcomePage() {
                         <Link href="/signup">Create Account</Link>
                       </Button>
                     </div>
-                     <div className="absolute -bottom-24 left-1/2 -translate-x-1/2 text-muted-foreground animate-bounce">
-                        <ArrowDown className="w-6 h-6" />
-                    </div>
                   </div>
                 )}
 
@@ -142,17 +139,24 @@ export default function WelcomePage() {
         </CarouselContent>
       </Carousel>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-        {slides.map((_, index) => (
-            <button 
-                key={index} 
-                onClick={() => api?.scrollTo(index)}
-                className={cn(
-                    "w-2 h-2 rounded-full transition-all duration-300",
-                    index === current ? "bg-primary w-6" : "bg-muted hover:bg-muted-foreground/50"
-                )}
-            />
-        ))}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center justify-center gap-4">
+        {current === 0 && (
+            <div className="text-muted-foreground animate-bounce">
+                <ArrowDown className="w-6 h-6" />
+            </div>
+        )}
+        <div className="flex gap-2">
+            {slides.map((_, index) => (
+                <button 
+                    key={index} 
+                    onClick={() => api?.scrollTo(index)}
+                    className={cn(
+                        "w-2 h-2 rounded-full transition-all duration-300",
+                        index === current ? "bg-primary w-6" : "bg-muted hover:bg-muted-foreground/50"
+                    )}
+                />
+            ))}
+        </div>
       </div>
     </div>
   );
