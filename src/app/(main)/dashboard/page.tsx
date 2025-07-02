@@ -68,7 +68,7 @@ export default function DashboardPage() {
                         <AccordionItem value="bank" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
                             <AccordionTrigger className="hover:no-underline">
                                 <div className='flex items-center gap-3'>
-                                    <Landmark className='w-5 h-5 text-primary/80' />
+                                    <Landmark className='w-5 h-5' stroke="url(#icon-gradient)" />
                                     <span className='font-semibold text-white'>Banks</span>
                                 </div>
                             </AccordionTrigger>
@@ -84,7 +84,7 @@ export default function DashboardPage() {
                         <AccordionItem value="e-wallet" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
                             <AccordionTrigger className="hover:no-underline">
                                 <div className='flex items-center gap-3'>
-                                    <EwalletIcon className='w-5 h-5 text-primary/80' />
+                                    <EwalletIcon className='w-5 h-5' stroke="url(#icon-gradient)" />
                                     <span className='font-semibold text-white'>E-Wallets</span>
                                 </div>
                             </AccordionTrigger>
@@ -100,7 +100,7 @@ export default function DashboardPage() {
                         <AccordionItem value="investment" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
                             <AccordionTrigger className="hover:no-underline">
                                 <div className='flex items-center gap-3'>
-                                    <Briefcase className='w-5 h-5 text-primary/80' />
+                                    <Briefcase className='w-5 h-5' stroke="url(#icon-gradient)" />
                                     <span className='font-semibold text-white'>Investments</span>
                                 </div>
                             </AccordionTrigger>
@@ -116,7 +116,7 @@ export default function DashboardPage() {
                         <AccordionItem value="loan" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
                             <AccordionTrigger className="hover:no-underline">
                                 <div className='flex items-center gap-3'>
-                                    <Coins className='w-5 h-5 text-primary/80' />
+                                    <Coins className='w-5 h-5' stroke="url(#icon-gradient)" />
                                     <span className='font-semibold text-white'>Loans</span>
                                 </div>
                             </AccordionTrigger>

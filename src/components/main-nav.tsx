@@ -28,11 +28,11 @@ export default function MainNav() {
               <div
                 className={cn(
                   'flex flex-col items-center gap-1 p-2 rounded-lg transition-all duration-300 w-full',
-                  isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary/80'
+                  isActive ? '' : 'text-muted-foreground hover:text-primary/80'
                 )}
               >
-                <item.icon className="w-6 h-6" />
-                <span className="text-xs font-semibold">{item.label}</span>
+                <item.icon className="w-6 h-6" {...(isActive && { stroke: "url(#icon-gradient)" })} />
+                <span className={cn("text-xs font-semibold", isActive ? 'text-primary' : '')}>{item.label}</span>
                 {isActive && (
                     <div className="w-8 h-1 bg-accent rounded-full mt-1"></div>
                 )}

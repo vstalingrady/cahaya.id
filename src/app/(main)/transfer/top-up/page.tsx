@@ -30,8 +30,8 @@ export default function TopUpPage() {
             key={service.name}
             className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg group"
           >
-            <div className="bg-primary p-3 rounded-xl shadow-lg">
-              <service.icon className="w-6 h-6 text-white" />
+            <div className="bg-secondary p-3 rounded-xl shadow-lg">
+              <service.icon className="w-6 h-6" stroke="url(#icon-gradient)" />
             </div>
             <div>
               <p className="font-semibold text-lg text-white">{service.name}</p>
