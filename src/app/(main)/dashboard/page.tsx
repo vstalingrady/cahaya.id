@@ -43,7 +43,7 @@ export default function DashboardPage() {
         <div className="space-y-8 animate-fade-in-up">
             <header className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-white font-serif">
+                    <h1 className="text-3xl font-bold text-white font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Good morning, Vstalin
                     </h1>
                 </div>

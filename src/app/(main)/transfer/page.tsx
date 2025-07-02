@@ -200,10 +200,8 @@ export default function TransferPage() {
 
         <Link
           href="/transfer/qris"
-          className="group relative w-full p-[2px] rounded-2xl bg-transparent transition-all duration-300"
+          className="group relative w-full p-[2px] rounded-2xl bg-transparent transition-all duration-300 hover:bg-gradient-to-r from-primary to-accent"
         >
-          <div className="absolute inset-0 rounded-2xl border-2 border-dashed border-primary/50 group-hover:border-transparent group-hover:bg-gradient-to-r group-hover:from-primary group-hover:to-accent transition-all"></div>
-          
           <div className="w-full h-full bg-card rounded-[calc(1rem-2px)] p-5 flex items-center justify-center">
               <span className="font-semibold text-xl text-muted-foreground group-hover:text-white transition-colors flex items-center gap-3">
                   Pay with <Image src="https://upload.wikimedia.org/wikipedia/commons/9/9f/QRIS_logo.svg" alt="QRIS Logo" width={80} height={37} className="dark:invert w-20 h-auto" />

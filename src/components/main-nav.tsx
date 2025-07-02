@@ -32,7 +32,7 @@ export default function MainNav() {
                   isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary/80'
                 )}
               >
-                <item.icon className="w-6 h-6" style={{ fill: isActive ? 'url(#icon-gradient)' : 'currentColor' }} />
+                <item.icon className="w-6 h-6" />
                 <span className={cn("text-xs font-semibold", isActive ? 'text-primary' : '')}>{item.label}</span>
                 {isActive && (
                     <div className="w-8 h-1 bg-gradient-to-r from-primary to-accent rounded-full mt-1"></div>
