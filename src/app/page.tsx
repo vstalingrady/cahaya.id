@@ -11,7 +11,6 @@ import {
   CarouselItem,
   type CarouselApi,
 } from '@/components/ui/carousel';
-import { ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export default function WelcomePage() {
@@ -140,11 +139,6 @@ export default function WelcomePage() {
       </Carousel>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center justify-center gap-4">
-        {current === 0 && (
-            <div className="text-muted-foreground animate-bounce">
-                <ArrowDown className="w-6 h-6" />
-            </div>
-        )}
         <div className="flex gap-2">
             {slides.map((_, index) => (
                 <button 

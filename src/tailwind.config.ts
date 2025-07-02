@@ -103,13 +103,13 @@ export default {
           '50%': { opacity: '1', transform: 'scale(1.05)' },
         },
         'pulsing-glow': {
-          '0%, 100%': { 
-            boxShadow: '0 0 15px -5px hsl(var(--primary) / 0.2)',
+          '0%, 100%': {
+            boxShadow: '0 0 20px -10px hsl(var(--primary) / 0.3)',
             transform: 'scale(1)',
           },
-          '50%': { 
-            boxShadow: '0 0 25px 0px hsl(var(--primary) / 0.3)',
-            transform: 'scale(1.015)',
+          '50%': {
+            boxShadow: '0 0 40px 5px hsl(var(--primary) / 0.5)',
+            transform: 'scale(1.02)',
           },
         },
       },
