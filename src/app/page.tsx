@@ -6,13 +6,14 @@ import Image from 'next/image';
 import { type CarouselApi } from '@/components/ui/carousel';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
+import CuanLogo from '@/components/cuanflex-logo';
 
 const FeatureSection = ({ title, description, imgSrc, imgHint, reverse = false }: { title: string, description: string, imgSrc: string, imgHint: string, reverse?: boolean }) => {
     return (
       <section className="h-screen flex items-center justify-center p-6 lg:p-12">
         <div className={`flex flex-col ${reverse ? 'lg:flex-row-reverse' : 'lg:flex-row'} items-center justify-center gap-8 lg:gap-16 max-w-5xl mx-auto`}>
           <div className="flex-1 text-center lg:text-left">
-            <h2 className={`text-4xl lg:text-5xl font-bold mb-6 text-primary font-serif`}>
+            <h2 className={`text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-red-500 to-primary bg-clip-text text-transparent font-serif`}>
               {title}
             </h2>
             <p className={`text-lg lg:text-xl leading-relaxed text-muted-foreground`}>
@@ -68,14 +69,15 @@ export default function WelcomePage() {
   
   const slides = [
     // Hero Section
-    <section key="hero" className="h-screen flex flex-col justify-center items-center text-center p-6 relative z-10">
-      <div className="mb-8">
-        <h1 className="text-5xl lg:text-7xl font-bold mb-4 text-primary leading-tight font-serif">
+    <section key="hero" className="h-screen flex flex-col justify-center items-center text-center p-6 relative z-10 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-hero animate-pulsing-glow pointer-events-none"></div>
+      <div className="mb-8 relative z-10">
+        <h1 className="text-5xl lg:text-7xl font-bold mb-4 bg-gradient-to-tr from-primary via-red-400 to-primary bg-clip-text text-transparent leading-tight font-serif">
           All your money,<br />in one place.
         </h1>
         <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto mb-6 rounded-full"></div>
       </div>
-      <p className="text-muted-foreground text-xl max-w-2xl mx-auto mb-12 font-light">Welcome to Cuan. The secure, unified way to manage your entire financial life from a single, beautiful app.</p>
+      <p className="text-muted-foreground text-xl max-w-2xl mx-auto mb-12 font-light relative z-10">Welcome to Cuan. The secure, unified way to manage your entire financial life from a single, beautiful app.</p>
     </section>,
 
     // Feature Section 1
@@ -89,7 +91,7 @@ export default function WelcomePage() {
 
     // Connect Everything Section
     <section key="connect" className="h-screen flex flex-col items-center justify-center p-6 lg:p-12 text-center">
-      <h2 className="text-4xl lg:text-5xl font-bold mb-6 text-primary font-serif">
+      <h2 className="text-4xl lg:text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-red-500 to-primary bg-clip-text text-transparent font-serif">
         Connect Everything in Seconds.
       </h2>
       <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto mb-12">
@@ -145,13 +147,14 @@ export default function WelcomePage() {
     />,
 
     // Final CTA
-    <section key="cta" className="h-screen flex flex-col justify-center items-center text-center p-6 relative z-10">
-      <div className="mb-8">
-        <h1 className="text-5xl lg:text-7xl font-bold mb-4 text-primary leading-tight font-serif">
+    <section key="cta" className="h-screen flex flex-col justify-center items-center text-center p-6 relative z-10 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-hero animate-pulsing-glow pointer-events-none"></div>
+      <div className="mb-8 relative z-10">
+        <h1 className="text-5xl lg:text-7xl font-bold mb-4 bg-gradient-to-tr from-primary via-red-400 to-primary bg-clip-text text-transparent leading-tight font-serif">
           Ready to<br/>take control?
         </h1>
       </div>
-      <p className="text-muted-foreground text-xl max-w-2xl mx-auto mb-12 font-light">Join Cuan today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.</p>
+      <p className="text-muted-foreground text-xl max-w-2xl mx-auto mb-12 font-light relative z-10">Join Cuan today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.</p>
       <div className="space-y-4 relative z-10 flex flex-col items-center">
         <Button asChild size="lg" className="w-64 h-14 text-lg animate-pulsing-glow">
            <Link href="/signup">Create Account</Link>
@@ -164,7 +167,7 @@ export default function WelcomePage() {
   ];
 
   return (
-    <div className="w-full bg-background text-white h-screen relative overflow-hidden">
+    <div className="w-full bg-background text-white h-screen relative">
       <Carousel setApi={setApi} className="w-full h-full">
         <CarouselContent>
           {slides.map((slide, index) => (
