@@ -103,6 +103,8 @@ const institutions = [
   }
 ];
 
+const slugify = (str: string) => str.toLowerCase().replace(/ \/ | & /g, ' ').replace(/ /g, '-').replace(/[^\w-]+/g, '');
+
 export default function LinkAccountPage() {
   return (
     <div className="w-full max-w-md mx-auto bg-background text-white p-6 min-h-screen relative overflow-hidden">
@@ -119,10 +121,11 @@ export default function LinkAccountPage() {
             <div className="grid grid-cols-1 gap-4">
               {group.items.map(item => {
                 const { initials, color } = getLogo(item.name);
+                const slug = slugify(item.name);
                 return (
                   <Link 
                     key={item.name}
-                    href="/link-account/bca" // All links go to the sample auth page for this prototype
+                    href={`/link-account/${slug}`}
                     className="bg-card p-5 rounded-2xl flex items-center justify-between hover:bg-secondary transition-all duration-300 transform hover:scale-105 border border-border shadow-lg shadow-primary/10 group"
                   >
                     <div className="flex items-center relative z-10">
