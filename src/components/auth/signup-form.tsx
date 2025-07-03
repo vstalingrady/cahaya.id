@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -61,9 +60,6 @@ export default function SignupForm() {
 
         recaptchaVerifierRef.current = verifier;
     }
-
-    // Cleanup on component unmount is not strictly necessary with this ref pattern,
-    // as the verifier is tied to the DOM element which gets removed.
   }, []);
 
   const handleSendCode = async (e: React.FormEvent) => {
@@ -88,9 +84,12 @@ export default function SignupForm() {
       if (err.code === 'auth/invalid-api-key') {
         setError('Firebase configuration is invalid. Please check your .env file.');
       } else if (err.code === 'auth/captcha-check-failed') {
-         setError('reCAPTCHA failed due to a hostname mismatch. This is a Firebase project configuration issue. To bypass this in development, please use the test phone number provided above.');
+         setError('reCAPTCHA check failed. This is a configuration issue. Please use the provided test number to proceed.');
+         setPhone('+1 650-555-3434');
       } else if (err.code === 'auth/invalid-phone-number') {
         setError('The phone number is not valid. Please use the E.164 format (e.g., +6281234567890).');
+      } else if (err.code === 'auth/too-many-requests') {
+          setError("Too many attempts. Please wait a while before trying again or use the test number.");
       } else {
         setError(err.message || 'Failed to send verification code. Please try again.');
       }
