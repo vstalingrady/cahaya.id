@@ -11,15 +11,36 @@ const getLogo = (name: string) => {
     if (lowerName.includes('mandiri')) return { initials: 'MDR', color: 'bg-sky-600' };
     if (lowerName.includes('bri')) return { initials: 'BRI', color: 'bg-blue-800' };
     if (lowerName.includes('bni')) return { initials: 'BNI', color: 'bg-orange-500' };
+    if (lowerName.includes('cimb')) return { initials: 'CIMB', color: 'bg-red-600' };
+    if (lowerName.includes('danamon')) return { initials: 'DMN', color: 'bg-orange-400' };
+    if (lowerName.includes('permata')) return { initials: 'PMT', color: 'bg-green-500' };
+    if (lowerName.includes('ocbc')) return { initials: 'OCBC', color: 'bg-red-700' };
+    if (lowerName.includes('panin')) return { initials: 'PNB', color: 'bg-blue-700' };
+    if (lowerName.includes('btn')) return { initials: 'BTN', color: 'bg-green-700' };
+    if (lowerName.includes('dbs')) return { initials: 'DBS', color: 'bg-red-500' };
+    if (lowerName.includes('uob')) return { initials: 'UOB', color: 'bg-blue-900' };
+    
+    if (lowerName.includes('jago')) return { initials: 'JAGO', color: 'bg-yellow-500' };
+    if (lowerName.includes('blu')) return { initials: 'BLU', color: 'bg-sky-400' };
+    if (lowerName.includes('seabank')) return { initials: 'SEA', color: 'bg-sky-400' };
+    if (lowerName.includes('jenius')) return { initials: 'JN', color: 'bg-orange-400' };
+    if (lowerName.includes('aladin')) return { initials: 'ALD', color: 'bg-teal-600' };
+    if (lowerName.includes('tmrw')) return { initials: 'TMRW', color: 'bg-yellow-400' };
+
     if (lowerName.includes('gopay')) return { initials: 'GP', color: 'bg-sky-500' };
     if (lowerName.includes('ovo')) return { initials: 'OVO', color: 'bg-purple-600' };
     if (lowerName.includes('dana')) return { initials: 'DA', color: 'bg-blue-500' };
     if (lowerName.includes('shopee')) return { initials: 'SP', color: 'bg-orange-600' };
+    if (lowerName.includes('linkaja')) return { initials: 'LA', color: 'bg-red-500' };
+
     if (lowerName.includes('bibit')) return { initials: 'BB', color: 'bg-green-600' };
     if (lowerName.includes('ajaib')) return { initials: 'AJ', color: 'bg-teal-500' };
-    if (lowerName.includes('jago')) return { initials: 'JAGO', color: 'bg-yellow-500' };
-    if (lowerName.includes('jenius')) return { initials: 'JN', color: 'bg-orange-400' };
-    if (lowerName.includes('seabank')) return { initials: 'SEA', color: 'bg-sky-400' };
+    if (lowerName.includes('pluang')) return { initials: 'PL', color: 'bg-yellow-600' };
+    
+    if (lowerName.includes('kredivo')) return { initials: 'KR', color: 'bg-orange-500' };
+    if (lowerName.includes('adira')) return { initials: 'ADR', color: 'bg-red-600' };
+    if (lowerName.includes('fifgroup')) return { initials: 'FIF', color: 'bg-blue-400' };
+    if (lowerName.includes('wom')) return { initials: 'WOM', color: 'bg-lime-500' };
     
     return { initials, color: 'bg-secondary' };
 }
@@ -35,6 +56,11 @@ const institutions = [
       { name: "CIMB Niaga", description: "Bank CIMB Niaga" },
       { name: "Danamon", description: "Bank Danamon" },
       { name: "Permata", description: "Bank Permata" },
+      { name: "OCBC NISP", description: "Bank OCBC NISP" },
+      { name: "Panin Bank", description: "Bank Panin" },
+      { name: "BTN", description: "Bank Tabungan Negara" },
+      { name: "DBS", description: "Bank DBS Indonesia" },
+      { name: "UOB", description: "UOB Indonesia" },
     ]
   },
   {
@@ -44,15 +70,18 @@ const institutions = [
       { name: "Blu by BCA", description: "Digital by BCA" },
       { name: "SeaBank", description: "Digital Bank" },
       { name: "Jenius", description: "by BTPN" },
+      { name: "Aladin", description: "Bank Aladin Syariah" },
+      { name: "TMRW", description: "by UOB" },
     ]
   },
   {
-    category: "E-Wallets",
+    category: "E-Wallets (E-Money)",
     items: [
       { name: "GoPay", description: "Gojek Digital Wallet" },
       { name: "OVO", description: "Digital Payment" },
       { name: "DANA", description: "Dompet Digital" },
       { name: "ShopeePay", description: "Shopee Digital Wallet" },
+      { name: "LinkAja", description: "BUMN E-Wallet" },
     ]
   },
   {
@@ -61,6 +90,15 @@ const institutions = [
       { name: "Bibit", description: "Mutual Funds" },
       { name: "Ajaib", description: "Stocks & Crypto" },
       { name: "Pluang", description: "Multi-asset Investment" },
+    ]
+  },
+  {
+    category: "Online Loans & PayLater",
+    items: [
+        { name: "Kredivo", description: "PayLater & Loans" },
+        { name: "Adira Finance", description: "Multi-Finance" },
+        { name: "FIFGROUP", description: "Multi-Finance" },
+        { name: "WOM Finance", description: "Multi-Finance" },
     ]
   }
 ];
