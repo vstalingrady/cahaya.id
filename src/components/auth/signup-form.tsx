@@ -24,7 +24,6 @@ function SubmitButton({ pending }: { pending: boolean }) {
 declare global {
   interface Window {
     confirmationResult: ConfirmationResult;
-    recaptchaVerifier: RecaptchaVerifier;
   }
 }
 
@@ -33,17 +32,15 @@ export default function SignupForm() {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const auth = getAuth(app);
-    // Cleanup any existing verifier
-    if (window.recaptchaVerifier) {
-      window.recaptchaVerifier.clear();
-    }
     
-    // Ensure this runs only once and that the container exists
-    if (recaptchaContainerRef.current) {
+    // Initialize reCAPTCHA only once
+    if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
         const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
             'size': 'normal',
             'callback': (response: any) => {
@@ -60,23 +57,23 @@ export default function SignupForm() {
             setError("Failed to render reCAPTCHA. Check your browser's ad-blocker or privacy settings.");
         });
 
-        window.recaptchaVerifier = verifier;
+        recaptchaVerifierRef.current = verifier;
     }
 
     // Cleanup on component unmount
     return () => {
-        if (window.recaptchaVerifier) {
-            window.recaptchaVerifier.clear();
+        if (recaptchaVerifierRef.current) {
+            recaptchaVerifierRef.current.clear();
         }
     };
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const verifier = window.recaptchaVerifier;
+    const verifier = recaptchaVerifierRef.current;
     if (!verifier) {
         setError("reCAPTCHA verifier not initialized. Please refresh the page.");
         setLoading(false);
@@ -89,11 +86,6 @@ export default function SignupForm() {
       window.confirmationResult = confirmationResult;
       router.push(`/verify-phone?phone=${encodeURIComponent(phone)}`);
     } catch (err: any) {
-      console.error("Error sending verification code:", err);
-
-      // Reset the verifier to allow for a retry.
-      verifier.render().catch(renderErr => console.error("Could not re-render verifier", renderErr));
-
       if (err.code === 'auth/invalid-api-key') {
         setError('Firebase configuration is invalid. Please check your .env file.');
       } else if (err.code === 'auth/captcha-check-failed') {
