@@ -145,7 +145,7 @@ export default function WelcomePage() {
                     onClick={() => api?.scrollTo(index)}
                     className={cn(
                         "w-2 h-2 rounded-full transition-all duration-300",
-                        index === current ? "bg-accent w-6" : "bg-muted hover:bg-muted-foreground/50"
+                        index === current ? "bg-primary w-6" : "bg-muted hover:bg-muted-foreground/50"
                     )}
                 />
             ))}

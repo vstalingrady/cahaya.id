@@ -12,106 +12,32 @@ import { auth, db } from './firebase';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
 
-import twilio from 'twilio';
-
-const SendVerificationCodeSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  phone: z.string().min(10, { message: "Please enter a valid phone number." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
-});
-
 const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
 
-const VerificationSchema = z.object({
-  code: z.string().length(6, { message: "Verification code must be 6 digits." }),
-  phone: z.string().min(10),
-});
-
-// Initialize Twilio Client
-const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-
-export async function sendVerificationCode(prevState: any, formData: FormData) {
-  const validatedFields = SendVerificationCodeSchema.safeParse(Object.fromEntries(formData.entries()));
-
-  if (!validatedFields.success) {
-    return {
-      message: 'Invalid form data.',
-      errors: validatedFields.error.flatten().fieldErrors,
-    };
-  }
-
-  const { email, phone, password } = validatedFields.data;
-  const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
-
+export async function createUserWithPhoneNumber(uid: string, email: string, phone: string, password: string) {
   try {
-    // Store verification data in Firestore temporarily
-    await setDoc(doc(db, "verifications", phone), {
-      email,
-      password, // In a real production app, you should hash this password before storing it temporarily
-      code: verificationCode,
-      createdAt: new Date(),
-    });
-
-    // Send verification code via WhatsApp
-    await twilioClient.messages.create({
-      from: `whatsapp:${process.env.TWILIO_PHONE_NUMBER}`,
-      to: `whatsapp:${phone}`,
-      body: `Your Cuan verification code is: ${verificationCode}`
-    });
-
-  } catch (error: any) {
-    console.error("Signup Error:", error);
-    return { message: 'Failed to send verification code. Please check the phone number and try again.' };
-  }
-
-  return { message: 'Code sent successfully!', phone };
-}
-
-  const { code, phone } = validatedFields.data;
-  const verificationDocRef = doc(db, "verifications", phone);
-
-  try {
-    const verificationDoc = await getDoc(verificationDocRef);
-
-    if (!verificationDoc.exists()) {
-      return { message: "Verification request not found. Please try signing up again." };
-    }
-
-    const { email, password, code: storedCode } = verificationDoc.data();
-
-    if (code !== storedCode) {
-      return { message: "Invalid verification code. Please try again." };
-    }
-
-    // Create user in Firebase Auth
+    // Create user in Firebase Auth with email and password
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Create user document in Firestore
+    // Store user data in Firestore
     await setDoc(doc(db, "users", user.uid), {
       uid: user.uid,
       email: user.email,
       phone: phone,
       createdAt: new Date(),
     });
-
-    // Delete the temporary verification document
-    await deleteDoc(verificationDocRef);
-
   } catch (error: any) {
-    console.error("Verification Error:", error);
+    console.error("Error creating user:", error);
     if (error.code === 'auth/email-already-in-use') {
-      return { message: 'This email address is already in use.' };
+      throw new Error('This email address is already in use.');
     }
-    return { message: 'An unknown error occurred. Please try again.' };
+    throw new Error(error.message || "Failed to create user.");
   }
-
-  redirect('/dashboard');
 }
-
 
 import { headers } from 'next/headers';
 
@@ -338,3 +264,4 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
   currency: 'IDR',
   minimumFractionDigits: 0,
 }).format(value);
+

@@ -1,18 +1,18 @@
-import SignupForm from '@/components/auth/signup-form';
-import NoiseOverlay from '@/components/noise-overlay';
+import VerifyPhoneForm from '@/components/auth/verify-phone-form';
+import { Suspense } from 'react';
 
-export default function CompleteProfilePage() {
+export default function VerifyPhonePage() {
   return (
-    <div className="w-full max-w-md mx-auto bg-background text-white p-6 flex flex-col justify-center min-h-screen relative overflow-hidden">
-      <NoiseOverlay />
-        
-      <div className="relative z-10">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4 text-primary font-serif">Complete Your Profile</h1>
-          <p className="text-muted-foreground text-lg font-light">Just a few more details to get you started.</p>
-        </div>
-        <SignupForm />
+    <main className="flex items-center justify-center min-h-screen bg-background">
+      <div className="w-full max-w-md mx-auto p-4">
+        <h1 className="text-3xl font-bold text-center mb-2">Verify Your Account</h1>
+        <p className="text-muted-foreground text-center mb-8">
+          Enter the 6-digit code sent to your WhatsApp.
+        </p>
+        <Suspense fallback={<div>Loading...</div>}>
+          <VerifyPhoneForm />
+        </Suspense>
       </div>
-    </div>
+    </main>
   );
 }

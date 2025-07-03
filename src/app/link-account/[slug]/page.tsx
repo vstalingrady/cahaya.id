@@ -2,98 +2,87 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Check } from 'lucide-react';
-import NoiseOverlay from '@/components/noise-overlay';
-import { cn } from '@/lib/utils';
+import { useFormState, useFormStatus } from 'react-dom';
+import { Check, ArrowLeft } from 'lucide-react';
+import { financialInstitutions } from '@/lib/data';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import Image from 'next/image';
+import { linkAccount } from '@/lib/actions';
 
-// In a real app, this map would come from a shared data source.
-const institutionDetails: Record<string, { name: string; initials: string; color: string }> = {
-  'bca': { name: 'BCA', initials: 'BCA', color: 'bg-blue-600' },
-  'mandiri': { name: 'Mandiri', initials: 'MDR', color: 'bg-sky-600' },
-  'bri': { name: 'BRI', initials: 'BRI', color: 'bg-blue-800' },
-  'bni': { name: 'BNI', initials: 'BNI', color: 'bg-orange-500' },
-  'cimb-niaga': { name: 'CIMB Niaga', initials: 'CIMB', color: 'bg-red-600' },
-  'danamon': { name: 'Danamon', initials: 'DMN', color: 'bg-orange-400' },
-  'permata': { name: 'Permata', initials: 'PMT', color: 'bg-green-500' },
-  'ocbc-nisp': { name: 'OCBC NISP', initials: 'OCBC', color: 'bg-red-700' },
-  'panin-bank': { name: 'Panin Bank', initials: 'PNB', color: 'bg-blue-700' },
-  'btn': { name: 'BTN', initials: 'BTN', color: 'bg-green-700' },
-  'dbs': { name: 'DBS', initials: 'DBS', color: 'bg-red-500' },
-  'uob': { name: 'UOB', initials: 'UOB', color: 'bg-blue-900' },
-  'bank-jago': { name: 'Bank Jago', initials: 'JAGO', color: 'bg-yellow-500' },
-  'blu-by-bca': { name: 'Blu by BCA', initials: 'BLU', color: 'bg-sky-400' },
-  'seabank': { name: 'SeaBank', initials: 'SEA', color: 'bg-sky-400' },
-  'jenius': { name: 'Jenius', initials: 'JN', color: 'bg-orange-400' },
-  'aladin': { name: 'Aladin', initials: 'ALD', color: 'bg-teal-600' },
-  'tmrw': { name: 'TMRW', initials: 'TMRW', color: 'bg-yellow-400' },
-  'gopay': { name: 'GoPay', initials: 'GP', color: 'bg-sky-500' },
-  'ovo': { name: 'OVO', initials: 'OVO', color: 'bg-purple-600' },
-  'dana': { name: 'DANA', initials: 'DA', color: 'bg-blue-500' },
-  'shopeepay': { name: 'ShopeePay', initials: 'SP', color: 'bg-orange-600' },
-  'linkaja': { name: 'LinkAja', initials: 'LA', color: 'bg-red-500' },
-  'bibit': { name: 'Bibit', initials: 'BB', color: 'bg-green-600' },
-  'ajaib': { name: 'Ajaib', initials: 'AJ', color: 'bg-teal-500' },
-  'pluang': { name: 'Pluang', initials: 'PL', color: 'bg-yellow-600' },
-  'kredivo': { name: 'Kredivo', initials: 'KR', color: 'bg-orange-500' },
-  'adira-finance': { name: 'Adira Finance', initials: 'ADR', color: 'bg-red-600' },
-  'fifgroup': { name: 'FIFGROUP', initials: 'FIF', color: 'bg-blue-400' },
-  'wom-finance': { name: 'WOM Finance', initials: 'WOM', color: 'bg-lime-500' },
+const defaultInstitution = {
+  id: 'unknown',
+  slug: 'unknown',
+  name: 'Institution',
+  logoUrl: 'https://placehold.co/48x48.png',
+  type: 'bank' as 'bank' | 'e-wallet',
 };
 
-const defaultInstitution = { name: 'Institution', initials: '???', color: 'bg-gray-500' };
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" className="w-full !mt-8" size="lg" disabled={pending}>
+      {pending ? 'Connecting...' : 'Connect Securely'}
+    </Button>
+  );
+}
 
 export default function InstitutionAuthPage() {
   const params = useParams();
   const slug = params.slug as string;
 
-  const { initials, color, name: institutionName } = institutionDetails[slug] || defaultInstitution;
+  const institution = financialInstitutions.find(inst => inst.slug === slug) || defaultInstitution;
+  const isBank = institution.type === 'bank';
+
+  const initialState = { message: null, errors: {} };
+  const [state, dispatch] = useFormState(linkAccount, initialState);
 
   return (
-    <div className="w-full max-w-md mx-auto bg-gray-50 text-slate-900 p-6 min-h-screen relative overflow-hidden">
-      <NoiseOverlay opacity={0.02} />
+    <div className="w-full max-w-md mx-auto bg-background text-white p-6 min-h-screen">
+      <Link href="/link-account" className="absolute top-6 left-6 text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="w-6 h-6" />
+      </Link>
       
-      <div className="text-center mb-8 relative z-10">
-        <div className={cn("w-20 h-20 rounded-3xl mx-auto mb-6 flex items-center justify-center shadow-lg", color)}>
-          <span className="text-white font-bold text-2xl">{initials}</span>
-        </div>
-        <h1 className="text-2xl font-bold mb-3 text-slate-800 font-serif">
-          Authorize Cuan to access your {institutionName} account
+      <div className="text-center mb-8 pt-12">
+        <Image src={institution.logoUrl} alt={`${institution.name} logo`} width={64} height={64} className="rounded-2xl mx-auto mb-4" />
+        <h1 className="text-2xl font-bold mb-2 text-primary font-serif">
+          Link with {institution.name}
         </h1>
+        <p className="text-muted-foreground">Enter your credentials to securely connect.</p>
       </div>
 
-      <div className="space-y-5 mb-8 relative z-10">
-        <div className="flex items-start bg-slate-100 p-4 rounded-2xl border border-slate-200/50">
-          <div className="w-6 h-6 bg-slate-500 rounded-full flex items-center justify-center mr-4 mt-0.5 flex-shrink-0">
-            <Check className="w-3 h-3 text-white" />
-          </div>
-          <span className="text-slate-800 font-semibold">View account balance & details</span>
+      <form action={dispatch}>
+        <input type="hidden" name="institutionSlug" value={institution.slug} />
+        <div className="space-y-6">
+          {isBank ? (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="userId">User ID</Label>
+                <Input id="userId" name="userId" type="text" placeholder="Your User ID" defaultValue={`cuan-demo`} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input id="password" name="password" type="password" placeholder="••••••••" defaultValue="password123" />
+              </div>
+            </>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input id="phone" name="phone" type="tel" placeholder="081234567890" defaultValue={`0812-cuan-demo`} />
+            </div>
+          )}
         </div>
-        <div className="flex items-start bg-slate-100 p-4 rounded-2xl border border-slate-200/50">
-          <div className="w-6 h-6 bg-slate-500 rounded-full flex items-center justify-center mr-4 mt-0.5 flex-shrink-0">
-            <Check className="w-3 h-3 text-white" />
-          </div>
-          <span className="text-slate-800 font-semibold">View transaction history</span>
-        </div>
-        <div className="flex items-start bg-slate-100 p-4 rounded-2xl border border-slate-200/50">
-          <div className="w-6 h-6 bg-slate-500 rounded-full flex items-center justify-center mr-4 mt-0.5 flex-shrink-0">
-            <Check className="w-3 h-3 text-white" />
-          </div>
-          <span className="text-slate-800 font-semibold">Initiate payments (you will always confirm with your Cuan PIN)</span>
-        </div>
-      </div>
+        
+        <SubmitButton />
 
-      <div className="bg-slate-200/70 p-5 rounded-2xl mb-8 border border-slate-300/50 relative z-10">
-        <p className="text-slate-800 font-semibold">You are in a secure {institutionName} environment. Cuan will not see your password.</p>
-      </div>
+        {state?.message && (
+          <p className="mt-4 text-sm text-red-500 text-center">{state.message}</p>
+        )}
+      </form>
 
-      <div className="space-y-4 relative z-10">
-        <Link 
-          href="/dashboard"
-          className={cn("block text-center w-full text-white py-4 rounded-xl font-bold text-lg shadow-lg hover:opacity-90 transition-all duration-300 transform hover:scale-105", color)}
-        >
-          Authorize
-        </Link>
-        <Link href="/link-account" className="block text-center w-full text-slate-600 py-3 font-bold hover:text-slate-800 transition-colors">Cancel</Link>
+      <div className="mt-8 text-center text-sm text-muted-foreground">
+        <p>By connecting, you agree to Cuan's Terms of Service and allow us to securely access your account information.</p>
       </div>
     </div>
   );

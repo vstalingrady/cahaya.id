@@ -1,3 +1,14 @@
+import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { db } from './firebase';
+
+export async function getLoginHistory(userId: string) {
+  const historyCollection = collection(db, 'users', userId, 'login_history');
+  const q = query(historyCollection, orderBy('timestamp', 'desc'), limit(10));
+  const querySnapshot = await getDocs(q);
+  const history = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return history;
+}
+
 export type CryptoHolding = {
   id: string;
   name: string;
@@ -64,13 +75,58 @@ export type Budget = {
   endDate: string; // "YYYY-MM-DD"
 };
 
-export type FavoriteTransaction = {
+export type FinancialInstitution = {
   id: string;
+  slug: string;
   name: string;
-  amount: number;
-  icon: string;
-  category: string;
+  logoUrl: string;
+  type: 'bank' | 'e-wallet';
 };
+
+export const financialInstitutions: FinancialInstitution[] = [
+  {
+    id: 'bca',
+    slug: 'bca',
+    name: 'BCA',
+    logoUrl: 'https://placehold.co/48x48.png',
+    type: 'bank',
+  },
+  {
+    id: 'gopay',
+    slug: 'gopay',
+    name: 'GoPay',
+    logoUrl: 'https://placehold.co/48x48.png',
+    type: 'e-wallet',
+  },
+  {
+    id: 'ovo',
+    slug: 'ovo',
+    name: 'OVO',
+    logoUrl: 'https://placehold.co/48x48.png',
+    type: 'e-wallet',
+  },
+  {
+    id: 'mandiri',
+    slug: 'mandiri',
+    name: 'Mandiri',
+    logoUrl: 'https://placehold.co/48x48.png',
+    type: 'bank',
+  },
+  {
+    id: 'bni',
+    slug: 'bni',
+    name: 'BNI',
+    logoUrl: 'https://placehold.co/48x48.png',
+    type: 'bank',
+  },
+  {
+    id: 'dana',
+    slug: 'dana',
+    name: 'DANA',
+    logoUrl: 'https://placehold.co/48x48.png',
+    type: 'e-wallet',
+  },
+];
 
 
 export const accounts: Account[] = [
@@ -203,12 +259,7 @@ export const budgets: Budget[] = [
   { id: 'bud3', name: 'July Shopping', category: 'Shopping', amount: 10000000, startDate: '2024-07-01', endDate: '2024-07-31' },
 ];
 
-export const favoriteTransactions: FavoriteTransaction[] = [
-  { id: 'fav1', name: 'Transfer to Mom', amount: 1000000, icon: 'User', category: 'Family' },
-  { id: 'fav2', name: 'Pay Netflix', amount: 186000, icon: 'Clapperboard', category: 'Bills' },
-  { id: 'fav3', name: 'Pay Kredivo', amount: 1250000, icon: 'CreditCard', category: 'Bills' },
-  { id: 'fav4', name: 'Top Up GoPay', amount: 200000, icon: 'Wallet', category: 'Top Up' },
-];
+
 
 export const transactions: Transaction[] = [
   // July 2024
@@ -239,4 +290,4 @@ export const transactions: Transaction[] = [
   { id: 't23', date: '2024-06-25T09:00:00Z', description: 'Salary Deposit', amount: 55000000, category: 'Income', accountId: 'bca1'},
   { id: 't24', date: '2024-06-25T09:05:00Z', description: 'Auto-invest Bibit', amount: -5000000, category: 'Investment', accountId: 'bca1'},
   { id: 't25', date: '2024-06-20T17:00:00Z', description: 'Tokopedia Gadgets', amount: -1500000, category: 'Electronics', accountId: 'gopay1'},
-];
+]

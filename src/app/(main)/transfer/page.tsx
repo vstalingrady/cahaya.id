@@ -21,7 +21,8 @@ import {
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import TransactionHistory from '@/components/dashboard/transaction-history';
-import { transactions, favoriteTransactions as initialFavorites, FavoriteTransaction } from '@/lib/data';
+import { transactions } from '@/lib/data';
+import { FavoriteTransaction } from '@/app/api/favorites/route';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -77,7 +78,25 @@ const iconSelectItems = [
 
 export default function TransferPage() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [favorites, setFavorites] = useState<FavoriteTransaction[]>(initialFavorites);
+  const [favorites, setFavorites] = useState<FavoriteTransaction[]>([]);
+
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const response = await fetch('/api/favorites');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: FavoriteTransaction[] = await response.json();
+        setFavorites(data);
+      } catch (error) {
+        console.error("Failed to fetch favorites:", error);
+        toast({ title: 'Error', description: 'Failed to load favorites.', variant: 'destructive' });
+      }
+    };
+
+    fetchFavorites();
+  }, []);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const { toast } = useToast();
 
@@ -117,6 +136,7 @@ export default function TransferPage() {
       ...values,
       amount: Number(values.amount)
     };
+    // TODO: Implement API call to add favorite to backend
     setFavorites([...favorites, newFavorite]);
     setIsAddDialogOpen(false);
     form.reset();
@@ -124,6 +144,7 @@ export default function TransferPage() {
   };
 
   const handleRemoveFavorite = (id: string) => {
+    // TODO: Implement API call to remove favorite from backend
     setFavorites(favorites.filter(f => f.id !== id));
     toast({
       variant: 'destructive',
@@ -219,7 +240,7 @@ export default function TransferPage() {
                     return (
                       <div
                         key={fav.id}
-                        className="flex-[0_0_10rem] pl-4" // This sets the slide size to w-40 (10rem)
+                        className="flex-[0_0_10rem] pl-2" // This sets the slide size to w-40 (10rem)
                       >
                          <div className="w-full h-40">
                            <div className={cn(
@@ -233,7 +254,7 @@ export default function TransferPage() {
                                  <Icon className="w-6 h-6" />
                                </div>
                                <div>
-                                 <p className="font-semibold text-white truncate">{fav.name}</p>
+                                 <p className="font-semibold text-sm text-white truncate">{fav.name}</p>
                                  <p className="text-sm text-muted-foreground font-mono">{formatCurrency(fav.amount)}</p>
                                </div>
                            </div>
