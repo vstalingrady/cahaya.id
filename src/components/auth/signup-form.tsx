@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -87,7 +88,7 @@ export default function SignupForm() {
       if (err.code === 'auth/invalid-api-key') {
         setError('Firebase configuration is invalid. Please check your .env file.');
       } else if (err.code === 'auth/captcha-check-failed') {
-         setError('reCAPTCHA check failed. This is a configuration issue. Please ensure "Phone" is an enabled provider and "localhost" is an Authorized Domain in your Firebase project settings.');
+         setError('reCAPTCHA failed due to a hostname mismatch. This is a Firebase project configuration issue. To bypass this in development, please use the test phone number provided above.');
       } else if (err.code === 'auth/invalid-phone-number') {
         setError('The phone number is not valid. Please use the E.164 format (e.g., +6281234567890).');
       } else {
