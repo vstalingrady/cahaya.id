@@ -116,7 +116,7 @@ export default function VerifyPhoneForm() {
                   <FormControl>
                     <div className="relative">
                       <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <Input className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="e.g. +6281234567890" {...field} />
+                      <Input type="tel" className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="e.g. +6281234567890" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -142,10 +142,16 @@ export default function VerifyPhoneForm() {
                     <div className="relative">
                       <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <Input 
+                        type="tel"
                         className="bg-input h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
                         placeholder="••••••"
                         maxLength={6}
-                        {...field} />
+                        {...field}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, "");
+                          field.onChange(value);
+                        }}
+                      />
                     </div>
                   </FormControl>
                   <FormMessage />
