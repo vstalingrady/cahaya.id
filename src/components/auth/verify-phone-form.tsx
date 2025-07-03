@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Info } from 'lucide-react';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -71,6 +73,15 @@ export default function VerifyPhoneForm() {
             autoComplete="one-time-code"
           />
         </div>
+
+        <Alert variant="default" className="bg-secondary border-primary/20">
+          <Info className="h-4 w-4 text-primary" />
+          <AlertTitle className="text-primary font-bold">Development Tip</AlertTitle>
+          <AlertDescription className="text-muted-foreground">
+            If you used the test phone number, the verification code is{' '}
+            <code className="font-mono text-white bg-background p-1 rounded-md">123456</code>.
+          </AlertDescription>
+        </Alert>
         
         <SubmitButton pending={loading} />
 

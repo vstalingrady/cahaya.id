@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import { app } from '@/lib/firebase';
-import { Phone, Loader2 } from 'lucide-react';
+import { Phone, Loader2, Info } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -54,7 +55,7 @@ export default function SignupForm() {
         
         verifier.render().catch(err => {
             console.error("Recaptcha render error:", err);
-            setError("Failed to render reCAPTCHA. Check your browser's ad-blocker or privacy settings.");
+            setError("Failed to render reCAPTCHA. Check your browser's ad-blocker or privacy settings, or use the test phone number below.");
         });
 
         recaptchaVerifierRef.current = verifier;
@@ -86,10 +87,11 @@ export default function SignupForm() {
       window.confirmationResult = confirmationResult;
       router.push(`/verify-phone?phone=${encodeURIComponent(phone)}`);
     } catch (err: any) {
+      console.error("Error sending code:", err);
       if (err.code === 'auth/invalid-api-key') {
         setError('Firebase configuration is invalid. Please check your .env file.');
       } else if (err.code === 'auth/captcha-check-failed') {
-         setError('reCAPTCHA check failed. Please check that the "Phone" provider is enabled in your Firebase project and that localhost is an authorized domain.');
+         setError('reCAPTCHA check failed. This is a configuration issue. Please ensure "Phone" is an enabled provider and "localhost" is an Authorized Domain in your Firebase project settings.');
       } else if (err.code === 'auth/invalid-phone-number') {
         setError('The phone number is not valid. Please use the E.164 format (e.g., +6281234567890).');
       } else {
@@ -120,6 +122,16 @@ export default function SignupForm() {
           </div>
         </div>
         
+        <Alert variant="default" className="bg-secondary border-primary/20">
+          <Info className="h-4 w-4 text-primary" />
+          <AlertTitle className="text-primary font-bold">Development Tip</AlertTitle>
+          <AlertDescription className="text-muted-foreground">
+            To bypass reCAPTCHA, use the test phone number{' '}
+            <code className="font-mono text-white bg-background p-1 rounded-md">+1 650-555-3434</code>.
+            The verification code will be <code className="font-mono text-white bg-background p-1 rounded-md">123456</code>.
+          </AlertDescription>
+        </Alert>
+
         {/* The ref is attached here */}
         <div ref={recaptchaContainerRef} className="flex justify-center"></div>
 
