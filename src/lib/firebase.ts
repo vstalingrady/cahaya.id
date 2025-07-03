@@ -3,6 +3,7 @@ import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
+import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -30,5 +31,28 @@ if (typeof window !== 'undefined') {
     console.log('Failed to initialize Analytics', error);
   }
 }
+
+// Initialize App Check
+if (typeof window !== 'undefined') {
+  try {
+    // This allows you to see the debug token in the console.
+    // Set this to true in your browser console to get the token for localhost.
+    (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = process.env.NODE_ENV === 'development';
+    
+    const recaptchaSiteKey = process.env.NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY;
+    if (recaptchaSiteKey) {
+      initializeAppCheck(app, {
+        provider: new ReCaptchaV3Provider(recaptchaSiteKey),
+        isTokenAutoRefreshEnabled: true
+      });
+      console.log("Firebase App Check initialized.");
+    } else {
+      console.warn("Firebase App Check not initialized. NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY is missing from .env file.");
+    }
+  } catch (error) {
+    console.error("Failed to initialize Firebase App Check", error);
+  }
+}
+
 
 export { app, auth, db, analytics };
