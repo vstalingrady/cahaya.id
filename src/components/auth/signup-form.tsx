@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import { app } from '@/lib/firebase';
-import { Phone } from 'lucide-react';
+import { Phone, Loader2 } from 'lucide-react';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -16,15 +16,14 @@ function SubmitButton({ pending }: { pending: boolean }) {
       disabled={pending}
       className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
     >
-      {pending ? 'Sending Code...' : 'Send Verification Code'}
+      {pending ? <Loader2 className="animate-spin" /> : 'Send Verification Code'}
     </Button>
   );
 }
 
 declare global {
   interface Window {
-    recaptchaVerifier: RecaptchaVerifier;
-    confirmationResult: any;
+    confirmationResult: ConfirmationResult;
   }
 }
 
@@ -33,24 +32,25 @@ export default function SignupForm() {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const auth = getAuth(app);
-    // Prevents re-creating the verifier on re-renders
-    if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'normal', // Use 'normal' for a visible captcha checkbox
+    // Ensure this runs only once and that the container exists
+    if (recaptchaContainerRef.current && !recaptchaVerifierRef.current) {
+      const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+        'size': 'normal',
         'callback': (response: any) => {
-          // reCAPTCHA solved. User can now press the send code button.
-          console.log("reCAPTCHA challenge solved.");
+          console.log("reCAPTCHA challenge successfully solved.");
+          setError(null); // Clear previous errors on success
         },
         'expired-callback': () => {
-          // Response expired. Ask user to solve reCAPTCHA again.
-          setError('reCAPTCHA expired. Please solve it again.');
+          setError('reCAPTCHA expired. Please try again.');
         }
       });
-      // Render the reCAPTCHA widget
-      window.recaptchaVerifier.render().catch(err => {
+      recaptchaVerifierRef.current = verifier;
+      verifier.render().catch(err => {
         console.error("Recaptcha render error:", err);
         setError("Failed to render reCAPTCHA. Your browser might be blocking it.");
       });
@@ -62,18 +62,31 @@ export default function SignupForm() {
     setLoading(true);
     setError(null);
 
+    const verifier = recaptchaVerifierRef.current;
+    if (!verifier) {
+        setError("reCAPTCHA verifier not initialized. Please refresh the page.");
+        setLoading(false);
+        return;
+    }
+
     try {
       const auth = getAuth(app);
-      const appVerifier = window.recaptchaVerifier;
-      const confirmationResult = await signInWithPhoneNumber(auth, phone, appVerifier);
+      const confirmationResult = await signInWithPhoneNumber(auth, phone, verifier);
+      // Store the confirmationResult in the window object to be used in the next step.
       window.confirmationResult = confirmationResult;
       router.push(`/verify-phone?phone=${encodeURIComponent(phone)}`);
     } catch (err: any) {
       console.error("Error sending verification code:", err);
+      // Reset the verifier to allow for a retry.
+      // This is a crucial step for this error.
+      verifier.render().catch(renderErr => console.error("Could not re-render verifier", renderErr));
+
       if (err.code === 'auth/invalid-api-key') {
-        setError('Firebase configuration is invalid. Please ensure your API keys in the .env file are correct.');
+        setError('Firebase configuration is invalid. Please check your .env file.');
       } else if (err.code === 'auth/captcha-check-failed') {
-         setError('reCAPTCHA verification failed. Please check the box and try again.');
+         setError('reCAPTCHA verification failed. Please ensure you have checked the box and try again.');
+      } else if (err.code === 'auth/invalid-phone-number') {
+        setError('The phone number is not valid. Please include the country code (e.g., +62...).');
       } else {
         setError(err.message || 'Failed to send verification code. Please try again.');
       }
@@ -96,13 +109,14 @@ export default function SignupForm() {
               className="bg-input h-14 text-lg pl-12"
               placeholder="e.g., +6281234567890"
               value={phone}
-              onChange={(e) => setPhone(e.target.value.replace(/[^0-9+]/g, ''))}
+              onChange={(e) => setPhone(e.target.value)}
               required
             />
           </div>
         </div>
         
-        <div id="recaptcha-container" className="flex justify-center"></div>
+        {/* The ref is attached here */}
+        <div ref={recaptchaContainerRef} className="flex justify-center"></div>
 
         <SubmitButton pending={loading} />
 
