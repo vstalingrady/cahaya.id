@@ -1,108 +1,56 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+import { useFormState, useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { Lock, Mail, User, Loader2 } from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { sendVerificationCode } from '@/lib/actions'; // We'll create this action
 
-const formSchema = z.object({
-  name: z.string().min(1, { message: 'Please enter your name.' }),
-  email: z.string().email({ message: 'Please enter a valid email.' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters.' }),
-});
+function SubmitButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button 
+      type="submit" 
+      disabled={pending}
+      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
+    >
+      {pending ? 'Sending Code...' : 'Send Verification Code'}
+    </Button>
+  );
+}
 
 export default function SignupForm() {
   const router = useRouter();
+  const initialState = { message: null, errors: {} };
+  const [state, dispatch] = useFormState(sendVerificationCode, initialState);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      email: '',
-      password: '',
-    },
-  });
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Store form data in session storage to pass to the next page
-    sessionStorage.setItem('signupData', JSON.stringify(values));
-    // Redirect to the terms of service page
-    router.push('/terms-of-service');
+  // Handle successful code sending
+  if (state.message === 'Code sent successfully!') {
+    router.push(`/verify-phone?phone=${state.phone}`);
   }
 
   return (
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-           <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="Full Name" {...field} />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+      <form action={dispatch} className="space-y-6">
+        <div className="space-y-2">
+          <Label htmlFor="phone">Phone Number</Label>
+          <Input 
+            id="phone" 
+            name="phone" 
+            type="tel" 
+            className="bg-input h-14 text-lg" 
+            placeholder="e.g., +6281234567890"
           />
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="Email" {...field} />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input type="password" className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="Password" {...field} />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button 
-            type="submit" 
-            disabled={form.formState.isSubmitting}
-            className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
-          >
-            {form.formState.isSubmitting ? (
-              <Loader2 className="h-6 w-6 animate-spin" />
-            ) : (
-              <span className="relative z-10">Review & Continue</span>
-            )}
-          </Button>
-        </form>
-      </Form>
+          {state?.errors?.phone && <p className="text-sm text-red-500">{state.errors.phone}</p>}
+        </div>
+        
+        <SubmitButton />
+
+        {state?.message && state.message !== 'Code sent successfully!' && (
+          <p className="mt-4 text-sm text-red-500 text-center">{state.message}</p>
+        )}
+      </form>
     </div>
   );
 }

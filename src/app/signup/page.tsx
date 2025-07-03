@@ -14,7 +14,7 @@ export default function SignupPage() {
           <h1 className="text-4xl font-bold mb-4 text-primary font-serif">Create your Account</h1>
           <p className="text-muted-foreground text-lg font-light">Let's start by verifying your phone number.</p>
         </div>
-        <VerifyPhoneForm />
+        <SignupForm />
         <div className="text-center mt-6">
             <p className="text-sm text-muted-foreground">
                 Already have an account?{' '}
