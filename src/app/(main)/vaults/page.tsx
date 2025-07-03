@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from "react";
-import { Plus, Repeat, Trash2, Coins } from "lucide-react";
+import { Plus, Repeat, Trash2, Coins, Users } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { vaults, accounts, Vault } from '@/lib/data';
 import { Progress } from "@/components/ui/progress";
 import {
@@ -17,6 +18,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
 
 const icons: { [key: string]: string } = {
   "Emergency": "🚨",
@@ -42,7 +45,9 @@ export default function VaultsPage() {
     const [vaultToDelete, setVaultToDelete] = useState<Vault | null>(null);
     const { toast } = useToast();
 
-    const handleDeleteClick = (vault: Vault) => {
+    const handleDeleteClick = (e: React.MouseEvent, vault: Vault) => {
+        e.preventDefault();
+        e.stopPropagation();
         setVaultToDelete(vault);
         setShowDeleteDialog(true);
     }
@@ -85,12 +90,12 @@ export default function VaultsPage() {
                     <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Cuan Vaults
                     </h1>
-                    <p className="text-muted-foreground">Save for all your goals.</p>
+                    <p className="text-muted-foreground">Save for all your goals, together.</p>
                 </div>
 
                 <div className="space-y-4">
                     {vaultsList.map(vault => (
-                        <div key={vault.id} className="bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg shadow-primary/10">
+                        <Link key={vault.id} href={`/vaults/${vault.id}`} className="block bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg shadow-primary/10 transition-all duration-300 hover:border-primary/50 group">
                             <div className="flex items-start justify-between mb-4">
                                 <div className="flex items-center gap-4">
                                     <div className="text-3xl">{icons[vault.icon] || '💰'}</div>
@@ -99,28 +104,54 @@ export default function VaultsPage() {
                                         <p className="text-sm text-foreground font-semibold">{formatCurrency(vault.currentAmount)} <span className="font-normal text-muted-foreground">of {formatCurrency(vault.targetAmount)}</span></p>
                                     </div>
                                 </div>
-                                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground" onClick={() => handleDeleteClick(vault)}>
+                                <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground" onClick={(e) => handleDeleteClick(e, vault)}>
                                     <Trash2 className="w-4 h-4" />
                                 </Button>
                             </div>
                             <Progress value={(vault.currentAmount / vault.targetAmount) * 100} className="h-2 bg-secondary [&>div]:bg-primary" />
-                            <div className="text-xs text-muted-foreground mt-3 space-y-1">
-                                {vault.autoSaveEnabled && (
-                                    <div className="flex items-center gap-2 font-semibold text-green-400">
-                                        <Repeat className="w-3 h-3" />
-                                        <span>Auto-saving {formatCurrency(vault.autoSaveAmount || 0)} / {vault.autoSaveFrequency}</span>
-                                    </div>
+                            <div className="flex items-center justify-between mt-3">
+                                <div className="text-xs text-muted-foreground space-y-1">
+                                    {vault.autoSaveEnabled && (
+                                        <div className="flex items-center gap-2 font-semibold text-green-400">
+                                            <Repeat className="w-3 h-3" />
+                                            <span>Auto-saving {formatCurrency(vault.autoSaveAmount || 0)} / {vault.autoSaveFrequency}</span>
+                                        </div>
+                                    )}
+                                    {vault.roundUpEnabled && (
+                                        <div className="flex items-center gap-2 font-semibold text-sky-400">
+                                            <Coins className="w-3 h-3" />
+                                            <span>Round-up savings active</span>
+                                        </div>
+                                    )}
+                                </div>
+                                {vault.isShared && vault.members && (
+                                     <TooltipProvider>
+                                        <div className="flex -space-x-3 rtl:space-x-reverse items-center">
+                                            {vault.members.map(member => (
+                                                 <Tooltip key={member.id}>
+                                                    <TooltipTrigger asChild>
+                                                        <Image 
+                                                            className="w-8 h-8 border-2 border-secondary rounded-full" 
+                                                            src={member.avatarUrl} 
+                                                            alt={member.name}
+                                                            width={32}
+                                                            height={32}
+                                                            data-ai-hint="person avatar"
+                                                         />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>{member.name}</p>
+                                                    </TooltipContent>
+                                                 </Tooltip>
+                                            ))}
+                                            <div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-white bg-primary border-2 border-secondary rounded-full">
+                                                +{vault.members.length}
+                                            </div>
+                                        </div>
+                                     </TooltipProvider>
                                 )}
-                                 {vault.roundUpEnabled && (
-                                    <div className="flex items-center gap-2 font-semibold text-sky-400">
-                                        <Coins className="w-3 h-3" />
-                                        <span>Round-up savings active</span>
-                                    </div>
-                                )}
-                                <p className="pt-2"><strong>Stored in:</strong> {getAccountName(vault.destinationAccountId)}</p>
-                                <p><strong>Funded by:</strong> {vault.sourceAccountIds.map(getAccountName).join(', ')}</p>
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
 

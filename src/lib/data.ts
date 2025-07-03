@@ -25,6 +25,12 @@ export type Transaction = {
   accountId: string;
 };
 
+export type VaultMember = {
+  id: string;
+  name: string;
+  avatarUrl: string;
+};
+
 export type Vault = {
   id: string;
   name: string;
@@ -37,6 +43,9 @@ export type Vault = {
   autoSaveFrequency?: 'daily' | 'weekly' | 'monthly';
   autoSaveAmount?: number;
   roundUpEnabled?: boolean;
+  isShared?: boolean;
+  members?: VaultMember[];
+  imageUrl?: string;
 };
 
 export type Beneficiary = {
@@ -170,8 +179,23 @@ export const vaults: Vault[] = [
     autoSaveEnabled: true,
     autoSaveFrequency: 'monthly',
     autoSaveAmount: 1000000,
+  },
+  {
+    id: 'vault4',
+    name: 'Honeymoon Fund',
+    icon: 'Wedding',
+    currentAmount: 7500000,
+    targetAmount: 75000000,
+    sourceAccountIds: ['bca1'],
+    destinationAccountId: 'bca1',
+    isShared: true,
+    members: [
+      { id: 'user1', name: 'Vstalin Grady', avatarUrl: 'https://placehold.co/48x48.png' },
+      { id: 'user2', name: 'Jane Doe', avatarUrl: 'https://placehold.co/48x48.png' },
+    ],
+    imageUrl: 'https://placehold.co/600x400.png',
   }
-]
+];
 
 export const budgets: Budget[] = [
   { id: 'bud1', name: 'Monthly Food & Drink', category: 'Food & Drink', amount: 5000000, startDate: '2024-07-01', endDate: '2024-07-31' },

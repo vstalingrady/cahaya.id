@@ -4,9 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Banknote, Edit, Repeat, Coins } from 'lucide-react';
+import { ArrowLeft, Banknote, Edit, Repeat, Coins, Image as ImageIcon, Users, Send } from 'lucide-react';
 import Link from 'next/link';
-
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -23,7 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { accounts } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
-import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 
@@ -32,6 +31,8 @@ const formSchema = z.object({
   name: z.string().min(1, { message: 'Please enter a name for your vault.' }),
   targetAmount: z.coerce.number().min(100000, { message: 'Minimum target amount is IDR 100,000.' }),
   icon: z.string().min(1, { message: 'Please select an icon.' }),
+  imageUrl: z.string().url({ message: "Please enter a valid image URL." }).optional().or(z.literal('')),
+  isShared: z.boolean().default(false),
   sourceAccountIds: z.array(z.string()).refine(value => value.some(item => item), {
     message: "You have to select at least one funding source.",
   }),
@@ -71,6 +72,8 @@ export default function AddVaultPage() {
       name: '',
       targetAmount: 0,
       icon: '',
+      imageUrl: '',
+      isShared: false,
       sourceAccountIds: [],
       destinationAccountId: '',
       autoSaveEnabled: false,
@@ -162,6 +165,23 @@ export default function AddVaultPage() {
                 </FormItem>
               )}
             />
+            
+             <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-muted-foreground">Goal Image (Optional)</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                        <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                        <Input className="bg-input border-border h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="https://placehold.co/600x400.png" {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
@@ -242,7 +262,44 @@ export default function AddVaultPage() {
               )}
             />
 
-            <div className="space-y-4">
+            <div className="space-y-4 pt-4 border-t border-border/50">
+                <FormField
+                    control={form.control}
+                    name="isShared"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4 bg-secondary">
+                        <div className="space-y-0.5">
+                            <FormLabel className="text-base text-foreground flex items-center gap-2">
+                            <Users className="w-4 h-4" /> Make it a Shared Vault
+                            </FormLabel>
+                            <FormDescription className="text-muted-foreground text-sm">
+                            Allow others to contribute to this goal.
+                            </FormDescription>
+                        </div>
+                        <FormControl>
+                            <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                            />
+                        </FormControl>
+                        </FormItem>
+                    )}
+                />
+
+                 <Collapsible
+                    open={form.watch('isShared')}
+                    className="w-full space-y-2"
+                 >
+                    <CollapsibleContent className="space-y-4 animate-accordion-down">
+                        <div className="flex items-center gap-2">
+                             <Input className="bg-input border-border h-14 text-base placeholder:text-muted-foreground" placeholder="Enter member's email or phone" />
+                             <Button type="button" size="icon" className="h-14 w-14 flex-shrink-0" onClick={() => toast({ title: 'Invite Sent!', description: 'A member invite has been sent.'})}>
+                                <Send className="w-5 h-5"/>
+                             </Button>
+                        </div>
+                    </CollapsibleContent>
+                 </Collapsible>
+
                 <FormField
                     control={form.control}
                     name="autoSaveEnabled"
