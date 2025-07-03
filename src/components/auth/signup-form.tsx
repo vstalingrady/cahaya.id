@@ -24,6 +24,7 @@ function SubmitButton({ pending }: { pending: boolean }) {
 declare global {
   interface Window {
     confirmationResult: ConfirmationResult;
+    recaptchaVerifier: RecaptchaVerifier;
   }
 }
 
@@ -32,29 +33,42 @@ export default function SignupForm() {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const auth = getAuth(app);
-    // Ensure this runs only once and that the container exists
-    if (recaptchaContainerRef.current && !recaptchaVerifierRef.current) {
-      const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-        'size': 'normal',
-        'callback': (response: any) => {
-          console.log("reCAPTCHA challenge successfully solved.");
-          setError(null); // Clear previous errors on success
-        },
-        'expired-callback': () => {
-          setError('reCAPTCHA expired. Please try again.');
-        }
-      });
-      recaptchaVerifierRef.current = verifier;
-      verifier.render().catch(err => {
-        console.error("Recaptcha render error:", err);
-        setError("Failed to render reCAPTCHA. Your browser might be blocking it.");
-      });
+    // Cleanup any existing verifier
+    if (window.recaptchaVerifier) {
+      window.recaptchaVerifier.clear();
     }
+    
+    // Ensure this runs only once and that the container exists
+    if (recaptchaContainerRef.current) {
+        const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+            'size': 'normal',
+            'callback': (response: any) => {
+                console.log("reCAPTCHA challenge successfully solved.");
+                setError(null);
+            },
+            'expired-callback': () => {
+                setError('reCAPTCHA expired. Please try again.');
+            }
+        });
+        
+        verifier.render().catch(err => {
+            console.error("Recaptcha render error:", err);
+            setError("Failed to render reCAPTCHA. Check your browser's ad-blocker or privacy settings.");
+        });
+
+        window.recaptchaVerifier = verifier;
+    }
+
+    // Cleanup on component unmount
+    return () => {
+        if (window.recaptchaVerifier) {
+            window.recaptchaVerifier.clear();
+        }
+    };
   }, []);
 
   const handleSendCode = async (e: React.FormEvent) => {
@@ -62,7 +76,7 @@ export default function SignupForm() {
     setLoading(true);
     setError(null);
 
-    const verifier = recaptchaVerifierRef.current;
+    const verifier = window.recaptchaVerifier;
     if (!verifier) {
         setError("reCAPTCHA verifier not initialized. Please refresh the page.");
         setLoading(false);
@@ -72,21 +86,20 @@ export default function SignupForm() {
     try {
       const auth = getAuth(app);
       const confirmationResult = await signInWithPhoneNumber(auth, phone, verifier);
-      // Store the confirmationResult in the window object to be used in the next step.
       window.confirmationResult = confirmationResult;
       router.push(`/verify-phone?phone=${encodeURIComponent(phone)}`);
     } catch (err: any) {
       console.error("Error sending verification code:", err);
+
       // Reset the verifier to allow for a retry.
-      // This is a crucial step for this error.
       verifier.render().catch(renderErr => console.error("Could not re-render verifier", renderErr));
 
       if (err.code === 'auth/invalid-api-key') {
         setError('Firebase configuration is invalid. Please check your .env file.');
       } else if (err.code === 'auth/captcha-check-failed') {
-         setError('reCAPTCHA verification failed. Please ensure you have checked the box and try again.');
+         setError('reCAPTCHA check failed. This is a configuration issue. Please ensure "localhost" is an Authorized Domain in your Firebase project settings under Authentication > Settings.');
       } else if (err.code === 'auth/invalid-phone-number') {
-        setError('The phone number is not valid. Please include the country code (e.g., +62...).');
+        setError('The phone number is not valid. Please use the E.164 format (e.g., +6281234567890).');
       } else {
         setError(err.message || 'Failed to send verification code. Please try again.');
       }
