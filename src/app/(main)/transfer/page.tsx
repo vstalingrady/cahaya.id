@@ -32,7 +32,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-import PaymentSuggester from '@/components/transfer/payment-suggester';
 
 
 const transferActions = [
@@ -199,8 +198,6 @@ export default function TransferPage() {
           </div>
         </Link>
         
-        <PaymentSuggester />
-
         <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white font-serif">Favorites</h2>
