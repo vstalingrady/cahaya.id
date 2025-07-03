@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Cable, Phone, Droplets, Lightbulb, Shield, Car, CreditCard, Sparkles, Loader2, Plus, X } from 'lucide-react';
+import { Cable, Phone, Droplets, Lightbulb, Shield, Car, CreditCard, Sparkles, Loader2, Plus, X, Landmark, Tv } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { transactions } from '@/lib/data';
 import { getBillSuggestions } from '@/lib/actions';
@@ -15,13 +15,14 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
 }).format(amount);
 
 const billers = [
-  { name: 'PLN', subtext: 'Token & Bills', icon: Lightbulb },
-  { name: 'Credit & Data', subtext: 'Telkomsel, XL, etc.', icon: Phone },
-  { name: 'PDAM Water', subtext: 'Water Bill', icon: Droplets },
-  { name: 'Internet & TV', subtext: 'IndiHome, First Media', icon: Cable },
-  { name: 'BPJS', subtext: 'Healthcare', icon: Shield },
-  { name: 'E-Samsat', subtext: 'Vehicle Tax', icon: Car },
-  { name: 'Credit Card', subtext: 'Card Bill', icon: CreditCard },
+  { name: 'PLN', subtext: 'Token & Postpaid Bills', icon: Lightbulb },
+  { name: 'BPJS', subtext: 'Kesehatan Insurance', icon: Shield },
+  { name: 'PDAM Water', subtext: 'Regional Water Bill', icon: Droplets },
+  { name: 'IndiHome', subtext: 'Internet & TV Bill', icon: Tv },
+  { name: 'First Media', subtext: 'Internet & Cable TV', icon: Cable },
+  { name: 'Credit Card Bill', subtext: 'Pay Your Cicilan', icon: CreditCard },
+  { name: 'E-Samsat', subtext: 'Vehicle Tax (PKB)', icon: Car },
+  { name: 'PBB', subtext: 'Property Tax', icon: Landmark },
 ];
 
 export default function BillsPage() {

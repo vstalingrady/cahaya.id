@@ -1,15 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowLeft, Wallet, Phone, Wifi, Lightbulb, Gamepad2 } from 'lucide-react';
+import { ArrowLeft, Wallet, Phone, Wifi, Lightbulb, Gamepad2, Laptop } from 'lucide-react';
 
 const topUpServices = [
   { name: 'GoPay', icon: Wallet, description: 'Top up your GoPay e-wallet' },
   { name: 'OVO', icon: Wallet, description: 'Top up your OVO e-wallet' },
-  { name: 'Mobile Credit', icon: Phone, description: 'Prepaid mobile credit' },
-  { name: 'Data Package', icon: Wifi, description: 'Mobile data packages' },
-  { name: 'Electricity Token', icon: Lightbulb, description: 'Prepaid electricity (PLN)' },
-  { name: 'Game Voucher', icon: Gamepad2, description: 'Mobile Legends, Free Fire, etc.' },
+  { name: 'DANA', icon: Wallet, description: 'Top up your DANA e-wallet' },
+  { name: 'ShopeePay', icon: Wallet, description: 'Top up your ShopeePay e-wallet' },
+  { name: 'Mobile Credit (Pulsa)', icon: Phone, description: 'Telkomsel, Indosat, XL, etc.' },
+  { name: 'Data Package (Paket Data)', icon: Wifi, description: 'Mobile data packages' },
+  { name: 'Electricity Token (PLN)', icon: Lightbulb, description: 'Prepaid electricity' },
+  { name: 'Game Vouchers', icon: Gamepad2, description: 'Mobile Legends, Steam, Garena' },
+  { name: 'Google Play Vouchers', icon: Laptop, description: 'Buy apps, games, and content' },
 ];
 
 export default function TopUpPage() {
@@ -20,7 +23,7 @@ export default function TopUpPage() {
           <ArrowLeft className="w-6 h-6 text-white" />
         </Link>
         <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          Top Up
+          Top Up & Vouchers
         </h1>
       </header>
 
