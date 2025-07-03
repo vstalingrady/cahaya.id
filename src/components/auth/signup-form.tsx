@@ -89,7 +89,7 @@ export default function SignupForm() {
       if (err.code === 'auth/invalid-api-key') {
         setError('Firebase configuration is invalid. Please check your .env file.');
       } else if (err.code === 'auth/captcha-check-failed') {
-         setError('reCAPTCHA check failed. This is a configuration issue. Please ensure "localhost" is an Authorized Domain in your Firebase project settings under Authentication > Settings.');
+         setError('reCAPTCHA check failed. Please check two things in your Firebase project: 1) "localhost" is in "Authentication > Settings > Authorized domains". 2) The "Phone" provider is enabled in "Authentication > Sign-in method".');
       } else if (err.code === 'auth/invalid-phone-number') {
         setError('The phone number is not valid. Please use the E.164 format (e.g., +6281234567890).');
       } else {
