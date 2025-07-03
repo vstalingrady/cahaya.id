@@ -20,6 +20,13 @@ function SubmitButton({ pending }: { pending: boolean }) {
   );
 }
 
+declare global {
+  interface Window {
+    recaptchaVerifier: RecaptchaVerifier;
+    confirmationResult: any;
+  }
+}
+
 export default function SignupForm() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -90,6 +97,7 @@ export default function SignupForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            minLength={6}
           />
         </div>
         <div className="space-y-2">

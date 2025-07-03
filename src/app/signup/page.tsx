@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import VerifyPhoneForm from '@/components/auth/verify-phone-form';
+import SignupForm from '@/components/auth/signup-form';
 import NoiseOverlay from '@/components/noise-overlay';
 
 export default function SignupPage() {

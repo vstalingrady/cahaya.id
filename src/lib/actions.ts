@@ -9,39 +9,35 @@ import { z } from 'zod';
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth, db } from './firebase';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
+import { headers } from 'next/headers';
+
+/**
+ * This action is called after a user has been authenticated on the client-side
+ * with Firebase (e.g., via phone auth) and their credentials have been linked.
+ * Its sole purpose is to create the user's profile document in Firestore.
+ */
+export async function createUserWithPhoneNumber(uid: string, email: string, phone: string, password_ignored: string) {
+  try {
+    // The password is not needed or used here.
+    // Auth is handled on the client; this action only creates the database record.
+    await setDoc(doc(db, "users", uid), {
+      uid: uid,
+      email: email,
+      phone: phone,
+      createdAt: new Date(),
+    });
+  } catch (error: any) {
+    console.error("Error creating user document in Firestore:", error);
+    throw new Error(error.message || "Failed to create user profile in database.");
+  }
+}
 
 const LoginSchema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
-
-export async function createUserWithPhoneNumber(uid: string, email: string, phone: string, password: string) {
-  try {
-    // Create user in Firebase Auth with email and password
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    // Store user data in Firestore
-    await setDoc(doc(db, "users", user.uid), {
-      uid: user.uid,
-      email: user.email,
-      phone: phone,
-      createdAt: new Date(),
-    });
-  } catch (error: any) {
-    console.error("Error creating user:", error);
-    if (error.code === 'auth/email-already-in-use') {
-      throw new Error('This email address is already in use.');
-    }
-    throw new Error(error.message || "Failed to create user.");
-  }
-}
-
-import { headers } from 'next/headers';
-
-// ... (other imports)
 
 export async function login(prevState: any, formData: FormData) {
   const validatedFields = LoginSchema.safeParse(Object.fromEntries(formData.entries()));
@@ -70,7 +66,7 @@ export async function login(prevState: any, formData: FormData) {
     });
 
   } catch (error: any) {
-    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+    if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
       return { message: 'Invalid email or password.' };
     }
     return { message: 'An unknown error occurred. Please try again.' };
@@ -154,6 +150,7 @@ export async function getSavingSuggestions(
     if (transactions.length === 0) {
         return { 
             error: "No transaction data available to analyze.",
+            financialHealthScore: 0,
             spenderType: "N/A",
             summary: "We need some transaction data to give you suggestions.",
             suggestions: [],
@@ -178,6 +175,7 @@ export async function getSavingSuggestions(
     console.error("Error getting saving suggestions:", error);
     return { 
         error: "Failed to get AI-powered suggestions. Please try again later.",
+        financialHealthScore: 0,
         spenderType: "Error",
         summary: "An unexpected error occurred while fetching suggestions.",
         suggestions: [],
@@ -264,4 +262,3 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
   currency: 'IDR',
   minimumFractionDigits: 0,
 }).format(value);
-

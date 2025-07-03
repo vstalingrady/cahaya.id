@@ -5,7 +5,9 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createUserWithPhoneNumber } from '@/lib/actions'; // Our new server action
+import { createUserWithPhoneNumber } from '@/lib/actions';
+import { EmailAuthProvider, linkWithCredential } from 'firebase/auth';
+import { app } from '@/lib/firebase';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -14,7 +16,7 @@ function SubmitButton({ pending }: { pending: boolean }) {
       disabled={pending}
       className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
     >
-      {pending ? 'Verifying...' : 'Verify Account'}
+      {pending ? 'Verifying...' : 'Verify & Create Account'}
     </Button>
   );
 }
@@ -36,25 +38,33 @@ export default function VerifyPhoneForm() {
 
     try {
       if (!window.confirmationResult) {
-        setError('Verification session expired or not found. Please try sending the code again.');
-        setLoading(false);
-        return;
+        throw new Error('Verification session expired or not found. Please try sending the code again.');
+      }
+      if (!email || !password || !phone) {
+        throw new Error('User data missing from session. Please start over.');
       }
 
       const userCredential = await window.confirmationResult.confirm(code);
       const user = userCredential.user;
 
-      // Now, call the server action to create the user in Firestore
-      if (user.uid && email && phone && password) {
-        await createUserWithPhoneNumber(user.uid, email, phone, password);
-        router.push('/dashboard');
-      } else {
-        setError('User data incomplete after verification.');
-      }
+      // Link the email and password to the phone-authenticated user
+      const credential = EmailAuthProvider.credential(email, password);
+      await linkWithCredential(user, credential);
+      
+      // Now that the user is created and linked, create their Firestore document
+      await createUserWithPhoneNumber(user.uid, email, phone, password); // Password will be ignored by our updated action
+      
+      router.push('/setup-security');
 
     } catch (err: any) {
       console.error("Error verifying code:", err);
-      setError(err.message || 'Failed to verify code. Please try again.');
+      if (err.code === 'auth/invalid-verification-code') {
+        setError('The code you entered is invalid. Please try again.');
+      } else if (err.code === 'auth/credential-already-in-use') {
+        setError('This email address is already associated with another account.');
+      } else {
+        setError(err.message || 'Failed to verify code. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -76,6 +86,8 @@ export default function VerifyPhoneForm() {
             value={code}
             onChange={(e) => setCode(e.target.value)}
             required
+            inputMode="numeric"
+            autoComplete="one-time-code"
           />
         </div>
         
