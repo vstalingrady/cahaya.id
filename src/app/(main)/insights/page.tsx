@@ -107,6 +107,46 @@ type ManualSubscription = {
     firstDetectedDate: string; // We'll store nextBillDate here as a string
 }
 
+const ScoreCircle = ({ score }: { score: number }) => {
+    const circumference = 2 * Math.PI * 45; // 2 * pi * radius
+    const strokeDashoffset = circumference - (score / 100) * circumference;
+    const scoreColor = score > 75 ? 'text-green-400' : score > 40 ? 'text-yellow-400' : 'text-destructive';
+
+    return (
+        <div className="relative w-40 h-40 mx-auto">
+            <svg className="w-full h-full" viewBox="0 0 100 100">
+                {/* Background circle */}
+                <circle
+                    className="stroke-current text-secondary"
+                    strokeWidth="8"
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    fill="transparent"
+                />
+                {/* Progress circle */}
+                <circle
+                    className={cn("stroke-current transition-all duration-1000 ease-in-out", scoreColor)}
+                    strokeWidth="8"
+                    strokeLinecap="round"
+                    cx="50"
+                    cy="50"
+                    r="45"
+                    fill="transparent"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={strokeDashoffset}
+                    transform="rotate(-90 50 50)"
+                />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-4xl font-bold text-white">{score}</span>
+                <span className="text-sm text-muted-foreground">Score</span>
+            </div>
+        </div>
+    );
+};
+
+
 export default function InsightsPage() {
     // Spending Analysis State
     const [activeIndex, setActiveIndex] = useState(0);
@@ -248,7 +288,7 @@ export default function InsightsPage() {
             const result = await getSavingSuggestions(filteredTransactionsForAI);
             setAiResult(result);
         } catch (e) {
-            setAiResult({ error: "An unexpected error occurred.", spenderType: "Error", summary: "Could not analyze spending.", suggestions: [], investmentPlan: "", localDeals: [] });
+            setAiResult({ error: "An unexpected error occurred.", financialHealthScore: 0, spenderType: "Error", summary: "Could not analyze spending.", suggestions: [], investmentPlan: "", localDeals: [] });
         }
         setIsGenerating(false);
     };
@@ -508,9 +548,9 @@ export default function InsightsPage() {
             <DialogContent className="bg-popover text-popover-foreground border-border max-w-md max-h-[85vh] flex flex-col">
                  <DialogHeader>{aiResult?.error ? (<DialogTitle className="text-destructive text-center">An Error Occurred</DialogTitle>) : (
                      <div className="text-center p-6 bg-secondary/50 rounded-t-lg -m-6 mb-0 border-b border-border">
-                         <Sparkles className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
-                         <p className="text-sm font-semibold uppercase tracking-widest text-primary">Your Spender Personality</p>
-                         <DialogTitle className="text-3xl font-bold font-serif text-white mt-2">{aiResult?.spenderType}</DialogTitle>
+                        {aiResult?.financialHealthScore != null && <ScoreCircle score={aiResult.financialHealthScore} />}
+                         <p className="text-sm font-semibold uppercase tracking-widest text-primary mt-4">Your Spender Personality</p>
+                         <DialogTitle className="text-3xl font-bold font-serif text-white mt-1">{aiResult?.spenderType}</DialogTitle>
                      </div>
                  )}</DialogHeader>
                  <div className="pt-6 flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4">

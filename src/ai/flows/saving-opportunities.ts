@@ -26,8 +26,9 @@ export type PersonalizedSavingSuggestionsInput = z.infer<
 >;
 
 const PersonalizedSavingSuggestionsOutputSchema = z.object({
+  financialHealthScore: z.number().min(0).max(100).describe("A numerical score from 0 to 100 representing the user's overall financial health, where 100 is excellent."),
   spenderType: z.string().describe("A concise, creative title for the user's spending profile (e.g., 'The Weekend Warrior', 'The Foodie Explorer')."),
-  summary: z.string().describe("A brief, engaging summary of the user's spending habits, personality, and key areas for improvement."),
+  summary: z.string().describe("A brief, engaging summary of the user's spending habits, personality, and key areas for improvement, which also explains the financial health score."),
   suggestions: z
     .array(z.string())
     .describe('A list of personalized, quantitative saving suggestions for the user.'),
@@ -49,7 +50,7 @@ const prompt = ai.definePrompt({
   input: {schema: PersonalizedSavingSuggestionsInputSchema},
   output: {schema: PersonalizedSavingSuggestionsOutputSchema},
   tools: [findFinancialPromos],
-  prompt: `You are a witty, insightful, and hyperlocal personal finance advisor in Indonesia. Your goal is to analyze a user's spending data and income, give them a fun "spender personality" profile, and provide a comprehensive, actionable financial plan.
+  prompt: `You are a witty, insightful, and hyperlocal personal finance advisor in Indonesia. Your goal is to analyze a user's spending data and income, provide a comprehensive financial health assessment, and generate an actionable improvement plan.
 
 **User Information:**
 *   **Monthly Income:** IDR {{{monthlyIncome}}}
@@ -59,17 +60,17 @@ const prompt = ai.definePrompt({
 
 **Your Task:**
 1.  **Analyze & Profile:**
-    *   **Analyze Spending:** Deeply analyze the user's spending data in relation to their income.
-    *   **Create Profile:** Based on the analysis, create a profile.
+    *   **Financial Health Score:** Calculate a \`financialHealthScore\` from 0-100. Base this score on factors like savings rate (income vs. spending), spending diversity, and presence of investments or debt payments in the transaction history. A high score means healthy savings and controlled spending. A low score indicates high spending relative to income.
+    *   **Spender Profile:** Based on the analysis, create a profile.
         *   **spenderType:** A catchy, creative title (e.g., 'The Comfort Connoisseur', 'The Social Butterfly').
-        *   **summary:** A short, engaging paragraph describing their spending style and highlighting key spending categories.
+        *   **summary:** A short, engaging paragraph. Start by explaining the financial health score. Then, describe their spending style and highlight key spending categories.
 
 2.  **Create an Action Plan:**
     *   **Quantitative Suggestions:** Provide a list of practical saving tips. They **must be specific and include numbers**. For example, instead of "spend less on coffee", say "You spent IDR 250,000 on coffee. By reducing this by 50%, you could save IDR 125,000." Focus on the largest spending areas.
     *   **Investment Plan:** Based on their income, provide a simple, actionable investment suggestion. For example: "With an income of IDR 15,000,000, you could start investing IDR 500,000/month in a low-cost index fund to build wealth."
     *   **Local Deals:** Use the \`findFinancialPromos\` tool to find relevant deals in the user's location. Present these deals clearly to the user in the \`localDeals\` output field.
 
-Fill out all fields in the output schema: \`spenderType\`, \`summary\`, \`suggestions\`, \`investmentPlan\`, and \`localDeals\`.
+Fill out all fields in the output schema: \`financialHealthScore\`, \`spenderType\`, \`summary\`, \`suggestions\`, \`investmentPlan\`, and \`localDeals\`.
 `,
 });
 
