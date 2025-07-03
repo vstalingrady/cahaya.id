@@ -61,13 +61,9 @@ export default function SignupForm() {
         recaptchaVerifierRef.current = verifier;
     }
 
-    // Cleanup on component unmount
-    return () => {
-        if (recaptchaVerifierRef.current) {
-            recaptchaVerifierRef.current.clear();
-        }
-    };
-  }, []); // Empty dependency array ensures this runs only once
+    // Cleanup on component unmount is not strictly necessary with this ref pattern,
+    // as the verifier is tied to the DOM element which gets removed.
+  }, []);
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
