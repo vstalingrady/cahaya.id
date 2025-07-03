@@ -21,13 +21,6 @@ export default function SetupSecurityForm() {
   const [scanStep, setScanStep] = useState<'idle' | 'scanning' | 'complete'>('idle');
   const [flashColor, setFlashColor] = useState<string | null>(null);
 
-  // Mapping from Tailwind class to RGBA for the radial gradient
-  const flashColorMap: { [key: string]: string } = {
-    'bg-primary/80': 'rgba(122, 72, 240, 0.8)', // --primary
-    'bg-green-500/80': 'rgba(34, 197, 94, 0.8)',
-    'bg-sky-400/80': 'rgba(56, 189, 248, 0.8)',
-  };
-
   useEffect(() => {
     let stream: MediaStream | null = null;
     // Activate camera as soon as the tab is active
@@ -79,7 +72,7 @@ export default function SetupSecurityForm() {
     // Simulate aligning face for 2 seconds
     setTimeout(() => {
       // Start flash sequence
-      const colors = ['bg-primary/80', 'bg-green-500/80', 'bg-sky-400/80'];
+      const colors = ['bg-primary', 'bg-green-500', 'bg-sky-400'];
       let flashIndex = 0;
       
       const flash = () => {
@@ -112,13 +105,13 @@ export default function SetupSecurityForm() {
     <>
       {flashColor && (
         <div
-          className="fixed inset-0 z-50 pointer-events-none"
-          style={{
-            background: `radial-gradient(ellipse 30% 45% at 50% 50%, transparent, transparent 50%, ${flashColorMap[flashColor as keyof typeof flashColorMap]})`
-          }}
-        ></div>
+          className={cn(
+            "fixed inset-0 z-0 transition-colors duration-200",
+            flashColor
+          )}
+        />
       )}
-      <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
+      <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10 relative z-10">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 bg-secondary border-border">
             <TabsTrigger value="face" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
