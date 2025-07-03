@@ -43,21 +43,15 @@ export default function SignupForm() {
     // Initialize reCAPTCHA only once
     if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
         const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-            'size': 'normal',
+            'size': 'invisible', // Use invisible reCAPTCHA
             'callback': (response: any) => {
                 console.log("reCAPTCHA challenge successfully solved.");
-                setError(null);
             },
             'expired-callback': () => {
                 setError('reCAPTCHA expired. Please try again.');
             }
         });
         
-        verifier.render().catch(err => {
-            console.error("Recaptcha render error:", err);
-            setError("Failed to render reCAPTCHA. Check your browser's ad-blocker or privacy settings, or use the test phone number below.");
-        });
-
         recaptchaVerifierRef.current = verifier;
     }
   }, []);
@@ -84,7 +78,7 @@ export default function SignupForm() {
       if (err.code === 'auth/invalid-api-key') {
         setError('Firebase configuration is invalid. Please check your .env file.');
       } else if (err.code === 'auth/captcha-check-failed') {
-         setError('reCAPTCHA check failed. This is a configuration issue. Please use the provided test number to proceed.');
+         setError('reCAPTCHA check failed. This is an environment configuration issue. The test phone number has been filled in for you. Please click "Send" again to proceed.');
          setPhone('+1 650-555-3434');
       } else if (err.code === 'auth/invalid-phone-number') {
         setError('The phone number is not valid. Please use the E.164 format (e.g., +6281234567890).');
@@ -128,8 +122,8 @@ export default function SignupForm() {
           </AlertDescription>
         </Alert>
 
-        {/* The ref is attached here */}
-        <div ref={recaptchaContainerRef} className="flex justify-center"></div>
+        {/* The ref is attached here. It's invisible. */}
+        <div ref={recaptchaContainerRef}></div>
 
         <SubmitButton pending={loading} />
 
