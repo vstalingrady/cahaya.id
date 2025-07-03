@@ -36,18 +36,24 @@ export default function SignupForm() {
 
   useEffect(() => {
     const auth = getAuth(app);
+    // Prevents re-creating the verifier on re-renders
     if (typeof window !== 'undefined' && !window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
+        'size': 'normal', // Use 'normal' for a visible captcha checkbox
         'callback': (response: any) => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
+          // reCAPTCHA solved. User can now press the send code button.
+          console.log("reCAPTCHA challenge solved.");
         },
         'expired-callback': () => {
-          setError('reCAPTCHA expired. Please try again.');
+          // Response expired. Ask user to solve reCAPTCHA again.
+          setError('reCAPTCHA expired. Please solve it again.');
         }
       });
       // Render the reCAPTCHA widget
-      window.recaptchaVerifier.render().catch(err => console.error("Recaptcha render error:", err));
+      window.recaptchaVerifier.render().catch(err => {
+        console.error("Recaptcha render error:", err);
+        setError("Failed to render reCAPTCHA. Your browser might be blocking it.");
+      });
     }
   }, []);
 
@@ -66,6 +72,8 @@ export default function SignupForm() {
       console.error("Error sending verification code:", err);
       if (err.code === 'auth/invalid-api-key') {
         setError('Firebase configuration is invalid. Please ensure your API keys in the .env file are correct.');
+      } else if (err.code === 'auth/captcha-check-failed') {
+         setError('reCAPTCHA verification failed. Please check the box and try again.');
       } else {
         setError(err.message || 'Failed to send verification code. Please try again.');
       }
@@ -94,12 +102,13 @@ export default function SignupForm() {
           </div>
         </div>
         
+        <div id="recaptcha-container" className="flex justify-center"></div>
+
         <SubmitButton pending={loading} />
 
         {error && (
           <p className="mt-4 text-sm text-red-500 text-center">{error}</p>
         )}
-        <div id="recaptcha-container"></div>
       </form>
     </div>
   );
