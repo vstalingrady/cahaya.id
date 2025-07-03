@@ -4,8 +4,9 @@ import CuanLogo from '@/components/cuanflex-logo';
 const routes = [
   { path: '/', name: 'Welcome / Onboarding' },
   { path: '/login', name: 'Login Page' },
-  { path: '/signup', name: 'Sign Up (Verify Phone)' },
-  { path: '/verify-phone', name: 'Complete Profile' },
+  { path: '/signup', name: 'Sign Up (Phone First)' },
+  { path: '/verify-phone', name: 'Verify Phone OTP' },
+  { path: '/complete-profile', name: 'Complete Profile (Name/Email/Pass)' },
   { path: '/setup-security', name: 'Setup Security' },
   { path: '/link-account', name: 'Link Account (List)' },
   { path: '/link-account/bca', name: 'Link Account (BCA Auth)' },

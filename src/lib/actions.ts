@@ -14,16 +14,14 @@ import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
 import { headers } from 'next/headers';
 
 /**
- * This action is called after a user has been authenticated on the client-side
- * with Firebase (e.g., via phone auth) and their credentials have been linked.
- * Its sole purpose is to create the user's profile document in Firestore.
+ * This action is called after a user has authenticated and linked their credentials.
+ * Its purpose is to create the user's profile document in Firestore.
  */
-export async function createUserWithPhoneNumber(uid: string, email: string, phone: string, password_ignored: string) {
+export async function completeUserProfile(uid: string, fullName: string, email: string, phone: string) {
   try {
-    // The password is not needed or used here.
-    // Auth is handled on the client; this action only creates the database record.
     await setDoc(doc(db, "users", uid), {
       uid: uid,
+      fullName: fullName,
       email: email,
       phone: phone,
       createdAt: new Date(),
