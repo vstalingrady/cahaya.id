@@ -32,20 +32,16 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Initialize App Check
-if (typeof window !== 'undefined') {
+// Initialize App Check only in production to avoid issues in dev environments like Firebase Studio
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'production') {
   try {
-    // This allows you to see the debug token in the console.
-    // Set this to true in your browser console to get the token for localhost.
-    (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = process.env.NODE_ENV === 'development';
-    
     const recaptchaSiteKey = process.env.NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY;
     if (recaptchaSiteKey) {
       initializeAppCheck(app, {
         provider: new ReCaptchaV3Provider(recaptchaSiteKey),
         isTokenAutoRefreshEnabled: true
       });
-      console.log("Firebase App Check initialized.");
+      console.log("Firebase App Check initialized for production.");
     } else {
       console.warn("Firebase App Check not initialized. NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY is missing from .env file.");
     }
