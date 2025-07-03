@@ -3,7 +3,8 @@
 import { personalizedSavingSuggestions, PersonalizedSavingSuggestionsOutput } from "@/ai/flows/saving-opportunities";
 import { budgetAnalysis, BudgetAnalysisOutput } from "@/ai/flows/budget-analysis";
 import { discoverRecurringBills, BillDiscoveryOutput } from "@/ai/flows/bill-discovery";
-import { type Transaction, type Budget } from "./data";
+import { suggestPayment, PaymentSuggestionOutput } from "@/ai/flows/payment-suggestion";
+import { type Transaction, type Budget, type Account } from "./data";
 import { isWithinInterval } from 'date-fns';
 
 export async function getSavingSuggestions(
@@ -121,6 +122,40 @@ export async function getBillSuggestions(
     };
   }
 }
+
+export async function getPaymentSuggestion(
+    paymentAmount: number,
+    accounts: Account[]
+): Promise<PaymentSuggestionOutput & { error?: string }> {
+    try {
+        if (paymentAmount <= 0) {
+            return {
+                isSufficient: false,
+                suggestion: "Please enter a valid payment amount.",
+                paymentPlan: [],
+                error: "Invalid payment amount.",
+            };
+        }
+
+        const availableAccounts = accounts.filter(acc => acc.type !== 'loan');
+
+        const result = await suggestPayment({
+            paymentAmount,
+            availableAccounts,
+        });
+
+        return result;
+    } catch (error) {
+        console.error("Error getting payment suggestion:", error);
+        return {
+            error: "Failed to get AI-powered payment suggestion. Please try again later.",
+            isSufficient: false,
+            suggestion: "An unexpected error occurred while generating the plan.",
+            paymentPlan: [],
+        };
+    }
+}
+
 
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
   style: 'currency',

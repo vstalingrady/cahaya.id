@@ -32,6 +32,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
+import PaymentSuggester from '@/components/transfer/payment-suggester';
 
 
 const transferActions = [
@@ -198,6 +199,8 @@ export default function TransferPage() {
           </div>
         </Link>
         
+        <PaymentSuggester />
+
         <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white font-serif">Favorites</h2>
@@ -221,21 +224,23 @@ export default function TransferPage() {
                         key={fav.id}
                         className="flex-[0_0_10rem] pl-4" // This sets the slide size to w-40 (10rem)
                       >
-                        <div className={cn(
-                          "relative group w-40 h-40 bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-transform duration-300 ease-out",
-                          index === selectedIndex ? 'scale-100 opacity-100 shadow-primary/20' : 'scale-90 opacity-60'
-                        )}>
-                            <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                              <X className="w-4 h-4" />
-                            </Button>
-                            <div className="bg-gradient-to-br from-primary to-accent w-12 h-12 rounded-xl shadow-lg text-white flex items-center justify-center">
-                              <Icon className="w-6 h-6" />
-                            </div>
-                            <div>
-                              <p className="font-semibold text-white truncate">{fav.name}</p>
-                              <p className="text-sm text-muted-foreground font-mono">{formatCurrency(fav.amount)}</p>
-                            </div>
-                        </div>
+                         <div className="w-full h-40">
+                           <div className={cn(
+                            "relative group w-full h-full bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-transform duration-300 ease-out",
+                             index === selectedIndex ? 'scale-100 opacity-100 shadow-primary/20' : 'scale-90 opacity-60'
+                           )}>
+                               <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                                 <X className="w-4 h-4" />
+                               </Button>
+                               <div className="bg-gradient-to-br from-primary to-accent w-12 h-12 rounded-xl shadow-lg text-white flex items-center justify-center">
+                                 <Icon className="w-6 h-6" />
+                               </div>
+                               <div>
+                                 <p className="font-semibold text-white truncate">{fav.name}</p>
+                                 <p className="text-sm text-muted-foreground font-mono">{formatCurrency(fav.amount)}</p>
+                               </div>
+                           </div>
+                         </div>
                       </div>
                     )
                   })}
