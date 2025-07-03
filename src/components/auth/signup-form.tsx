@@ -64,7 +64,11 @@ export default function SignupForm() {
       router.push(`/verify-phone?phone=${encodeURIComponent(phone)}`);
     } catch (err: any) {
       console.error("Error sending verification code:", err);
-      setError(err.message || 'Failed to send verification code. Please try again.');
+      if (err.code === 'auth/invalid-api-key') {
+        setError('Firebase configuration is invalid. Please ensure your API keys in the .env file are correct.');
+      } else {
+        setError(err.message || 'Failed to send verification code. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
