@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Info } from 'lucide-react';
+import { Info, Loader2 } from 'lucide-react';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -15,7 +15,7 @@ function SubmitButton({ pending }: { pending: boolean }) {
       disabled={pending}
       className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
     >
-      {pending ? 'Verifying...' : 'Verify Phone Number'}
+      {pending ? <Loader2 className="w-6 h-6 animate-spin" /> : 'Verify Phone Number'}
     </Button>
   );
 }
