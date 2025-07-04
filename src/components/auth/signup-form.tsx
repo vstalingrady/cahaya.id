@@ -126,7 +126,10 @@ export default function SignupForm() {
         setError('Invalid phone number format. Please check your number.');
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many requests. Please try again later.');
-      } else if (err.code === 'auth/captcha-check-failed' || (err.message && err.message.includes('auth/error-code:'))) {
+      } else if (err.code === 'auth/operation-not-allowed') {
+        setError("SMS sending is disabled for this project. Please enable Phone Sign-In in your Firebase Console's Authentication section.");
+      }
+      else if (err.code && err.message.includes('auth/error-code:')) {
          setError('App security check failed. This is usually due to a missing reCAPTCHA key or an unregistered debug token. Please check the browser console logs for more details.');
       } else {
         setError(err.message || 'Failed to send verification code. Please try again.');

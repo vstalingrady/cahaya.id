@@ -25,14 +25,15 @@ const requiredEnvVars = [
   'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
   'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
   'NEXT_PUBLIC_FIREBASE_APP_ID',
+  'NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY'
 ];
 
-const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+// Only run this check in the browser
+if (typeof window !== 'undefined') {
+  const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
-if (missingVars.length > 0) {
-  // Only show this error in the browser console, not during server-side rendering.
-  if (typeof window !== 'undefined') {
-    const errorMessage = `🔴 FATAL: Missing Firebase environment variables. Please create a .env.local file in your project's root directory and add the following keys:\n\n${missingVars.join('\n')}\n\nYou can find these values in your Firebase project settings.`;
+  if (missingVars.length > 0) {
+    const errorMessage = `🔴 FATAL: Missing Firebase environment variables. Please create a .env.local file in your project's root directory and add the following keys:\n\n${missingVars.join('\n')}\n\nYou can find these values in your Firebase project settings. Without them, the app cannot connect to Firebase.`;
     console.error(errorMessage);
     // You could also throw an error here to halt execution, but logging is often sufficient.
     // throw new Error(errorMessage);
@@ -49,7 +50,9 @@ const db = getFirestore(app);
 let analytics;
 if (typeof window !== 'undefined') {
   try {
-    analytics = getAnalytics(app);
+    if (firebaseConfig.measurementId) {
+      analytics = getAnalytics(app);
+    }
   } catch (error) {
     console.log('Failed to initialize Analytics', error);
   }
