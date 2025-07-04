@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import CuanLogo from '@/components/cuanflex-logo';
+import CuanLogo from '@/components/icons/cuanlogo.svg';
 
 const routes = [
   { path: '/', name: 'Welcome / Onboarding' },
