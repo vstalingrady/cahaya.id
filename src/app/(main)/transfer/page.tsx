@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useCallback, useEffect, type ElementType } from 'react';
@@ -48,7 +49,7 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
 }).format(amount);
 
 const favoriteSchema = z.object({
-  name: z.string().min(1, { message: 'Name is required.' }).max(50, { message: 'Name cannot be longer than 50 characters.' }),
+  name: z.string().min(1, { message: 'Name is required.' }).max(25, { message: 'Name cannot be longer than 25 characters.' }),
   amount: z.coerce.number().min(1000, { message: 'Minimum amount is IDR 1,000.' }),
   category: z.string().min(1, { message: 'Category is required.' }),
   icon: z.string().min(1, { message: 'An icon is required.' }),
@@ -171,7 +172,7 @@ export default function TransferPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onAddFavorite)} className="space-y-4 py-4">
               <FormField control={form.control} name="name" render={({ field }) => (
-                <FormItem><FormLabel>Favorite Name</FormLabel><FormControl><Input placeholder="e.g. Monthly Rent" {...field} maxLength={50} /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormLabel>Favorite Name</FormLabel><FormControl><Input placeholder="e.g. Monthly Rent" {...field} maxLength={25} /></FormControl><FormMessage /></FormItem>
               )}/>
               <FormField control={form.control} name="amount" render={({ field }) => (
                 <FormItem><FormLabel>Amount (IDR)</FormLabel><FormControl><Input type="number" placeholder="e.g. 5000000" {...field} /></FormControl><FormMessage /></FormItem>
@@ -240,7 +241,7 @@ export default function TransferPage() {
                     return (
                       <div
                         key={fav.id}
-                        className="flex-[0_0_10rem] pl-2" // This sets the slide size to w-40 (10rem)
+                        className="flex-[0_0_10rem] pl-2 min-w-0" // Added min-w-0 to prevent overflow
                       >
                          <div className="w-full h-40">
                            <div className={cn(
@@ -250,12 +251,12 @@ export default function TransferPage() {
                                <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                  <X className="w-4 h-4" />
                                </Button>
-                               <div className="bg-gradient-to-br from-primary to-accent w-12 h-12 rounded-xl shadow-lg text-white flex items-center justify-center">
+                               <div className="bg-gradient-to-br from-primary to-accent w-12 h-12 rounded-xl shadow-lg text-white flex items-center justify-center flex-shrink-0">
                                  <Icon className="w-6 h-6" />
                                </div>
-                               <div className="min-w-0">
-                                 <p className="font-semibold text-sm text-white truncate">{fav.name}</p>
-                                 <p className="text-sm text-muted-foreground font-mono">{formatCurrency(fav.amount)}</p>
+                               <div className="min-w-0 flex-1 flex flex-col justify-end overflow-hidden">
+                                 <p className="font-semibold text-sm text-white truncate mb-1" title={fav.name}>{fav.name}</p>
+                                 <p className="text-xs text-muted-foreground font-mono truncate">{formatCurrency(fav.amount)}</p>
                                </div>
                            </div>
                          </div>
