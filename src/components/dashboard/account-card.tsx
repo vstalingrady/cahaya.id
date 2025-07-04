@@ -27,9 +27,10 @@ const getAccountIcon = (name: string) => {
 
 type AccountCardProps = {
   account: Account;
+  isPrivate: boolean;
 };
 
-export default function AccountCard({ account }: AccountCardProps) {
+export default function AccountCard({ account, isPrivate }: AccountCardProps) {
   const formattedAmount = new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -49,7 +50,9 @@ export default function AccountCard({ account }: AccountCardProps) {
           </div>
       </div>
       <div className="text-right ml-2">
-          <div className="font-semibold text-lg text-white">{formattedAmount}</div>
+          <div className="font-semibold text-lg text-white">
+            {isPrivate ? 'IDR ••••••••' : formattedAmount}
+          </div>
       </div>
     </>
   );

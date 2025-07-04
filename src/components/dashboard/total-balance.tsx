@@ -3,7 +3,7 @@
 import * as React from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { Wallet, Loader2, Calendar } from "lucide-react";
+import { Wallet, Loader2, Calendar, EyeOff } from "lucide-react";
 import { type Transaction } from "@/lib/data";
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -23,9 +23,10 @@ type TotalBalanceProps = {
   amount: number;
   transactions: Transaction[];
   showHistoryLink?: boolean;
+  isPrivate: boolean;
 };
 
-export default function TotalBalance({ title, amount, transactions, showHistoryLink = false }: TotalBalanceProps) {
+export default function TotalBalance({ title, amount, transactions, showHistoryLink = false, isPrivate }: TotalBalanceProps) {
   const [chartData, setChartData] = React.useState<any[]>([]);
 
   const formattedAmount = new Intl.NumberFormat('id-ID', {
@@ -124,8 +125,10 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
                       </Link>
                     )}
                  </div>
-                <div className="text-3xl font-bold mb-2 text-white">{formattedAmount}</div>
-                 {dailyChange !== 0 && (
+                <div className="text-3xl font-bold mb-2 text-white">
+                    {isPrivate ? 'IDR ••••••••' : formattedAmount}
+                </div>
+                 {dailyChange !== 0 && !isPrivate && (
                   <div className={cn(
                     "flex items-center text-sm font-semibold",
                     dailyChange > 0 ? "text-green-400" : "text-destructive"
@@ -136,12 +139,19 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
                 )}
             </div>
             <div className="h-48 relative">
-                {chartData.length > 0 ? (
-                    <BalanceChart chartData={chartData} />
-                ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                        <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+                {isPrivate ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-secondary/30 rounded-lg">
+                        <EyeOff className="w-10 h-10 mb-2" />
+                        <p className="font-semibold text-sm">Balances are Hidden</p>
                     </div>
+                ) : (
+                     chartData.length > 0 ? (
+                        <BalanceChart chartData={chartData} />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                            <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />
+                        </div>
+                    )
                 )}
             </div>
         </div>
