@@ -47,11 +47,6 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-  },
-   experimental: {
-    allowedDevOrigins: [
-        'https://*.cloudworkstations.dev',
-    ]
   }
 };
 
