@@ -6,8 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import { app } from '@/lib/firebase';
-import { Phone, Loader2, Info } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Phone, Loader2 } from 'lucide-react';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -38,7 +37,6 @@ export default function SignupForm() {
 
   useEffect(() => {
     const auth = getAuth(app);
-    console.log("Current hostname:", window.location.hostname);
     
     // Clean up any existing verifier
     if (recaptchaVerifierRef.current) {
@@ -128,8 +126,7 @@ export default function SignupForm() {
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many requests. Please try again later.');
       } else if (err.code === 'auth/captcha-check-failed') {
-        const hostname = typeof window !== 'undefined' ? window.location.hostname : 'your-hostname';
-        setError(`reCAPTCHA check failed. Ensure the hostname "${hostname}" is added to your Firebase project's authorized domains list.`);
+        setError('Security check failed. If in development, check the console for an App Check debug token and add it to your Firebase project settings.');
         // Reset reCAPTCHA on failure
         if (recaptchaVerifierRef.current) {
           recaptchaVerifierRef.current.clear();
