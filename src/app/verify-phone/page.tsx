@@ -1,3 +1,5 @@
+'use client';
+
 import VerifyPhoneForm from '@/components/auth/verify-phone-form';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
