@@ -5,8 +5,9 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { financialInstitutions, FinancialInstitution } from '@/lib/data';
 import Image from 'next/image';
-import { useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import NoiseOverlay from '@/components/noise-overlay';
+import { cn } from '@/lib/utils';
 
 const groupInstitutions = (institutions: FinancialInstitution[]) => {
   const grouped: { [key: string]: FinancialInstitution[] } = {
@@ -28,12 +29,12 @@ const groupInstitutions = (institutions: FinancialInstitution[]) => {
 export default function LinkAccountPage() {
   const groupedInstitutions = groupInstitutions(financialInstitutions);
 
-  const callbackUrl = useMemo(() => {
-    if (typeof window === 'undefined') {
-      return '';
-    }
-    return `${window.location.origin}/link-account/callback`;
-  }, []);
+  const [callbackUrl, setCallbackUrl] = useState('');
+
+  useEffect(() => {
+    // This ensures window.location.origin is only accessed on the client
+    setCallbackUrl(`${window.location.origin}/link-account/callback`);
+  }, []); // Runs once on mount
 
   return (
     <div className="w-full max-w-md mx-auto bg-background text-white p-6 min-h-screen relative overflow-hidden flex flex-col">
@@ -48,17 +49,20 @@ export default function LinkAccountPage() {
       </div>
 
       <div className="space-y-8 relative z-10 flex-1">
-        {groupedInstitutions.map(group => (
-          <div key={group.category}>
-            <h3 className="text-sm font-bold text-primary/70 mb-4 uppercase tracking-widest">{group.category}</h3>
+        {groupedInstitutions.map(([category, items]) => (
+          <div key={category}>
+            <h3 className="text-sm font-bold text-primary/70 mb-4 uppercase tracking-widest">{category}</h3>
             <div className="grid grid-cols-1 gap-4">
-              {group.items.map(item => {
-                const connectUrl = `/mock-ayo-connect?institution_id=${item.slug}&redirect_uri=${encodeURIComponent(callbackUrl)}`;
+              {items.map(item => {
+                const connectUrl = callbackUrl ? `/mock-ayo-connect?institution_id=${item.slug}&redirect_uri=${encodeURIComponent(callbackUrl)}` : '#';
                 return (
                   <Link 
                     key={item.id}
                     href={connectUrl}
-                    className="bg-card p-5 rounded-2xl flex items-center justify-between hover:bg-secondary transition-all duration-300 transform hover:scale-105 border border-border shadow-lg shadow-primary/10 group"
+                    className={cn(
+                        "bg-card p-5 rounded-2xl flex items-center justify-between hover:bg-secondary transition-all duration-300 transform hover:scale-105 border border-border shadow-lg shadow-primary/10 group",
+                        !callbackUrl && 'pointer-events-none opacity-50'
+                    )}
                   >
                     <div className="flex items-center relative z-10">
                       <Image src={item.logoUrl} alt={`${item.name} logo`} width={48} height={48} className="rounded-xl mr-4" />

@@ -4,6 +4,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
+import { exchangePublicToken } from '@/lib/actions';
 
 function CallbackContent() {
     const searchParams = useSearchParams();
@@ -14,43 +15,30 @@ function CallbackContent() {
 
     useEffect(() => {
         const publicToken = searchParams.get('public_token');
-        const institutionId = searchParams.get('institution_id');
 
-        if (!publicToken || !institutionId) {
+        if (!publicToken) {
             setError('Invalid callback parameters.');
             return;
         }
 
-        const exchangeToken = async () => {
-            try {
-                const response = await fetch('/api/ayo/v1/token/exchange', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ public_token: publicToken }),
-                });
+        const processToken = async () => {
+            const result = await exchangePublicToken(publicToken);
 
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error_description || 'Failed to exchange token.');
-                }
-                
-                setAccessToken(data.access_token);
-
+            if (result.error) {
+                setError(result.error);
+            } else if (result.accessToken) {
+                setAccessToken(result.accessToken);
                 // In a real app, you would save the access token securely
                 // and then redirect to the dashboard.
-                // For now, we'll just show the token.
                 setTimeout(() => {
                     router.push('/dashboard?new_account=true');
                 }, 3000);
-
-
-            } catch (err: any) {
-                setError(err.message);
+            } else {
+                 setError('An unknown error occurred during token exchange.');
             }
         };
 
-        exchangeToken();
+        processToken();
     }, [searchParams, router]);
 
     return (

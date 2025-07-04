@@ -12,6 +12,7 @@ import { auth, db } from './firebase';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
 import { headers } from 'next/headers';
+import { db as mockApiDb } from './mock-api-db';
 
 /**
  * This action is called after a user has authenticated and linked their credentials.
@@ -251,6 +252,27 @@ export async function getBillSuggestions(
       error: "Failed to get AI-powered bill suggestions. Please try again later.",
       potentialBills: [],
     };
+  }
+}
+
+export async function exchangePublicToken(publicToken: string | null) {
+  if (!publicToken) {
+    return { error: 'Invalid public token provided.' };
+  }
+
+  try {
+    const tokenInfo = mockApiDb.exchangePublicToken(publicToken);
+
+    if (tokenInfo.error) {
+      return { error: 'The public token is invalid or expired.' };
+    }
+
+    // Success
+    return { accessToken: tokenInfo.access_token };
+
+  } catch (error) {
+    console.error("[Server Action exchangePublicToken] Error:", error);
+    return { error: 'An internal server error occurred.' };
   }
 }
 
