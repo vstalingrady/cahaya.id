@@ -97,11 +97,21 @@ export default {
         'logo-blink-glow': {
           '0%, 100%': {
             opacity: '0.7',
-            filter: 'drop-shadow(0 0 3px hsl(var(--primary) / 0.3))'
+            filter: 'drop-shadow(0 0 5px hsl(var(--primary) / 0.4))'
           },
           '50%': {
             opacity: '1',
-            filter: 'drop-shadow(0 0 8px hsl(var(--primary) / 0.5))'
+            filter: 'drop-shadow(0 0 15px hsl(var(--primary) / 0.7))'
+          },
+        },
+        'slow-pulse': {
+          '0%, 100%': {
+            transform: 'scale(1)',
+            'box-shadow': '0 0 20px -10px hsl(var(--primary) / 0.3)',
+          },
+          '50%': {
+            transform: 'scale(1.05)',
+            'box-shadow': '0 0 40px 5px hsl(var(--primary) / 0.7)',
           },
         },
       },
@@ -112,7 +122,8 @@ export default {
         'border-color-cycle': 'border-color-cycle 4s linear infinite',
         'flash': 'flash 0.5s ease-out',
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
-        'logo-blink-glow': 'logo-blink-glow 3.5s ease-in-out infinite',
+        'logo-blink-glow': 'logo-blink-glow 5s ease-in-out infinite',
+        'slow-pulse': 'slow-pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
