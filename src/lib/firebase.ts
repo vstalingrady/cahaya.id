@@ -34,7 +34,7 @@ if (typeof window !== 'undefined') {
 
   if (missingVars.length > 0) {
     const errorMessage = `🔴 FATAL: Missing Firebase environment variables. Please create a .env.local file in your project's root directory and add the following keys:\n\n${missingVars.join('\n')}\n\nYou can find these values in your Firebase project settings. Without them, the app cannot connect to Firebase.`;
-    console.error(errorMessage);
+    console.warn(errorMessage);
     // You could also throw an error here to halt execution, but logging is often sufficient.
     // throw new Error(errorMessage);
   }
