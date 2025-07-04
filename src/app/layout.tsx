@@ -26,7 +26,7 @@ export default function RootLayout({
     <html lang="en" className="h-full dark">
       <body
         className={cn(
-          'antialiased min-h-screen font-sans',
+          'antialiased min-h-screen font-sans bg-background',
           jakarta.variable,
           dmSerifDisplay.variable
         )}

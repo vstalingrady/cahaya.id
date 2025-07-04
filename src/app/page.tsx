@@ -1,156 +1,307 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  type CarouselApi,
-} from '@/components/ui/carousel';
+import { Card, CardContent } from '@/components/ui/card';
+import { ArrowRight, Wallet, CreditCard, PiggyBank, TrendingUp, Shield, Zap, Target, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ArrowRight } from 'lucide-react';
-import Image from 'next/image';
 import CuanLogo from '@/components/icons/CuanLogo';
 
+const AccountCard = ({ name, balance, color, delay = 0 }: {name: string, balance: string, color: string, delay?: number}) => (
+  <Card className={cn(`bg-gradient-to-br text-white border-0 shadow-lg animate-fade-in-up`, color)} style={{ animationDelay: `${delay}ms` }}>
+    <CardContent className="p-4">
+      <div className="flex justify-between items-center">
+        <div>
+          <p className="text-sm opacity-90">{name}</p>
+          <p className="text-lg font-bold">{balance}</p>
+        </div>
+        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+          <Wallet className="w-4 h-4" />
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+);
+
+const FeatureIcon = ({ icon: Icon, title, description, color }: {icon: React.ElementType, title: string, description: string, color: string}) => (
+  <div className="text-center group">
+    <div className={cn(`w-16 h-16 rounded-2xl bg-gradient-to-br flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`, color)}>
+      <Icon className="w-8 h-8 text-white" />
+    </div>
+    <h3 className="font-semibold text-foreground mb-2">{title}</h3>
+    <p className="text-sm text-muted-foreground">{description}</p>
+  </div>
+);
+
+const CountingNumber = ({ target, prefix = "", suffix = "" }: {target: number, prefix?: string, suffix?: string}) => {
+  const [count, setCount] = useState(0);
+  
+  useEffect(() => {
+    const duration = 2000;
+    const steps = 60;
+    const stepValue = target / steps;
+    let current = 0;
+    
+    const timer = setInterval(() => {
+      current += stepValue;
+      if (current >= target) {
+        setCount(target);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, duration / steps);
+    
+    return () => clearInterval(timer);
+  }, [target]);
+  
+  return <span>{prefix}{count.toLocaleString()}{suffix}</span>;
+};
+
 export default function WelcomePage() {
-  const [api, setApi] = React.useState<CarouselApi>();
-  const [current, setCurrent] = React.useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
   
   const slides = [
     {
       type: 'hero',
       title: 'All your money,\nin one place.',
       description: 'Welcome to Cuan. The secure, unified way to manage your entire financial life from a single, beautiful app.',
+      content: (
+        <div className="text-center relative z-10 animate-fade-in-up">
+          <CuanLogo className="w-24 h-auto mx-auto mb-6 animate-logo-blink-glow" />
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line drop-shadow-[0_0_5px_hsl(var(--primary)/0.3)]">
+            All your money,{'\n'}in one place.
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-lg mx-auto my-6 font-light">
+            Welcome to Cuan. The secure, unified way to manage your entire financial life from a single, beautiful app.
+          </p>
+          <div className="flex justify-center gap-4 mt-8">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">
+                <CountingNumber target={500} suffix="K+" />
+              </div>
+              <div className="text-sm text-muted-foreground">Active Users</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-accent">
+                <CountingNumber target={50} suffix="M+" />
+              </div>
+              <div className="text-sm text-muted-foreground">Transactions</div>
+            </div>
+          </div>
+        </div>
+      )
     },
     {
       type: 'feature_showcase',
       title: 'Connect Everything. See Everything.',
       description: 'BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.',
+      content: (
+        <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto animate-fade-in-up">
+          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+            Connect Everything. See Everything.
+          </h2>
+          <p className="text-base leading-relaxed text-muted-foreground mb-8">
+            BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.
+          </p>
+          <div className="grid grid-cols-2 gap-3 w-full max-w-sm mb-6">
+            <AccountCard name="BCA Checking" balance="Rp 12.5M" color="from-blue-500 to-blue-600" delay={0} />
+            <AccountCard name="GoPay" balance="Rp 850K" color="from-green-500 to-green-600" delay={200} />
+            <AccountCard name="OVO" balance="Rp 1.2M" color="from-purple-500 to-purple-600" delay={400} />
+            <AccountCard name="Bibit" balance="Rp 5.8M" color="from-orange-500 to-orange-600" delay={600} />
+          </div>
+          <div className="text-center">
+            <p className="text-sm text-muted-foreground mb-2">Total Net Worth</p>
+            <p className="text-3xl font-bold text-foreground">
+              <CountingNumber target={20350000} prefix="Rp " />
+            </p>
+          </div>
+        </div>
+      )
     },
     {
       type: 'feature',
       title: 'Pay Any Bill, From Any Source.',
       description: 'Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.',
+      content: (
+        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto animate-fade-in-up">
+          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+            Pay Any Bill, From Any Source.
+          </h2>
+          <p className="text-base leading-relaxed text-muted-foreground mb-8">
+            Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.
+          </p>
+          <div className="grid grid-cols-2 gap-6 w-full max-w-sm">
+            <FeatureIcon 
+              icon={Zap} 
+              title="Instant Payments" 
+              description="Pay bills in seconds" 
+              color="from-yellow-500 to-orange-500" 
+            />
+            <FeatureIcon 
+              icon={Globe} 
+              title="All Providers" 
+              description="PLN, BPJS, and more" 
+              color="from-blue-500 to-cyan-500" 
+            />
+            <FeatureIcon 
+              icon={CreditCard} 
+              title="Any Account" 
+              description="Choose payment source" 
+              color="from-green-500 to-teal-500" 
+            />
+            <FeatureIcon 
+              icon={Shield} 
+              title="Bank-Level Security" 
+              description="Your money is safe" 
+              color="from-purple-500 to-pink-500" 
+            />
+          </div>
+        </div>
+      )
     },
     {
       type: 'feature',
       title: 'Save Smarter with Cuan Vaults.',
       description: 'Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.',
+      content: (
+        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto animate-fade-in-up">
+          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+            Save Smarter with Cuan Vaults.
+          </h2>
+          <p className="text-base leading-relaxed text-muted-foreground mb-8">
+            Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.
+          </p>
+          <div className="space-y-4 w-full max-w-sm">
+            <div className="bg-secondary/50 rounded-xl p-4 border border-border">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                  <Target className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-foreground font-medium">Holiday Fund</p>
+                  <p className="text-sm text-muted-foreground">Rp 15M goal</p>
+                </div>
+              </div>
+              <div className="w-full bg-muted rounded-full h-2 mb-2">
+                <div className="bg-gradient-to-r from-primary to-accent h-2 rounded-full" style={{ width: '68%' }}></div>
+              </div>
+              <p className="text-sm text-muted-foreground">Rp 10.2M saved (68%)</p>
+            </div>
+            <div className="bg-secondary/50 rounded-xl p-4 border border-border">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
+                  <PiggyBank className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-foreground font-medium">New Laptop</p>
+                  <p className="text-sm text-muted-foreground">Rp 20M goal</p>
+                </div>
+              </div>
+              <div className="w-full bg-muted rounded-full h-2 mb-2">
+                <div className="bg-gradient-to-r from-accent to-red-500 h-2 rounded-full" style={{ width: '45%' }}></div>
+              </div>
+              <p className="text-sm text-muted-foreground">Rp 9M saved (45%)</p>
+            </div>
+          </div>
+        </div>
+      )
     },
     {
       type: 'cta',
       title: 'Ready to take control?',
       description: "Join Cuan today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.",
+      content: (
+        <div className="text-center relative z-10 animate-fade-in-up">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
+            Ready to take control?
+          </h2>
+          <p className="text-base text-muted-foreground max-w-lg mx-auto my-6 font-light">
+            Join Cuan today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.
+          </p>
+          <div className="space-y-4">
+            <Button asChild className="w-64 h-14 text-lg animate-slow-pulse">
+              <Link href="/signup">
+                Create Free Account <ArrowRight className="ml-2" />
+              </Link>
+            </Button>
+            <div className="flex justify-center gap-8 mt-6">
+              <div className="text-center">
+                <Shield className="w-8 h-8 text-primary mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Bank-level security</p>
+              </div>
+              <div className="text-center">
+                <Zap className="w-8 h-8 text-accent mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Setup in minutes</p>
+              </div>
+              <div className="text-center">
+                <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">Free forever</p>
+              </div>
+            </div>
+          </div>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              Already have an account?{' '}
+              <Link href="/login" className="font-semibold text-primary hover:text-primary/80 underline">
+                Log In
+              </Link>
+            </p>
+          </div>
+        </div>
+      )
     }
   ];
 
-  React.useEffect(() => {
-    if (!api) return;
-    
-    setCurrent(api.selectedScrollSnap());
-    
-    api.on('select', () => {
-      setCurrent(api.selectedScrollSnap());
-    });
-  }, [api]);
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
 
   return (
-    <div className="w-full h-screen bg-background text-white">
-      <Carousel setApi={setApi} className="w-full h-full">
-        <CarouselContent className="-ml-0">
-          {slides.map((slide, index) => (
-            <CarouselItem key={index} className="pl-0 basis-full overflow-hidden">
-              <div className="relative w-full h-screen flex flex-col items-center justify-center p-6">
-                <div className="absolute inset-0 bg-hero-glow -z-10"></div>
-                
-                {slide.type === 'hero' && (
-                  <div className="text-center relative z-10 animate-fade-in-up">
-                    <CuanLogo className="w-32 h-auto mx-auto mb-6 animate-logo-blink-glow" />
-                    
-                    <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line drop-shadow-[0_0_5px_hsl(var(--primary)/0.3)]">
-                      {slide.title}
-                    </h1>
-                     <p className="text-lg text-muted-foreground max-w-lg mx-auto my-6 font-light">
-                      {slide.description}
-                    </p>
-                  </div>
-                )}
-
-                {slide.type === 'feature' && (
-                   <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto animate-fade-in-up">
-                      <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
-                        {slide.title}
-                      </h2>
-                      <p className="text-base leading-relaxed text-muted-foreground">
-                        {slide.description}
-                      </p>
-                  </div>
-                )}
-                
-                {slide.type === 'feature_showcase' && (
-                  <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto animate-fade-in-up">
-                    <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
-                      {slide.title}
-                    </h2>
-                    <p className="text-base leading-relaxed text-muted-foreground mb-8">
-                      {slide.description}
-                    </p>
-                    <div className="relative w-full max-w-sm rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-2">
-                       <Image
-                        src="https://placehold.co/600x400.png"
-                        alt="CuanFlex Dashboard Preview"
-                        width={600}
-                        height={400}
-                        className="rounded-xl"
-                        data-ai-hint="app dashboard finance"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {slide.type === 'cta' && (
-                  <div className="text-center relative z-10 animate-fade-in-up">
-                    <h2 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
-                      {slide.title}
-                    </h2>
-                     <p className="text-base text-muted-foreground max-w-lg mx-auto my-6 font-light">
-                      {slide.description}
-                    </p>
-                    <Button asChild size="lg" className="w-64 h-14 text-lg animate-slow-pulse">
-                      <Link href="/signup">Create Free Account <ArrowRight className="ml-2" /></Link>
-                    </Button>
-                     <div className="mt-6 text-center">
-                        <p className="text-sm text-muted-foreground">
-                            Already have an account?{' '}
-                            <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">
-                              Log In
-                            </Link>
-                        </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-      </Carousel>
+    <div className="w-full h-screen bg-background text-foreground overflow-hidden relative">
+      <div className="absolute inset-0 bg-hero-glow -z-10"></div>
+      
+      <div className="relative w-full h-full flex items-center justify-center p-6">
+        <div className="w-full max-w-4xl">
+          {slides[currentSlide].content}
+        </div>
+      </div>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center justify-center gap-4">
         <div className="flex gap-2">
-            {slides.map((_, index) => (
-                <button 
-                    key={index} 
-                    onClick={() => api?.scrollTo(index)}
-                    className={cn(
-                        "w-2 h-2 rounded-full transition-all duration-300",
-                        index === current ? "bg-primary w-6" : "bg-muted hover:bg-muted-foreground/50"
-                    )}
-                />
-            ))}
+          {slides.map((_, index) => (
+            <button 
+              key={index} 
+              onClick={() => goToSlide(index)}
+              className={cn(`w-2 h-2 rounded-full transition-all duration-300`,
+                index === currentSlide ? "bg-primary w-6" : "bg-muted hover:bg-muted-foreground/50"
+              )}
+            />
+          ))}
         </div>
       </div>
+
+      <button 
+        onClick={prevSlide}
+        className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-secondary/50 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-secondary transition-colors"
+      >
+        <ArrowRight className="w-6 h-6 rotate-180" />
+      </button>
+      <button 
+        onClick={nextSlide}
+        className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-secondary/50 backdrop-blur-sm border border-border flex items-center justify-center hover:bg-secondary transition-colors"
+      >
+        <ArrowRight className="w-6 h-6" />
+      </button>
     </div>
   );
 }

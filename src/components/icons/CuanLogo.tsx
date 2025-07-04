@@ -66,11 +66,6 @@ const CuanLogo = ({ className = "w-24 h-auto", ...props }) => {
             fill="url(#linearGradient6832)" 
             stopColor="#000000" 
           />
-          <path 
-            d="m96.294 1134.5v159.33l137.99 79.666v-62.553l-88.105-48.391v-96.779z" 
-            fill="url(#linearGradient6836)" 
-            stopColor="#000000" 
-          />
         </g>
       </g>
     </svg>
