@@ -6,7 +6,6 @@ import { Loader2, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function SetupSecurityForm() {
   const router = useRouter();
@@ -51,14 +50,14 @@ export default function SetupSecurityForm() {
   return (
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10 relative z-10">
       <div className="flex flex-col items-center space-y-6">
-        <Alert variant="default" className="text-center bg-secondary border-border/80">
-          <AlertTitle className="text-foreground font-semibold">
-            Create Your Cuan PIN
-          </AlertTitle>
-          <AlertDescription className="text-muted-foreground text-sm">
-            Create an 8-character PIN with numbers and letters for secure access and transaction approvals.
-          </AlertDescription>
-        </Alert>
+        <div className="text-center">
+            <h2 className="text-xl text-foreground font-semibold">
+                Create Your Cuan PIN
+            </h2>
+            <p className="text-muted-foreground text-sm mt-1 max-w-xs">
+                Create an 8-character PIN with numbers and letters for secure access and transaction approvals.
+            </p>
+        </div>
 
         <div className="w-full space-y-4">
             <div className="relative w-full">
@@ -77,7 +76,7 @@ export default function SetupSecurityForm() {
             <Input 
                 type="password" 
                 className="bg-input border-border h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
-                placeholder="Confirm PIN"
+                placeholder="••••••••"
                 value={confirmPin}
                 onChange={handleConfirmPinChange}
                 maxLength={8}
