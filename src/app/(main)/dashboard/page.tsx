@@ -29,20 +29,43 @@ export default function DashboardPage() {
     // In a real app, this would be handled by a global state manager (e.g., Redux, Zustand)
     // that would be updated after the unlink action and reflected here.
     const [isPrivate, setIsPrivate] = useState(true);
+    const [timerProgress, setTimerProgress] = useState(100);
     const [showPinDialog, setShowPinDialog] = useState(false);
     const [pin, setPin] = useState('');
     const [pinError, setPinError] = useState('');
     const { toast } = useToast();
 
     useEffect(() => {
-        let timer: NodeJS.Timeout;
+        let visibilityTimer: NodeJS.Timeout;
+        let progressInterval: NodeJS.Timer;
+
         if (!isPrivate) {
-            timer = setTimeout(() => {
+            const startTime = Date.now();
+            const duration = 20000; // 20 seconds
+
+            // Timer to hide balances
+            visibilityTimer = setTimeout(() => {
                 setIsPrivate(true);
                 toast({ title: "Privacy Mode On", description: "Balances are hidden again for your security." });
-            }, 30000); // 30 seconds
+            }, duration);
+
+            // Interval to update progress bar
+            progressInterval = setInterval(() => {
+                const elapsedTime = Date.now() - startTime;
+                const progress = Math.max(0, 100 - (elapsedTime / duration) * 100);
+                setTimerProgress(progress);
+                if (progress === 0) {
+                    clearInterval(progressInterval);
+                }
+            }, 100);
+        } else {
+            setTimerProgress(100); // Reset progress
         }
-        return () => clearTimeout(timer);
+
+        return () => {
+            clearTimeout(visibilityTimer);
+            clearInterval(progressInterval);
+        };
     }, [isPrivate, toast]);
 
     const handleConfirmPin = () => {
@@ -51,7 +74,7 @@ export default function DashboardPage() {
             setShowPinDialog(false);
             setPin('');
             setPinError('');
-            toast({ title: "Privacy Mode Off", description: "Balances will be visible for 30 seconds." });
+            toast({ title: "Privacy Mode Off", description: "Balances will be visible for 20 seconds." });
         } else {
             setPinError('Incorrect PIN. Please try again.');
             setPin('');
@@ -87,7 +110,7 @@ export default function DashboardPage() {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Enter PIN to Show Balances</AlertDialogTitle>
                     <AlertDialogDescription>
-                        For your security, please enter your 6-digit PIN to view sensitive information for 30 seconds.
+                        For your security, please enter your 6-digit PIN to view sensitive information for 20 seconds.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className="py-4 space-y-2">
@@ -115,98 +138,120 @@ export default function DashboardPage() {
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
-
-        <div className="space-y-8 animate-fade-in-up">
-            <header className="flex justify-between items-center">
+        <div className="animate-fade-in-up">
+            <header className="sticky top-0 -mt-6 pt-6 pb-4 -mx-6 px-6 bg-background/80 backdrop-blur-md z-20 flex justify-between items-center">
                 <div>
                     <h1 className="text-3xl font-bold text-white font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Good morning, Vstalin
                     </h1>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => isPrivate ? setShowPinDialog(true) : setIsPrivate(true)} className="w-12 h-12 bg-card rounded-2xl shadow-lg border-2 border-border/50 flex items-center justify-center cursor-pointer transition-colors hover:border-primary/50">
-                    {isPrivate ? <Eye className="w-6 h-6 text-muted-foreground" /> : <EyeOff className="w-6 h-6 text-primary" />}
-                  </button>
+                  <div className="relative">
+                     <button onClick={() => isPrivate ? setShowPinDialog(true) : setIsPrivate(true)} className="w-12 h-12 bg-card rounded-2xl shadow-lg border-2 border-border/50 flex items-center justify-center cursor-pointer transition-colors hover:border-primary/50 relative z-10">
+                        {isPrivate ? <Eye className="w-6 h-6 text-muted-foreground" /> : <EyeOff className="w-6 h-6 text-primary" />}
+                     </button>
+                    {!isPrivate && (
+                        <svg className="absolute -inset-1 w-14 h-14 pointer-events-none" viewBox="0 0 36 36">
+                            <path
+                                className="stroke-primary/20"
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                strokeWidth="2.5"
+                            />
+                            <path
+                                className="stroke-primary transition-all duration-100 ease-linear"
+                                strokeDasharray={`${timerProgress}, 100`}
+                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                                fill="none"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                transform="rotate(-90 18 18)"
+                            />
+                        </svg>
+                    )}
+                  </div>
                   <Link href="/profile">
                     <Image src="https://placehold.co/128x128.png" width={48} height={48} alt="User Avatar" className="w-12 h-12 bg-primary rounded-2xl shadow-lg border-2 border-border/50 cursor-pointer" data-ai-hint="person avatar" />
                   </Link>
                 </div>
             </header>
 
-            <TotalBalance title="Total Net Worth" amount={netWorth} transactions={transactions} showHistoryLink={true} isPrivate={isPrivate} />
+            <div className="space-y-8 pt-4">
+                <TotalBalance title="Total Net Worth" amount={netWorth} transactions={transactions} showHistoryLink={true} isPrivate={isPrivate} />
 
-            <div>
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold text-white font-serif">Your Accounts</h2>
-                    <Link href="/link-account" className="text-sm font-semibold text-primary hover:text-primary/90">
-                        Link New
-                    </Link>
+                <div>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold text-white font-serif">Your Accounts</h2>
+                        <Link href="/link-account" className="text-sm font-semibold text-primary hover:text-primary/90">
+                            Link New
+                        </Link>
+                    </div>
+                    <Accordion type="multiple" defaultValue={['bank', 'e-wallet', 'investment', 'loan']} className="w-full space-y-2">
+                        {accountGroups.bank.length > 0 && (
+                            <AccordionItem value="bank" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
+                                <AccordionTrigger className="hover:no-underline text-white">
+                                    <div className='flex items-center gap-3'>
+                                        <Landmark className='w-5 h-5' />
+                                        <span className='font-semibold'>Banks</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="pt-2 space-y-2">
+                                    {accountGroups.bank.map(account => (
+                                        <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
+                                    ))}
+                                </AccordionContent>
+                            </AccordionItem>
+                        )}
+
+                        {accountGroups['e-wallet'].length > 0 && (
+                            <AccordionItem value="e-wallet" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
+                                <AccordionTrigger className="hover:no-underline text-white">
+                                    <div className='flex items-center gap-3'>
+                                        <EwalletIcon className='w-5 h-5' />
+                                        <span className='font-semibold'>E-Wallets</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="pt-2 space-y-2">
+                                    {accountGroups['e-wallet'].map(account => (
+                                        <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
+                                    ))}
+                                </AccordionContent>
+                            </AccordionItem>
+                        )}
+                        
+                        {accountGroups.investment.length > 0 && (
+                            <AccordionItem value="investment" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
+                                <AccordionTrigger className="hover:no-underline text-white">
+                                    <div className='flex items-center gap-3'>
+                                        <Briefcase className='w-5 h-5' />
+                                        <span className='font-semibold'>Investments</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="pt-2 space-y-2">
+                                    {accountGroups.investment.map(account => (
+                                        <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
+                                    ))}
+                                </AccordionContent>
+                            </AccordionItem>
+                        )}
+
+                        {accountGroups.loan.length > 0 && (
+                            <AccordionItem value="loan" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
+                                <AccordionTrigger className="hover:no-underline text-white">
+                                    <div className='flex items-center gap-3'>
+                                        <Coins className='w-5 h-5' />
+                                        <span className='font-semibold'>Loans</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="pt-2 space-y-2">
+                                    {accountGroups.loan.map(account => (
+                                        <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
+                                    ))}
+                                </AccordionContent>
+                            </AccordionItem>
+                        )}
+                    </Accordion>
                 </div>
-                <Accordion type="multiple" defaultValue={['bank', 'e-wallet', 'investment', 'loan']} className="w-full space-y-2">
-                    {accountGroups.bank.length > 0 && (
-                        <AccordionItem value="bank" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
-                            <AccordionTrigger className="hover:no-underline text-white">
-                                <div className='flex items-center gap-3'>
-                                    <Landmark className='w-5 h-5' />
-                                    <span className='font-semibold'>Banks</span>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-2 space-y-2">
-                                {accountGroups.bank.map(account => (
-                                    <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
-                                ))}
-                            </AccordionContent>
-                        </AccordionItem>
-                    )}
-
-                    {accountGroups['e-wallet'].length > 0 && (
-                        <AccordionItem value="e-wallet" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
-                            <AccordionTrigger className="hover:no-underline text-white">
-                                <div className='flex items-center gap-3'>
-                                    <EwalletIcon className='w-5 h-5' />
-                                    <span className='font-semibold'>E-Wallets</span>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-2 space-y-2">
-                                {accountGroups['e-wallet'].map(account => (
-                                    <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
-                                ))}
-                            </AccordionContent>
-                        </AccordionItem>
-                    )}
-                    
-                    {accountGroups.investment.length > 0 && (
-                        <AccordionItem value="investment" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
-                            <AccordionTrigger className="hover:no-underline text-white">
-                                <div className='flex items-center gap-3'>
-                                    <Briefcase className='w-5 h-5' />
-                                    <span className='font-semibold'>Investments</span>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-2 space-y-2">
-                                {accountGroups.investment.map(account => (
-                                    <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
-                                ))}
-                            </AccordionContent>
-                        </AccordionItem>
-                    )}
-
-                    {accountGroups.loan.length > 0 && (
-                        <AccordionItem value="loan" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
-                            <AccordionTrigger className="hover:no-underline text-white">
-                                <div className='flex items-center gap-3'>
-                                    <Coins className='w-5 h-5' />
-                                    <span className='font-semibold'>Loans</span>
-                                </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-2 space-y-2">
-                                {accountGroups.loan.map(account => (
-                                    <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
-                                ))}
-                            </AccordionContent>
-                        </AccordionItem>
-                    )}
-                </Accordion>
             </div>
         </div>
         </>
