@@ -10,7 +10,7 @@ export default {
   theme: {
     fontFamily: {
       sans: ['var(--font-sans)', 'sans-serif'],
-      serif: ['"Lora"', 'serif'],
+      serif: ['var(--font-serif)', 'serif'],
     },
     extend: {
       colors: {
