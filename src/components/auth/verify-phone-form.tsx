@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -21,34 +22,51 @@ function SubmitButton({ pending }: { pending: boolean }) {
 
 export default function VerifyPhoneForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const [code, setCode] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     try {
       if (!window.confirmationResult) {
-        throw new Error('Verification session expired or not found. Please try sending the code again.');
+        toast({
+          variant: 'destructive',
+          title: 'Verification Expired',
+          description: 'The verification session was not found. Please go back and try sending the code again.',
+        });
+        setLoading(false);
+        return;
       }
       
-      // Confirm the code
-      await window.confirmationResult.confirm(code);
+      const result = await window.confirmationResult.confirm(code);
       
-      // On success, redirect to the next step
+      toast({
+        title: 'Success!',
+        description: 'Your phone number has been verified.',
+      });
+
+      console.log("Phone verification successful, user:", result.user);
+
       router.push('/complete-profile');
 
     } catch (err: any) {
       console.error("Error verifying code:", err);
+      let description = 'Failed to verify code. Please try again.';
       if (err.code === 'auth/invalid-verification-code') {
-        setError('The code you entered is invalid. Please try again.');
-      } else {
-        setError(err.message || 'Failed to verify code. Please try again.');
+        description = 'The code you entered is invalid. Please try again.';
+      } else if (err.code === 'auth/code-expired') {
+        description = 'The verification code has expired. Please request a new one.';
       }
-    } finally {
+      
+      toast({
+        variant: 'destructive',
+        title: 'Verification Failed',
+        description,
+      });
+
       setLoading(false);
     }
   };
@@ -74,10 +92,6 @@ export default function VerifyPhoneForm() {
         </div>
         
         <SubmitButton pending={loading} />
-
-        {error && (
-          <p className="mt-4 text-sm text-red-500 text-center">{error}</p>
-        )}
       </form>
     </div>
   );
