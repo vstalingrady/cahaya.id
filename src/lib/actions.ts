@@ -3,18 +3,53 @@
 import { personalizedSavingSuggestions, PersonalizedSavingSuggestionsOutput } from "@/ai/flows/saving-opportunities";
 import { budgetAnalysis, BudgetAnalysisOutput } from "@/ai/flows/budget-analysis";
 import { discoverRecurringBills, BillDiscoveryOutput } from "@/ai/flows/bill-discovery";
-import { type Transaction, type Account, type Budget, FinancialInstitution } from "./data";
+import {
+  type Transaction,
+  type Account,
+  type Budget,
+  type FinancialInstitution,
+  accounts as seedAccounts,
+  transactions as seedTransactions,
+} from "./data";
 import { isWithinInterval } from 'date-fns';
 import { z } from 'zod';
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth, db } from './firebase';
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, deleteDoc, collection, writeBatch, getDocs } from "firebase/firestore";
 import { headers } from 'next/headers';
 import { db as mockApiDb } from './mock-api-db';
 import { type MockAccount, type MockTransaction } from './mock-api-db';
 
+
+/**
+ * Seeds initial data (accounts, transactions) for a new user in Firestore.
+ * This is for demonstration purposes to give new users sample data to explore.
+ */
+async function seedInitialDataForUser(uid: string) {
+  try {
+    const batch = writeBatch(db);
+
+    // Seed Accounts
+    seedAccounts.forEach(account => {
+      const accountDocRef = doc(db, 'users', uid, 'accounts', account.id);
+      batch.set(accountDocRef, account);
+    });
+
+    // Seed Transactions
+    seedTransactions.forEach(transaction => {
+      const transactionDocRef = doc(db, 'users', uid, 'transactions', transaction.id);
+      batch.set(transactionDocRef, transaction);
+    });
+
+    await batch.commit();
+    console.log(`Successfully seeded initial data for user ${uid}`);
+  } catch (error) {
+    console.error('Error seeding initial data for user:', error);
+    // Non-critical error, so we don't throw.
+  }
+}
 
 /**
  * This action is called after a user has authenticated and linked their credentials.
@@ -29,6 +64,8 @@ export async function completeUserProfile(uid: string, fullName: string, email: 
       phone: phone,
       createdAt: new Date(),
     });
+    // Seed the new user with sample data
+    await seedInitialDataForUser(uid);
   } catch (error: any) {
     console.error("Error creating user document in Firestore:", error);
     throw new Error(error.message || "Failed to create user profile in database.");
@@ -66,8 +103,8 @@ export async function login(prevState: any, formData: FormData) {
       userAgent: userAgent,
     });
 
-  } catch (error: any) {
-    if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+  } catch (err: any) {
+    if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
       return { message: 'Invalid email or password.' };
     } else if (err.code && err.code.includes('app-check')) {
       console.error("App Check validation failed during login.");
@@ -283,75 +320,35 @@ export async function exchangePublicToken(publicToken: string | null) {
 
 // ---- Live Data Fetching Actions ----
 
-// This function simulates getting the user's access token for the mock API
-// In a real app, this would be retrieved securely from a session or database
-function getMockUserAccessToken() {
-  const tokenInfo = mockApiDb.exchangePublicToken('good_public_token_for_vstalin');
-  if (tokenInfo.error) throw new Error("Could not get user access token.");
-  return tokenInfo.access_token;
-}
-
-const mapApiAccountToAppAccount = (apiAccount: MockAccount): Account => {
-  let type: Account['type'] = 'bank'; // Default
-  if (apiAccount.type === 'depository') type = 'bank';
-  if (apiAccount.type === 'ewallet') type = 'e-wallet';
-  if (apiAccount.type === 'credit') type = 'loan';
-  if (apiAccount.type === 'investment') type = 'investment';
-  if (apiAccount.type === 'loan') type = 'loan';
-
-  return {
-    id: apiAccount.account_id,
-    name: apiAccount.name,
-    balance: apiAccount.balances.current,
-    last4: apiAccount.mask,
-    type: type,
-    // Holdings are not part of the mock API, so we omit them here.
-  };
-};
-
-const mapApiTransactionToAppTransaction = (apiTransaction: MockTransaction): Transaction => {
-  return {
-    id: apiTransaction.transaction_id,
-    date: apiTransaction.date,
-    description: apiTransaction.description,
-    amount: apiTransaction.amount,
-    category: apiTransaction.category[0] || 'Other',
-    accountId: apiTransaction.account_id,
+export async function getDashboardData(
+  userId: string
+): Promise<{ accounts: Account[]; transactions: Transaction[] }> {
+  if (!userId) {
+    console.error('getDashboardData called without a userId.');
+    return { accounts: [], transactions: [] };
   }
-}
 
-export async function getDashboardData(): Promise<{ accounts: Account[], transactions: Transaction[] }> {
-  const API_BASE = 'http://localhost:9003/api/ayo/v1';
   try {
-    const accessToken = getMockUserAccessToken();
-    const headers = { 'Authorization': `Bearer ${accessToken}` };
-    
-    // 1. Fetch accounts
-    const accountsResponse = await fetch(`${API_BASE}/accounts`, { headers });
-    if (!accountsResponse.ok) throw new Error(`Failed to fetch accounts: ${accountsResponse.statusText}`);
-    const accountsData = await accountsResponse.json();
-    const apiAccounts: MockAccount[] = accountsData.accounts;
-
-    // 2. Fetch transactions for all accounts concurrently
-    const transactionPromises = apiAccounts.map(account => 
-      fetch(`${API_BASE}/accounts/${account.account_id}/transactions`, { headers })
-        .then(res => res.ok ? res.json() : Promise.reject(`Failed for account ${account.account_id}`))
+    // 1. Fetch accounts from Firestore
+    const accountsCol = collection(db, 'users', userId, 'accounts');
+    const accountsSnapshot = await getDocs(accountsCol);
+    const fetchedAccounts = accountsSnapshot.docs.map(
+      doc => doc.data() as Account
     );
-    
-    const transactionResults = await Promise.all(transactionPromises);
 
-    // 3. Transform data
-    const formattedAccounts = apiAccounts.map(mapApiAccountToAppAccount);
-    const allApiTransactions: MockTransaction[] = transactionResults.flatMap(result => result.transactions);
-    const formattedTransactions = allApiTransactions.map(mapApiTransactionToAppTransaction);
+    // 2. Fetch transactions from Firestore
+    const transactionsCol = collection(db, 'users', userId, 'transactions');
+    const transactionsSnapshot = await getDocs(transactionsCol);
+    const fetchedTransactions = transactionsSnapshot.docs.map(
+      doc => doc.data() as Transaction
+    );
 
     return {
-      accounts: formattedAccounts,
-      transactions: formattedTransactions
+      accounts: fetchedAccounts,
+      transactions: fetchedTransactions,
     };
-
   } catch (error) {
-    console.error("Error in getDashboardData:", error);
+    console.error('Error in getDashboardData from Firestore:', error);
     // In case of error, return empty arrays to prevent app crash
     return { accounts: [], transactions: [] };
   }
@@ -363,4 +360,3 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
   currency: 'IDR',
   minimumFractionDigits: 0,
 }).format(value);
-

@@ -22,9 +22,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 
 export default function DashboardPage() {
     const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
     const [accountList, setAccountList] = useState<Account[]>([]);
     const [transactionList, setTransactionList] = useState<Transaction[]>([]);
     
@@ -36,23 +39,33 @@ export default function DashboardPage() {
     const { toast } = useToast();
 
     useEffect(() => {
-        async function loadData() {
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
             setIsLoading(true);
-            try {
-                const { accounts, transactions } = await getDashboardData();
-                setAccountList(accounts);
-                setTransactionList(transactions);
-            } catch (error) {
-                console.error("Failed to fetch dashboard data:", error);
-                toast({
-                    variant: 'destructive',
-                    title: 'Error',
-                    description: 'Could not load your account data.'
-                });
+            if (currentUser) {
+                setUser(currentUser);
+                try {
+                    const { accounts, transactions } = await getDashboardData(currentUser.uid);
+                    setAccountList(accounts);
+                    setTransactionList(transactions);
+                } catch (error) {
+                    console.error("Failed to fetch dashboard data:", error);
+                    toast({
+                        variant: 'destructive',
+                        title: 'Error',
+                        description: 'Could not load your account data.'
+                    });
+                }
+            } else {
+                setUser(null);
+                setAccountList([]);
+                setTransactionList([]);
+                // Optional: redirect to login if not authenticated
+                // router.push('/login');
             }
             setIsLoading(false);
-        }
-        loadData();
+        });
+
+        return () => unsubscribe();
     }, [toast]);
 
     useEffect(() => {
@@ -160,7 +173,7 @@ export default function DashboardPage() {
             <header className="sticky top-0 -mt-6 pt-6 pb-4 -mx-6 px-6 bg-background/80 backdrop-blur-md z-20 flex justify-between items-center">
                 <div>
                     <h1 className="text-xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                        Good morning, Vstalin
+                        Good morning, {user?.displayName || 'User'}
                     </h1>
                     <p className="text-sm text-muted-foreground">Welcome back to your dashboard.</p>
                 </div>

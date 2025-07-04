@@ -16,7 +16,8 @@ import {
   GoogleAuthProvider,
   OAuthProvider,
   signInWithPopup,
-  linkWithPopup
+  linkWithPopup,
+  updateProfile
 } from 'firebase/auth';
 import { completeUserProfile } from '@/lib/actions';
 import { User as UserIcon, Mail, Lock, Loader2 } from 'lucide-react';
@@ -109,6 +110,10 @@ export default function CompleteProfileForm() {
         finalPhoneNumber = user.phoneNumber!;
       }
       
+      // Update Firebase Auth profile displayName
+      await updateProfile(finalUser, { displayName: fullName });
+      
+      // Call server action to update Firestore database
       await completeUserProfile(finalUser.uid, fullName, email, finalPhoneNumber);
       
       if (isBypassMode) {
