@@ -19,26 +19,38 @@ export default function SetupSecurityForm() {
   const confirmPinInputRef = useRef<HTMLInputElement>(null);
   const submitButtonRef = useRef<HTMLButtonElement>(null);
 
+  const formatPin = (value: string): string => {
+    const rawValue = value.replace(/[^a-zA-Z0-9]/g, '');
+    const truncated = rawValue.slice(0, 8);
+
+    if (truncated.length > 4) {
+      return `${truncated.slice(0, 4)}-${truncated.slice(4)}`;
+    }
+    return truncated;
+  };
 
   const handlePinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
-    setPin(value);
-    if (value.length === 8) {
+    const formatted = formatPin(e.target.value);
+    setPin(formatted);
+    if (formatted.length === 9) { // 8 chars + 1 hyphen
       confirmPinInputRef.current?.focus();
     }
   };
 
   const handleConfirmPinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
-    setConfirmPin(value);
-    if (value.length === 8) {
-        submitButtonRef.current?.focus();
+    const formatted = formatPin(e.target.value);
+    setConfirmPin(formatted);
+    if (formatted.length === 9) {
+      submitButtonRef.current?.focus();
     }
   };
 
 
   const handleSetPin = () => {
-    if (pin.length < 8) {
+    const cleanPin = pin.replace('-', '');
+    const cleanConfirmPin = confirmPin.replace('-', '');
+
+    if (cleanPin.length < 8) {
       toast({
         variant: 'destructive',
         title: 'PIN is too short',
@@ -47,7 +59,7 @@ export default function SetupSecurityForm() {
       return;
     }
     
-    if (pin !== confirmPin) {
+    if (cleanPin !== cleanConfirmPin) {
       toast({
         variant: 'destructive',
         title: 'PIN Mismatch',
@@ -76,12 +88,12 @@ export default function SetupSecurityForm() {
             <Label htmlFor="pin">Create 8-Character PIN</Label>
             <Input 
                 id="pin"
-                type="password" 
-                className="bg-input border-border h-14 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
-                placeholder="••••••••"
+                type="text" 
+                className="bg-input border-border h-14 text-center text-xl tracking-[0.2em] placeholder:text-muted-foreground font-mono" 
+                placeholder="••••-••••"
                 value={pin}
                 onChange={handlePinChange}
-                maxLength={8}
+                maxLength={9}
                 autoComplete="new-password"
                 autoFocus
             />
@@ -92,12 +104,12 @@ export default function SetupSecurityForm() {
              <Input
                 ref={confirmPinInputRef} 
                 id="confirmPin"
-                type="password" 
-                className="bg-input border-border h-14 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
-                placeholder="••••••••"
+                type="text" 
+                className="bg-input border-border h-14 text-center text-xl tracking-[0.2em] placeholder:text-muted-foreground font-mono" 
+                placeholder="••••-••••"
                 value={confirmPin}
                 onChange={handleConfirmPinChange}
-                maxLength={8}
+                maxLength={9}
                 autoComplete="new-password"
             />
         </div>
@@ -105,7 +117,7 @@ export default function SetupSecurityForm() {
         <Button 
             ref={submitButtonRef}
             type="submit"
-            disabled={pin.length < 8 || confirmPin.length < 8 || loading}
+            disabled={pin.length < 9 || confirmPin.length < 9 || loading}
             className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
         >
             {loading ? <Loader2 className="animate-spin" /> : 'Set & Continue'}
