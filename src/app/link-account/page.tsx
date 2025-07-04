@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -8,6 +7,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import NoiseOverlay from '@/components/noise-overlay';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 const groupInstitutions = (institutions: FinancialInstitution[]) => {
   const grouped: { [key: string]: FinancialInstitution[] } = {
@@ -39,7 +39,7 @@ export default function LinkAccountPage() {
   return (
     <div className="w-full max-w-md mx-auto bg-background text-white p-6 min-h-screen relative overflow-hidden flex flex-col">
        <div className="absolute inset-0 -z-10 h-full w-full bg-background">
-        <div className="absolute -top-1/2 left-0 right-0 h-full bg-[radial-gradient(ellipse_50%_50%_at_50%_0%,hsl(262_80%_58%/0.15),transparent_70%)]"></div>
+        <div className="absolute -top-1/2 left-0 right-0 h-full bg-[radial-gradient(ellipse_50%_50%_at_50%_0%,hsl(var(--primary)/0.15),transparent_70%)]"></div>
       </div>
       <NoiseOverlay opacity={0.02} />
       
@@ -77,6 +77,13 @@ export default function LinkAccountPage() {
             </div>
           </div>
         ))}
+      </div>
+       <div className="py-6 text-center relative z-10">
+        <Button asChild variant="link" className="text-muted-foreground font-semibold hover:text-primary transition-colors">
+          <Link href="/dashboard">
+            I'll just look around for now
+          </Link>
+        </Button>
       </div>
     </div>
   );
