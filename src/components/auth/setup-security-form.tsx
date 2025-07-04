@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 
 export default function SetupSecurityForm() {
@@ -30,7 +30,7 @@ export default function SetupSecurityForm() {
           if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             throw new Error('Camera API not available in this browser.');
           }
-          stream = await navigator.mediaDevices.getUserMedia({ video: true });
+          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
           setHasCameraPermission(true);
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
@@ -126,18 +126,24 @@ export default function SetupSecurityForm() {
           </TabsList>
           <TabsContent value="face" className="mt-6">
             <div className="flex flex-col items-center space-y-6">
-               <Alert className="text-center text-muted-foreground bg-secondary border-border">
-                <AlertDescription>
-                  {scanStep === 'scanning'
-                    ? "Hold still, the screen will flash to illuminate your face."
-                    : "Position your face in the oval, then start the scan."}
-                </AlertDescription>
+               <Alert variant="default" className="text-center bg-secondary border-border/80">
+                  <AlertTitle className="text-foreground font-semibold">
+                    {scanStep === 'idle' && 'Ready to Scan'}
+                    {scanStep === 'scanning' && 'Scanning...'}
+                    {scanStep === 'complete' && 'Scan Complete!'}
+                  </AlertTitle>
+                  <AlertDescription className="text-muted-foreground text-sm">
+                    {scanStep === 'idle' && 'Position your face in the oval and start the scan.'}
+                    {scanStep === 'scanning' && 'Hold still, the screen will flash to illuminate your face.'}
+                    {scanStep === 'complete' && 'Face ID has been successfully configured.'}
+                  </AlertDescription>
               </Alert>
 
               <div className={cn(
-                "relative w-64 h-80 rounded-[50%] overflow-hidden border-4 flex items-center justify-center transition-colors",
-                scanStep === 'scanning' ? 'animate-border-color-cycle' : 'border-border',
-                scanStep === 'complete' ? 'border-green-500' : ''
+                "relative w-64 h-80 rounded-[50%] overflow-hidden border-4 flex items-center justify-center transition-all duration-500",
+                scanStep === 'scanning' && 'border-primary animate-pulse',
+                scanStep === 'complete' && 'border-green-500',
+                scanStep === 'idle' && 'border-border'
               )}>
                 <video ref={videoRef} className={cn("w-full h-full object-cover scale-x-[-1] transition-opacity duration-300", isCameraActive ? 'opacity-100' : 'opacity-0')} autoPlay muted playsInline />
                 
@@ -158,7 +164,7 @@ export default function SetupSecurityForm() {
                  <Button 
                     onClick={handleStartScan}
                     disabled={!hasCameraPermission}
-                    className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105"
+                    className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
                  >
                     Start Scan
                  </Button>
@@ -166,7 +172,7 @@ export default function SetupSecurityForm() {
               {scanStep === 'scanning' && (
                  <Button 
                     disabled
-                    className="w-full bg-primary/80 text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg"
+                    className="w-full bg-primary/80 text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg h-auto"
                  >
                     <Loader2 className="w-6 h-6 mr-3 animate-spin" />
                     Scanning...
@@ -175,7 +181,7 @@ export default function SetupSecurityForm() {
                {scanStep === 'complete' && (
                  <Button 
                     disabled
-                    className="w-full bg-green-500 hover:bg-green-500/90 text-white py-4 rounded-xl font-semibold text-lg shadow-lg"
+                    className="w-full bg-green-500 hover:bg-green-500/90 text-white py-4 rounded-xl font-semibold text-lg shadow-lg h-auto"
                  >
                     <Check className="w-6 h-6 mr-3" />
                     Face ID Configured
@@ -189,7 +195,7 @@ export default function SetupSecurityForm() {
                   <Fingerprint className="w-48 h-48 text-primary/30 animate-pulse" />
                   <Button 
                       onClick={() => handleSetupComplete('Fingerprint')}
-                      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105"
+                      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
                   >
                       Register Fingerprint
                   </Button>
@@ -212,7 +218,7 @@ export default function SetupSecurityForm() {
                    <Button 
                       onClick={() => handleSetupComplete('Cuan PIN')}
                       disabled={pin.length < 8}
-                      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105"
+                      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
                   >
                       Set PIN
                   </Button>
