@@ -186,7 +186,7 @@ export default function SetupSecurityForm() {
           <TabsContent value="fingerprint" className="mt-6">
               <div className="flex flex-col items-center space-y-8 pt-8 pb-4">
                   <p className="text-center text-muted-foreground">Place your finger on the scanner to register your fingerprint.</p>
-                  <Fingerprint className="w-48 h-48 text-primary/30" />
+                  <Fingerprint className="w-48 h-48 text-primary/30 animate-pulse" />
                   <Button 
                       onClick={() => handleSetupComplete('Fingerprint')}
                       className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105"

@@ -77,6 +77,11 @@ export default {
             height: '0',
           },
         },
+        'border-color-cycle': {
+          '0%, 100%': { 'border-color': 'hsl(var(--primary))' }, 
+          '33%': { 'border-color': 'hsl(var(--accent))' }, 
+          '66%': { 'border-color': 'hsl(var(--primary))' }, 
+        },
         'fade-in-up': {
           'from': { opacity: '0', transform: 'translateY(10px)' },
           'to': { opacity: '1', transform: 'translateY(0)' },
@@ -86,6 +91,7 @@ export default {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
+        'border-color-cycle': 'border-color-cycle 4s linear infinite',
       },
     },
   },
