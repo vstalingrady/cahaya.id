@@ -3,7 +3,8 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useActionState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { financialInstitutions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -29,7 +30,7 @@ function SubmitButton() {
         disabled={pending}
         className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
     >
-      {pending ? <Loader2 className="animate-spin" /> : 'Connect Securely'}
+      {pending ? <Loader2 className="animate-spin" /> : 'Log In & Connect'}
     </Button>
   );
 }
@@ -55,9 +56,9 @@ export default function InstitutionAuthPage() {
         <div className="text-center mb-8">
             <Image src={institution.logoUrl} alt={`${institution.name} logo`} width={64} height={64} className="rounded-2xl mx-auto mb-4 border-2 border-border" />
             <h1 className="text-2xl font-bold mb-2 text-primary font-serif">
-            Link with {institution.name}
+            Connect with {institution.name}
             </h1>
-            <p className="text-muted-foreground">Enter your credentials to securely connect.</p>
+            <p className="text-muted-foreground">Enter your credentials to continue.</p>
         </div>
 
         <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
@@ -67,8 +68,8 @@ export default function InstitutionAuthPage() {
                 {isBank ? (
                     <>
                     <div className="space-y-2">
-                        <Label htmlFor="userId">User ID</Label>
-                        <Input id="userId" name="userId" type="text" placeholder="Your User ID" defaultValue={`cuan-demo`} className="bg-input h-12 text-base" />
+                        <Label htmlFor="username">Username</Label>
+                        <Input id="username" name="username" type="text" placeholder="vstalin" defaultValue={`vstalin`} className="bg-input h-12 text-base" />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="password">Password</Label>
@@ -94,7 +95,7 @@ export default function InstitutionAuthPage() {
         </div>
 
         <div className="mt-8 text-center text-xs text-muted-foreground max-w-xs mx-auto">
-            <p>By connecting, you agree to Cuan's Terms of Service and allow us to securely access your account information.</p>
+            <p>This is a mock environment. Cuan will not see your credentials.</p>
         </div>
       </div>
     </div>

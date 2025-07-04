@@ -1,3 +1,4 @@
+
 'use server';
 
 import { personalizedSavingSuggestions, PersonalizedSavingSuggestionsOutput } from "@/ai/flows/saving-opportunities";
@@ -145,7 +146,7 @@ const addNewAccountToDB = async (institution: FinancialInstitution) => {
 const LinkAccountSchema = z.object({
   institutionSlug: z.string().min(1, "Institution is required."),
   // In a real app, you'd have more robust validation
-  userId: z.string().optional(),
+  username: z.string().optional(),
   password: z.string().optional(),
   phone: z.string().optional(),
 });
@@ -153,7 +154,7 @@ const LinkAccountSchema = z.object({
 export async function linkAccount(prevState: any, formData: FormData) {
   const validatedFields = LinkAccountSchema.safeParse({
     institutionSlug: formData.get('institutionSlug'),
-    userId: formData.get('userId'),
+    username: formData.get('username'),
     password: formData.get('password'),
     phone: formData.get('phone'),
   });
