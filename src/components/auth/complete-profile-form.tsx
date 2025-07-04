@@ -122,11 +122,13 @@ export default function CompleteProfileForm() {
       router.push('/setup-security');
 
     } catch (err: any) {
-      console.error("Error completing profile:", err);
+      console.error("Full Profile Completion Error:", err);
       if (err.code === 'auth/email-already-in-use' || err.code === 'auth/credential-already-in-use') {
         setError('This email address is already associated with another account.');
       } else if (err.code === 'auth/weak-password') {
           setError('The password is too weak. It must be at least 6 characters long.')
+      } else if (err.code && err.code.includes('app-check')) {
+          setError('App Check validation failed. Please ensure your debug token is configured correctly in the Firebase Console.');
       } else {
         setError(err.message || 'Failed to complete profile. Please try again.');
       }
