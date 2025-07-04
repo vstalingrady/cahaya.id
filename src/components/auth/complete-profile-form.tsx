@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,7 +24,33 @@ import { User as UserIcon, Mail, Lock, Loader2, Check, X, Eye, EyeOff } from 'lu
 import { Separator } from '../ui/separator';
 import { cn } from '@/lib/utils';
 import GoogleIcon from '@/components/icons/google-icon';
-import AppleIcon from '@/components/icons/apple-icon';
+
+const AppleIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg
+      fill="currentColor"
+      version="1.1"
+      id="Capa_1"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlnsXlink="http://www.w3.org/1999/xlink"
+      viewBox="0 0 49.616 49.616"
+      xmlSpace="preserve"
+      {...props}
+    >
+        <g>
+        <path d="M44.616,21.888c0,0.024-0.004,0.048-0.004,0.072c-0.016,2.28-0.56,4.42-1.5,6.34c-1.004,2.04-2.484,3.8-4.28,5.148
+        c-1.388,1.036-2.964,1.748-4.648,2.084c-0.84,0.168-1.716,0.252-2.624,0.252c-0.884,0-1.768-0.084-2.624-0.252
+        c-1.684-0.336-3.256-1.048-4.648-2.084c-1.8-1.348-3.28-3.108-4.28-5.148c-0.944-1.92-1.488-4.06-1.5-6.34
+        c0-0.024-0.004-0.048-0.004-0.072c-0.2-5.28,2.152-10.276,5.88-13.604c1.944-1.728,4.324-2.78,6.892-2.94
+        c0.936-0.06,1.88-0.088,2.836-0.088c0.956,0,1.904,0.028,2.836,0.088c2.572,0.16,4.948,1.212,6.892,2.94
+        C42.464,11.612,44.816,16.608,44.616,21.888z"/>
+        <path d="M34.78,9.58c-2.456-2.028-5.748-2.736-8.888-2.128c-1.444,0.284-2.82,0.884-4.04,1.748c-1.844,1.308-3.22,3.144-3.96,5.292
+        c0,0,0.004,0,0.004,0c0,0,0,0,0,0c-0.62,4.32,1.38,8.512,4.64,10.96c1.328,0.996,2.868,1.552,4.464,1.552
+        c0.344,0,0.688-0.024,1.024-0.072c1.724-0.248,3.32-1,4.644-2.18c0.412-0.364,0.792-0.756,1.144-1.176
+        c1.9-2.288,2.824-5.22,2.44-8.156C39.676,13.628,37.864,11.2,34.78,9.58z"/>
+        </g>
+    </svg>
+);
+
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
