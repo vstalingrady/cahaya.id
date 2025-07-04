@@ -168,10 +168,13 @@ export default function CompleteProfileForm() {
       router.push('/setup-security');
 
     } catch (err: any) {
-      console.error("Error with OAuth:", err);
+      console.error("Full OAuth Error Object:", err);
       if (err.code === 'auth/account-exists-with-different-credential' || err.code === 'auth/credential-already-in-use') {
           setError('This social account is already linked to another user.');
-      } else {
+      } else if (err.code && err.code.includes('app-check')) {
+          setError('App Check validation failed. Please ensure your debug token is configured correctly in the Firebase Console.');
+      }
+      else {
           setError(err.message || 'An unknown error occurred.');
       }
     } finally {
