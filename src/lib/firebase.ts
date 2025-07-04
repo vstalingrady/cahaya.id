@@ -1,3 +1,4 @@
+
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
@@ -35,49 +36,53 @@ if (typeof window !== 'undefined') {
   if (missingVars.length > 0) {
     const errorMessage = `🔴 FATAL: Missing Firebase environment variables. Please create a .env.local file in your project's root directory and add the following keys:\n\n${missingVars.join('\n')}\n\nYou can find these values in your Firebase project settings. Without them, the app cannot connect to Firebase.`;
     console.warn(errorMessage);
-    // You could also throw an error here to halt execution, but logging is often sufficient.
-    // throw new Error(errorMessage);
   }
 }
 
 
 // Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// Initialize Analytics & App Check only in the browser
+let app;
+let auth;
+let db;
 let analytics;
-if (typeof window !== 'undefined') {
-  try {
-    if (firebaseConfig.measurementId) {
-      analytics = getAnalytics(app);
-    }
-  } catch (error) {
-    console.log('Failed to initialize Analytics', error);
-  }
 
-  try {
-    // In development, the debug token is printed to the console.
-    // You must add this token to the Firebase Console to bypass App Check.
-    if (process.env.NODE_ENV === 'development') {
-      console.log("Firebase App Check: Debug mode enabled. If you're seeing security errors, find the 'App Check debug token' logged below and add it to your Firebase project settings under App Check > Apps > Manage debug tokens.");
-      (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+try {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    auth = getAuth(app);
+    db = getFirestore(app);
+
+    // Initialize Analytics & App Check only in the browser
+    if (typeof window !== 'undefined') {
+        if (firebaseConfig.measurementId) {
+            analytics = getAnalytics(app);
+        }
+        
+        // In development, the debug token is printed to the console.
+        // You must add this token to the Firebase Console to bypass App Check.
+        if (process.env.NODE_ENV === 'development') {
+            console.log("Firebase App Check: Debug mode enabled. If you're seeing security errors, find the 'App Check debug token' logged below and add it to your Firebase project settings under App Check > Apps > Manage debug tokens.");
+            (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+        }
+
+        const recaptchaSiteKey = process.env.NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY;
+        if (recaptchaSiteKey) {
+            initializeAppCheck(app, {
+                provider: new ReCaptchaV3Provider(recaptchaSiteKey),
+                isTokenAutoRefreshEnabled: true
+            });
+            console.log("Firebase App Check initialized successfully.");
+        } else {
+            console.warn("Firebase App Check not initialized. The 'NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY' is missing from your environment variables.");
+        }
     }
-    
-    const recaptchaSiteKey = process.env.NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY;
-    if (recaptchaSiteKey) {
-      initializeAppCheck(app, {
-        provider: new ReCaptchaV3Provider(recaptchaSiteKey),
-        isTokenAutoRefreshEnabled: true
-      });
-      console.log("Firebase App Check initialized successfully.");
-    } else {
-       console.warn("Firebase App Check not initialized. The 'NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY' is missing from your environment variables.");
+} catch (error: any) {
+    if (error.message && (error.message.includes("invalid-api-key") || error.message.includes("Invalid API key"))) {
+        throw new Error(
+            "🔴 Firebase Error: Invalid API Key. Please check that NEXT_PUBLIC_FIREBASE_API_KEY in your .env.local file is correct. You can find this value in your Firebase project's settings."
+        );
     }
-  } catch (error) {
-    console.error("Failed to initialize Firebase App Check. This can cause authentication and API requests to fail.", error);
-  }
+    // Re-throw any other initialization errors
+    throw error;
 }
 
 
