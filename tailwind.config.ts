@@ -96,12 +96,12 @@ export default {
         },
         'logo-blink-glow': {
           '0%, 100%': {
-            opacity: '1',
-            filter: 'drop-shadow(0 0 4px hsl(var(--primary) / 0.4))'
+            opacity: '0.85',
+            filter: 'drop-shadow(0 0 3px hsl(var(--primary) / 0.3))'
           },
           '50%': {
-            opacity: '0.75',
-            filter: 'drop-shadow(0 0 10px hsl(var(--primary) / 0.6))'
+            opacity: '1',
+            filter: 'drop-shadow(0 0 8px hsl(var(--primary) / 0.5))'
           },
         },
       },
