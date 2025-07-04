@@ -12,8 +12,21 @@ import {
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-import CuanLogo from '@/components/icons/cuanlogo';
 
+const CuanLogo = ({ className = "w-24 h-auto" }) => {
+  return (
+    <div className={className}>
+      <Image
+        src="/components/icons/cuanlogo.svg"
+        alt="Cuan Logo"
+        width={102}
+        height={26}
+        className="w-full h-auto"
+        priority
+      />
+    </div>
+  );
+};
 
 export default function WelcomePage() {
   const [api, setApi] = React.useState<CarouselApi>();
@@ -69,6 +82,7 @@ export default function WelcomePage() {
                 {slide.type === 'hero' && (
                   <div className="text-center relative z-10 animate-fade-in-up">
                     <CuanLogo className="w-24 h-auto mx-auto mb-6" />
+                    
                     <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line">
                       {slide.title}
                     </h1>
