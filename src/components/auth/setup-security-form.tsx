@@ -6,6 +6,7 @@ import { Loader2, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function SetupSecurityForm() {
   const router = useRouter();
@@ -25,6 +26,15 @@ export default function SetupSecurityForm() {
   };
 
   const handleSetPin = () => {
+    if (pin.length < 8) {
+      toast({
+        variant: 'destructive',
+        title: 'PIN is too short',
+        description: 'Your Cuan PIN must be 8 characters long.',
+      });
+      return;
+    }
+    
     if (pin !== confirmPin) {
       toast({
         variant: 'destructive',
@@ -49,49 +59,47 @@ export default function SetupSecurityForm() {
 
   return (
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10 relative z-10">
-      <div className="flex flex-col items-center space-y-6">
-        <div className="text-center">
-            <h2 className="text-xl text-foreground font-semibold">
-                Create Your Cuan PIN
-            </h2>
-            <p className="text-muted-foreground text-sm mt-1 max-w-xs">
-                Create an 8-character PIN with numbers and letters for secure access and transaction approvals.
-            </p>
+      <form onSubmit={(e) => { e.preventDefault(); handleSetPin(); }} className="space-y-6">
+        <div className="space-y-2">
+            <Label htmlFor="pin">Create 8-Character PIN</Label>
+            <div className="relative w-full">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input 
+                    id="pin"
+                    type="password" 
+                    className="bg-input border-border h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
+                    placeholder="••••••••"
+                    value={pin}
+                    onChange={handlePinChange}
+                    maxLength={8}
+                />
+            </div>
         </div>
 
-        <div className="w-full space-y-4">
-            <div className="relative w-full">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input 
-                type="password" 
-                className="bg-input border-border h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
-                placeholder="••••••••"
-                value={pin}
-                onChange={handlePinChange}
-                maxLength={8}
-            />
-            </div>
+        <div className="space-y-2">
+            <Label htmlFor="confirmPin">Confirm PIN</Label>
              <div className="relative w-full">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input 
-                type="password" 
-                className="bg-input border-border h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
-                placeholder="••••••••"
-                value={confirmPin}
-                onChange={handleConfirmPinChange}
-                maxLength={8}
-            />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input 
+                    id="confirmPin"
+                    type="password" 
+                    className="bg-input border-border h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
+                    placeholder="••••••••"
+                    value={confirmPin}
+                    onChange={handleConfirmPinChange}
+                    maxLength={8}
+                />
             </div>
         </div>
         
         <Button 
-            onClick={handleSetPin}
+            type="submit"
             disabled={pin.length < 8 || confirmPin.length < 8 || loading}
             className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
         >
             {loading ? <Loader2 className="animate-spin" /> : 'Set & Continue'}
         </Button>
-      </div>
+      </form>
     </div>
   );
 }
