@@ -37,32 +37,26 @@ export default function SignupForm() {
 
   useEffect(() => {
     const auth = getAuth(app);
-    
-    // Clean up any existing verifier
-    if (recaptchaVerifierRef.current) {
-      recaptchaVerifierRef.current.clear();
-    }
-    
-    // Initialize reCAPTCHA only once
+    let verifier: RecaptchaVerifier;
+
     if (!recaptchaVerifierRef.current) {
-      try {
-        // Use a static ID instead of a ref
-        const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-          'size': 'invisible',
-          'callback': () => {
-            console.log("reCAPTCHA challenge solved.");
-          },
-          'expired-callback': () => {
-            setError('reCAPTCHA expired. Please try again.');
-          }
-        });
-        
-        recaptchaVerifierRef.current = verifier;
-        setRecaptchaInitialized(true);
-      } catch (err: any) {
-        console.error("Error initializing reCAPTCHA:", err);
-        setError("Failed to initialize reCAPTCHA. Please refresh the page.");
-      }
+        try {
+            verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+                'size': 'invisible',
+                'callback': () => {
+                    console.log("reCAPTCHA challenge solved.");
+                },
+                'expired-callback': () => {
+                    setError('reCAPTCHA expired. Please try again.');
+                }
+            });
+
+            recaptchaVerifierRef.current = verifier;
+            setRecaptchaInitialized(true);
+        } catch (err: any) {
+            console.error("Error initializing reCAPTCHA:", err);
+            setError("Failed to initialize reCAPTCHA. Please refresh the page.");
+        }
     }
 
     // Cleanup function
@@ -126,11 +120,7 @@ export default function SignupForm() {
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many requests. Please try again later.');
       } else if (err.code === 'auth/captcha-check-failed') {
-        setError('Security check failed. If in development, check the console for an App Check debug token and add it to your Firebase project settings.');
-        // Reset reCAPTCHA on failure
-        if (recaptchaVerifierRef.current) {
-          recaptchaVerifierRef.current.clear();
-        }
+        setError('Security check failed. Ensure your app environment is authorized in the Firebase console.');
       } else {
         setError(err.message || 'Failed to send verification code. Please try again.');
       }
