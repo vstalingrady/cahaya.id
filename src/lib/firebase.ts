@@ -48,20 +48,14 @@ let analytics;
 
 try {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-    auth = getAuth(app);
-    db = getFirestore(app);
-
-    // Initialize Analytics & App Check only in the browser
+    
+    // Initialize App Check immediately after app initialization, and before other services.
     if (typeof window !== 'undefined') {
-        if (firebaseConfig.measurementId) {
-            analytics = getAnalytics(app);
-        }
-        
         // In development, the debug token is printed to the console.
         // You must add this token to the Firebase Console to bypass App Check.
         if (process.env.NODE_ENV === 'development') {
             console.log("Firebase App Check: Debug mode enabled. If you're seeing security errors, find the 'App Check debug token' logged below and add it to your Firebase project settings under App Check > Apps > Manage debug tokens.");
-            (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+            (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
         }
 
         const recaptchaSiteKey = process.env.NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY;
@@ -74,7 +68,17 @@ try {
         } else {
             console.warn("Firebase App Check not initialized. The 'NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY' is missing from your environment variables.");
         }
+        
+        // Now initialize other services
+        if (firebaseConfig.measurementId) {
+            analytics = getAnalytics(app);
+        }
     }
+    
+    // Initialize other Firebase services AFTER App Check
+    auth = getAuth(app);
+    db = getFirestore(app);
+
 } catch (error: any) {
     if (error.message && (error.message.includes("invalid-api-key") || error.message.includes("Invalid API key"))) {
         throw new Error(
