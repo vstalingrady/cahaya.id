@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import { app } from '@/lib/firebase';
-import { Phone, Loader2 } from 'lucide-react';
+import { Phone, Loader2, Info } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -38,7 +39,7 @@ export default function SignupForm() {
 
   useEffect(() => {
     const auth = getAuth(app);
-
+    
     if (typeof window !== 'undefined') {
       console.log('CURRENT HOSTNAME:', window.location.hostname, '<<< Add this to your Firebase Console Authorized Domains.');
     }
@@ -99,6 +100,12 @@ export default function SignupForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    
+    if (phone.trim().toLowerCase() === 'dev-bypass') {
+        sessionStorage.setItem('devBypass', 'true');
+        router.push('/complete-profile');
+        return;
+    }
 
     if (!recaptchaInitialized) {
       setError("reCAPTCHA not initialized. Please refresh the page.");
@@ -124,17 +131,15 @@ export default function SignupForm() {
       
       console.log("Code sent successfully");
       router.push(`/verify-phone?phone=${encodeURIComponent(formattedPhone)}`);
-    } catch (err: any) {
+    } catch (err: any)
+    {
       console.error("Error sending code:", err);
-      
-      // More specific error handling
       if (err.code === 'auth/invalid-phone-number') {
         setError('Invalid phone number format. Please check your number.');
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many requests. Please try again later.');
       } else if (err.code === 'auth/captcha-check-failed') {
         setError(`reCAPTCHA check failed. Ensure the hostname "${window.location.hostname}" is added to your Firebase project's authorized domains list.`);
-        // Reset reCAPTCHA on failure
         if (recaptchaVerifierRef.current) {
           recaptchaVerifierRef.current.clear();
           recaptchaVerifierRef.current = null;
@@ -150,6 +155,13 @@ export default function SignupForm() {
 
   return (
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
+       <Alert className="mb-6 bg-secondary border-primary/20">
+        <Info className="h-4 w-4 text-primary" />
+        <AlertTitle className="text-primary font-bold">Developer Tip</AlertTitle>
+        <AlertDescription className="text-muted-foreground">
+          To bypass phone verification, enter <code className="font-mono bg-background px-1 py-0.5 rounded text-white">dev-bypass</code> as the phone number.
+        </AlertDescription>
+      </Alert>
       <form onSubmit={handleSendCode} className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="phone">Phone Number</Label>

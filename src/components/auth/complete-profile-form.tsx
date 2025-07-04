@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, User, EmailAuthProvider, linkWithCredential } from 'firebase/auth';
+import { onAuthStateChanged, User, EmailAuthProvider, linkWithCredential, createUserWithEmailAndPassword } from 'firebase/auth';
 import { completeUserProfile } from '@/lib/actions';
 import { User as UserIcon, Mail, Lock, Loader2 } from 'lucide-react';
 
@@ -28,6 +28,7 @@ export default function CompleteProfileForm() {
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isBypassMode, setIsBypassMode] = useState(false);
   
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -36,9 +37,16 @@ export default function CompleteProfileForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    const bypassFlag = sessionStorage.getItem('devBypass') === 'true';
+    setIsBypassMode(bypassFlag);
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser && currentUser.phoneNumber) {
         setUser(currentUser);
+        setLoading(false);
+      } else if (bypassFlag) {
+        // In bypass mode, we don't need a pre-authenticated user
+        setLoading(false);
       } else {
         toast({
           variant: 'destructive',
@@ -47,7 +55,6 @@ export default function CompleteProfileForm() {
         });
         router.replace('/signup');
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -58,17 +65,32 @@ export default function CompleteProfileForm() {
     setIsSubmitting(true);
     setError(null);
 
-    if (!user) {
-      setError("No authenticated user found. Please sign up again.");
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      const credential = EmailAuthProvider.credential(email, password);
-      await linkWithCredential(user, credential);
-      await completeUserProfile(user.uid, fullName, email, user.phoneNumber!);
+      let finalUser: User;
+      let finalPhoneNumber = 'dev-bypass';
+
+      if (isBypassMode) {
+        // Bypass Flow: Create a new user with email and password
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        finalUser = userCredential.user;
+      } else {
+        // Normal Flow: Link credentials to phone-verified user
+        if (!user) {
+          throw new Error("No authenticated user found. Please sign up again.");
+        }
+        const credential = EmailAuthProvider.credential(email, password);
+        await linkWithCredential(user, credential);
+        finalUser = user;
+        finalPhoneNumber = user.phoneNumber!;
+      }
       
+      await completeUserProfile(finalUser.uid, fullName, email, finalPhoneNumber);
+      
+      // Clean up bypass flag
+      if (isBypassMode) {
+        sessionStorage.removeItem('devBypass');
+      }
+
       toast({
         title: "Profile Created!",
         description: "Now let's secure your account.",
@@ -79,6 +101,8 @@ export default function CompleteProfileForm() {
       console.error("Error completing profile:", err);
       if (err.code === 'auth/email-already-in-use' || err.code === 'auth/credential-already-in-use') {
         setError('This email address is already associated with another account.');
+      } else if (err.code === 'auth/weak-password') {
+          setError('The password is too weak. It must be at least 6 characters long.')
       } else {
         setError(err.message || 'Failed to complete profile. Please try again.');
       }
