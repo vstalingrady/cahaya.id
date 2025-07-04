@@ -44,6 +44,10 @@ export default function CompleteProfileForm() {
       if (currentUser && currentUser.phoneNumber) {
         setUser(currentUser);
         setLoading(false);
+        toast({
+            title: "Phone Verified!",
+            description: "Please complete your profile to continue.",
+        });
       } else if (bypassFlag) {
         // In bypass mode, we don't need a pre-authenticated user
         setLoading(false);
