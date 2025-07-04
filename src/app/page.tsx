@@ -67,9 +67,9 @@ export default function WelcomePage() {
                 
                 {slide.type === 'hero' && (
                   <div className="text-center relative z-10 animate-fade-in-up">
-                    <CuanLogo className="w-24 h-auto mx-auto mb-6" />
+                    <CuanLogo className="w-24 h-auto mx-auto mb-6 animate-logo-blink-glow" />
                     
-                    <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line">
+                    <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line drop-shadow-[0_0_12px_hsl(var(--primary)/0.6)]">
                       {slide.title}
                     </h1>
                      <p className="text-lg text-muted-foreground max-w-lg mx-auto my-6 font-light">
@@ -80,7 +80,7 @@ export default function WelcomePage() {
 
                 {slide.type === 'feature' && (
                    <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto animate-fade-in-up">
-                      <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
+                      <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif drop-shadow-[0_0_12px_hsl(var(--primary)/0.6)]">
                         {slide.title}
                       </h2>
                       <p className="text-base leading-relaxed text-muted-foreground">
@@ -91,7 +91,7 @@ export default function WelcomePage() {
                 
                 {slide.type === 'feature_showcase' && (
                   <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto animate-fade-in-up">
-                    <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif">
+                    <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-purple-400 bg-clip-text text-transparent font-serif drop-shadow-[0_0_12px_hsl(var(--primary)/0.6)]">
                       {slide.title}
                     </h2>
                     <p className="text-base leading-relaxed text-muted-foreground mb-8">
@@ -112,7 +112,7 @@ export default function WelcomePage() {
 
                 {slide.type === 'cta' && (
                   <div className="text-center relative z-10 animate-fade-in-up">
-                    <h2 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif">
+                    <h2 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif drop-shadow-[0_0_12px_hsl(var(--primary)/0.6)]">
                       {slide.title}
                     </h2>
                      <p className="text-base text-muted-foreground max-w-lg mx-auto my-6 font-light">
