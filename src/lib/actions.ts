@@ -3,7 +3,7 @@
 import { personalizedSavingSuggestions, PersonalizedSavingSuggestionsOutput } from "@/ai/flows/saving-opportunities";
 import { budgetAnalysis, BudgetAnalysisOutput } from "@/ai/flows/budget-analysis";
 import { discoverRecurringBills, BillDiscoveryOutput } from "@/ai/flows/bill-discovery";
-import { type Transaction, type Budget, FinancialInstitution } from "./data";
+import { type Transaction, type Account, type Budget, FinancialInstitution } from "./data";
 import { isWithinInterval } from 'date-fns';
 import { z } from 'zod';
 import { revalidatePath } from "next/cache";
@@ -13,6 +13,8 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc, deleteDoc } from "firebase/firestore";
 import { headers } from 'next/headers';
 import { db as mockApiDb } from './mock-api-db';
+import { type MockAccount, type MockTransaction } from './mock-api-db';
+
 
 /**
  * This action is called after a user has authenticated and linked their credentials.
@@ -67,6 +69,9 @@ export async function login(prevState: any, formData: FormData) {
   } catch (error: any) {
     if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
       return { message: 'Invalid email or password.' };
+    } else if (err.code && err.code.includes('app-check')) {
+      console.error("App Check validation failed during login.");
+      return { message: 'App Check validation failed. Ensure your debug token is configured correctly.' };
     }
     return { message: 'An unknown error occurred. Please try again.' };
   }
@@ -79,7 +84,7 @@ export async function login(prevState: any, formData: FormData) {
 const addNewAccountToDB = async (institution: FinancialInstitution) => {
   console.log('Adding new account to the database:', institution);
   // In a real app, you would save this to Firestore or your database
-  // For the prototype, we'll just log it.
+  // For this prototype, we'll just log it.
   // You might also fetch the real balance here.
   await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
   return { success: true, accountId: `${institution.slug}-${Math.random().toString(36).substring(7)}` };
@@ -276,9 +281,86 @@ export async function exchangePublicToken(publicToken: string | null) {
   }
 }
 
+// ---- Live Data Fetching Actions ----
+
+// This function simulates getting the user's access token for the mock API
+// In a real app, this would be retrieved securely from a session or database
+function getMockUserAccessToken() {
+  const tokenInfo = mockApiDb.exchangePublicToken('good_public_token_for_vstalin');
+  if (tokenInfo.error) throw new Error("Could not get user access token.");
+  return tokenInfo.access_token;
+}
+
+const mapApiAccountToAppAccount = (apiAccount: MockAccount): Account => {
+  let type: Account['type'] = 'bank'; // Default
+  if (apiAccount.type === 'depository') type = 'bank';
+  if (apiAccount.type === 'ewallet') type = 'e-wallet';
+  if (apiAccount.type === 'credit') type = 'loan';
+  if (apiAccount.type === 'investment') type = 'investment';
+  if (apiAccount.type === 'loan') type = 'loan';
+
+  return {
+    id: apiAccount.account_id,
+    name: apiAccount.name,
+    balance: apiAccount.balances.current,
+    last4: apiAccount.mask,
+    type: type,
+    // Holdings are not part of the mock API, so we omit them here.
+  };
+};
+
+const mapApiTransactionToAppTransaction = (apiTransaction: MockTransaction): Transaction => {
+  return {
+    id: apiTransaction.transaction_id,
+    date: apiTransaction.date,
+    description: apiTransaction.description,
+    amount: apiTransaction.amount,
+    category: apiTransaction.category[0] || 'Other',
+    accountId: apiTransaction.account_id,
+  }
+}
+
+export async function getDashboardData(): Promise<{ accounts: Account[], transactions: Transaction[] }> {
+  const API_BASE = 'http://localhost:9003/api/ayo/v1';
+  try {
+    const accessToken = getMockUserAccessToken();
+    const headers = { 'Authorization': `Bearer ${accessToken}` };
+    
+    // 1. Fetch accounts
+    const accountsResponse = await fetch(`${API_BASE}/accounts`, { headers });
+    if (!accountsResponse.ok) throw new Error(`Failed to fetch accounts: ${accountsResponse.statusText}`);
+    const accountsData = await accountsResponse.json();
+    const apiAccounts: MockAccount[] = accountsData.accounts;
+
+    // 2. Fetch transactions for all accounts concurrently
+    const transactionPromises = apiAccounts.map(account => 
+      fetch(`${API_BASE}/accounts/${account.account_id}/transactions`, { headers })
+        .then(res => res.ok ? res.json() : Promise.reject(`Failed for account ${account.account_id}`))
+    );
+    
+    const transactionResults = await Promise.all(transactionPromises);
+
+    // 3. Transform data
+    const formattedAccounts = apiAccounts.map(mapApiAccountToAppAccount);
+    const allApiTransactions: MockTransaction[] = transactionResults.flatMap(result => result.transactions);
+    const formattedTransactions = allApiTransactions.map(mapApiTransactionToAppTransaction);
+
+    return {
+      accounts: formattedAccounts,
+      transactions: formattedTransactions
+    };
+
+  } catch (error) {
+    console.error("Error in getDashboardData:", error);
+    // In case of error, return empty arrays to prevent app crash
+    return { accounts: [], transactions: [] };
+  }
+}
+
 
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
   style: 'currency',
   currency: 'IDR',
   minimumFractionDigits: 0,
 }).format(value);
+

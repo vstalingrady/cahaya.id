@@ -2,12 +2,13 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { accounts as initialAccounts, transactions, Account } from '@/lib/data';
+import { getDashboardData } from '@/lib/actions';
+import { type Account, type Transaction } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
 import AccountCard from '@/components/dashboard/account-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import EwalletIcon from '@/components/icons/ewallet-icon';
-import { Briefcase, Landmark, Coins, Eye, EyeOff } from 'lucide-react';
+import { Briefcase, Landmark, Coins, Eye, EyeOff, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { 
   AlertDialog, 
@@ -23,17 +24,36 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
 export default function DashboardPage() {
-    const [accountList, setAccountList] = useState<Account[]>(initialAccounts);
+    const [isLoading, setIsLoading] = useState(true);
+    const [accountList, setAccountList] = useState<Account[]>([]);
+    const [transactionList, setTransactionList] = useState<Transaction[]>([]);
     
-    // Note: accountList state is not updated on unlink for this prototype.
-    // In a real app, this would be handled by a global state manager (e.g., Redux, Zustand)
-    // that would be updated after the unlink action and reflected here.
     const [isPrivate, setIsPrivate] = useState(true);
     const [timerProgress, setTimerProgress] = useState(100);
     const [showPinDialog, setShowPinDialog] = useState(false);
     const [pin, setPin] = useState('');
     const [pinError, setPinError] = useState('');
     const { toast } = useToast();
+
+    useEffect(() => {
+        async function loadData() {
+            setIsLoading(true);
+            try {
+                const { accounts, transactions } = await getDashboardData();
+                setAccountList(accounts);
+                setTransactionList(transactions);
+            } catch (error) {
+                console.error("Failed to fetch dashboard data:", error);
+                toast({
+                    variant: 'destructive',
+                    title: 'Error',
+                    description: 'Could not load your account data.'
+                });
+            }
+            setIsLoading(false);
+        }
+        loadData();
+    }, [toast]);
 
     useEffect(() => {
         let visibilityTimer: NodeJS.Timeout;
@@ -43,13 +63,11 @@ export default function DashboardPage() {
             const startTime = Date.now();
             const duration = 20000; // 20 seconds
 
-            // Timer to hide balances
             visibilityTimer = setTimeout(() => {
                 setIsPrivate(true);
                 toast({ title: "Privacy Mode On", description: "Balances are hidden again for your security." });
             }, duration);
 
-            // Interval to update progress bar
             progressInterval = setInterval(() => {
                 const elapsedTime = Date.now() - startTime;
                 const progress = Math.max(0, 100 - (elapsedTime / duration) * 100);
@@ -64,7 +82,7 @@ export default function DashboardPage() {
 
         return () => {
             clearTimeout(visibilityTimer);
-            clearInterval(progressInterval);
+            if (progressInterval) clearInterval(progressInterval);
         };
     }, [isPrivate, toast]);
 
@@ -141,17 +159,18 @@ export default function DashboardPage() {
         <div className="animate-fade-in-up">
             <header className="sticky top-0 -mt-6 pt-6 pb-4 -mx-6 px-6 bg-background/80 backdrop-blur-md z-20 flex justify-between items-center">
                 <div>
-                    <h1 className="text-3xl font-bold text-white font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    <h1 className="text-2xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Good morning, Vstalin
                     </h1>
+                    <p className="text-sm text-muted-foreground">Welcome back to your dashboard.</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <div className="relative">
-                     <button onClick={() => isPrivate ? setShowPinDialog(true) : setIsPrivate(true)} className="w-12 h-12 bg-card rounded-2xl shadow-lg border-2 border-border/50 flex items-center justify-center cursor-pointer transition-colors hover:border-primary/50 relative z-10">
-                        {isPrivate ? <Eye className="w-6 h-6 text-muted-foreground" /> : <EyeOff className="w-6 h-6 text-primary" />}
+                     <button onClick={() => isPrivate ? setShowPinDialog(true) : setIsPrivate(true)} className="w-11 h-11 bg-card rounded-2xl shadow-lg border-2 border-border/50 flex items-center justify-center cursor-pointer transition-colors hover:border-primary/50 relative z-10">
+                        {isPrivate ? <Eye className="w-5 h-5 text-muted-foreground" /> : <EyeOff className="w-5 h-5 text-primary" />}
                      </button>
                     {!isPrivate && (
-                        <svg className="absolute -inset-1 w-14 h-14 pointer-events-none" viewBox="0 0 36 36">
+                        <svg className="absolute -inset-1 w-[52px] h-[52px] pointer-events-none" viewBox="0 0 36 36">
                             <path
                                 className="stroke-primary/20"
                                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
@@ -171,13 +190,18 @@ export default function DashboardPage() {
                     )}
                   </div>
                   <Link href="/profile">
-                    <Image src="https://placehold.co/128x128.png" width={48} height={48} alt="User Avatar" className="w-12 h-12 bg-primary rounded-2xl shadow-lg border-2 border-border/50 cursor-pointer" data-ai-hint="person avatar" />
+                    <Image src="https://placehold.co/128x128.png" width={44} height={44} alt="User Avatar" className="w-11 h-11 bg-primary rounded-2xl shadow-lg border-2 border-border/50 cursor-pointer" data-ai-hint="person avatar" />
                   </Link>
                 </div>
             </header>
 
+            {isLoading ? (
+                <div className="flex items-center justify-center pt-24">
+                    <Loader2 className="w-10 h-10 text-primary animate-spin" />
+                </div>
+            ) : (
             <div className="space-y-8 pt-4">
-                <TotalBalance title="Total Net Worth" amount={netWorth} transactions={transactions} showHistoryLink={true} isPrivate={isPrivate} />
+                <TotalBalance title="Total Net Worth" amount={netWorth} transactions={transactionList} showHistoryLink={true} isPrivate={isPrivate} />
 
                 <div>
                     <div className="flex justify-between items-center mb-4">
@@ -253,6 +277,7 @@ export default function DashboardPage() {
                     </Accordion>
                 </div>
             </div>
+            )}
         </div>
         </>
     );
