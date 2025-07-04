@@ -67,7 +67,7 @@ export default function WelcomePage() {
                 
                 {slide.type === 'hero' && (
                   <div className="text-center relative z-10 animate-fade-in-up">
-                    <CuanLogo className="w-24 h-auto mx-auto mb-6 animate-logo-blink-glow" />
+                    <CuanLogo className="w-32 h-auto mx-auto mb-6 animate-logo-blink-glow" />
                     
                     <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line drop-shadow-[0_0_5px_hsl(var(--primary)/0.3)]">
                       {slide.title}
