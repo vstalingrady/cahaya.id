@@ -70,6 +70,24 @@ export default function SignupForm() {
     };
   }, []);
 
+  const formatPhoneNumberForFirebase = (phoneNumber: string): string => {
+    // Just remove all non-digit characters and prepend a '+'
+    return `+${phoneNumber.replace(/\D/g, '')}`;
+  };
+
+  useEffect(() => {
+    const formattedPhone = formatPhoneNumberForFirebase(phone);
+    if (formattedPhone === '+62000000000000') {
+        toast({
+            title: 'Dev Account Bypass',
+            description: 'Skipping phone verification step.',
+        });
+        sessionStorage.setItem('devBypass', 'true');
+        router.push('/complete-profile');
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phone]);
+
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     
@@ -93,31 +111,14 @@ export default function SignupForm() {
     setPhone(`+62 ${chunks.join('-')}`);
   };
 
-  const formatPhoneNumberForFirebase = (phoneNumber: string): string => {
-    // Just remove all non-digit characters and prepend a '+'
-    return `+${phoneNumber.replace(/\D/g, '')}`;
-  };
-
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
     const formattedPhone = formatPhoneNumberForFirebase(phone);
-
-    // Dev bypass for the specific phone number
-    if (formattedPhone === '+62000000000000') {
-      toast({
-        title: 'Dev Account Bypass',
-        description: 'Skipping phone verification step.',
-      });
-      sessionStorage.setItem('devBypass', 'true');
-      router.push('/complete-profile');
-      setLoading(false);
-      return;
-    }
-
     const verifier = recaptchaVerifierRef.current;
+    
     if (!verifier) {
       setError("reCAPTCHA verifier not ready. Please wait a moment and try again.");
       setLoading(false);
