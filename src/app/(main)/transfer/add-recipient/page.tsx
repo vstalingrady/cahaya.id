@@ -126,7 +126,7 @@ export default function AddRecipientPage() {
                     <FormControl>
                     <div className="relative">
                         <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                        <Input className="bg-input border-border h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="e.g. Vstalin Grady" {...field} />
+                        <Input className="bg-input border-border h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="e.g. Budi Santoso" {...field} />
                     </div>
                     </FormControl>
                     <FormMessage />

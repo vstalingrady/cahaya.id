@@ -81,27 +81,27 @@ export const mockInstitutions: MockInstitution[] = [
 
 export const mockUsers: MockUser[] = [
     {
-        user_id: 'user_vstalin_123',
+        user_id: 'user_budi_123',
         bank_login: {
-            username: 'vstalin',
+            username: 'b_santoso',
             password_plaintext: 'password123'
         },
         identity: {
-            names: ['Vstalin Grady'],
+            names: ['Budi Santoso'],
             phone_numbers: ['+6281234567890'],
-            emails: ['vstalin.grady@example.com']
+            emails: ['budi.santoso@example.com']
         }
     }
 ];
 
 export const mockAccounts: MockAccount[] = [
-  // Vstalin's BCA Accounts
+  // Budi's BCA Accounts
   {
     account_id: 'acc_bca_tahapan_1',
     institution_id: 'bca',
-    user_id: 'user_vstalin_123',
+    user_id: 'user_budi_123',
     name: 'BCA Tahapan Gold',
-    official_name: 'Tahapan Gold Vstalin G',
+    official_name: 'Tahapan Gold Budi S',
     mask: '2847',
     type: 'depository',
     subtype: 'checking',
@@ -114,7 +114,7 @@ export const mockAccounts: MockAccount[] = [
   {
     account_id: 'acc_bca_kredit_2',
     institution_id: 'bca',
-    user_id: 'user_vstalin_123',
+    user_id: 'user_budi_123',
     name: 'BCA Everyday Card',
     official_name: 'BCA Mastercard Everyday',
     mask: '5588',
@@ -126,13 +126,13 @@ export const mockAccounts: MockAccount[] = [
       iso_currency_code: 'IDR',
     },
   },
-  // Vstalin's GoPay Account
+  // Budi's GoPay Account
   {
     account_id: 'acc_gopay_main_3',
     institution_id: 'gopay',
-    user_id: 'user_vstalin_123',
+    user_id: 'user_budi_123',
     name: 'GoPay',
-    official_name: 'Vstalin Grady',
+    official_name: 'Budi Santoso',
     mask: '7890',
     type: 'ewallet',
     subtype: 'digital_wallet',
@@ -245,11 +245,11 @@ export const db = {
   // Token management
   // This simulates exchanging a public token for an access token
   exchangePublicToken: (publicToken: string) => {
-    if (publicToken !== 'good_public_token_for_vstalin') {
+    if (publicToken !== 'good_public_token_for_budi') {
       return { error: 'Invalid public token' };
     }
-    const accessToken = `access_token_vstalin_${Date.now()}`;
-    const userId = 'user_vstalin_123';
+    const accessToken = `access_token_budi_${Date.now()}`;
+    const userId = 'user_budi_123';
     tokenStore.set(accessToken, { userId, accounts: ['acc_bca_tahapan_1', 'acc_bca_kredit_2', 'acc_gopay_main_3'] });
     return { access_token: accessToken, user_id: userId };
   },

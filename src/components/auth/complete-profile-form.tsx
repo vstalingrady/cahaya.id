@@ -290,7 +290,7 @@ export default function CompleteProfileForm() {
               name="fullName" 
               type="text" 
               className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground"
-              placeholder="e.g. Vstalin Grady"
+              placeholder="e.g. Budi Santoso"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required

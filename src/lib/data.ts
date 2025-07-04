@@ -183,7 +183,7 @@ export const accounts: Account[] = [
 export const beneficiaries: Beneficiary[] = [
   {
     id: 'ben1',
-    name: 'Vstalin Grady',
+    name: 'Budi Santoso',
     bankName: 'BCA',
     accountNumber: '1234567890',
   },
@@ -247,7 +247,7 @@ export const vaults: Vault[] = [
     destinationAccountId: 'bca1',
     isShared: true,
     members: [
-      { id: 'user1', name: 'Vstalin Grady', avatarUrl: 'https://placehold.co/48x48.png' },
+      { id: 'user1', name: 'Budi Santoso', avatarUrl: 'https://placehold.co/48x48.png' },
       { id: 'user2', name: 'Jane Doe', avatarUrl: 'https://placehold.co/48x48.png' },
     ],
     imageUrl: 'https://placehold.co/600x400.png',

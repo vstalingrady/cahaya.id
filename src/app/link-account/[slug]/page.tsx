@@ -69,7 +69,7 @@ export default function InstitutionAuthPage() {
                     <>
                     <div className="space-y-2">
                         <Label htmlFor="username">Username</Label>
-                        <Input id="username" name="username" type="text" placeholder="vstalin" defaultValue={`vstalin`} className="bg-input h-12 text-base" />
+                        <Input id="username" name="username" type="text" placeholder="b_santoso" defaultValue={`b_santoso`} className="bg-input h-12 text-base" />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="password">Password</Label>

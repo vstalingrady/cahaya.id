@@ -35,7 +35,7 @@ function MockConnectContent() {
     if (user.bank_login.username === username && user.bank_login.password_plaintext === password) {
       // Success! Redirect back to Cuan with a public_token.
       const callbackUrl = new URL(redirectUri);
-      callbackUrl.searchParams.set('public_token', 'good_public_token_for_vstalin');
+      callbackUrl.searchParams.set('public_token', 'good_public_token_for_budi');
       callbackUrl.searchParams.set('institution_id', institution.institution_id);
       router.push(callbackUrl.toString());
     } else {
