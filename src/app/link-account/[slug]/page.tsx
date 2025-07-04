@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState, useFormStatus } from 'react-dom';
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { financialInstitutions } from '@/lib/data';
 import { Button } from '@/components/ui/button';
@@ -42,7 +42,7 @@ export default function InstitutionAuthPage() {
   const isBank = institution.type === 'bank';
 
   const initialState = { message: null, errors: {} };
-  const [state, dispatch] = useFormState(linkAccount, initialState);
+  const [state, dispatch] = useActionState(linkAccount, initialState);
 
   return (
     <div className="w-full max-w-md mx-auto bg-background text-white p-6 flex flex-col justify-center min-h-screen relative overflow-hidden">
