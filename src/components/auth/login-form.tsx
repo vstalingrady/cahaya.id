@@ -2,10 +2,9 @@
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Fingerprint, Lock, Mail } from 'lucide-react';
+import { Lock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { login } from '@/lib/actions';
 import { Label } from '../ui/label';
 
@@ -51,17 +50,6 @@ export default function LoginForm() {
         {state?.message && (
           <p className="mt-4 text-sm text-red-500 text-center">{state.message}</p>
         )}
-
-        <div className="relative flex items-center justify-center text-sm">
-            <Separator className="flex-1 bg-border" />
-            <span className="mx-4 text-muted-foreground">Or</span>
-            <Separator className="flex-1 bg-border" />
-        </div>
-
-        <Button variant="outline" className="w-full bg-secondary border-border h-14 text-base font-semibold text-foreground hover:bg-secondary/80" type="button">
-            <Fingerprint className="w-5 h-5 mr-3 text-primary" />
-            Login with Biometrics
-        </Button>
       </form>
     </div>
   );

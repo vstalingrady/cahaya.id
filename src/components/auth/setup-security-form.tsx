@@ -1,231 +1,98 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Camera, Check, Fingerprint, Loader2, Lock } from 'lucide-react';
+import { Loader2, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { cn } from '@/lib/utils';
 
 export default function SetupSecurityForm() {
   const router = useRouter();
   const { toast } = useToast();
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
-  const [activeTab, setActiveTab] = useState('face');
   const [pin, setPin] = useState('');
-  
-  const [scanStep, setScanStep] = useState<'idle' | 'scanning' | 'complete'>('idle');
-  const [flashColor, setFlashColor] = useState<string | null>(null);
-
-  useEffect(() => {
-    let stream: MediaStream | null = null;
-    // Activate camera as soon as the tab is active
-    if (activeTab === 'face') {
-      const getCamera = async () => {
-        try {
-          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            throw new Error('Camera API not available in this browser.');
-          }
-          stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-          setHasCameraPermission(true);
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-        } catch (error) {
-          console.error('Error accessing camera:', error);
-          setHasCameraPermission(false);
-          if (scanStep !== 'idle') setScanStep('idle');
-          toast({
-            variant: 'destructive',
-            title: 'Camera Access Denied',
-            description: 'Please enable camera permissions to use Face ID.',
-          });
-        }
-      };
-      getCamera();
-    }
-    
-    return () => {
-        if (videoRef.current && videoRef.current.srcObject) {
-            const currentStream = videoRef.current.srcObject as MediaStream;
-            currentStream.getTracks().forEach(track => track.stop());
-            videoRef.current.srcObject = null;
-        }
-    };
-  }, [activeTab, toast, scanStep]);
-
-  const handleSetupComplete = (method: string) => {
-    toast({
-      title: 'Security Set Up!',
-      description: `${method} has been configured.`,
-    });
-    router.push('/link-account');
-  };
-
-  const handleStartScan = async () => {
-    setScanStep('scanning');
-
-    // Simulate aligning face for 2 seconds
-    setTimeout(() => {
-      // Start flash sequence
-      const colors = ['bg-primary', 'bg-green-500', 'bg-sky-400'];
-      let flashIndex = 0;
-      
-      const flash = () => {
-        if (flashIndex < colors.length) {
-          setFlashColor(colors[flashIndex]);
-          flashIndex++;
-          setTimeout(flash, 250); // Each color shown for 250ms
-        } else {
-          setFlashColor(null); // End flash
-          setScanStep('complete');
-          // Delay completion to show the final state
-          setTimeout(() => handleSetupComplete('Face ID'), 500);
-        }
-      };
-      
-      flash();
-
-    }, 2000);
-  };
-
+  const [confirmPin, setConfirmPin] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handlePinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
     setPin(value);
-  }
+  };
+  
+  const handleConfirmPinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
+    setConfirmPin(value);
+  };
 
-  const isCameraActive = hasCameraPermission === true;
+  const handleSetPin = () => {
+    if (pin !== confirmPin) {
+      toast({
+        variant: 'destructive',
+        title: 'PIN Mismatch',
+        description: 'The PINs you entered do not match. Please try again.',
+      });
+      return;
+    }
+    
+    setLoading(true);
+    // In a real app, you would save the hashed PIN to the database here.
+    // For this prototype, we'll just simulate success.
+    setTimeout(() => {
+        toast({
+          title: 'Security Set Up!',
+          description: `Your Cuan PIN has been configured.`,
+        });
+        router.push('/link-account');
+        setLoading(false);
+    }, 1000);
+  };
 
   return (
-    <>
-      {flashColor && (
-        <div
-          className={cn(
-            "fixed inset-0 z-0 transition-colors duration-200",
-            flashColor
-          )}
-        />
-      )}
-      <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10 relative z-10">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 bg-secondary border-border">
-            <TabsTrigger value="face" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
-              <Camera className="w-5 h-5 mr-2" /> Face ID
-            </TabsTrigger>
-            <TabsTrigger value="fingerprint" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
-              <Fingerprint className="w-5 h-5 mr-2" /> Fingerprint
-            </TabsTrigger>
-            <TabsTrigger value="pin" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
-              <Lock className="w-5 h-5 mr-2" /> PIN
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="face" className="mt-6">
-            <div className="flex flex-col items-center space-y-6">
-               <Alert variant="default" className="text-center bg-secondary border-border/80">
-                  <AlertTitle className="text-foreground font-semibold">
-                    {scanStep === 'idle' && 'Ready to Scan'}
-                    {scanStep === 'scanning' && 'Scanning...'}
-                    {scanStep === 'complete' && 'Scan Complete!'}
-                  </AlertTitle>
-                  <AlertDescription className="text-muted-foreground text-sm">
-                    {scanStep === 'idle' && 'Position your face in the oval and start the scan.'}
-                    {scanStep === 'scanning' && 'Hold still, the screen will flash to illuminate your face.'}
-                    {scanStep === 'complete' && 'Face ID has been successfully configured.'}
-                  </AlertDescription>
-              </Alert>
+    <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10 relative z-10">
+      <div className="flex flex-col items-center space-y-6">
+        <Alert variant="default" className="text-center bg-secondary border-border/80">
+          <AlertTitle className="text-foreground font-semibold">
+            Create Your Cuan PIN
+          </AlertTitle>
+          <AlertDescription className="text-muted-foreground text-sm">
+            Create an 8-character PIN with numbers and letters for secure access and transaction approvals.
+          </AlertDescription>
+        </Alert>
 
-              <div className={cn(
-                "relative w-64 h-80 rounded-[50%] overflow-hidden border-4 flex items-center justify-center transition-all duration-500",
-                scanStep === 'scanning' && 'border-primary animate-pulse',
-                scanStep === 'complete' && 'border-green-500',
-                scanStep === 'idle' && 'border-border'
-              )}>
-                <video ref={videoRef} className={cn("w-full h-full object-cover scale-x-[-1] transition-opacity duration-300", isCameraActive ? 'opacity-100' : 'opacity-0')} autoPlay muted playsInline />
-                
-                <div className="absolute inset-0 rounded-[50%] border-4 border-dashed border-white/30 pointer-events-none"></div>
-
-                {!isCameraActive && (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-black/50">
-                        {hasCameraPermission === null && <Loader2 className="w-12 h-12 text-primary animate-spin" />}
-                        {hasCameraPermission === false && <Camera className="w-12 h-12 text-muted-foreground" />}
-                        <p className="text-sm text-muted-foreground mt-2">
-                          {hasCameraPermission === null ? "Requesting camera..." : "Camera unavailable"}
-                        </p>
-                    </div>
-                )}
-              </div>
-              
-              {scanStep === 'idle' && (
-                 <Button 
-                    onClick={handleStartScan}
-                    disabled={!hasCameraPermission}
-                    className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
-                 >
-                    Start Scan
-                 </Button>
-              )}
-              {scanStep === 'scanning' && (
-                 <Button 
-                    disabled
-                    className="w-full bg-primary/80 text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg h-auto"
-                 >
-                    <Loader2 className="w-6 h-6 mr-3 animate-spin" />
-                    Scanning...
-                 </Button>
-              )}
-               {scanStep === 'complete' && (
-                 <Button 
-                    disabled
-                    className="w-full bg-green-500 hover:bg-green-500/90 text-white py-4 rounded-xl font-semibold text-lg shadow-lg h-auto"
-                 >
-                    <Check className="w-6 h-6 mr-3" />
-                    Face ID Configured
-                 </Button>
-              )}
+        <div className="w-full space-y-4">
+            <div className="relative w-full">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input 
+                type="password" 
+                className="bg-input border-border h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
+                placeholder="••••••••"
+                value={pin}
+                onChange={handlePinChange}
+                maxLength={8}
+            />
             </div>
-          </TabsContent>
-          <TabsContent value="fingerprint" className="mt-6">
-              <div className="flex flex-col items-center space-y-8 pt-8 pb-4">
-                  <p className="text-center text-muted-foreground">Place your finger on the scanner to register your fingerprint.</p>
-                  <Fingerprint className="w-48 h-48 text-primary/30 animate-pulse" />
-                  <Button 
-                      onClick={() => handleSetupComplete('Fingerprint')}
-                      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
-                  >
-                      Register Fingerprint
-                  </Button>
-              </div>
-          </TabsContent>
-          <TabsContent value="pin" className="mt-6">
-              <div className="flex flex-col items-center space-y-6 pt-8">
-                   <p className="text-center text-muted-foreground">Create an 8-character PIN with numbers and letters for secure access.</p>
-                   <div className="relative w-full">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                      <Input 
-                          type="password" 
-                          className="bg-input border-border h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
-                          placeholder="••••••••"
-                          value={pin}
-                          onChange={handlePinChange}
-                          maxLength={8}
-                      />
-                   </div>
-                   <Button 
-                      onClick={() => handleSetupComplete('Cuan PIN')}
-                      disabled={pin.length < 8}
-                      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
-                  >
-                      Set PIN
-                  </Button>
-              </div>
-          </TabsContent>
-        </Tabs>
+             <div className="relative w-full">
+            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input 
+                type="password" 
+                className="bg-input border-border h-14 pl-12 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground" 
+                placeholder="Confirm PIN"
+                value={confirmPin}
+                onChange={handleConfirmPinChange}
+                maxLength={8}
+            />
+            </div>
+        </div>
+        
+        <Button 
+            onClick={handleSetPin}
+            disabled={pin.length < 8 || confirmPin.length < 8 || loading}
+            className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
+        >
+            {loading ? <Loader2 className="animate-spin" /> : 'Set & Continue'}
+        </Button>
       </div>
-    </>
+    </div>
   );
 }
