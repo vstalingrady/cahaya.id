@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import { app } from '@/lib/firebase';
 import { Phone, Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -28,6 +29,7 @@ declare global {
 
 export default function SignupForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const [phone, setPhone] = useState('+62 ');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -101,6 +103,20 @@ export default function SignupForm() {
     setLoading(true);
     setError(null);
 
+    const formattedPhone = formatPhoneNumberForFirebase(phone);
+
+    // Dev bypass for the specific phone number
+    if (formattedPhone === '+62000000000000') {
+      toast({
+        title: 'Dev Account Bypass',
+        description: 'Skipping phone verification step.',
+      });
+      sessionStorage.setItem('devBypass', 'true');
+      router.push('/complete-profile');
+      setLoading(false);
+      return;
+    }
+
     const verifier = recaptchaVerifierRef.current;
     if (!verifier) {
       setError("reCAPTCHA verifier not ready. Please wait a moment and try again.");
@@ -110,7 +126,6 @@ export default function SignupForm() {
 
     try {
       const auth = getAuth(app);
-      const formattedPhone = formatPhoneNumberForFirebase(phone);
       
       console.log("Attempting to send code to:", formattedPhone);
       
@@ -151,7 +166,7 @@ export default function SignupForm() {
               name="phone" 
               type="tel" 
               className="bg-input h-14 text-lg pl-12"
-              placeholder="+62 812-3456-7890"
+              placeholder="+62 000-0000-00000"
               value={phone}
               onChange={handlePhoneChange}
               required
