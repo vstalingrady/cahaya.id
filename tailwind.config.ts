@@ -97,11 +97,11 @@ export default {
         'logo-blink-glow': {
           '0%, 100%': {
             opacity: '1',
-            filter: 'drop-shadow(0 0 6px hsl(var(--primary) / 0.6))'
+            filter: 'drop-shadow(0 0 4px hsl(var(--primary) / 0.4))'
           },
           '50%': {
-            opacity: '0.9',
-            filter: 'drop-shadow(0 0 16px hsl(var(--primary) / 0.8))'
+            opacity: '0.75',
+            filter: 'drop-shadow(0 0 10px hsl(var(--primary) / 0.6))'
           },
         },
       },
