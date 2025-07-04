@@ -20,7 +20,7 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { completeUserProfile } from '@/lib/actions';
-import { User as UserIcon, Mail, Lock, Loader2, Check, X } from 'lucide-react';
+import { User as UserIcon, Mail, Lock, Loader2, Check, X, Eye, EyeOff } from 'lucide-react';
 import { Separator } from '../ui/separator';
 import { cn } from '@/lib/utils';
 
@@ -82,6 +82,7 @@ export default function CompleteProfileForm() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -288,8 +289,8 @@ export default function CompleteProfileForm() {
             <Input 
               id="password" 
               name="password" 
-              type="password" 
-              className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground"
+              type={isPasswordVisible ? 'text' : 'password'}
+              className="bg-input h-14 pl-12 pr-12 text-base placeholder:text-muted-foreground"
               placeholder="********"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -297,6 +298,18 @@ export default function CompleteProfileForm() {
               minLength={8}
               maxLength={20}
             />
+            <button
+              type="button"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              onMouseDown={() => setIsPasswordVisible(true)}
+              onMouseUp={() => setIsPasswordVisible(false)}
+              onMouseLeave={() => setIsPasswordVisible(false)}
+              onTouchStart={() => setIsPasswordVisible(true)}
+              onTouchEnd={() => setIsPasswordVisible(false)}
+              aria-label={isPasswordVisible ? "Hide password" : "Show password"}
+            >
+              {isPasswordVisible ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
           </div>
           <PasswordRequirements password={password} />
         </div>
