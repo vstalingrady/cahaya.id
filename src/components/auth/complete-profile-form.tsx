@@ -300,11 +300,11 @@ export default function CompleteProfileForm() {
   return (
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
       <div className="space-y-4">
-          <Button className="w-full bg-white text-gray-800 hover:bg-gray-200 border border-gray-300 h-14 text-base font-semibold" type="button" onClick={handleGoogleSignIn} disabled={isSubmitting}>
+          <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/80 h-14 text-base font-semibold" type="button" onClick={handleGoogleSignIn} disabled={isSubmitting}>
               <GoogleLogo className="w-5 h-5 mr-3" />
               Continue with Google
           </Button>
-          <Button className="w-full bg-black text-white hover:bg-gray-800 border-gray-700 h-14 text-base font-semibold" type="button" onClick={handleAppleSignIn} disabled={isSubmitting}>
+          <Button className="w-full bg-secondary text-secondary-foreground hover:bg-secondary/80 h-14 text-base font-semibold" type="button" onClick={handleAppleSignIn} disabled={isSubmitting}>
               <AppleLogo className="w-5 h-5 mr-3" />
               Continue with Apple
           </Button>
@@ -390,5 +390,7 @@ export default function CompleteProfileForm() {
     </div>
   );
 }
+
+    
 
     
