@@ -96,7 +96,7 @@ export default {
         },
         'logo-blink-glow': {
           '0%, 100%': {
-            opacity: '0.85',
+            opacity: '0.7',
             filter: 'drop-shadow(0 0 3px hsl(var(--primary) / 0.3))'
           },
           '50%': {
