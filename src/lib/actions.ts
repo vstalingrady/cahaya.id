@@ -76,6 +76,10 @@ export async function completeUserProfile(uid: string, fullName: string, email: 
     }
   } catch (error: any) {
     console.error("Error creating user document in Firestore:", error);
+    // Check for the specific Firestore API disabled error
+    if (error.code === 'permission-denied' || (error.message && error.message.includes('Cloud Firestore API has not been used'))) {
+      throw new Error("Account creation failed: The Firestore database isn't enabled for this project. Please visit the Firebase console, go to the Firestore Database section, and enable it.");
+    }
     throw new Error(error.message || "Failed to create user profile in database.");
   }
 }
@@ -112,6 +116,9 @@ export async function login(prevState: any, formData: FormData) {
     });
 
   } catch (err: any) {
+    if (err.code === 'permission-denied' || (err.message && err.message.includes('Cloud Firestore API has not been used'))) {
+      return { message: "Login failed: The Firestore database isn't enabled for this project. Please enable it in the Firebase console." };
+    }
     if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
       return { message: 'Invalid email or password.' };
     } else if (err.code && err.code.includes('app-check')) {
