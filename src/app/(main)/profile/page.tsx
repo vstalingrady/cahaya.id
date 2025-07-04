@@ -3,13 +3,39 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, User, Mail, Phone, CheckCircle2, Cog, Shield } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, User, Mail, Phone, CheckCircle2, Cog, Shield, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/components/auth/auth-provider';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
+import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 
 export default function ProfilePage() {
   const { user } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out.",
+      });
+      router.push('/login');
+    } catch (error) {
+      console.error("Error signing out: ", error);
+      toast({
+        variant: "destructive",
+        title: "Logout Failed",
+        description: "An error occurred while logging out. Please try again.",
+      });
+    }
+  };
+
 
   return (
     <div className="space-y-8 animate-fade-in-up">
@@ -76,6 +102,12 @@ export default function ProfilePage() {
              <Cog className="mr-3" /> App Settings
            </Button>
         </div>
+
+        <Separator className="my-6 bg-border/50" />
+
+        <Button variant="destructive" className="w-full h-14 text-base" onClick={handleLogout}>
+            <LogOut className="mr-3" /> Log Out
+        </Button>
       </div>
     </div>
   );
