@@ -32,31 +32,38 @@ export default function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const auth = getAuth(app);
     let verifier: RecaptchaVerifier;
 
-    if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
-      verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-        size: 'invisible',
-        callback: () => { console.log('reCAPTCHA challenge solved.') },
-        'expired-callback': () => { setError('reCAPTCHA expired. Please try again.') },
-      });
-      recaptchaVerifierRef.current = verifier;
-      
-      verifier.render().then(() => {
-        console.log("reCAPTCHA rendered.");
-      }).catch((err) => {
-        console.error("reCAPTCHA render error:", err);
-        setError("Failed to render reCAPTCHA. Please refresh and try again.");
-      });
-    }
+    // Use a timeout to ensure the container is rendered
+    const timeoutId = setTimeout(() => {
+      if (!recaptchaVerifierRef.current) {
+        // Create an invisible div for the verifier to attach to
+        const recaptchaContainer = document.createElement('div');
+        recaptchaContainer.id = 'recaptcha-container';
+        document.body.appendChild(recaptchaContainer);
+
+        verifier = new RecaptchaVerifier(auth, recaptchaContainer, {
+          size: 'invisible',
+          callback: () => console.log('reCAPTCHA challenge solved.'),
+          'expired-callback': () => setError('reCAPTCHA expired. Please try again.'),
+        });
+        recaptchaVerifierRef.current = verifier;
+      }
+    }, 100);
 
     return () => {
+      clearTimeout(timeoutId);
+      // It's good practice to clean up, but can be tricky with HMR
+      // If the verifier exists, try to clear it.
       if (recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current.clear();
+         // It might be better to not clear it to avoid errors during dev re-renders
+      }
+      const container = document.getElementById('recaptcha-container');
+      if (container) {
+          container.remove();
       }
     };
   }, []);
@@ -120,7 +127,7 @@ export default function SignupForm() {
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many requests. Please try again later.');
       } else if (err.code === 'auth/captcha-check-failed') {
-         setError('reCAPTCHA verification failed. Ensure your domain is authorized in the Firebase Console.');
+         setError('reCAPTCHA check failed. Ensure your domain is authorized in the Firebase Console.');
       } else {
         setError(err.message || 'Failed to send verification code. Please try again.');
       }
@@ -131,7 +138,7 @@ export default function SignupForm() {
 
   return (
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
-      <form onSubmit={handleSendCode} className="space-y-6">
+      <form onSubmit={handleSendCode} className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="phone">Phone Number</Label>
           <div className="relative">
@@ -148,8 +155,6 @@ export default function SignupForm() {
             />
           </div>
         </div>
-        
-        <div ref={recaptchaContainerRef}></div>
         
         <SubmitButton pending={loading} />
         
