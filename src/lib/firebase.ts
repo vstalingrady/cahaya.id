@@ -17,6 +17,29 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
+// Check for missing environment variables to provide a helpful error message.
+const requiredEnvVars = [
+  'NEXT_PUBLIC_FIREBASE_API_KEY',
+  'NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN',
+  'NEXT_PUBLIC_FIREBASE_PROJECT_ID',
+  'NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET',
+  'NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID',
+  'NEXT_PUBLIC_FIREBASE_APP_ID',
+];
+
+const missingVars = requiredEnvVars.filter(envVar => !firebaseConfig[envVar.replace('NEXT_PUBLIC_', '').replace(/_(\w)/g, (all, letter) => letter.toLowerCase()) as keyof typeof firebaseConfig]);
+
+if (missingVars.length > 0) {
+  // Only show this error in the browser console, not during server-side rendering.
+  if (typeof window !== 'undefined') {
+    const errorMessage = `🔴 FATAL: Missing Firebase environment variables. Please create a .env.local file in your project's root directory and add the following keys:\n\n${missingVars.join('\n')}\n\nYou can find these values in your Firebase project settings.`;
+    console.error(errorMessage);
+    // You could also throw an error here to halt execution, but logging is often sufficient.
+    // throw new Error(errorMessage);
+  }
+}
+
+
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
