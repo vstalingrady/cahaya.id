@@ -27,7 +27,7 @@ const requiredEnvVars = [
   'NEXT_PUBLIC_FIREBASE_APP_ID',
 ];
 
-const missingVars = requiredEnvVars.filter(envVar => !firebaseConfig[envVar.replace('NEXT_PUBLIC_', '').replace(/_(\w)/g, (all, letter) => letter.toLowerCase()) as keyof typeof firebaseConfig]);
+const missingVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
 if (missingVars.length > 0) {
   // Only show this error in the browser console, not during server-side rendering.
