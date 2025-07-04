@@ -57,15 +57,23 @@ async function seedInitialDataForUser(uid: string) {
  */
 export async function completeUserProfile(uid: string, fullName: string, email: string, phone: string) {
   try {
-    await setDoc(doc(db, "users", uid), {
-      uid: uid,
-      fullName: fullName,
-      email: email,
-      phone: phone,
-      createdAt: new Date(),
-    });
-    // Seed the new user with sample data
-    await seedInitialDataForUser(uid);
+    const userDocRef = doc(db, "users", uid);
+    const userDoc = await getDoc(userDocRef);
+    
+    // Only seed data if the user document doesn't exist yet.
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        uid: uid,
+        fullName: fullName,
+        email: email,
+        phone: phone,
+        createdAt: new Date(),
+      });
+      // Seed the new user with sample data
+      await seedInitialDataForUser(uid);
+    } else {
+      console.log(`User ${uid} already exists. Skipping data seeding.`);
+    }
   } catch (error: any) {
     console.error("Error creating user document in Firestore:", error);
     throw new Error(error.message || "Failed to create user profile in database.");
