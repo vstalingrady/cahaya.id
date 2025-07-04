@@ -33,14 +33,12 @@ export default function DevMenuPage() {
           <ul>
             {routes.map((route, index) => (
               <li key={route.path} className={index !== routes.length - 1 ? "border-b border-gray-700" : ""}>
-                <Link href={route.path} legacyBehavior>
-                  <a className="flex justify-between items-center p-4 hover:bg-gray-700/50 transition-colors duration-200">
+                <Link href={route.path} className="flex justify-between items-center p-4 hover:bg-gray-700/50 transition-colors duration-200">
                     <div>
                       <p className="font-semibold text-green-400">{route.path}</p>
                       <p className="text-sm text-gray-400">{route.name}</p>
                     </div>
                     <span className="text-gray-500 text-xl font-light">&rarr;</span>
-                  </a>
                 </Link>
               </li>
             ))}
