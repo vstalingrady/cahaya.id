@@ -40,10 +40,6 @@ export default function SignupForm() {
   useEffect(() => {
     const auth = getAuth(app);
     
-    if (typeof window !== 'undefined') {
-      console.log('CURRENT HOSTNAME:', window.location.hostname, '<<< Add this to your Firebase Console Authorized Domains.');
-    }
-    
     // Clean up any existing verifier
     if (recaptchaVerifierRef.current) {
       recaptchaVerifierRef.current.clear();
@@ -139,7 +135,8 @@ export default function SignupForm() {
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many requests. Please try again later.');
       } else if (err.code === 'auth/captcha-check-failed') {
-        setError(`reCAPTCHA check failed. Ensure the hostname "${window.location.hostname}" is added to your Firebase project's authorized domains list.`);
+        const hostname = typeof window !== 'undefined' ? window.location.hostname : 'your-hostname';
+        setError(`reCAPTCHA check failed. Ensure the hostname "${hostname}" is added to your Firebase project's authorized domains list.`);
         if (recaptchaVerifierRef.current) {
           recaptchaVerifierRef.current.clear();
           recaptchaVerifierRef.current = null;
