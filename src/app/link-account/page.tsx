@@ -6,6 +6,7 @@ import { ChevronRight } from 'lucide-react';
 import { financialInstitutions, FinancialInstitution } from '@/lib/data';
 import Image from 'next/image';
 import { useMemo } from 'react';
+import NoiseOverlay from '@/components/noise-overlay';
 
 const groupInstitutions = (institutions: FinancialInstitution[]) => {
   const grouped: { [key: string]: FinancialInstitution[] } = {
@@ -21,7 +22,7 @@ const groupInstitutions = (institutions: FinancialInstitution[]) => {
     }
   });
 
-  return Object.entries(grouped).map(([category, items]) => ({ category, items }));
+  return Object.entries(grouped).filter(([, items]) => items.length > 0);
 };
 
 export default function LinkAccountPage() {
@@ -35,14 +36,18 @@ export default function LinkAccountPage() {
   }, []);
 
   return (
-    <div className="w-full max-w-md mx-auto bg-background text-white p-6 min-h-screen relative overflow-hidden">
+    <div className="w-full max-w-md mx-auto bg-background text-white p-6 min-h-screen relative overflow-hidden flex flex-col">
+       <div className="absolute inset-0 -z-10 h-full w-full bg-background">
+        <div className="absolute -top-1/2 left-0 right-0 h-full bg-[radial-gradient(ellipse_50%_50%_at_50%_0%,hsl(262_80%_58%/0.15),transparent_70%)]"></div>
+      </div>
+      <NoiseOverlay opacity={0.02} />
       
-      <div className="mb-8 relative z-10">
+      <div className="pt-12 pb-8 relative z-10 text-center">
         <h1 className="text-3xl font-bold mb-3 text-primary font-serif">Let's get you connected.</h1>
-        <p className="text-muted-foreground leading-relaxed">Select an account to link. You will be redirected to a secure portal to log in.</p>
+        <p className="text-muted-foreground leading-relaxed max-w-sm mx-auto">Select an account to link. You will be redirected to a secure portal to log in.</p>
       </div>
 
-      <div className="space-y-8 relative z-10">
+      <div className="space-y-8 relative z-10 flex-1">
         {groupedInstitutions.map(group => (
           <div key={group.category}>
             <h3 className="text-sm font-bold text-primary/70 mb-4 uppercase tracking-widest">{group.category}</h3>
