@@ -12,7 +12,7 @@ import {
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
 import Image from 'next/image';
-import { ReactComponent as CuanLogo } from '@/components/icons/cuanlogo.svg';
+import CuanLogo from '@/components/icons/cuanlogo';
 
 
 export default function WelcomePage() {

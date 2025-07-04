@@ -2,15 +2,6 @@ import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
-  experimental: {
-    turbopack: {
-      loaders: {
-        '.svg': {
-          loaders: ['@svgr/webpack'],
-        },
-      },
-    },
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
