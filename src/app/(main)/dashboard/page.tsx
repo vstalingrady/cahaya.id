@@ -159,18 +159,18 @@ export default function DashboardPage() {
         <div className="animate-fade-in-up">
             <header className="sticky top-0 -mt-6 pt-6 pb-4 -mx-6 px-6 bg-background/80 backdrop-blur-md z-20 flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    <h1 className="text-xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Good morning, Vstalin
                     </h1>
                     <p className="text-sm text-muted-foreground">Welcome back to your dashboard.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="relative">
-                     <button onClick={() => isPrivate ? setShowPinDialog(true) : setIsPrivate(true)} className="w-11 h-11 bg-card rounded-2xl shadow-lg border-2 border-border/50 flex items-center justify-center cursor-pointer transition-colors hover:border-primary/50 relative z-10">
+                  <div className="relative w-11 h-11">
+                     <button onClick={() => isPrivate ? setShowPinDialog(true) : setIsPrivate(true)} className="w-full h-full bg-card rounded-2xl shadow-lg border-2 border-border/50 flex items-center justify-center cursor-pointer transition-colors hover:border-primary/50 relative z-10">
                         {isPrivate ? <Eye className="w-5 h-5 text-muted-foreground" /> : <EyeOff className="w-5 h-5 text-primary" />}
                      </button>
                     {!isPrivate && (
-                        <svg className="absolute -inset-1 w-[52px] h-[52px] pointer-events-none" viewBox="0 0 36 36">
+                        <svg className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[52px] h-[52px] pointer-events-none" viewBox="0 0 36 36">
                             <path
                                 className="stroke-primary/20"
                                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
