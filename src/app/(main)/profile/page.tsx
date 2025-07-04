@@ -1,8 +1,9 @@
+
 'use client';
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, User, Mail, Phone, CheckCircle2, UserCog, Cog } from 'lucide-react';
+import { ArrowLeft, User, Mail, Phone, CheckCircle2, UserCog, Cog, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
@@ -68,8 +69,10 @@ export default function ProfilePage() {
            <Button variant="outline" className="w-full justify-start text-left font-normal bg-secondary border-border h-14 text-base placeholder:text-muted-foreground hover:bg-secondary/80 hover:text-white" disabled>
              <User className="mr-3" /> Update Profile
            </Button>
-           <Button variant="outline" className="w-full justify-start text-left font-normal bg-secondary border-border h-14 text-base placeholder:text-muted-foreground hover:bg-secondary/80 hover:text-white" disabled>
-             <UserCog className="mr-3" /> Account Settings
+           <Button asChild variant="outline" className="w-full justify-start text-left font-normal bg-secondary border-border h-14 text-base placeholder:text-muted-foreground hover:bg-secondary/80 hover:text-white">
+             <Link href="/profile/security">
+                <Shield className="mr-3" /> Security & Login
+             </Link>
            </Button>
            <Button variant="outline" className="w-full justify-start text-left font-normal bg-secondary border-border h-14 text-base placeholder:text-muted-foreground hover:bg-secondary/80 hover:text-white" disabled>
              <Cog className="mr-3" /> App Settings
