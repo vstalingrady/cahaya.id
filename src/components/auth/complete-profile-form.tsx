@@ -20,8 +20,9 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { completeUserProfile } from '@/lib/actions';
-import { User as UserIcon, Mail, Lock, Loader2 } from 'lucide-react';
+import { User as UserIcon, Mail, Lock, Loader2, Check, X } from 'lucide-react';
 import { Separator } from '../ui/separator';
+import { cn } from '@/lib/utils';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -46,6 +47,29 @@ const AppleIcon = (props: React.SVGProps<SVGSVGElement>) => (
         <path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-1.84.043-3.48 1.2-4.425 3.014-1.898 3.637-.495 8.926 1.45 11.97C6.13 22.313 7.333 24 9.13 23.94c1.613-.057 2.115-1.002 3.824-1.002s2.07.945 3.824 1.002c1.753.057 2.883-1.657 3.77-3.023.96-1.532 1.27-3.024 1.27-3.083 0-.028-2.227-1.38-2.255-4.116-.027-2.793 1.896-3.935 2.14-4.144-.99-.95-2.52-1.07-3.02-.91-.848.243-1.613.736-2.17.736zM15.19 4.31C14.34-.178 12.064 0 12.064 0s-.848 2.362.057 3.29c.904.928 2.32 1.27 3.02.822.058 0 .058-.028.058-.028s-.113-1.628-.006-2.07z" fill="currentColor"/>
     </svg>
 );
+
+function PasswordRequirements({ password }: { password: string }) {
+  const requirements = [
+    { name: 'length', text: '8-20 characters', regex: /^.{8,20}$/ },
+    { name: 'uppercase', text: 'One uppercase letter', regex: /[A-Z]/ },
+    { name: 'number', text: 'One number', regex: /[0-9]/ },
+    { name: 'special', text: 'One special character', regex: /[^A-Za-z0-9]/ },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-muted-foreground mt-3">
+      {requirements.map((req) => {
+        const isValid = req.regex.test(password);
+        return (
+          <div key={req.name} className={cn("flex items-center transition-colors", isValid ? 'text-green-400' : 'text-muted-foreground')}>
+            {isValid ? <Check className="w-4 h-4 mr-1.5" /> : <X className="w-4 h-4 mr-1.5" />}
+            {req.text}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 
 
 export default function CompleteProfileForm() {
@@ -90,9 +114,27 @@ export default function CompleteProfileForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setError(null);
 
+    // Validate password requirements
+    if (password.length < 8 || password.length > 20) {
+      setError('Password must be between 8 and 20 characters.');
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setError('Password must contain at least one uppercase character.');
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError('Password must contain at least one number.');
+      return;
+    }
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      setError('Password must contain at least one special character (e.g., !@#$).');
+      return;
+    }
+
+    setIsSubmitting(true);
     try {
       let finalUser: User;
       let finalPhoneNumber = 'dev-bypass';
@@ -131,8 +173,11 @@ export default function CompleteProfileForm() {
       if (err.code === 'auth/email-already-in-use' || err.code === 'auth/credential-already-in-use') {
         setError('This email address is already associated with another account.');
       } else if (err.code === 'auth/weak-password') {
-          setError('The password is too weak. It must be at least 6 characters long.')
-      } else if (err.code && err.code.includes('app-check')) {
+          setError('The password is too weak. Please check the requirements.')
+      } else if (err.code === 'auth/password-does-not-meet-requirements') {
+          setError('Password does not meet the security requirements. Please check all criteria.');
+      }
+       else if (err.code && err.code.includes('app-check')) {
           setError('App Check validation failed. Please ensure your debug token is configured correctly in the Firebase Console.');
       } else {
         setError(err.message || 'Failed to complete profile. Please try again.');
@@ -249,9 +294,11 @@ export default function CompleteProfileForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={6}
+              minLength={8}
+              maxLength={20}
             />
           </div>
+          <PasswordRequirements password={password} />
         </div>
         
         <SubmitButton pending={isSubmitting} />
