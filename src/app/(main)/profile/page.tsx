@@ -3,17 +3,13 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, User, Mail, Phone, CheckCircle2, UserCog, Cog, Shield } from 'lucide-react';
+import { ArrowLeft, User, Mail, Phone, CheckCircle2, Cog, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/components/auth/auth-provider';
 
 export default function ProfilePage() {
-  const user = {
-    name: 'Vstalin Grady',
-    email: 'vstalin.grady@email.com',
-    phone: '+62 812 3456 7890',
-    avatarUrl: 'https://placehold.co/128x128.png',
-  };
+  const { user } = useAuth();
 
   return (
     <div className="space-y-8 animate-fade-in-up">
@@ -31,7 +27,7 @@ export default function ProfilePage() {
         <div className="flex flex-col items-center text-center">
             <div className="relative mb-4">
                 <Image 
-                    src={user.avatarUrl}
+                    src={user.photoURL || 'https://placehold.co/128x128.png'}
                     alt="User Avatar"
                     width={96}
                     height={96}
@@ -39,7 +35,7 @@ export default function ProfilePage() {
                     data-ai-hint="person avatar"
                 />
             </div>
-            <h2 className="text-xl font-semibold text-white font-serif">{user.name}</h2>
+            <h2 className="text-xl font-semibold text-white font-serif">{user.displayName || 'Anonymous User'}</h2>
         </div>
 
         <div className="my-8 space-y-4">
@@ -48,19 +44,21 @@ export default function ProfilePage() {
                 <div className="flex-1">
                     <div className="flex justify-between items-center">
                         <p className="text-sm text-muted-foreground">Email</p>
-                        <Badge variant="outline" className="bg-green-900/50 border-green-700 text-green-300 text-xs">
-                            <CheckCircle2 className="w-3 h-3 mr-1.5"/>
-                            Verified
-                        </Badge>
+                        {user.emailVerified && (
+                          <Badge variant="outline" className="bg-green-900/50 border-green-700 text-green-300 text-xs">
+                              <CheckCircle2 className="w-3 h-3 mr-1.5"/>
+                              Verified
+                          </Badge>
+                        )}
                     </div>
-                    <p className="text-white font-semibold mt-0.5">{user.email}</p>
+                    <p className="text-white font-semibold mt-0.5">{user.email || 'No email provided'}</p>
                 </div>
             </div>
             <div className="flex items-start gap-4 bg-secondary p-4 rounded-lg">
                 <Phone className="w-5 h-5 text-muted-foreground mt-1 flex-shrink-0"/>
                 <div className="flex-1">
                     <p className="text-sm text-muted-foreground">Phone</p>
-                    <p className="text-white font-semibold mt-0.5">{user.phone}</p>
+                    <p className="text-white font-semibold mt-0.5">{user.phoneNumber || 'No phone provided'}</p>
                 </div>
             </div>
         </div>

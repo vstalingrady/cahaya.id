@@ -2,10 +2,8 @@
 'use client';
 
 import { getLoginHistory } from '@/lib/data';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
 import { useEffect, useState } from 'react';
-import { User } from 'firebase/auth';
+import { useAuth } from '@/components/auth/auth-provider';
 import Link from 'next/link';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -27,52 +25,30 @@ const parseUserAgent = (userAgent: string) => {
 }
 
 export default function SecurityPage() {
-  const [user, setUser] = useState<User | null>(null);
+  const { user } = useAuth();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        setUser(currentUser);
-        try {
-          const loginHistory = await getLoginHistory(currentUser.uid);
-          setHistory(loginHistory);
-        } catch (error) {
-            console.error("Failed to fetch login history:", error);
-        }
-      } else {
-        setUser(null);
-        setHistory([]);
+    const fetchHistory = async () => {
+      if (!user) return;
+      setLoading(true);
+      try {
+        const loginHistory = await getLoginHistory(user.uid);
+        setHistory(loginHistory);
+      } catch (error) {
+          console.error("Failed to fetch login history:", error);
       }
       setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
-  }, []);
+    fetchHistory();
+  }, [user]);
 
   if (loading) {
     return (
         <div className="flex items-center justify-center h-full pt-24">
             <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        </div>
-    );
-  }
-
-  if (!user) {
-    return (
-         <div className="space-y-8 animate-fade-in-up text-center">
-            <h1 className="text-2xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Access Denied
-            </h1>
-            <Alert variant="destructive">
-                <AlertDescription>
-                    You must be logged in to view this page.
-                </AlertDescription>
-            </Alert>
-            <Link href="/login" className="text-primary hover:underline">
-                Go to Login
-            </Link>
         </div>
     );
   }

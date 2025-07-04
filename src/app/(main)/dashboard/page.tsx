@@ -22,12 +22,11 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { auth } from '@/lib/firebase';
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { useAuth } from '@/components/auth/auth-provider';
 
 export default function DashboardPage() {
+    const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
-    const [user, setUser] = useState<User | null>(null);
     const [accountList, setAccountList] = useState<Account[]>([]);
     const [transactionList, setTransactionList] = useState<Transaction[]>([]);
     
@@ -39,34 +38,27 @@ export default function DashboardPage() {
     const { toast } = useToast();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        const fetchData = async () => {
+            if (!user) return;
             setIsLoading(true);
-            if (currentUser) {
-                setUser(currentUser);
-                try {
-                    const { accounts, transactions } = await getDashboardData(currentUser.uid);
-                    setAccountList(accounts);
-                    setTransactionList(transactions);
-                } catch (error) {
-                    console.error("Failed to fetch dashboard data:", error);
-                    toast({
-                        variant: 'destructive',
-                        title: 'Error',
-                        description: 'Could not load your account data.'
-                    });
-                }
-            } else {
-                setUser(null);
-                setAccountList([]);
-                setTransactionList([]);
-                // Optional: redirect to login if not authenticated
-                // router.push('/login');
+            try {
+                const { accounts, transactions } = await getDashboardData(user.uid);
+                setAccountList(accounts);
+                setTransactionList(transactions);
+            } catch (error) {
+                console.error("Failed to fetch dashboard data:", error);
+                toast({
+                    variant: 'destructive',
+                    title: 'Error',
+                    description: 'Could not load your account data.'
+                });
+            } finally {
+              setIsLoading(false);
             }
-            setIsLoading(false);
-        });
+        };
 
-        return () => unsubscribe();
-    }, [toast]);
+        fetchData();
+    }, [user, toast]);
 
     useEffect(() => {
         let visibilityTimer: NodeJS.Timeout;
@@ -203,7 +195,7 @@ export default function DashboardPage() {
                     )}
                   </div>
                   <Link href="/profile">
-                    <Image src="https://placehold.co/128x128.png" width={44} height={44} alt="User Avatar" className="w-11 h-11 bg-primary rounded-full shadow-lg border-2 border-border/50 cursor-pointer" data-ai-hint="person avatar" />
+                    <Image src={user.photoURL || "https://placehold.co/128x128.png"} width={44} height={44} alt="User Avatar" className="w-11 h-11 bg-primary rounded-full shadow-lg border-2 border-border/50 cursor-pointer" data-ai-hint="person avatar" />
                   </Link>
                 </div>
             </header>
