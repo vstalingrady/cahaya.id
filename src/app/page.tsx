@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import CuanLogo from '@/components/cuanflex-logo';
 import {
   Carousel,
   CarouselContent,
@@ -68,7 +67,6 @@ export default function WelcomePage() {
                 
                 {slide.type === 'hero' && (
                   <div className="text-center relative z-10 animate-fade-in-up">
-                     <CuanLogo className="w-24 h-auto mx-auto mb-8" />
                     <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line">
                       {slide.title}
                     </h1>
