@@ -166,7 +166,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="relative w-11 h-11">
-                     <button onClick={() => isPrivate ? setShowPinDialog(true) : setIsPrivate(true)} className="w-full h-full bg-card rounded-2xl shadow-lg border-2 border-border/50 flex items-center justify-center cursor-pointer transition-colors hover:border-primary/50 relative z-10">
+                     <button onClick={() => isPrivate ? setShowPinDialog(true) : setIsPrivate(true)} className="w-full h-full bg-card rounded-full shadow-lg border-2 border-border/50 flex items-center justify-center cursor-pointer transition-colors hover:border-primary/50 relative z-10">
                         {isPrivate ? <Eye className="w-5 h-5 text-muted-foreground" /> : <EyeOff className="w-5 h-5 text-primary" />}
                      </button>
                     {!isPrivate && (
@@ -190,7 +190,7 @@ export default function DashboardPage() {
                     )}
                   </div>
                   <Link href="/profile">
-                    <Image src="https://placehold.co/128x128.png" width={44} height={44} alt="User Avatar" className="w-11 h-11 bg-primary rounded-2xl shadow-lg border-2 border-border/50 cursor-pointer" data-ai-hint="person avatar" />
+                    <Image src="https://placehold.co/128x128.png" width={44} height={44} alt="User Avatar" className="w-11 h-11 bg-primary rounded-full shadow-lg border-2 border-border/50 cursor-pointer" data-ai-hint="person avatar" />
                   </Link>
                 </div>
             </header>
