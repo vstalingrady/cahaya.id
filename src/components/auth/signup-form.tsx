@@ -7,9 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import { app } from '@/lib/firebase';
-import { Phone, Loader2, Info } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { useToast } from '@/hooks/use-toast';
+import { Phone, Loader2 } from 'lucide-react';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -31,7 +29,6 @@ declare global {
 
 export default function SignupForm() {
   const router = useRouter();
-  const { toast } = useToast();
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -63,18 +60,6 @@ export default function SignupForm() {
     setLoading(true);
     setError(null);
 
-    // --- DEVELOPER BYPASS LOGIC ---
-    if (phone.toLowerCase() === 'dev-bypass') {
-      sessionStorage.setItem('dev-bypass-mode', 'true');
-      toast({
-        title: 'Developer Bypass Activated',
-        description: 'Skipping phone verification and proceeding to profile creation.',
-      });
-      router.push('/complete-profile');
-      return;
-    }
-    // --- END DEVELOPER BYPASS LOGIC ---
-
     const verifier = recaptchaVerifierRef.current;
     if (!verifier) {
         setError("reCAPTCHA verifier not initialized. Please refresh the page.");
@@ -89,19 +74,7 @@ export default function SignupForm() {
       router.push(`/verify-phone?phone=${encodeURIComponent(phone)}`);
     } catch (err: any) {
       console.error("Error sending code:", err);
-      let errorMessage = err.message || 'Failed to send verification code. Please try again.';
-      if (err.code === 'auth/invalid-api-key') {
-        errorMessage = 'Firebase configuration is invalid. Please check your .env file.';
-      } else if (err.code === 'auth/captcha-check-failed') {
-         errorMessage = 'reCAPTCHA check failed due to an environment issue.';
-         // Auto-fill the test number to guide the user
-         setPhone('+1 650-555-3434');
-      } else if (err.code === 'auth/invalid-phone-number') {
-        errorMessage = 'The phone number is not valid. Please use the E.164 format (e.g., +6281234567890).';
-      } else if (err.code === 'auth/too-many-requests') {
-          errorMessage = "Too many attempts. Please wait a while before trying again or use the test number.";
-      }
-      setError(errorMessage);
+      setError(err.message || 'Failed to send verification code. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -127,14 +100,6 @@ export default function SignupForm() {
           </div>
         </div>
         
-        <Alert variant="default" className="bg-secondary border-primary/20">
-          <Info className="h-4 w-4 text-primary" />
-          <AlertTitle className="text-primary font-bold">Stuck? Use Developer Bypass</AlertTitle>
-          <AlertDescription className="text-muted-foreground">
-            If reCAPTCHA fails, enter <code className="font-mono text-white bg-background p-1 rounded-md">dev-bypass</code> as the phone number to skip this step.
-          </AlertDescription>
-        </Alert>
-
         {/* The ref is attached here. It's invisible. */}
         <div ref={recaptchaContainerRef}></div>
 

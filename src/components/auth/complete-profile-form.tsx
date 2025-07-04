@@ -9,8 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, User, EmailAuthProvider, linkWithCredential } from 'firebase/auth';
 import { completeUserProfile } from '@/lib/actions';
-import { User as UserIcon, Mail, Lock, Loader2, Info } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { User as UserIcon, Mail, Lock, Loader2 } from 'lucide-react';
 
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
@@ -29,7 +28,6 @@ export default function CompleteProfileForm() {
   const { toast } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isBypassMode, setIsBypassMode] = useState(false);
   
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -38,13 +36,6 @@ export default function CompleteProfileForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    const bypassFlag = sessionStorage.getItem('dev-bypass-mode');
-    if (bypassFlag === 'true') {
-      setIsBypassMode(true);
-      setLoading(false);
-      return; // Skip auth check in bypass mode
-    }
-
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser && currentUser.phoneNumber) {
         setUser(currentUser);
@@ -66,20 +57,6 @@ export default function CompleteProfileForm() {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
-
-    // --- DEVELOPER BYPASS SUBMIT LOGIC ---
-    if (isBypassMode) {
-      console.log("DEV BYPASS: Simulating profile creation with:", { fullName, email });
-      // In a real app with bypass, you might create a "fake" user record in the DB
-      sessionStorage.removeItem('dev-bypass-mode'); // Clean up
-      toast({
-        title: 'Profile Created (Bypass Mode)',
-        description: "Now let's secure your account.",
-      });
-      router.push('/setup-security');
-      return;
-    }
-    // --- END DEVELOPER BYPASS SUBMIT LOGIC ---
 
     if (!user) {
       setError("No authenticated user found. Please sign up again.");
@@ -120,15 +97,6 @@ export default function CompleteProfileForm() {
 
   return (
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
-      {isBypassMode && (
-        <Alert variant="destructive" className="mb-6 bg-red-900/30 border-red-500/50">
-          <Info className="h-4 w-4" />
-          <AlertTitle>Developer Bypass Mode</AlertTitle>
-          <AlertDescription>
-            You are creating a profile without phone verification. This is for development only.
-          </AlertDescription>
-        </Alert>
-      )}
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <Label htmlFor="fullName">Full Name</Label>
