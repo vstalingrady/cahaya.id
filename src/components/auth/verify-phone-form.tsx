@@ -30,6 +30,17 @@ export default function VerifyPhoneForm() {
     e.preventDefault();
     setLoading(true);
 
+    if (code === '000000') {
+      toast({
+        title: 'Dev Bypass Activated',
+        description: 'Skipping phone verification.',
+      });
+      // Set a flag for the next page to know we're in bypass mode
+      sessionStorage.setItem('devBypass', 'true');
+      router.push('/complete-profile');
+      return;
+    }
+
     try {
       if (!window.confirmationResult) {
         toast({
