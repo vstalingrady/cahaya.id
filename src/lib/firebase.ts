@@ -32,28 +32,25 @@ if (typeof window !== 'undefined') {
   }
 
   try {
-    // In development environments (like Firebase Studio), use the debug token.
-    // This will be printed to the console of your browser. You need to add it
-    // to the Firebase Console (App Check > Your App > Manage debug tokens).
+    // In development, the debug token is printed to the console.
+    // You must add this token to the Firebase Console to bypass App Check.
     if (process.env.NODE_ENV === 'development') {
-      console.log('Firebase App Check: Initializing in development mode with debug token.');
-      (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
+      console.log("Firebase App Check: Debug mode enabled. If you're seeing security errors, find the 'App Check debug token' logged below and add it to your Firebase project settings under App Check > Apps > Manage debug tokens.");
+      (self as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
     }
     
-    // Initialize App Check with reCAPTCHA v3 provider.
-    // The debug token will be used automatically in dev mode if set.
     const recaptchaSiteKey = process.env.NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY;
     if (recaptchaSiteKey) {
       initializeAppCheck(app, {
         provider: new ReCaptchaV3Provider(recaptchaSiteKey),
         isTokenAutoRefreshEnabled: true
       });
-      console.log("Firebase App Check initialized.");
+      console.log("Firebase App Check initialized successfully.");
     } else {
-       console.warn("Firebase App Check not initialized. NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY is missing from .env file.");
+       console.warn("Firebase App Check not initialized. The 'NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY' is missing from your environment variables.");
     }
   } catch (error) {
-    console.error("Failed to initialize Firebase App Check", error);
+    console.error("Failed to initialize Firebase App Check. This can cause authentication and API requests to fail.", error);
   }
 }
 
