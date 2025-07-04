@@ -28,38 +28,32 @@ declare global {
 
 export default function SignupForm() {
   const router = useRouter();
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState('+62 ');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [recaptchaInitialized, setRecaptchaInitialized] = useState(false);
-  
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const auth = getAuth(app);
     let verifier: RecaptchaVerifier;
 
-    if (!recaptchaVerifierRef.current) {
-        try {
-            verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-                'size': 'invisible',
-                'callback': () => {
-                    console.log("reCAPTCHA challenge solved.");
-                },
-                'expired-callback': () => {
-                    setError('reCAPTCHA expired. Please try again.');
-                }
-            });
-
-            recaptchaVerifierRef.current = verifier;
-            setRecaptchaInitialized(true);
-        } catch (err: any) {
-            console.error("Error initializing reCAPTCHA:", err);
-            setError("Failed to initialize reCAPTCHA. Please refresh the page.");
-        }
+    if (!recaptchaVerifierRef.current && recaptchaContainerRef.current) {
+      verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+        size: 'invisible',
+        callback: () => { console.log('reCAPTCHA challenge solved.') },
+        'expired-callback': () => { setError('reCAPTCHA expired. Please try again.') },
+      });
+      recaptchaVerifierRef.current = verifier;
+      
+      verifier.render().then(() => {
+        console.log("reCAPTCHA rendered.");
+      }).catch((err) => {
+        console.error("reCAPTCHA render error:", err);
+        setError("Failed to render reCAPTCHA. Please refresh and try again.");
+      });
     }
 
-    // Cleanup function
     return () => {
       if (recaptchaVerifierRef.current) {
         recaptchaVerifierRef.current.clear();
@@ -67,20 +61,32 @@ export default function SignupForm() {
     };
   }, []);
 
-  const formatPhoneNumber = (phoneNumber: string): string => {
-    // Remove any non-digit characters except the leading +
-    let formatted = phoneNumber.replace(/[^\d+]/g, '');
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
     
-    // If it doesn't start with +, add +62 for Indonesia
-    if (!formatted.startsWith('+')) {
-      // Remove leading 0 if present
-      if (formatted.startsWith('0')) {
-        formatted = formatted.substring(1);
-      }
-      formatted = '+62' + formatted;
+    // Don't let user delete the prefix
+    if (!value.startsWith('+62 ')) {
+      setPhone('+62 ');
+      return;
     }
     
-    return formatted;
+    // Get only numbers after prefix
+    const rawNumbers = value.substring(4).replace(/\D/g, '');
+    
+    // Max 12 digits for Indonesian number part
+    const trimmedNumbers = rawNumbers.slice(0, 12);
+
+    const chunks = [];
+    if (trimmedNumbers.length > 0) chunks.push(trimmedNumbers.slice(0, 3));
+    if (trimmedNumbers.length > 3) chunks.push(trimmedNumbers.slice(3, 7));
+    if (trimmedNumbers.length > 7) chunks.push(trimmedNumbers.slice(7));
+
+    setPhone(`+62 ${chunks.join('-')}`);
+  };
+
+  const formatPhoneNumberForFirebase = (phoneNumber: string): string => {
+    // Just remove all non-digit characters and prepend a '+'
+    return `+${phoneNumber.replace(/\D/g, '')}`;
   };
 
   const handleSendCode = async (e: React.FormEvent) => {
@@ -88,22 +94,16 @@ export default function SignupForm() {
     setLoading(true);
     setError(null);
 
-    if (!recaptchaInitialized) {
-      setError("reCAPTCHA not initialized. Please refresh the page.");
-      setLoading(false);
-      return;
-    }
-
     const verifier = recaptchaVerifierRef.current;
     if (!verifier) {
-      setError("reCAPTCHA verifier not initialized. Please refresh the page.");
+      setError("reCAPTCHA verifier not ready. Please wait a moment and try again.");
       setLoading(false);
       return;
     }
 
     try {
       const auth = getAuth(app);
-      const formattedPhone = formatPhoneNumber(phone);
+      const formattedPhone = formatPhoneNumberForFirebase(phone);
       
       console.log("Attempting to send code to:", formattedPhone);
       
@@ -111,7 +111,7 @@ export default function SignupForm() {
       window.confirmationResult = confirmationResult;
       
       console.log("Code sent successfully");
-      router.push(`/verify-phone?phone=${encodeURIComponent(formattedPhone)}`);
+      router.push(`/verify-phone?phone=${encodeURIComponent(phone)}`);
     } catch (err: any) {
       console.error("Error sending code:", err);
       
@@ -120,7 +120,7 @@ export default function SignupForm() {
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many requests. Please try again later.');
       } else if (err.code === 'auth/captcha-check-failed') {
-        setError('Security check failed. Ensure your app environment is authorized in the Firebase console.');
+         setError('reCAPTCHA verification failed. Ensure your domain is authorized in the Firebase Console.');
       } else {
         setError(err.message || 'Failed to send verification code. Please try again.');
       }
@@ -141,16 +141,15 @@ export default function SignupForm() {
               name="phone" 
               type="tel" 
               className="bg-input h-14 text-lg pl-12"
-              placeholder="e.g., +6281234567890 or 081234567890"
+              placeholder="+62 812-3456-7890"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={handlePhoneChange}
               required
             />
           </div>
         </div>
         
-        {/* This div is now the target for reCAPTCHA, found by its ID */}
-        <div id="recaptcha-container"></div>
+        <div ref={recaptchaContainerRef}></div>
         
         <SubmitButton pending={loading} />
         
