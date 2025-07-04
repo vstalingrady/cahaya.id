@@ -135,7 +135,7 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
                   </div>
                 )}
             </div>
-            <div className="h-48 relative -mx-5">
+            <div className="h-48 relative">
                 {chartData.length > 0 ? (
                     <BalanceChart chartData={chartData} />
                 ) : (
