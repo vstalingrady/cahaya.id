@@ -69,7 +69,7 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
       </div>
       <div className="text-right ml-2">
           <div className={cn(
-              "font-semibold text-lg",
+              "font-semibold text-lg whitespace-nowrap",
               isLoan ? "text-destructive" : "text-white"
             )}>
             {isPrivate ? 'IDR ••••••••' : isLoan ? `-${formattedAmount}` : formattedAmount}
