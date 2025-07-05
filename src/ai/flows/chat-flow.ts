@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A conversational AI agent for personal finance.
@@ -24,9 +25,9 @@ const ChatOutputSchema = z.string();
 export type ChatOutput = z.infer<typeof ChatOutputSchema>;
 
 export async function getAiChatResponse(
-  history: ChatMessage[]
+  input: ChatInput
 ): Promise<string> {
-  const response = await financialChatFlow({history});
+  const response = await financialChatFlow(input);
   return response;
 }
 

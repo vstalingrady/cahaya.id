@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect, FormEvent } from 'react';
@@ -44,7 +45,7 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
-      const aiResponse = await getAiChatResponse(newMessages);
+      const aiResponse = await getAiChatResponse({ history: newMessages });
       const modelMessage: ChatMessage = { role: 'model', content: aiResponse };
       setMessages([...newMessages, modelMessage]);
     } catch (error) {

@@ -375,7 +375,7 @@ export async function getAiChatResponse(
   history: ChatMessage[]
 ): Promise<string> {
   try {
-    const response = await getAiChatResponseFlow(history);
+    const response = await getAiChatResponseFlow({history});
     return response;
   } catch (error) {
     console.error("Error getting AI chat response:", error);
