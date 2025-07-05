@@ -20,12 +20,7 @@ export default function InfiniteLogoScroller({
 }: InfiniteLogoScrollerProps) {
   return (
     <div
-      // A data attribute is used to scope the CSS for the animation direction.
-      data-direction={direction}
-      className={cn(
-        "scroller w-full overflow-hidden",
-        className
-      )}
+      className={cn("scroller w-full overflow-hidden", className)}
     >
       <div
         className="scroller-inner flex flex-nowrap gap-4 py-1"
@@ -33,10 +28,11 @@ export default function InfiniteLogoScroller({
           {
             "--animation-duration":
               speed === "fast" ? "20s" : speed === "slow" ? "80s" : "40s",
+            "--animation-direction": direction === "reverse" ? "reverse" : "normal",
           } as React.CSSProperties
         }
       >
-        {/* The list is duplicated to create the seamless loop effect. */}
+        {/* Render the first set of logos */}
         {institutions.map((inst, index) => (
           <div
             key={`logo-${inst.id}-${index}`}
@@ -47,13 +43,12 @@ export default function InfiniteLogoScroller({
               alt={inst.name}
               width={80}
               height={80}
-              // These classes ensure the image scales to fit without distortion.
               className="object-contain w-full h-full"
               data-ai-hint={`${inst.name} logo`}
             />
           </div>
         ))}
-        {/* The duplicated content, aria-hidden for accessibility. */}
+        {/* Render the second set of logos for the seamless loop */}
         {institutions.map((inst, index) => (
           <div
             key={`logo-clone-${inst.id}-${index}`}
@@ -71,39 +66,20 @@ export default function InfiniteLogoScroller({
           </div>
         ))}
       </div>
-
+      
       <style jsx>{`
         .scroller-inner {
-          /* Default animation (scrolling left) */
-          animation: scroll-left var(--animation-duration) linear infinite;
-        }
-
-        .scroller[data-direction="reverse"] > .scroller-inner {
-          /* Reverse animation (scrolling right) */
-          animation-name: scroll-right;
+            animation: scroll var(--animation-duration) linear infinite;
+            animation-direction: var(--animation-direction);
         }
 
         .scroller:hover .scroller-inner {
           animation-play-state: paused;
         }
-        
-        /* Keyframes for scrolling left (forward) */
-        @keyframes scroll-left {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(-50%);
-          }
-        }
 
-        /* Keyframes for scrolling right (reverse) */
-        @keyframes scroll-right {
-          from {
-            transform: translateX(-50%);
-          }
+        @keyframes scroll {
           to {
-            transform: translateX(0);
+            transform: translateX(-50%);
           }
         }
       `}</style>
