@@ -127,7 +127,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
   const pathPoints = useMemo(() => 
       dataPoints.map((p, i) => [getX(i), getY(p.netWorth)])
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  , [dataPoints]);
+  , [dataPoints, rangePadding]);
   
   const animatedPoints = pathPoints.slice(0, Math.ceil(pathPoints.length * animationProgress));
   const pathD = createSmoothPath(animatedPoints);
