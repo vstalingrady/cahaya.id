@@ -137,7 +137,7 @@
   }
 
   .flashy-gemini-text {
-    @apply font-bold bg-gradient-to-r from-primary via-accent to-pink-500 bg-clip-text text-transparent;
+    @apply font-bold bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent;
     background-size: 200% auto;
     animation: text-shine 3s linear infinite;
   }
