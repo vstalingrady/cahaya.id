@@ -17,6 +17,7 @@ import WelcomePaymentMockup from '@/components/welcome-payment-mockup';
 import WelcomeInsightsMockup from '@/components/welcome-insights-mockup';
 import WelcomeVaultsMockup from '@/components/welcome-vaults-mockup';
 import WelcomeSecurityMockup from '@/components/welcome-security-mockup';
+import WelcomeBudgetsMockup from '@/components/welcome-budgets-mockup';
 
 const CountingNumber = ({ target, prefix = "", suffix = "" }: {target: number, prefix?: string, suffix?: string}) => {
   const [count, setCount] = useState(0);
@@ -133,6 +134,22 @@ const slides = [
             Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.
           </p>
           <WelcomePaymentMockup />
+        </div>
+      )
+    },
+    {
+      type: 'feature',
+      title: 'Track Spending with Smart Budgets.',
+      description: "Take control of your spending. Create custom budgets for any category and see at a glance how you're tracking towards your goals.",
+      content: (
+        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto animate-fade-in-up">
+          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+            Track Spending with Smart Budgets.
+          </h2>
+          <p className="text-base leading-relaxed text-muted-foreground mb-8">
+             Take control of your spending. Create custom budgets for any category and see at a glance how you're tracking towards your goals.
+          </p>
+          <WelcomeBudgetsMockup />
         </div>
       )
     },
