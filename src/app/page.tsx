@@ -188,19 +188,13 @@ const slides = [
                 Create Free Account <ArrowRight className="ml-2" />
               </Link>
             </Button>
-            <div className="flex justify-center gap-8 mt-6">
-              <div className="text-center">
-                <Shield className="w-8 h-8 text-primary mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Bank-level security</p>
-              </div>
-              <div className="text-center">
-                <Zap className="w-8 h-8 text-accent mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Setup in minutes</p>
-              </div>
-              <div className="text-center">
-                <TrendingUp className="w-8 h-8 text-primary mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Free forever</p>
-              </div>
+            <div className="text-center mt-8">
+              <p className="text-muted-foreground text-sm">
+                Already have an account?{' '}
+                <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">
+                  Log In
+                </Link>
+              </p>
             </div>
           </div>
         </div>
