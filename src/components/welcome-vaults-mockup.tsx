@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Plus, Repeat, Link2, Trash2, Edit, Banknote, Check, ChevronDown, Coins } from "lucide-react";
+import { Plus, Repeat, Link2, Trash2, Edit, Banknote, Check, ChevronDown, Coins, ChevronsUpDown } from "lucide-react";
 import React, { useState, useEffect, useRef } from 'react';
 import { vaults as initialVaults, type Vault } from '@/lib/data';
 import { Progress } from "@/components/ui/progress";
@@ -166,19 +166,16 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                         {/* Funding Sources */}
                         <div>
                             <label className="text-muted-foreground font-semibold text-xs">Funding Sources</label>
-                            <div className="space-y-1 mt-1">
-                                <div className={cn("flex items-center space-x-3 rounded-lg border p-2 bg-secondary transition-all", formState.fundingSources.includes('bca1') ? "border-primary" : "border-border")}>
-                                    <div className={cn("w-4 h-4 rounded-sm border-2 flex items-center justify-center transition-all", formState.fundingSources.includes('bca1') ? "bg-primary border-primary" : "border-muted-foreground")}>
-                                        {formState.fundingSources.includes('bca1') && <Check className="w-3 h-3 text-white" />}
-                                    </div>
-                                    <label className="font-normal text-white text-xs">BCA Main Account</label>
-                                </div>
-                                <div className={cn("flex items-center space-x-3 rounded-lg border p-2 bg-secondary transition-all", formState.fundingSources.includes('gopay1') ? "border-primary" : "border-border")}>
-                                    <div className={cn("w-4 h-4 rounded-sm border-2 flex items-center justify-center transition-all", formState.fundingSources.includes('gopay1') ? "bg-primary border-primary" : "border-muted-foreground")}>
-                                        {formState.fundingSources.includes('gopay1') && <Check className="w-3 h-3 text-white" />}
-                                    </div>
-                                    <label className="font-normal text-white text-xs">GoPay</label>
-                                </div>
+                            <div className={cn("flex h-9 w-full items-center justify-between rounded-md border bg-input px-3 py-2 mt-1 transition-colors", formState.fundingSources.length > 0 ? "border-primary" : "border-border")}>
+                                <span className={cn(
+                                    "truncate",
+                                    formState.fundingSources.length > 0 ? "text-white" : "text-muted-foreground"
+                                )}>
+                                    {formState.fundingSources.length > 0
+                                        ? formState.fundingSources.map(id => id === 'bca1' ? 'BCA Main Account' : 'GoPay').join(', ')
+                                        : "Select funding sources"}
+                                </span>
+                                <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
                             </div>
                         </div>
 
