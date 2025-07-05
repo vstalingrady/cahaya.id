@@ -10,9 +10,6 @@ const getAccountIcon = (name: string) => {
     if (lowerName.includes('gopay')) {
         return <div className="w-14 h-14 bg-sky-500 rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">GP</div>;
     }
-    if (lowerName.includes('ovo')) {
-        return <div className="w-14 h-14 bg-purple-600 rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">OVO</div>;
-    }
     if (lowerName.includes('bibit')) {
         return <div className="w-14 h-14 bg-green-500 rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">BB</div>;
     }
