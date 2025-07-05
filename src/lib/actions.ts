@@ -4,6 +4,7 @@
 import { personalizedSavingSuggestions, PersonalizedSavingSuggestionsOutput } from "@/ai/flows/saving-opportunities";
 import { budgetAnalysis, BudgetAnalysisOutput } from "@/ai/flows/budget-analysis";
 import { discoverRecurringBills, BillDiscoveryOutput } from "@/ai/flows/bill-discovery";
+import { getAiChatResponse as getAiChatResponseFlow, type ChatMessage } from "@/ai/flows/chat-flow";
 import {
   type Transaction,
   type Account,
@@ -367,6 +368,18 @@ export async function getDashboardData(
     console.error('Error in getDashboardData from Firestore:', error);
     // In case of error, return empty arrays to prevent app crash
     return { accounts: [], transactions: [] };
+  }
+}
+
+export async function getAiChatResponse(
+  history: ChatMessage[]
+): Promise<string> {
+  try {
+    const response = await getAiChatResponseFlow(history);
+    return response;
+  } catch (error) {
+    console.error("Error getting AI chat response:", error);
+    return "I'm sorry, I encountered an error and can't respond right now. Please try again later.";
   }
 }
 

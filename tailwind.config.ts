@@ -114,6 +114,10 @@ export default {
             'box-shadow': '0 0 40px 5px hsl(var(--primary) / 0.7)',
           },
         },
+        'text-shine': {
+          'from': { 'background-position': '0% center' },
+          'to': { 'background-position': '-200% center' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -124,6 +128,7 @@ export default {
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'logo-blink-glow': 'logo-blink-glow 5s ease-in-out infinite',
         'slow-pulse': 'slow-pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'text-shine': 'text-shine 2s linear infinite',
       },
     },
   },

@@ -19,31 +19,6 @@ import WelcomeVaultsMockup from '@/components/welcome-vaults-mockup';
 import WelcomeSecurityMockup from '@/components/welcome-security-mockup';
 import WelcomeBudgetsMockup from '@/components/welcome-budgets-mockup';
 
-const CountingNumber = ({ target, prefix = "", suffix = "" }: {target: number, prefix?: string, suffix?: string}) => {
-  const [count, setCount] = useState(0);
-  
-  useEffect(() => {
-    const duration = 2000;
-    const steps = 60;
-    const stepValue = target / steps;
-    let current = 0;
-    
-    const timer = setInterval(() => {
-      current += stepValue;
-      if (current >= target) {
-        setCount(target);
-        clearInterval(timer);
-      } else {
-        setCount(Math.floor(current));
-      }
-    }, duration / steps);
-    
-    return () => clearInterval(timer);
-  }, [target]);
-  
-  return <span>{prefix}{count.toLocaleString()}{suffix}</span>;
-};
-
 const slides = [
     {
       type: 'hero',
@@ -146,14 +121,18 @@ const slides = [
     {
       type: 'feature',
       title: 'Get Smarter Insights with AI.',
-      description: "Powered by Gemini 2.5, our AI analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
+      description: "Unleash the power of Gemini 2.5, the world's most advanced AI. It analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
       content: (props: { isActive: boolean }) => (
         <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Get Smarter Insights with AI.
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
-            Powered by Gemini 2.5, our AI analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.
+            Unleash the power of{' '}
+            <span className="flashy-gemini-text">Gemini 2.5</span>, the
+            world's most advanced AI. It analyzes your spending to give you a
+            Financial Health Score, find hidden saving opportunities, and create
+            a personalized action plan.
           </p>
           <WelcomeInsightsMockup isActive={props.isActive} />
         </div>

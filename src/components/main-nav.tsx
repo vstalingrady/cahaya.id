@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, ArrowLeftRight, PiggyBank, PieChart, ClipboardList } from 'lucide-react';
+import { Home, ArrowLeftRight, PiggyBank, PieChart, ClipboardList, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import NoiseOverlay from './noise-overlay';
 
@@ -12,6 +12,7 @@ const navItems = [
   { href: '/transfer', icon: ArrowLeftRight, label: 'Pay' },
   { href: '/budgets', icon: ClipboardList, label: 'Budgets' },
   { href: '/insights', icon: PieChart, label: 'Insights' },
+  { href: '/chat', icon: MessageCircle, label: 'AI Chat' },
   { href: '/vaults', icon: PiggyBank, label: 'Vaults' },
 ];
 
