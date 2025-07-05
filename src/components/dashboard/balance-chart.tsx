@@ -68,23 +68,17 @@ const createSmoothPath = (points: number[][]) => {
 
 export default function BalanceChart({ chartData: dataPoints, onPointSelect }: BalanceChartProps) {
   const [animationProgress, setAnimationProgress] = useState(0);
-  const [isMounted, setIsMounted] = useState(false); // New state for fade-in
   const [hoveredPoint, setHoveredPoint] = useState<any>(null);
   const [activeIndex, setActiveIndex] = useState<number>(dataPoints.length > 0 ? dataPoints.length - 1 : 0);
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    // For fade-in effect on mount/data change
-    setIsMounted(false);
-    const fadeInTimer = setTimeout(() => setIsMounted(true), 100);
-    
     // For drawing animation
     setActiveIndex(dataPoints.length > 0 ? dataPoints.length - 1 : 0);
     setAnimationProgress(0);
     const drawTimer = requestAnimationFrame(() => setAnimationProgress(0.02));
     
     return () => {
-      clearTimeout(fadeInTimer);
       cancelAnimationFrame(drawTimer);
     }
   }, [dataPoints]);
@@ -251,10 +245,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
           <svg
             ref={svgRef}
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-            className={cn(
-                "w-full h-full cursor-pointer transition-opacity duration-700 ease-out",
-                isMounted ? 'opacity-100' : 'opacity-0'
-            )}
+            className="w-full h-full cursor-pointer"
             onClick={(e) => handleInteraction(e, true)}
             onMouseMove={(e) => handleInteraction(e, false)}
             onMouseLeave={() => setHoveredPoint(null)}
