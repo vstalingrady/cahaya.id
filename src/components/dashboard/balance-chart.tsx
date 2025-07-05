@@ -323,7 +323,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
             </g>
 
             {/* Active Point Indicator */}
-            {activePoint && (
+            {activePoint && animationProgress === 1 && (
               <g>
                 <line
                   x1={activePoint.x} y1={padding.top}
