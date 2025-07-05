@@ -1,9 +1,9 @@
 
 'use client';
 
-import { Plus, Repeat, Link2, Trash2, Edit, Banknote, Check, ChevronDown, Coins, ChevronsUpDown } from "lucide-react";
+import { Plus, Repeat, Link2, Trash2, Edit, Banknote, Check, ChevronDown, Coins, ChevronsUpDown, ArrowUpFromLine, ArrowDownToLine } from "lucide-react";
 import React, { useState, useEffect, useRef } from 'react';
-import { vaults as initialVaults, type Vault } from '@/lib/data';
+import { vaults as initialVaults, type Vault, accounts } from '@/lib/data';
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -95,7 +95,9 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                     const newVault: DisplayVault = {
                                         id: 'vault-new', name: 'European Tour', icon: 'Holiday',
                                         currentAmount: 5000000, targetAmount: 80000000,
-                                        sourceAccountIds: [], destinationAccountId: '', isNew: true,
+                                        sourceAccountIds: ['bca1', 'gopay1'],
+                                        destinationAccountId: 'bca1',
+                                        isNew: true,
                                         animatedAmount: 0, roundUpEnabled: true, autoSaveEnabled: true,
                                         autoSaveAmount: 250000, autoSaveFrequency: 'weekly'
                                     };
@@ -233,6 +235,12 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                 )}>
                     {displayVaults.map(vault => {
                         const progress = (vault.animatedAmount ?? vault.currentAmount) / vault.targetAmount * 100;
+                        const sourceNames = vault.sourceAccountIds
+                            .map(id => accounts.find(acc => acc.id === id)?.name)
+                            .filter(Boolean)
+                            .join(', ');
+                        const destinationName = accounts.find(acc => acc.id === vault.destinationAccountId)?.name;
+                        
                         return (
                             <div key={vault.id} id={vault.id} className={cn("block bg-card p-4 rounded-2xl border border-border transition-all duration-500",
                                 vault.isNew === true && 'opacity-0 translate-y-4',
@@ -248,6 +256,18 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                 <div className="flex items-center justify-between min-h-[34px]"><div className="text-xs space-y-1">
                                     {vault.autoSaveEnabled && (<div className="flex items-center gap-2 font-semibold text-green-400"><Repeat className="w-3 h-3" /><span>Auto-saving {formatCurrency(vault.autoSaveAmount || 0)} / {vault.autoSaveFrequency}</span></div>)}
                                     {vault.roundUpEnabled && (<div className="flex items-center gap-2 font-semibold text-green-400"><Coins className="w-3 h-3" /><span>Round-up savings active</span></div>)}
+                                    {sourceNames && (
+                                        <div className="flex items-center gap-2 font-medium text-muted-foreground pt-1">
+                                            <ArrowUpFromLine className="w-3 h-3" />
+                                            <span className="truncate">From: {sourceNames}</span>
+                                        </div>
+                                    )}
+                                    {destinationName && (
+                                        <div className="flex items-center gap-2 font-medium text-muted-foreground">
+                                            <ArrowDownToLine className="w-3 h-3" />
+                                            <span>To: {destinationName}</span>
+                                        </div>
+                                    )}
                                 </div>
                                 {vault.isShared && (<div className="flex -space-x-3 rtl:space-x-reverse items-center"><div className="w-8 h-8 rounded-full bg-muted border-2 border-card" /><div className="w-8 h-8 rounded-full bg-muted border-2 border-card" /><div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-white bg-primary border-2 border-card rounded-full">+2</div></div>)}
                                 </div>
