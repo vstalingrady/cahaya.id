@@ -95,16 +95,19 @@ const slides = [
               institutions={financialInstitutions.slice(0, 10)} 
               direction="reverse" 
               speed="slow" 
+              className="-mx-6 sm:-mx-8 md:-mx-12 lg:-mx-16"
             />
             <InfiniteLogoScroller 
               institutions={financialInstitutions.slice(10, 20)} 
               direction="forward" 
               speed="normal" 
+              className="-mx-6 sm:-mx-8 md:-mx-12 lg:-mx-16"
             />
             <InfiniteLogoScroller 
               institutions={financialInstitutions.slice(20, 30)} 
               direction="reverse" 
               speed="slow" 
+              className="-mx-6 sm:-mx-8 md:-mx-12 lg:-mx-16"
             />
         </div>
       )
