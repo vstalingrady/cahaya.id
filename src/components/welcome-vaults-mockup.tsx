@@ -62,10 +62,10 @@ const vaults = [
   }
 ];
 
-export default function WelcomeVaultsMockup({ className }: { className?: string }) {
+export default function WelcomeVaultsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
     return (
         <div className={cn(
-            "relative w-full max-w-sm h-[500px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-background text-white p-6 flex flex-col gap-6 pointer-events-none",
+            "relative w-full max-w-sm h-[500px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-background text-white p-6 flex flex-col gap-4",
             className
         )}>
             {/* Header */}
