@@ -22,8 +22,8 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
   minimumFractionDigits: 0,
 }).format(value);
 
-// Use a subset of vaults for the mockup, especially the shared one
-const vaults = allVaults.filter(v => v.id === 'vault1' || v.id === 'vault4').slice(0, 2);
+// Use all vaults for a complete mockup
+const vaults = allVaults;
 
 export default function WelcomeVaultsMockup({ className }: { className?: string }) {
     return (
@@ -49,7 +49,7 @@ export default function WelcomeVaultsMockup({ className }: { className?: string 
                                 {vault.autoSaveEnabled && (
                                     <div className="flex items-center gap-2 font-semibold text-green-400">
                                         <Repeat className="w-3 h-3" />
-                                        <span>Auto-saving active</span>
+                                        <span>Auto-saving {formatCurrency(vault.autoSaveAmount || 0)} / {vault.autoSaveFrequency}</span>
                                     </div>
                                 )}
                                 {vault.roundUpEnabled && (
