@@ -1,4 +1,3 @@
-
 'use client';
 
 import { cn } from "@/lib/utils";
@@ -9,16 +8,9 @@ export default function WelcomeVaultsMockup({ className }: { className?: string 
     const [isAnimating, setIsAnimating] = useState(false);
     
     useEffect(() => {
+        // Animate the progress bars once when the component mounts
         const timer = setTimeout(() => setIsAnimating(true), 300);
-        const resetTimer = setInterval(() => {
-            setIsAnimating(false);
-            setTimeout(() => setIsAnimating(true), 300);
-        }, 5000);
-
-        return () => {
-            clearTimeout(timer);
-            clearInterval(resetTimer);
-        };
+        return () => clearTimeout(timer);
     }, []);
 
     const holidayProgress = isAnimating ? 68 : 0;
