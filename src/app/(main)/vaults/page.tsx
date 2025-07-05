@@ -142,8 +142,8 @@ export default function VaultsPage() {
                 </div>
 
                 <Link href="/vaults/add" className="w-full bg-card p-5 rounded-2xl flex items-center justify-center text-muted-foreground border-2 border-dashed border-border hover:border-primary/80 hover:text-primary transition-colors group">
-                    <Plus className="w-6 h-6 mr-3" />
-                    <span className="font-semibold">Create New Vault</span>
+                    <Plus className="w-6 h-6 mr-3 transition-colors" />
+                    <span className="font-semibold transition-colors">Create New Vault</span>
                 </Link>
             </div>
         </>
