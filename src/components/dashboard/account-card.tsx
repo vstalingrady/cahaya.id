@@ -5,25 +5,26 @@ import { cn } from '@/lib/utils';
 
 const getAccountIcon = (name: string) => {
     const lowerName = name.toLowerCase();
+    // Removed margins from each icon, as spacing is now handled by the parent flex container's `gap` property.
     if (lowerName.includes('bca')) {
-        return <div className="w-14 h-14 bg-blue-600 rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">BCA</div>;
+        return <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">BCA</div>;
     }
     if (lowerName.includes('gopay')) {
-        return <div className="w-14 h-14 bg-sky-500 rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">GP</div>;
+        return <div className="w-14 h-14 bg-sky-500 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">GP</div>;
     }
     if (lowerName.includes('ovo')) {
-        return <div className="w-14 h-14 bg-purple-600 rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">OVO</div>;
+        return <div className="w-14 h-14 bg-purple-600 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">OVO</div>;
     }
     if (lowerName.includes('bibit')) {
-        return <div className="w-14 h-14 bg-green-500 rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">BB</div>;
+        return <div className="w-14 h-14 bg-green-500 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">BB</div>;
     }
     if (lowerName.includes('pintu')) {
-        return <div className="w-14 h-14 bg-indigo-500 rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">PT</div>;
+        return <div className="w-14 h-14 bg-indigo-500 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">PT</div>;
     }
      if (lowerName.includes('kredivo')) {
-        return <div className="w-14 h-14 bg-orange-500 rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">KR</div>;
+        return <div className="w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">KR</div>;
     }
-    return <div className="w-14 h-14 bg-secondary rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">AC</div>;
+    return <div className="w-14 h-14 bg-secondary rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">AC</div>;
 }
 
 type AccountCardProps = {
@@ -60,14 +61,14 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
 
   const cardContent = (
     <>
-      <div className="flex items-center flex-1 min-w-0">
+      <div className="flex items-center gap-4 flex-1 min-w-0">
           {getAccountIcon(account.name)}
-          <div className="flex-1 min-w-0 flex flex-col items-start text-left">
-            <div className="font-semibold text-lg text-white truncate text-left">{account.name}</div>
-            {subtitle && <div className="text-muted-foreground text-sm text-left">{subtitle}</div>}
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-lg text-white truncate">{account.name}</p>
+            {subtitle && <p className="text-muted-foreground text-sm truncate">{subtitle}</p>}
           </div>
       </div>
-      <div className="text-right ml-2 flex-shrink-0">
+      <div className="flex-shrink-0">
           <div className={cn(
               "font-semibold text-lg whitespace-nowrap",
               isLoan ? "text-destructive" : "text-white"
@@ -78,13 +79,13 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
     </>
   );
 
-  const baseClasses = "bg-card p-3 rounded-2xl flex justify-between items-center border border-border shadow-lg";
+  const baseClasses = "bg-card p-3 rounded-2xl flex justify-between items-center gap-4 border border-border shadow-lg";
 
   const isClickable = account.type === 'bank' || account.type === 'investment';
 
   if (!isClickable) {
     return (
-      <div className={`${baseClasses}`}>
+      <div className={baseClasses}>
           {cardContent}
       </div>
     );
