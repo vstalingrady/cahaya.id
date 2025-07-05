@@ -80,7 +80,7 @@ const slides = [
       title: 'Connect Everything. See Everything.',
       description: 'BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.',
       content: (props: { isActive: boolean }) => (
-        <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto">
+        <div className="flex flex-col items-center justify-center text-center w-full max-w-lg mx-auto py-12">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Connect Everything. See Everything.
           </h2>
@@ -96,7 +96,7 @@ const slides = [
       title: 'Trusted By Top Institutions',
       description: 'We support all major banks and e-wallets in Indonesia, with more coming soon.',
       content: (
-        <div className="flex flex-col items-center justify-center h-full text-center w-full">
+        <div className="flex flex-col items-center text-center w-full py-12">
            <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Trusted by 200+ Institutions
           </h2>
@@ -192,7 +192,7 @@ const slides = [
       title: 'Your Security is Our Priority.',
       description: "We use bank-level security, end-to-end encryption, and give you full control over your data. Your trust is our most important asset.",
       content: (
-        <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto">
+        <div className="flex flex-col items-center justify-center text-center w-full max-w-lg mx-auto py-12">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Your Security is Our Priority.
           </h2>
@@ -277,7 +277,7 @@ export default function WelcomePage() {
         <div className="flex h-full">
             {slides.map((slide, index) => (
                 <div key={index} className="flex-[0_0_100%] min-w-0 relative">
-                    <div className="flex items-center justify-center h-full p-6">
+                    <div className="h-full overflow-y-auto flex items-center justify-center p-6 custom-scrollbar">
                         <div className={cn(
                             // This wrapper controls the animation for each slide
                             index === currentSlide ? 'animate-fade-in-up' : 'opacity-0'
