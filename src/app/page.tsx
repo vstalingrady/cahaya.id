@@ -50,7 +50,7 @@ const slides = [
       title: 'All your money,\nin one place.',
       description: 'Welcome to Cuan. The secure, unified way to manage your entire financial life from a single, beautiful app.',
       content: (
-        <div className="text-center relative z-10 animate-fade-in-up">
+        <div className="text-center relative z-10">
           <CuanLogo className="w-32 h-auto mx-auto mb-6 animate-logo-blink-glow" />
           <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line drop-shadow-[0_0_5px_hsl(var(--primary)/0.3)]">
             All your money,{'\n'}in one place.
@@ -80,7 +80,7 @@ const slides = [
       title: 'Connect Everything. See Everything.',
       description: 'BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.',
       content: (
-        <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto animate-fade-in-up">
+        <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Connect Everything. See Everything.
           </h2>
@@ -96,7 +96,7 @@ const slides = [
       title: 'Trusted By Top Institutions',
       description: 'We support all major banks and e-wallets in Indonesia, with more coming soon.',
       content: (
-         <div className="flex flex-col items-center justify-center h-full text-center w-full animate-fade-in-up">
+         <div className="flex flex-col items-center justify-center h-full text-center w-full">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 font-serif text-white">
             Trusted by <span className="text-primary">200+ Institutions</span>
           </h2>
@@ -126,7 +126,7 @@ const slides = [
       title: 'Pay Any Bill, From Any Source.',
       description: 'Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.',
       content: (
-        <div className="flex flex-col items-center justify-center text-center w-full max-w-lg mx-auto animate-fade-in-up">
+        <div className="flex flex-col items-center justify-center text-center w-full max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Pay Any Bill, From Any Source.
           </h2>
@@ -142,7 +142,7 @@ const slides = [
       title: 'Track Spending with Smart Budgets.',
       description: "Take control of your spending. Create custom budgets for any category and see at a glance how you're tracking towards your goals.",
       content: (
-        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto animate-fade-in-up">
+        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Track Spending with Smart Budgets.
           </h2>
@@ -158,7 +158,7 @@ const slides = [
       title: 'Get Smarter Insights with AI.',
       description: "Our AI analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
       content: (
-        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto animate-fade-in-up">
+        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Get Smarter Insights with AI.
           </h2>
@@ -174,7 +174,7 @@ const slides = [
       title: 'Save Smarter with Cuan Vaults.',
       description: 'Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.',
       content: (
-        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto animate-fade-in-up">
+        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Save Smarter with Cuan Vaults.
           </h2>
@@ -190,7 +190,7 @@ const slides = [
       title: 'Your Security is Our Priority.',
       description: "We use bank-level security, end-to-end encryption, and give you full control over your data. Your trust is our most important asset.",
       content: (
-        <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto animate-fade-in-up">
+        <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Your Security is Our Priority.
           </h2>
@@ -206,7 +206,7 @@ const slides = [
       title: 'Ready to take control?',
       description: "Join Cuan today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.",
       content: (
-        <div className="text-center relative z-10 animate-fade-in-up">
+        <div className="text-center relative z-10">
           <h2 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
             Ready to take control?
           </h2>
@@ -276,7 +276,12 @@ export default function WelcomePage() {
             {slides.map((slide, index) => (
                 <div key={index} className="flex-[0_0_100%] min-w-0 relative">
                     <div className="flex items-center justify-center h-full p-6">
-                        {slide.content}
+                        <div className={cn(
+                            // This wrapper controls the animation for each slide
+                            index === currentSlide ? 'animate-fade-in-up' : 'opacity-0'
+                        )}>
+                            {slide.content}
+                        </div>
                     </div>
                 </div>
             ))}
