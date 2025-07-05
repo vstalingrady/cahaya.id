@@ -289,7 +289,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
                   y2={chartHeight - padding.bottom}
                   stroke="hsl(var(--muted-foreground))"
                   strokeWidth="0.5"
-                  strokeOpacity="0.1"
+                  strokeOpacity="0.2"
                   strokeDasharray="2 3"
                 />
                 <text x={tick.x} y={chartHeight - padding.bottom + 15} textAnchor="middle">
