@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { cn } from "@/lib/utils";
 import { Sparkles, Loader2, Check, Info } from "lucide-react";
 import { Button } from '@/components/ui/button';
@@ -46,6 +46,7 @@ const ScoreCircle = ({ score, isActive }: { score: number, isActive: boolean }) 
 
 export default function WelcomeInsightsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
   const [animationState, setAnimationState] = useState<'initial' | 'loading' | 'finished'>('initial');
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isActive) {
@@ -59,9 +60,45 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
     }
   }, [isActive]);
 
+  useEffect(() => {
+    if (animationState === 'finished' && scrollRef.current) {
+        const scroller = scrollRef.current;
+        let scrollInterval: NodeJS.Timeout;
+
+        const scrollDownAndUp = () => {
+            if(!scroller) return;
+            // Scroll down smoothly
+            scroller.scrollTo({
+                top: scroller.scrollHeight,
+                behavior: 'smooth'
+            });
+
+            // Wait at the bottom, then scroll back up smoothly
+            setTimeout(() => {
+                if(!scroller) return;
+                scroller.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }, 4000); // 4-second delay at the bottom
+        };
+        
+        // Give a moment for the content to render, then start the first scroll
+        const initialScrollTimeout = setTimeout(scrollDownAndUp, 1500);
+
+        // Set up a loop. The interval should account for scroll time + delay.
+        scrollInterval = setInterval(scrollDownAndUp, 8000); 
+
+        return () => {
+            clearTimeout(initialScrollTimeout);
+            clearInterval(scrollInterval);
+        }
+    }
+  }, [animationState]);
+
   return (
     <div className={cn(
-        "relative w-full max-w-sm h-[450px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
+        "relative w-full max-w-sm h-[500px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
         className
     )}>
         {/* Initial State: Button */}
@@ -90,7 +127,9 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
         </div>
 
         {/* Finished State: Insights */}
-        <div className={cn(
+        <div
+            ref={scrollRef} 
+            className={cn(
             "w-full h-full flex flex-col gap-4 transition-opacity duration-500 overflow-y-auto custom-scrollbar",
             animationState === 'finished' ? 'opacity-100' : 'opacity-0 pointer-events-none'
         )}>
@@ -99,8 +138,15 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
                 <h3 className="text-2xl font-bold font-serif text-white mt-1">"The Foodie Explorer"</h3>
             </div>
             
-            <div className="flex-1 flex flex-col items-center justify-center p-4 bg-secondary/50 rounded-lg border border-border/50">
+            <div className="flex-1 flex flex-col items-center justify-center p-4 bg-secondary/50 rounded-lg border border-border/50 min-h-[220px]">
                  <ScoreCircle score={78} isActive={animationState === 'finished'} />
+            </div>
+
+            <div className="space-y-3">
+                <h3 className="font-semibold text-lg text-white font-serif">Summary:</h3>
+                <p className="text-muted-foreground text-sm">
+                    Your Financial Health Score is a solid 78! You're doing great with savings. As a "Foodie Explorer," your largest spending area is dining out, which presents a great opportunity to save without impacting your lifestyle too much.
+                </p>
             </div>
             
             <div className="space-y-3">
@@ -108,7 +154,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
                 <ul className="space-y-2">
                     <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
                         <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
-                        <span className="text-foreground text-sm">You spent Rp 2,5jt on Food & Drink. Try reducing this by 30% to save Rp 750rb.</span>
+                        <span className="text-foreground text-sm">You spent Rp 2.5jt on Food & Drink. Try reducing this by 30% to save Rp 750rb.</span>
                     </li>
                     <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
                         <div className="w-5 h-5 bg-green-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Info className="w-3 h-3 text-white" /></div>
