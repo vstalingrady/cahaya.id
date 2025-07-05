@@ -4,9 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Banknote, Edit, CalendarIcon, Tag } from 'lucide-react';
+import { ArrowLeft, Banknote, Edit, CalendarIcon, Tag, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { format } from 'date-fns';
+import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -20,10 +21,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { budgets as initialBudgets, transactions } from '@/lib/data';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/components/auth/auth-provider';
+import { getUniqueTransactionCategories, addBudget } from '@/lib/actions';
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'Please enter a name for your budget.' }),
@@ -40,16 +42,37 @@ const formSchema = z.object({
   path: ["endDate"],
 });
 
-// Get unique categories from transactions and initial budgets
-const availableCategories = Array.from(new Set([
-    ...initialBudgets.map(b => b.category),
-    ...transactions.map(t => t.category)
-])).filter(c => c !== 'Income');
-
 
 export default function AddBudgetPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
+  
+  const [availableCategories, setAvailableCategories] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchCategories = async () => {
+      setIsLoading(true);
+      try {
+        const categories = await getUniqueTransactionCategories(user.uid);
+        // Add some default categories if user has no transactions yet
+        const defaultCategories = ['Food & Drink', 'Transportation', 'Shopping', 'Bills', 'Entertainment'];
+        const combined = Array.from(new Set([...defaultCategories, ...categories]));
+        setAvailableCategories(combined);
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Error fetching categories',
+          description: 'Could not load your spending categories.',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCategories();
+  }, [user, toast]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,15 +83,37 @@ export default function AddBudgetPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // In a real app, you would save this to a database
-    // and update the budgets list via global state.
-    toast({
-      title: "Budget Created!",
-      description: `${values.name} has been added to your budgets.`,
-    });
-    router.push('/budgets');
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+        toast({ variant: 'destructive', title: 'Authentication Error', description: 'You must be logged in to create a budget.' });
+        return;
+    }
+    
+    try {
+        await addBudget(user.uid, {
+            ...values,
+            // Format dates to YYYY-MM-DD strings before saving
+            startDate: format(values.startDate, 'yyyy-MM-dd'),
+            endDate: format(values.endDate, 'yyyy-MM-dd'),
+        });
+
+        toast({
+          title: "Budget Created!",
+          description: `${values.name} has been added to your budgets.`,
+        });
+        router.push('/budgets');
+    } catch (error) {
+        console.error("Failed to create budget:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not create the budget.' });
+    }
+  }
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full pt-24">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
   }
 
   return (
