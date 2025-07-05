@@ -18,7 +18,6 @@ export default function InfiniteLogoScroller({
   direction = 'forward',
   className,
 }: InfiniteLogoScrollerProps) {
-  // Create the list of original logos
   const originalLogos = institutions.map((inst, index) => (
     <div
       key={`logo-${inst.id}-${index}`}
@@ -35,7 +34,6 @@ export default function InfiniteLogoScroller({
     </div>
   ));
 
-  // Create the identical list of cloned logos for the loop
   const clonedLogos = institutions.map((inst, index) => (
     <div
       key={`logo-clone-${inst.id}-${index}`}
@@ -58,19 +56,15 @@ export default function InfiniteLogoScroller({
       className={cn("scroller w-full overflow-hidden", className)}
     >
       <div
-        className={cn(
-          "scroller-inner flex flex-nowrap gap-4 py-1",
-          direction === 'reverse' && 'scroller-inner-reverse'
-        )}
+        className="scroller-inner flex flex-nowrap gap-4 py-1"
+        data-direction={direction}
         style={
           {
             "--animation-duration":
               speed === "fast" ? "20s" : speed === "slow" ? "80s" : "40s",
-            "--animation-direction": direction === "reverse" ? "reverse" : "normal",
           } as React.CSSProperties
         }
       >
-        {/* Conditionally render the logo order based on direction, as per your spec */}
         {direction === 'reverse' ? (
           <>
             {clonedLogos}
@@ -86,27 +80,31 @@ export default function InfiniteLogoScroller({
       
       <style jsx>{`
         .scroller-inner {
-          animation: scroll var(--animation-duration) linear infinite;
-          animation-direction: var(--animation-direction);
+          animation-duration: var(--animation-duration);
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
         }
 
-        .scroller-inner-reverse {
-          /* 
-            This sets the initial state for the reverse animation.
-            The 'reverse' animation direction will then animate it
-            from -50% (the end) back to 0% (the start), creating a seamless loop.
-          */
-          transform: translateX(-50%);
+        .scroller-inner[data-direction="forward"] {
+          animation-name: scroll-left;
+        }
+
+        .scroller-inner[data-direction="reverse"] {
+          animation-name: scroll-right;
         }
 
         .scroller:hover .scroller-inner {
           animation-play-state: paused;
         }
 
-        @keyframes scroll {
-          to {
-            transform: translateX(-50%);
-          }
+        @keyframes scroll-left {
+          from { transform: translateX(0%); }
+          to { transform: translateX(-50%); }
+        }
+
+        @keyframes scroll-right {
+          from { transform: translateX(-50%); }
+          to { transform: translateX(0%); }
         }
       `}</style>
     </div>
