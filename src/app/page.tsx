@@ -146,14 +146,14 @@ const slides = [
     {
       type: 'feature',
       title: 'Get Smarter Insights with AI.',
-      description: "Our AI analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
+      description: "Powered by Gemini 2.5, our AI analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
       content: (props: { isActive: boolean }) => (
         <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Get Smarter Insights with AI.
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
-            Our AI analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.
+            Powered by Gemini 2.5, our AI analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.
           </p>
           <WelcomeInsightsMockup isActive={props.isActive} />
         </div>
