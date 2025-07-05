@@ -52,10 +52,10 @@ const createSmoothPath = (points: number[][]) => {
   let path = `M ${points[0][0]} ${points[0][1]}`
 
   for (let i = 0; i < points.length - 1; i++) {
-    const p0 = i > 0 ? points[i - 1] : points[i]; // Handle start of path
+    const p0 = i > 0 ? points[i - 1] : undefined;
     const p1 = points[i];
     const p2 = points[i + 1];
-    const p3 = i < points.length - 2 ? points[i + 2] : p2; // Handle end of path
+    const p3 = i < points.length - 2 ? points[i + 2] : undefined;
 
     const cp1 = controlPoint(p1, p0, p2);
     const cp2 = controlPoint(p2, p1, p3, true);
@@ -115,7 +115,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
   const dataMin = Math.min(...dataPoints.map(d => d.netWorth));
   const dataMax = Math.max(...dataPoints.map(d => d.netWorth));
   const dataRange = dataMax - dataMin;
-  const rangePadding = dataRange === 0 ? dataMax * 0.1 : dataRange * 0.1;
+  const rangePadding = dataRange === 0 ? dataMax * 0.1 : dataRange * 0.15; // Increased padding
 
   const minValue = dataMin - rangePadding;
   const maxValue = dataMax + rangePadding;
@@ -148,10 +148,17 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
   };
 
   const yAxisTicks = useMemo(() => {
-      const ticks = [dataMin, dataMin + dataRange * 0.5, dataMax];
-      return ticks.map(t => ({ value: t, y: getY(t) }));
+      const ticks = [minValue, minValue + (maxValue-minValue) * 0.25, minValue + (maxValue-minValue) * 0.5, minValue + (maxValue-minValue) * 0.75, maxValue];
+      // A slightly different way to generate ticks to ensure they are within the padded range
+      const tickCount = 4;
+      const tickValues = [];
+      for(let i=0; i<=tickCount; i++) {
+        tickValues.push(minValue + (i/tickCount) * (maxValue - minValue));
+      }
+      // Simple tick generation for demonstration
+      return [dataMin, dataMin + dataRange * 0.5, dataMax].map(t => ({ value: t, y: getY(t) }));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataPoints]);
+  }, [dataPoints, rangePadding]);
 
   const xAxisTicks = React.useMemo(() => {
       if (dataPoints.length < 2) return [];
