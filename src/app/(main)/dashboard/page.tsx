@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -92,6 +93,7 @@ export default function DashboardPage() {
     }, [isPrivate, toast]);
 
     const handleConfirmPin = () => {
+        // In a real app, this would be a secure check. For this prototype, we use a hardcoded PIN.
         if (pin === '000000') {
             setIsPrivate(false);
             setShowPinDialog(false);
