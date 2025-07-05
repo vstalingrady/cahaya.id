@@ -32,8 +32,11 @@ type AccountCardProps = {
 
 const formatDisplayNumber = (account: Account): string => {
   const { accountNumber, type } = account;
-  if (type === 'investment' || type === 'loan') {
-    return `...${accountNumber}`;
+  if (type === 'investment') {
+    return ''; // No subtitle for investments, name is descriptive enough
+  }
+  if (type === 'loan') {
+    return 'Outstanding debt';
   }
   if (accountNumber && accountNumber.length > 4) {
     const firstTwo = accountNumber.substring(0, 2);
@@ -51,15 +54,16 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
     maximumFractionDigits: 0,
   }).format(account.balance);
 
+  const subtitle = formatDisplayNumber(account);
   const isLoan = account.type === 'loan';
 
   const cardContent = (
     <>
       <div className="flex items-center flex-1 min-w-0">
           {getAccountIcon(account.name)}
-          <div className="flex-1 min-w-0 flex flex-col items-start">
+          <div className="flex-1 min-w-0 flex flex-col items-start text-left">
             <div className="font-semibold text-lg text-white truncate text-left">{account.name}</div>
-            <div className="text-muted-foreground text-sm text-left">{isLoan ? "Outstanding debt" : formatDisplayNumber(account)}</div>
+            {subtitle && <div className="text-muted-foreground text-sm text-left">{subtitle}</div>}
           </div>
       </div>
       <div className="text-right ml-2">

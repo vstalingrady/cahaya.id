@@ -15,8 +15,11 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
 
 const formatDisplayNumber = (account: Account): string => {
   const { accountNumber, type } = account;
-  if (type === 'investment' || type === 'loan') {
-    return `...${accountNumber}`;
+  if (type === 'investment') {
+    return ''; // No subtitle needed, name is descriptive
+  }
+  if (type === 'loan') {
+    return 'Outstanding debt';
   }
   if (accountNumber && accountNumber.length > 4) {
     const firstTwo = accountNumber.substring(0, 2);
@@ -30,9 +33,9 @@ const MockAccountCard = ({ icon, name, displayNumber, balance }: { icon: React.R
     <div className="bg-card/80 p-3 rounded-xl flex justify-between items-center border border-border/20 shadow-sm">
         <div className="flex items-center flex-1 min-w-0">
             {icon}
-            <div className="flex-1 min-w-0 flex flex-col items-start">
+            <div className="flex-1 min-w-0 flex flex-col items-start text-left">
                 <div className="font-semibold text-white truncate text-sm text-left">{name}</div>
-                <div className="text-muted-foreground text-xs text-left">{displayNumber}</div>
+                {displayNumber && <div className="text-muted-foreground text-xs text-left">{displayNumber}</div>}
             </div>
         </div>
         <div className="text-right ml-2">
