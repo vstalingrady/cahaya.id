@@ -623,7 +623,7 @@ export default function InsightsPage() {
                                     <ul className="space-y-3">
                                         {aiResult.localDeals.map((deal, i) => (
                                             <li key={`deal-${i}`} className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
-                                                <div className="w-5 h-5 bg-blue-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
+                                                <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
                                                 <span className="text-foreground text-sm">{deal}</span>
                                             </li>
                                         ))}

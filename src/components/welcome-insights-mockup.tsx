@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 const ScoreCircle = ({ score, isActive }: { score: number, isActive: boolean }) => {
     const circumference = 2 * Math.PI * 20; // radius is 20
     const strokeDashoffset = isActive ? circumference - (score / 100) * circumference : circumference;
-    const scoreColor = score > 75 ? 'text-green-400' : score > 40 ? 'text-yellow-400' : 'text-destructive';
+    const scoreColor = score > 75 ? 'text-primary' : score > 40 ? 'text-yellow-400' : 'text-destructive';
 
     return (
         <div className="relative w-48 h-48">
@@ -181,11 +181,11 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
                             <span className="text-foreground text-sm">You spent Rp 2.5jt on Food & Drink. Try reducing this by 30% to save Rp 750rb.</span>
                         </li>
                         <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
-                            <div className="w-5 h-5 bg-green-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Info className="w-3 h-3 text-white" /></div>
+                            <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Info className="w-3 h-3 text-white" /></div>
                             <span className="text-foreground text-sm">With an income of Rp 55jt, you could start investing Rp 5jt/month in a low-cost index fund.</span>
                         </li>
                          <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
-                            <div className="w-5 h-5 bg-blue-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
+                            <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
                             <span className="text-foreground text-sm">Local Deal: Get 50% cashback at Kopi Kenangan when you pay with OVO.</span>
                         </li>
                     </ul>
