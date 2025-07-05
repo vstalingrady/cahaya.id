@@ -41,6 +41,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
         roundUpEnabled: false,
     });
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const formScrollRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!isActive) {
@@ -50,12 +51,16 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
             if (scrollContainerRef.current) {
                 scrollContainerRef.current.scrollTop = 0;
             }
+            if (formScrollRef.current) {
+                formScrollRef.current.scrollTop = 0;
+            }
             return;
         }
 
         const timeouts: NodeJS.Timeout[] = [];
         const scrollContainer = scrollContainerRef.current;
-        if (!scrollContainer) return;
+        const formScroller = formScrollRef.current;
+        if (!scrollContainer || !formScroller) return;
         
         const type = (text: string, updater: (newText: string) => void, onComplete?: () => void) => {
             let currentText = '';
@@ -84,7 +89,10 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                             () => {
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, fundingSources: ['bca1']})), 300));
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, fundingSources: ['bca1', 'gopay1']})), 600));
-                                timeouts.push(setTimeout(() => setFormState(p => ({...p, destinationAccount: 'BCA Main Account'})), 900));
+                                timeouts.push(setTimeout(() => {
+                                    setFormState(p => ({...p, destinationAccount: 'BCA Main Account'}));
+                                    formScroller.scrollTo({ top: formScroller.scrollHeight, behavior: 'smooth' });
+                                }, 900));
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSaveEnabled: true})), 1200));
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSaveFrequency: 'weekly'})), 1500));
                                 timeouts.push(setTimeout(() => type('250000', (t) => setFormState(p => ({...p, autoSaveAmount: t}))), 1800));
@@ -118,6 +126,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                     setFormState({ name: '', targetAmount: '', fundingSources: [], destinationAccount: '', autoSaveEnabled: false, autoSaveFrequency: '', autoSaveAmount: '', roundUpEnabled: false });
                                     setDisplayVaults(initialVaults);
                                     scrollContainer.scrollTo({ top: 0, behavior: 'auto' });
+                                    formScroller.scrollTo({ top: 0, behavior: 'auto' });
                                     animationSequence();
                                 }, 7100));
                             }
@@ -153,7 +162,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                     !showList ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
                 )}>
                     <h3 className="text-base font-bold text-center mb-2 font-serif flex-shrink-0">Create New Vault</h3>
-                    <div className="space-y-1.5 text-xs overflow-y-auto custom-scrollbar pr-1 flex-1">
+                    <div ref={formScrollRef} className="space-y-1.5 text-xs overflow-y-auto custom-scrollbar pr-1 flex-1">
                         {/* Name and Amount */}
                         <div className="relative">
                             <Edit className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
