@@ -33,7 +33,7 @@ export default function WelcomePaymentMockup({ isActive }: { isActive?: boolean 
 
     const timer = setInterval(() => {
       setStep(prev => (prev + 1) % 4); // 0: initial, 1: bill selected, 2: source selected, 3: success
-    }, 2500);
+    }, 1800);
 
     return () => clearInterval(timer);
   }, [isActive]);
