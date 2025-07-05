@@ -23,7 +23,7 @@ const ScoreCircle = ({ score, isActive }: { score: number, isActive: boolean }) 
                     fill="transparent"
                 />
                 <circle
-                    className={cn("stroke-current transition-all duration-[2000ms] ease-out", scoreColor)}
+                    className={cn("stroke-current transition-all duration-[2s] ease-out", scoreColor)}
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
                     strokeWidth="3"
