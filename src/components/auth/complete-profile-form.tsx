@@ -1,16 +1,32 @@
+/**
+ * @file src/components/auth/complete-profile-form.tsx
+ * @fileoverview This form handles the final step of user registration.
+ * After phone verification, users provide their full name, email, and password.
+ * This component supports multiple authentication methods:
+ * 1. Linking email/password to a phone-verified account.
+ * 2. Linking a social provider (Google, Apple) to a phone-verified account.
+ * 3. A developer bypass mode to create a new user from scratch without phone verification.
+ */
 
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+// React hooks for state and side-effects.
+import React, { useState, useEffect } from 'react';
+// Next.js router for navigation.
 import { useRouter } from 'next/navigation';
+// UI components from ShadCN.
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Separator } from '../ui/separator';
+// Custom hook for displaying toast notifications.
 import { useToast } from '@/hooks/use-toast';
+// Firebase app instance.
 import { auth } from '@/lib/firebase';
+// Firebase authentication functions.
 import { 
   onAuthStateChanged, 
-  User, 
+  type User, 
   EmailAuthProvider, 
   linkWithCredential, 
   createUserWithEmailAndPassword,
@@ -20,12 +36,20 @@ import {
   linkWithPopup,
   updateProfile
 } from 'firebase/auth';
+// Server action to save user profile data to Firestore.
 import { completeUserProfile } from '@/lib/actions';
+// Icons from lucide-react and react-icons.
 import { User as UserIcon, Mail, Lock, Loader2, Check, X, Eye, EyeOff } from 'lucide-react';
-import { Separator } from '../ui/separator';
-import { cn } from '@/lib/utils';
 import { FaGoogle, FaApple } from 'react-icons/fa';
+// Utility for conditional class names.
+import { cn } from '@/lib/utils';
 
+/**
+ * A submit button component that shows a loading spinner when a request is pending.
+ * @param {object} props - Component props.
+ * @param {boolean} props.pending - Whether the form submission is in progress.
+ * @returns {JSX.Element} The rendered button.
+ */
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
     <Button 
@@ -38,7 +62,14 @@ function SubmitButton({ pending }: { pending: boolean }) {
   );
 }
 
+/**
+ * A component to display and validate password requirements in real-time.
+ * @param {object} props - Component props.
+ * @param {string} props.password - The current password string from the input.
+ * @returns {JSX.Element} A grid of password requirements.
+ */
 function PasswordRequirements({ password }: { password: string }) {
+  // Define the requirements with their regex for validation.
   const requirements = [
     { name: 'length', text: '8-20 characters', regex: /^.{8,20}$/ },
     { name: 'uppercase', text: 'One uppercase letter', regex: /[A-Z]/ },
@@ -51,6 +82,7 @@ function PasswordRequirements({ password }: { password: string }) {
       {requirements.map((req) => {
         const isValid = req.regex.test(password);
         return (
+          // Dynamically change text color based on validity.
           <div key={req.name} className={cn("flex items-center transition-colors", isValid ? 'text-green-400' : 'text-muted-foreground')}>
             {isValid ? <Check className="w-4 h-4 mr-1.5" /> : <X className="w-4 h-4 mr-1.5" />}
             {req.text}
@@ -61,13 +93,18 @@ function PasswordRequirements({ password }: { password: string }) {
   );
 }
 
+/**
+ * The main component for the complete profile form.
+ */
 export default function CompleteProfileForm() {
   const router = useRouter();
   const { toast } = useToast();
+  // State for the authenticated user, loading status, and bypass mode.
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [isBypassMode, setIsBypassMode] = useState(false);
   
+  // State for form inputs and visibility toggles.
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -75,11 +112,18 @@ export default function CompleteProfileForm() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  /**
+   * This effect runs on mount to check for an authenticated user and the dev bypass flag.
+   * It ensures that only users who have completed phone verification (or used the bypass)
+   * can access this page.
+   */
   useEffect(() => {
+    // Check session storage for the developer bypass flag.
     const bypassFlag = sessionStorage.getItem('devBypass') === 'true';
     setIsBypassMode(bypassFlag);
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      // Normal flow: User is authenticated and has a phone number.
       if (currentUser && currentUser.phoneNumber) {
         setUser(currentUser);
         setLoading(false);
@@ -87,8 +131,10 @@ export default function CompleteProfileForm() {
             title: "Phone Verified!",
             description: "Please complete your profile to continue.",
         });
+      // Bypass flow: The flag is set, so we don't need a phone-authed user.
       } else if (bypassFlag) {
         setLoading(false);
+      // Invalid state: User is not authenticated and not in bypass mode. Redirect.
       } else {
         toast({
           variant: 'destructive',
@@ -99,55 +145,21 @@ export default function CompleteProfileForm() {
       }
     });
 
+    // Cleanup the auth state listener on unmount.
     return () => unsubscribe();
   }, [router, toast]);
-  
-  const handleDevBypass = useCallback(async () => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-    setError(null);
-    try {
-      const bypassEmail = `dev-bypass-${Date.now()}@clarity.app`;
-      const bypassPassword = 'PasswordForDev123!';
-      const bypassFullName = 'Dev User';
-
-      toast({
-        title: 'Dev Bypass Activated!',
-        description: 'Creating a test user account...',
-      });
-
-      const userCredential = await createUserWithEmailAndPassword(auth, bypassEmail, bypassPassword);
-      const finalUser = userCredential.user;
-      const finalPhoneNumber = 'dev-bypass-profile';
-
-      await updateProfile(finalUser, { displayName: bypassFullName });
-      await completeUserProfile(finalUser.uid, bypassFullName, bypassEmail, finalPhoneNumber);
-
-      toast({
-        title: "Profile Created!",
-        description: "Now let's secure your account.",
-      });
-      router.push('/setup-security');
-
-    } catch (err: any) {
-      console.error("Dev Bypass Error:", err);
-      setError(err.message || 'Dev bypass failed.');
-      setIsSubmitting(false);
-    }
-  }, [router, toast, isSubmitting]);
-
-  useEffect(() => {
-    if (fullName === 'a' && email === 'b' && password === 'c') {
-      handleDevBypass();
-    }
-  }, [fullName, email, password, handleDevBypass]);
 
 
+  /**
+   * Handles form submission for creating a profile with email and password.
+   * It contains logic to handle both the normal flow (linking) and the bypass flow (creating).
+   * @param {React.FormEvent} e - The form submission event.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Validate password requirements
+    // Frontend validation for password requirements.
     if (password.length < 8 || password.length > 20) {
       setError('Password must be between 8 and 20 characters.');
       return;
@@ -168,12 +180,15 @@ export default function CompleteProfileForm() {
     setIsSubmitting(true);
     try {
       let finalUser: User;
-      let finalPhoneNumber = 'dev-bypass';
+      let finalPhoneNumber = 'dev-bypass'; // Default phone for bypass users
 
+      // This is the core of the bypass logic.
       if (isBypassMode) {
+        // If in bypass mode, create a new user from scratch.
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         finalUser = userCredential.user;
       } else {
+        // Otherwise, link the new credentials to the existing phone-authed user.
         if (!user) {
           throw new Error("No authenticated user found. Please sign up again.");
         }
@@ -183,12 +198,13 @@ export default function CompleteProfileForm() {
         finalPhoneNumber = user.phoneNumber!;
       }
       
-      // Update Firebase Auth profile displayName
+      // Update the user's display name in Firebase Authentication.
       await updateProfile(finalUser, { displayName: fullName });
       
-      // Call server action to update Firestore database
+      // Call the server action to save the complete user profile to Firestore.
       await completeUserProfile(finalUser.uid, fullName, email, finalPhoneNumber);
       
+      // Clean up the bypass flag from session storage after use.
       if (isBypassMode) {
         sessionStorage.removeItem('devBypass');
       }
@@ -197,10 +213,12 @@ export default function CompleteProfileForm() {
         title: "Profile Created!",
         description: "Now let's secure your account.",
       });
+      // Redirect to the next step in the onboarding flow.
       router.push('/setup-security');
 
     } catch (err: any) {
       console.error("Full Profile Completion Error:", err);
+      // Handle common Firebase errors with user-friendly messages.
       if (err.code === 'auth/email-already-in-use' || err.code === 'auth/credential-already-in-use') {
         setError('This email address is already associated with another account.');
       } else if (err.code === 'auth/weak-password') {
@@ -218,6 +236,11 @@ export default function CompleteProfileForm() {
     }
   };
 
+  /**
+   * Handles sign-in/linking with OAuth providers (Google, Apple).
+   * Contains logic for both normal and bypass flows.
+   * @param {GoogleAuthProvider | OAuthProvider} provider - The Firebase auth provider instance.
+   */
   const handleOAuthSignIn = async (provider: GoogleAuthProvider | OAuthProvider) => {
     setIsSubmitting(true);
     setError(null);
@@ -225,10 +248,13 @@ export default function CompleteProfileForm() {
       let finalUser: User;
       let finalPhoneNumber = user?.phoneNumber || 'dev-bypass';
 
+      // Bypass logic for OAuth providers.
       if (isBypassMode) {
+        // If in bypass mode, sign in directly with the popup.
         const result = await signInWithPopup(auth, provider);
         finalUser = result.user;
       } else {
+        // Otherwise, link the popup to the existing phone-authed user.
         if (!user) throw new Error("No authenticated user found.");
         const result = await linkWithPopup(user, provider);
         finalUser = result.user;
@@ -241,7 +267,10 @@ export default function CompleteProfileForm() {
           throw new Error("Could not retrieve email from provider. Please try a different method.");
       }
 
+      // Save the complete profile to Firestore.
       await completeUserProfile(finalUser.uid, fullNameFromProvider, emailFromProvider, finalPhoneNumber);
+      
+      // Clean up the bypass flag.
       if (isBypassMode) sessionStorage.removeItem('devBypass');
 
       toast({
@@ -265,6 +294,7 @@ export default function CompleteProfileForm() {
     }
   };
 
+  // Helper functions to trigger the specific OAuth flows.
   const handleGoogleSignIn = () => handleOAuthSignIn(new GoogleAuthProvider());
   const handleAppleSignIn = () => handleOAuthSignIn(new OAuthProvider('apple.com'));
 
@@ -345,6 +375,7 @@ export default function CompleteProfileForm() {
               minLength={8}
               maxLength={20}
             />
+            {/* Button to toggle password visibility */}
             <button
               type="button"
               className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
@@ -363,6 +394,7 @@ export default function CompleteProfileForm() {
         
         <SubmitButton pending={isSubmitting} />
 
+        {/* Display any submission errors */}
         {error && (
           <p className="mt-4 text-sm text-red-500 text-center">{error}</p>
         )}

@@ -1,14 +1,36 @@
+/**
+ * @file src/components/auth/signup-form.tsx
+ * @fileoverview The form component for the first step of user registration,
+ * which involves capturing and verifying the user's phone number via Firebase
+ * Phone Authentication. It includes an invisible reCAPTCHA for security and
+ * a developer bypass for easier testing.
+ */
+
 'use client';
+
+// React hooks for state and side-effects.
 import { useState, useEffect, useRef } from 'react';
+// Next.js router for navigation.
 import { useRouter } from 'next/navigation';
+// UI components from ShadCN.
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+// Firebase authentication functions.
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
+// Firebase app instance initialized in firebase.ts.
 import { app } from '@/lib/firebase';
+// Icons from lucide-react.
 import { Phone, Loader2 } from 'lucide-react';
+// Custom hook for displaying toast notifications.
 import { useToast } from '@/hooks/use-toast';
 
+/**
+ * A submit button component that shows a loading spinner when a request is pending.
+ * @param {object} props - The component props.
+ * @param {boolean} props.pending - Whether the form submission is in progress.
+ * @returns {JSX.Element} The rendered button.
+ */
 function SubmitButton({ pending }: { pending: boolean }) {
   return (
     <Button 
@@ -16,37 +38,52 @@ function SubmitButton({ pending }: { pending: boolean }) {
       disabled={pending}
       className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
     >
+      {/* Show a loading spinner if pending, otherwise show the button text. */}
       {pending ? <Loader2 className="animate-spin" /> : 'Send Verification Code'}
     </Button>
   );
 }
 
+// Extend the global Window interface to include the confirmationResult for Firebase Auth.
+// This is necessary to store the result of signInWithPhoneNumber and access it on the next page.
 declare global {
   interface Window {
     confirmationResult: ConfirmationResult;
   }
 }
 
+/**
+ * The main signup form component.
+ * @returns {JSX.Element} The rendered signup form.
+ */
 export default function SignupForm() {
+  // Hooks for routing and showing notifications.
   const router = useRouter();
   const { toast } = useToast();
+  // State for the phone number input, error messages, and loading status.
   const [phone, setPhone] = useState('+62 ');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  // A ref to hold the Firebase reCAPTCHA verifier instance.
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
+  /**
+   * This effect initializes the invisible reCAPTCHA verifier when the component mounts.
+   * It creates a container element for the reCAPTCHA widget and attaches it to the body.
+   */
   useEffect(() => {
     const auth = getAuth(app);
     let verifier: RecaptchaVerifier;
 
-    // Use a timeout to ensure the container is rendered
+    // Use a timeout to ensure the container is rendered before initializing reCAPTCHA.
     const timeoutId = setTimeout(() => {
       if (!recaptchaVerifierRef.current) {
-        // Create an invisible div for the verifier to attach to
+        // Create a container for reCAPTCHA if it doesn't exist.
         const recaptchaContainer = document.createElement('div');
         recaptchaContainer.id = 'recaptcha-container';
         document.body.appendChild(recaptchaContainer);
 
+        // Initialize the verifier.
         verifier = new RecaptchaVerifier(auth, recaptchaContainer, {
           size: 'invisible',
           callback: () => console.log('reCAPTCHA challenge solved.'),
@@ -56,13 +93,9 @@ export default function SignupForm() {
       }
     }, 100);
 
+    // Cleanup function to run when the component unmounts.
     return () => {
       clearTimeout(timeoutId);
-      // It's good practice to clean up, but can be tricky with HMR
-      // If the verifier exists, try to clear it.
-      if (recaptchaVerifierRef.current) {
-         // It might be better to not clear it to avoid errors during dev re-renders
-      }
       const container = document.getElementById('recaptcha-container');
       if (container) {
           container.remove();
@@ -70,11 +103,20 @@ export default function SignupForm() {
     };
   }, []);
 
+  /**
+   * Formats a phone number string into the E.164 format required by Firebase.
+   * @param {string} phoneNumber - The phone number string from the input.
+   * @returns {string} The formatted phone number (e.g., "+6281234567890").
+   */
   const formatPhoneNumberForFirebase = (phoneNumber: string): string => {
-    // Just remove all non-digit characters and prepend a '+'
+    // Remove all non-digit characters and prepend a '+'
     return `+${phoneNumber.replace(/\D/g, '')}`;
   };
 
+  /**
+   * This effect implements a developer bypass to skip phone verification for testing.
+   * If the user enters the specific bypass phone number, it redirects them.
+   */
   useEffect(() => {
     const formattedPhone = formatPhoneNumberForFirebase(phone);
     if (formattedPhone === '+62000000000000') {
@@ -82,35 +124,48 @@ export default function SignupForm() {
             title: 'Dev Account Bypass',
             description: 'Skipping phone verification step.',
         });
+        // Set a flag in session storage to be checked on the next page.
         sessionStorage.setItem('devBypass', 'true');
         router.push('/complete-profile');
     }
+  // We only want this to run when the phone number changes.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phone]);
 
+  /**
+   * Handles changes to the phone number input field, formatting the input
+   * with dashes for better readability while maintaining the country code.
+   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event.
+   */
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     
-    // Don't let user delete the prefix
+    // Prevent the user from deleting the "+62 " prefix.
     if (!value.startsWith('+62 ')) {
       setPhone('+62 ');
       return;
     }
     
-    // Get only numbers after prefix
+    // Extract only the numeric digits after the prefix.
     const rawNumbers = value.substring(4).replace(/\D/g, '');
     
-    // Max 12 digits for Indonesian number part
+    // Limit the number of digits to a standard Indonesian phone number length.
     const trimmedNumbers = rawNumbers.slice(0, 12);
 
+    // Group the numbers into chunks for formatting (e.g., 812-3456-7890).
     const chunks = [];
     if (trimmedNumbers.length > 0) chunks.push(trimmedNumbers.slice(0, 3));
     if (trimmedNumbers.length > 3) chunks.push(trimmedNumbers.slice(3, 7));
     if (trimmedNumbers.length > 7) chunks.push(trimmedNumbers.slice(7));
 
+    // Update the state with the formatted number.
     setPhone(`+62 ${chunks.join('-')}`);
   };
 
+  /**
+   * Handles the form submission to send the verification code.
+   * @param {React.FormEvent} e - The form submission event.
+   */
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -119,6 +174,7 @@ export default function SignupForm() {
     const formattedPhone = formatPhoneNumberForFirebase(phone);
     const verifier = recaptchaVerifierRef.current;
     
+    // Ensure the reCAPTCHA verifier is ready.
     if (!verifier) {
       setError("reCAPTCHA verifier not ready. Please wait a moment and try again.");
       setLoading(false);
@@ -130,14 +186,18 @@ export default function SignupForm() {
       
       console.log("Attempting to send code to:", formattedPhone);
       
+      // Call Firebase to send the SMS verification code.
       const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, verifier);
+      // Store the result on the window object to be used on the verification page.
       window.confirmationResult = confirmationResult;
       
       console.log("Code sent successfully");
+      // Redirect to the verification page, passing the phone number for display.
       router.push(`/verify-phone?phone=${encodeURIComponent(phone)}`);
     } catch (err: any) {
       console.error("Error sending code:", err);
       
+      // Handle common Firebase authentication errors with user-friendly messages.
       if (err.code === 'auth/invalid-phone-number') {
         setError('Invalid phone number format. Please check your number.');
       } else if (err.code === 'auth/too-many-requests') {
@@ -177,6 +237,7 @@ export default function SignupForm() {
         
         <SubmitButton pending={loading} />
         
+        {/* Display any errors that occur. */}
         {error && (
           <p className="mt-4 text-sm text-red-500 text-center">{error}</p>
         )}
