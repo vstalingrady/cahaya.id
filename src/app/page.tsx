@@ -280,7 +280,7 @@ export default function WelcomePage() {
     // to contain the absolutely positioned dot indicators.
     <div className="w-full h-screen bg-background text-foreground overflow-hidden relative">
       {/* A decorative background gradient element. */}
-      <div className="absolute top-0 left-0 right-0 h-full bg-hero-glow -z-10"></div>
+      <div className="absolute top-0 left-0 right-0 h-1/3 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_80%)] -z-10" />
       
       {/* The Embla Carousel container. `emblaRef` is attached here. */}
       <div className="overflow-hidden h-full" ref={emblaRef}>
