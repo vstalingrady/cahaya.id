@@ -268,8 +268,8 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
                   y1={tick.y}
                   x2={chartWidth - padding.right}
                   y2={tick.y}
-                  stroke="hsl(var(--primary))"
-                  strokeWidth="1"
+                  stroke="hsl(var(--foreground))"
+                  strokeWidth="0.5"
                   strokeOpacity="0.4"
                   strokeDasharray="2 4"
                 />
