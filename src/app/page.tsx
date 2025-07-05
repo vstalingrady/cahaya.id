@@ -6,7 +6,7 @@ import Link from 'next/link';
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, CreditCard, PiggyBank, TrendingUp, Shield, Zap, Target, Globe, Lock } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import CuanLogo from '@/components/icons/CuanLogo';
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
@@ -129,7 +129,10 @@ const slides = [
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
             Unleash the power of{' '}
-            <span className="flashy-gemini-text">Gemini 2.5</span>, one of
+            <span className="flashy-gemini-text">
+                <Sparkles className="w-4 h-4 inline-block -mt-1" /> Gemini 2.5
+            </span>
+            , one of
             the world's most advanced AI models. It analyzes your spending to give you a
             Financial Health Score, find hidden saving opportunities, and create
             a personalized action plan.
@@ -188,14 +191,6 @@ const slides = [
                 Create Free Account <ArrowRight className="ml-2" />
               </Link>
             </Button>
-            <div className="text-center mt-8">
-              <p className="text-muted-foreground text-sm">
-                Already have an account?{' '}
-                <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">
-                  Log In
-                </Link>
-              </p>
-            </div>
           </div>
         </div>
       )

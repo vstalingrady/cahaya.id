@@ -118,6 +118,10 @@ export default {
           'from': { 'background-position': '0% center' },
           'to': { 'background-position': '-200% center' },
         },
+        'gemini-glow': {
+          '0%, 100%': { filter: 'drop-shadow(0 0 5px hsl(var(--gemini-start) / 0.5))' },
+          '50%': { filter: 'drop-shadow(0 0 12px hsl(var(--gemini-start) / 0.8))' }
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -128,7 +132,8 @@ export default {
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'logo-blink-glow': 'logo-blink-glow 5s ease-in-out infinite',
         'slow-pulse': 'slow-pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'text-shine': 'text-shine 2s linear infinite',
+        'text-shine': 'text-shine 3s linear infinite',
+        'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
       },
     },
   },

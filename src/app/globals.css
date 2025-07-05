@@ -141,6 +141,6 @@
   .flashy-gemini-text {
     @apply font-bold bg-gradient-to-r from-[hsl(var(--gemini-start))] to-[hsl(var(--gemini-end))] bg-clip-text text-transparent;
     background-size: 200% auto;
-    animation: text-shine 3s linear infinite;
+    animation: text-shine 3s linear infinite, gemini-glow 4s ease-in-out infinite;
   }
 }
