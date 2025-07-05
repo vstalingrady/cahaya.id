@@ -86,7 +86,7 @@ export default function VaultsPage() {
             </AlertDialog>
 
 
-            <div className="space-y-4 animate-fade-in-up">
+            <div className="space-y-6 animate-fade-in-up">
                 <div>
                     <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Cuan Vaults
@@ -94,7 +94,7 @@ export default function VaultsPage() {
                     <p className="text-muted-foreground">Save for all your goals, together.</p>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {vaultsList.map(vault => (
                         <Link key={vault.id} href={`/vaults/${vault.id}`} className="block bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg shadow-primary/10 transition-all duration-300 hover:border-primary/50 group">
                             <div className="flex items-start justify-between mb-4">
