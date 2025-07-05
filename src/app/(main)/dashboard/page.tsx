@@ -31,10 +31,8 @@ export default function DashboardPage() {
     const [transactionList, setTransactionList] = useState<Transaction[]>([]);
     
     const [isPrivate, setIsPrivate] = useState(true);
-    const [timerProgress, setTimerProgress] = useState(100);
     const [showPinDialog, setShowPinDialog] = useState(false);
     const [pin, setPin] = useState('');
-    const [pinError, setPinError] = useState('');
     const { toast } = useToast();
 
     useEffect(() => {
@@ -60,49 +58,15 @@ export default function DashboardPage() {
         fetchData();
     }, [user, toast]);
 
-    useEffect(() => {
-        let visibilityTimer: NodeJS.Timeout;
-        let progressInterval: NodeJS.Timer;
-
-        if (!isPrivate) {
-            const startTime = Date.now();
-            const duration = 20000; // 20 seconds
-
-            visibilityTimer = setTimeout(() => {
-                setIsPrivate(true);
-                toast({ title: "Privacy Mode On", description: "Balances are hidden again for your security." });
-            }, duration);
-
-            progressInterval = setInterval(() => {
-                const elapsedTime = Date.now() - startTime;
-                const progress = Math.max(0, 100 - (elapsedTime / duration) * 100);
-                setTimerProgress(progress);
-                if (progress === 0) {
-                    clearInterval(progressInterval);
-                }
-            }, 100);
-        } else {
-            setTimerProgress(100); // Reset progress
-        }
-
-        return () => {
-            clearTimeout(visibilityTimer);
-            if (progressInterval) clearInterval(progressInterval);
-        };
-    }, [isPrivate, toast]);
-
     const handleConfirmPin = () => {
-        // In a real app, this would be a secure check. For this prototype, we use a hardcoded PIN.
-        if (pin === '000000') {
-            setIsPrivate(false);
-            setShowPinDialog(false);
-            setPin('');
-            setPinError('');
-            toast({ title: "Privacy Mode Off", description: "Balances will be visible for 20 seconds." });
-        } else {
-            setPinError('Incorrect PIN. Please try again.');
-            setPin('');
-        }
+        // In a real app, this would perform a secure check against a hashed PIN.
+        // For this prototype, we'll just accept any 6-character PIN to reveal the balance.
+        if (pin.length < 6) return;
+
+        setIsPrivate(false);
+        setShowPinDialog(false);
+        setPin('');
+        toast({ title: "Privacy Mode Off", description: "Balances are now visible." });
     };
 
     const { totalAssets, totalLiabilities, netWorth, accountGroups } = useMemo(() => {
@@ -129,12 +93,12 @@ export default function DashboardPage() {
 
     return (
         <>
-        <AlertDialog open={showPinDialog} onOpenChange={(isOpen) => { setShowPinDialog(isOpen); if(!isOpen) { setPin(''); setPinError(''); }}}>
+        <AlertDialog open={showPinDialog} onOpenChange={(isOpen) => { setShowPinDialog(isOpen); if(!isOpen) { setPin(''); }}}>
             <AlertDialogContent className="bg-popover text-popover-foreground border-border">
                 <AlertDialogHeader>
                     <AlertDialogTitle>Enter PIN to Show Balances</AlertDialogTitle>
                     <AlertDialogDescription>
-                        For your security, please enter your 6-character PIN to view sensitive information for 20 seconds.
+                        For your security, please enter your 6-character PIN to view sensitive information.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className="py-4 space-y-2">
@@ -143,13 +107,9 @@ export default function DashboardPage() {
                         placeholder="••••••"
                         maxLength={6}
                         value={pin}
-                        onChange={(e) => {
-                            setPin(e.target.value);
-                            if (pinError) setPinError('');
-                        }}
+                        onChange={(e) => setPin(e.target.value)}
                         className="bg-input border-border h-14 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground"
                     />
-                    {pinError && <p className="text-sm text-destructive text-center">{pinError}</p>}
                 </div>
                 <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
@@ -175,25 +135,6 @@ export default function DashboardPage() {
                      <button onClick={() => isPrivate ? setShowPinDialog(true) : setIsPrivate(true)} className="w-full h-full bg-card rounded-full shadow-lg border-2 border-border/50 flex items-center justify-center cursor-pointer transition-colors hover:border-primary/50 relative z-10">
                         {isPrivate ? <Eye className="w-5 h-5 text-muted-foreground" /> : <EyeOff className="w-5 h-5 text-primary" />}
                      </button>
-                    {!isPrivate && (
-                        <svg className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[52px] h-[52px] pointer-events-none" viewBox="0 0 36 36">
-                            <path
-                                className="stroke-primary/20"
-                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                fill="none"
-                                strokeWidth="2.5"
-                            />
-                            <path
-                                className="stroke-primary transition-all duration-100 ease-linear"
-                                strokeDasharray={`${timerProgress}, 100`}
-                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                fill="none"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                                transform="rotate(-90 18 18)"
-                            />
-                        </svg>
-                    )}
                   </div>
                   <Link href="/profile">
                     <Image src={user.photoURL || "https://placehold.co/128x128.png"} width={44} height={44} alt="User Avatar" className="w-11 h-11 bg-primary rounded-full shadow-lg border-2 border-border/50 cursor-pointer" data-ai-hint="person avatar" />
