@@ -42,6 +42,13 @@ type DisplayVault = Vault & { isNew?: boolean, animatedAmount?: number };
 type AnimationPhase = 'idle' | 'scrolling' | 'button_active' | 'show_form' | 'fill_form' | 'create_vault' | 'show_new_vault' | 'resetting';
 
 
+/**
+ * @component WelcomeVaultsMockup
+ * @description A fully animated, self-contained component that demonstrates the "Vaults" feature for the welcome page.
+ * @param {object} props - The component props.
+ * @param {string} [props.className] - Optional CSS classes to apply to the root element.
+ * @param {boolean} [props.isActive] - A prop passed from the parent carousel to indicate if this slide is currently visible. The animation sequence depends on this.
+ */
 export default function WelcomeVaultsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
     // State to manage the list of vaults displayed in the UI.
     const [displayVaults, setDisplayVaults] = useState<DisplayVault[]>(initialVaults);
@@ -78,8 +85,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
         // Store all setTimeout IDs to clear them on cleanup, preventing memory leaks.
         const timeouts: NodeJS.Timeout[] = [];
         const scrollContainer = scrollContainerRef.current;
-        const formScroller = formScrollRef.current;
-        if (!scrollContainer || !formScroller) return;
+        if (!scrollContainer) return;
         
         // A helper function to simulate a user typing text into an input field.
         const type = (text: string, updater: (newText: string) => void, onComplete?: () => void) => {
@@ -119,22 +125,10 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                 // Simulate selecting funding sources and destination account.
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, fundingSources: ['bca1']})), 300));
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, fundingSources: ['bca1', 'gopay1']})), 600));
-                                timeouts.push(setTimeout(() => {
-                                    setFormState(p => ({...p, destinationAccount: 'BCA Main Account'}));
-                                }, 900));
+                                timeouts.push(setTimeout(() => setFormState(p => ({...p, destinationAccount: 'BCA Main Account'})), 900));
                                 
-                                // Scroll the form down after selecting destination to see more options.
-                                timeouts.push(setTimeout(() => {
-                                    if(formScroller) formScroller.scrollTo({ top: formScroller.scrollHeight, behavior: 'smooth' });
-                                }, 1000));
-
-                                // Simulate enabling auto-saving.
+                                // Simulate enabling auto-saving. This state change will trigger the dedicated scrolling useEffect.
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSaveEnabled: true})), 1200));
-
-                                // Scroll form again when auto-save options appear.
-                                timeouts.push(setTimeout(() => {
-                                     if(formScroller) formScroller.scrollTo({ top: formScroller.scrollHeight, behavior: 'smooth' });
-                                }, 1300));
                                 
                                 // Simulate setting auto-save details.
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSaveFrequency: 'weekly'})), 1500));
@@ -180,7 +174,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                     setFormState({ name: '', targetAmount: '', fundingSources: [], destinationAccount: '', autoSaveEnabled: false, autoSaveFrequency: '', autoSaveAmount: '', roundUpEnabled: false });
                                     setDisplayVaults(initialVaults);
                                     scrollContainer.scrollTo({ top: 0, behavior: 'auto' });
-                                    formScroller.scrollTo({ top: 0, behavior: 'auto' });
+                                    if (formScrollRef.current) formScrollRef.current.scrollTop = 0;
                                     // Recursively call the sequence to loop the animation.
                                     animationSequence();
                                 }, 7100));
@@ -198,7 +192,31 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
         return () => {
             timeouts.forEach(clearTimeout);
         };
-    }, [isActive]); // This effect re-runs whenever the `isActive` prop changes.
+    // This effect re-runs only when the `isActive` prop changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isActive]);
+
+    /**
+     * @description This dedicated `useEffect` hook handles the logic for auto-scrolling the form.
+     * It triggers whenever the `autoSaveEnabled` state changes, ensuring the scroll happens
+     * *after* React has rendered the new content, which is more reliable than a fixed timer.
+     */
+    useEffect(() => {
+        // Only trigger this logic if the component is active and the form-filling animation is running.
+        if (isActive && animationPhase === 'fill_form') {
+            const scroller = formScrollRef.current;
+            if (scroller) {
+                // We add a small delay to ensure the DOM has updated with the new content
+                // (e.g., the auto-save options) before we try to scroll to it.
+                const scrollTimeout = setTimeout(() => {
+                    scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' });
+                }, 100); // A 100ms delay should be sufficient for the render to complete.
+                
+                return () => clearTimeout(scrollTimeout);
+            }
+        }
+    }, [isActive, animationPhase, formState.autoSaveEnabled]); // Dependency array ensures this runs only when autoSaveEnabled changes.
+
 
     // A boolean to determine if the vault list should be visible based on the current animation phase.
     const showList = animationPhase !== 'show_form' && animationPhase !== 'fill_form' && animationPhase !== 'create_vault';
