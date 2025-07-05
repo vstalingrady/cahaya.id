@@ -1,4 +1,3 @@
-
 'use client';
 
 import Image from 'next/image';
@@ -30,7 +29,8 @@ export default function InfiniteLogoScroller({
         } as React.CSSProperties
       }
     >
-      <div className="scroller-inner flex-nowrap gap-4 py-1">
+      {/* The animate-scroll class now triggers the JSX style animation */}
+      <div className="scroller-inner flex flex-nowrap gap-4 py-1 animate-scroll">
         {/* Render the first set of logos */}
         {institutions.map((inst, index) => (
           <div key={`logo-${inst.id}-${index}`} className="flex-shrink-0 w-24 h-24 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 border border-border shadow-md transition-all duration-300 hover:shadow-primary/20 hover:bg-white hover:scale-105">
@@ -58,6 +58,33 @@ export default function InfiniteLogoScroller({
           </div>
         ))}
       </div>
+      
+      {/* 
+        This JSX style block defines the animation locally. 
+        This can help ensure the animation styles are applied immediately, 
+        preventing the "flash of unstyled content" where items wrap before animating.
+      */}
+      <style jsx>{`
+        @keyframes scroll {
+          to {
+            /* 
+              We translate by -50% to move the entire duplicated list.
+              We also subtract half of the gap (0.5rem for gap-4) to ensure a seamless transition.
+            */
+            transform: translateX(calc(-50% - 0.5rem));
+          }
+        }
+
+        .animate-scroll {
+          animation: scroll var(--animation-duration) linear infinite;
+          animation-direction: var(--animation-direction);
+        }
+        
+        /* Pause animation on hover */
+        .scroller:hover .animate-scroll {
+            animation-play-state: paused;
+        }
+      `}</style>
     </div>
   );
 }

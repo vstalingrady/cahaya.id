@@ -125,23 +125,6 @@
     display: flex;
     flex-wrap: nowrap;
     width: max-content;
-    animation: scroll var(--animation-duration, 40s) var(--animation-direction, normal) linear infinite;
-  }
-  
-  .scroller:hover .scroller-inner {
-    animation-play-state: paused;
-  }
-
-  @keyframes scroll {
-    to {
-      transform: translateX(calc(-50% - 0.5rem)); /* Corresponds to half of gap-4 (1rem) */
-    }
-  }
-
-  .flashy-gemini-text {
-    @apply font-bold bg-gradient-to-r from-[hsl(var(--gemini-start))] to-[hsl(var(--gemini-end))] bg-clip-text text-transparent;
-    background-size: 200% auto;
-    animation: text-shine 3s linear infinite, gemini-glow 4s ease-in-out infinite;
   }
   
   @keyframes blink {
@@ -149,5 +132,11 @@
   }
   .cursor-blink {
     animation: blink 1s step-end infinite;
+  }
+
+  .flashy-gemini-text {
+    @apply font-bold bg-gradient-to-r from-[hsl(var(--gemini-start))] to-[hsl(var(--gemini-end))] bg-clip-text text-transparent;
+    background-size: 200% auto;
+    animation: text-shine 3s linear infinite, gemini-glow 4s ease-in-out infinite;
   }
 }
