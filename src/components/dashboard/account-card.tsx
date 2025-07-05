@@ -79,7 +79,7 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
     </>
   );
 
-  const baseClasses = "bg-card p-3 rounded-2xl flex justify-between items-center gap-4 border border-border shadow-lg";
+  const baseClasses = "bg-background p-3 rounded-2xl flex justify-between items-center gap-4 border border-border shadow-lg";
 
   const isClickable = account.type === 'bank' || account.type === 'investment';
 
@@ -92,7 +92,7 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
   }
 
   return (
-     <Link href={`/account/${account.id}`} className={`${baseClasses} hover:bg-secondary/60 transition-colors duration-300 group`}>
+     <Link href={`/account/${account.id}`} className={`${baseClasses} hover:bg-secondary transition-colors duration-300 group`}>
        {cardContent}
     </Link>
   );
