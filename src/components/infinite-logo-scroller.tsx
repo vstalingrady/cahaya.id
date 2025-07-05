@@ -30,7 +30,7 @@ export default function InfiniteLogoScroller({
         } as React.CSSProperties
       }
     >
-      <div className="scroller-inner gap-4 py-1">
+      <div className="scroller-inner flex-nowrap gap-4 py-1">
         {/* Render the first set of logos */}
         {institutions.map((inst, index) => (
           <div key={`logo-${inst.id}-${index}`} className="flex-shrink-0 w-24 h-24 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 border border-border shadow-md transition-all duration-300 hover:shadow-primary/20 hover:bg-white hover:scale-105">
