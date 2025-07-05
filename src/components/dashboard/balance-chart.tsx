@@ -268,9 +268,10 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
                   y1={tick.y}
                   x2={chartWidth - padding.right}
                   y2={tick.y}
-                  stroke="hsl(var(--border))"
+                  stroke="hsl(var(--muted-foreground))"
                   strokeWidth="0.5"
-                  strokeOpacity="0.3"
+                  strokeOpacity="0.2"
+                  strokeDasharray="2 3"
                 />
                 <text x={padding.left - 8} y={tick.y + 3} textAnchor="end">
                   {formatYAxisLabel(tick.value)}
@@ -286,9 +287,10 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
                   y1={padding.top}
                   x2={tick.x}
                   y2={chartHeight - padding.bottom}
-                  stroke="hsl(var(--border))"
+                  stroke="hsl(var(--muted-foreground))"
                   strokeWidth="0.5"
-                  strokeOpacity="0.2"
+                  strokeOpacity="0.1"
+                  strokeDasharray="2 3"
                 />
                 <text x={tick.x} y={chartHeight - padding.bottom + 15} textAnchor="middle">
                   {formatXAxisLabel(tick.value)}
