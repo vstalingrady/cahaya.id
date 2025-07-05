@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { type FinancialInstitution } from '@/lib/data';
 import { cn } from '@/lib/utils';
+import React from 'react';
 
 interface InfiniteLogoScrollerProps {
   institutions: FinancialInstitution[];
@@ -20,11 +21,15 @@ export default function InfiniteLogoScroller({
   return (
     <div
       className={cn("scroller w-full overflow-hidden", className)}
-      data-speed={speed}
-      data-direction={direction}
-      data-animated="true"
+      style={
+        {
+          "--animation-duration":
+            speed === "fast" ? "20s" : speed === "slow" ? "80s" : "40s",
+          "--animation-direction": direction === "reverse" ? "reverse" : "normal",
+        } as React.CSSProperties
+      }
     >
-      <div className="scroller__inner flex gap-4 flex-nowrap w-max py-2">
+      <div className="scroller-inner flex gap-4 flex-nowrap w-max py-2">
         {institutions.map(inst => (
           <div key={`${inst.id}-original`} className="flex-shrink-0 w-24 h-24 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 border border-border shadow-md transition-all duration-300 hover:shadow-primary/20 hover:bg-white hover:scale-105">
             <Image

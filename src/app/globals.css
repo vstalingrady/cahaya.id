@@ -119,43 +119,20 @@
     mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
   }
 
-  .scroller__inner {
+  .scroller-inner {
     display: flex;
     flex-wrap: nowrap;
     width: max-content;
-  }
-
-  .scroller[data-animated="true"] .scroller__inner {
-    animation: scroll-forward 60s linear infinite;
-  }
-
-  .scroller[data-direction="reverse"][data-animated="true"] .scroller__inner {
-    animation-name: scroll-reverse;
-  }
-
-  .scroller[data-speed="fast"] .scroller__inner {
-    animation-duration: 40s;
+    animation: scroll var(--animation-duration, 40s) var(--animation-direction, normal) linear infinite;
   }
   
-  .scroller[data-speed="slow"] .scroller__inner {
-    animation-duration: 80s;
+  .scroller:hover .scroller-inner {
+    animation-play-state: paused;
   }
 
-  @keyframes scroll-forward {
-    from {
-      transform: translateX(0);
-    }
+  @keyframes scroll {
     to {
-      transform: translateX(calc(-50% - 0.5rem)); /* Corresponds to half of gap-4 */
-    }
-  }
-  
-  @keyframes scroll-reverse {
-    from {
-      transform: translateX(calc(-50% - 0.5rem));
-    }
-    to {
-      transform: translateX(0);
+      transform: translateX(calc(-50% - 0.5rem)); /* Corresponds to half of gap-4 (1rem) */
     }
   }
 }
