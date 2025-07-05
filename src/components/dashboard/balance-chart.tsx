@@ -127,7 +127,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
   const pathPoints = useMemo(() => 
       dataPoints.map((p, i) => [getX(i), getY(p.netWorth)])
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  , [dataPoints, activeRange]);
+  , [dataPoints]);
   
   const animatedPoints = pathPoints.slice(0, Math.ceil(pathPoints.length * animationProgress));
   const pathD = createSmoothPath(animatedPoints);
@@ -151,7 +151,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
       const ticks = [dataMin, dataMin + dataRange * 0.5, dataMax];
       return ticks.map(t => ({ value: t, y: getY(t) }));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataPoints, activeRange]);
+  }, [dataPoints]);
 
   const xAxisTicks = React.useMemo(() => {
       if (dataPoints.length < 2) return [];
@@ -186,7 +186,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
           index === self.findIndex((t) => format(t.value, 'yyyy-MM-dd') === format(tick.value, 'yyyy-MM-dd'))
       );
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataPoints, activeRange]);
+  }, [dataPoints]);
 
   const formatXAxisLabel = (date: Date) => {
       const numPoints = dataPoints.length;
