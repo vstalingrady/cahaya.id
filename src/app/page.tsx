@@ -8,7 +8,7 @@
 
 'use client';
 
-// Import necessary React hooks for state management and side effects.
+// Import necessary React hooks for state and side effects.
 import React, { useState, useEffect, useCallback } from 'react';
 // Import Next.js Link component for client-side navigation.
 import Link from 'next/link';
@@ -33,6 +33,7 @@ import WelcomeInsightsMockup from '@/components/welcome-insights-mockup';
 import WelcomeVaultsMockup from '@/components/welcome-vaults-mockup';
 import WelcomeSecurityMockup from '@/components/welcome-security-mockup';
 import WelcomeBudgetsMockup from '@/components/welcome-budgets-mockup';
+import GeminiLogo from '@/components/icons/GeminiLogo';
 
 /**
  * An array of slide objects that define the content for the onboarding carousel.
@@ -90,8 +91,7 @@ const slides = [
               We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
             </p>
            </div>
-          <div className="space-y-4 mt-8">
-            <InfiniteLogoScroller 
+           <InfiniteLogoScroller 
               institutions={financialInstitutions.slice(0, 10)} 
               direction="reverse" 
               speed="slow" 
@@ -106,7 +106,6 @@ const slides = [
               direction="reverse" 
               speed="slow" 
             />
-          </div>
         </div>
       )
     },
@@ -148,16 +147,17 @@ const slides = [
     {
       type: 'feature',
       title: 'Get Smarter Insights with AI.',
-      description: "Unleash the power of Gemini 2.5 Flash Lite, the world's most advanced AI. It analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
+      description: "Unleash the power of Gemini 2.5, one of the world's most advanced AI models. It analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
       content: (props: { isActive: boolean }) => (
         <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
+          <GeminiLogo size={56} className="mb-4" />
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Get Smarter Insights with AI.
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
             Unleash the power of{' '}
             <span className="flashy-gemini-text">
-                <Sparkles className="w-4 h-4 inline-block -mt-1" /> Gemini 2.5
+                Gemini 2.5
             </span>
             , one of
             the world's most advanced AI models. It analyzes your spending to give you a
