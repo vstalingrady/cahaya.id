@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Plus, Repeat, Link2, Trash2, Edit, Banknote } from "lucide-react";
+import { Plus, Repeat, Link2, Trash2, Edit, Banknote, Check, ChevronDown } from "lucide-react";
 import React, { useState, useEffect, useRef } from 'react';
 import { vaults as initialVaults, type Vault } from '@/lib/data';
 import { Progress } from "@/components/ui/progress";
@@ -30,14 +30,20 @@ type AnimationPhase = 'idle' | 'scrolling' | 'button_active' | 'show_form' | 'fi
 export default function WelcomeVaultsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
     const [displayVaults, setDisplayVaults] = useState<DisplayVault[]>(initialVaults);
     const [animationPhase, setAnimationPhase] = useState<AnimationPhase>('idle');
-    const [formState, setFormState] = useState({ name: '', amount: '', autoSave: false });
+    const [formState, setFormState] = useState({
+      name: '',
+      amount: '',
+      sourceSelected: false,
+      destinationSelected: false,
+      autoSave: false,
+    });
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!isActive) {
             setAnimationPhase('idle');
             setDisplayVaults(initialVaults);
-            setFormState({ name: '', amount: '', autoSave: false });
+            setFormState({ name: '', amount: '', sourceSelected: false, destinationSelected: false, autoSave: false });
             if (scrollContainerRef.current) {
                 scrollContainerRef.current.scrollTop = 0;
             }
@@ -47,52 +53,67 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
         const timeouts: NodeJS.Timeout[] = [];
         const scrollContainer = scrollContainerRef.current;
         if (!scrollContainer) return;
+        
+        const type = (text: string, updater: (newText: string) => void, onComplete?: () => void) => {
+            let currentText = '';
+            const interval = setInterval(() => {
+                currentText = text.slice(0, currentText.length + 1);
+                updater(currentText);
+                if (currentText === text) {
+                    clearInterval(interval);
+                    if (onComplete) onComplete();
+                }
+            }, 60);
+            timeouts.push(interval as unknown as NodeJS.Timeout);
+        };
 
         const animationSequence = () => {
             setAnimationPhase('scrolling');
-            timeouts.push(setTimeout(() => {
-                scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior: 'smooth' });
-            }, 500));
-
+            timeouts.push(setTimeout(() => { scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior: 'smooth' }); }, 500));
             timeouts.push(setTimeout(() => setAnimationPhase('button_active'), 1500));
-
             timeouts.push(setTimeout(() => setAnimationPhase('show_form'), 1800));
 
             timeouts.push(setTimeout(() => {
                 setAnimationPhase('fill_form');
-                setFormState(prev => ({ ...prev, name: 'European Tour' }));
+                type('European Tour', (t) => setFormState(p => ({...p, name: t})), 
+                    () => timeouts.push(setTimeout(() => {
+                        type('80000000', (t) => setFormState(p => ({...p, amount: t})),
+                            () => {
+                                timeouts.push(setTimeout(() => setFormState(p => ({...p, sourceSelected: true})), 300));
+                                timeouts.push(setTimeout(() => setFormState(p => ({...p, destinationSelected: true})), 800));
+                                timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSave: true})), 1300));
+                                timeouts.push(setTimeout(() => setAnimationPhase('create_vault'), 1800));
+                                timeouts.push(setTimeout(() => {
+                                    const newVault: DisplayVault = {
+                                        id: 'vault-new', name: 'European Tour', icon: 'Holiday',
+                                        currentAmount: 5000000, targetAmount: 80000000,
+                                        sourceAccountIds: [], destinationAccountId: '', isNew: true,
+                                        animatedAmount: 0, roundUpEnabled: true,
+                                    };
+                                    setDisplayVaults(prevVaults => [...prevVaults, newVault]);
+                                    setAnimationPhase('show_new_vault');
+                                }, 2100));
+
+                                timeouts.push(setTimeout(() => {
+                                    setDisplayVaults(prev => prev.map(v => v.id === 'vault-new' ? {...v, animatedAmount: v.currentAmount} : v));
+                                }, 2600));
+                                
+                                timeouts.push(setTimeout(() => {
+                                    setAnimationPhase('resetting');
+                                    setDisplayVaults(prev => prev.map(v => v.id === 'vault-new' ? {...v, isNew: false} : v));
+                                }, 5600));
+
+                                timeouts.push(setTimeout(() => {
+                                    setFormState({ name: '', amount: '', sourceSelected: false, destinationSelected: false, autoSave: false });
+                                    setDisplayVaults(initialVaults);
+                                    scrollContainer.scrollTo({ top: 0, behavior: 'auto' });
+                                    animationSequence();
+                                }, 6100));
+                            }
+                        );
+                    }, 300))
+                );
             }, 2500));
-            timeouts.push(setTimeout(() => setFormState(prev => ({ ...prev, amount: '80000000' })), 3000));
-            timeouts.push(setTimeout(() => setFormState(prev => ({ ...prev, autoSave: true })), 3500));
-            
-            timeouts.push(setTimeout(() => setAnimationPhase('create_vault'), 4000));
-            
-            timeouts.push(setTimeout(() => {
-                const newVault: DisplayVault = {
-                    id: 'vault-new', name: 'European Tour', icon: 'Holiday',
-                    currentAmount: 5000000, targetAmount: 80000000,
-                    sourceAccountIds: [], destinationAccountId: '', isNew: true,
-                    animatedAmount: 0, roundUpEnabled: true,
-                };
-                setDisplayVaults(prevVaults => [...prevVaults, newVault]);
-                setAnimationPhase('show_new_vault');
-            }, 4300));
-
-            timeouts.push(setTimeout(() => {
-                setDisplayVaults(prev => prev.map(v => v.id === 'vault-new' ? {...v, animatedAmount: v.currentAmount} : v));
-            }, 4800));
-            
-            timeouts.push(setTimeout(() => {
-                setAnimationPhase('resetting');
-                 setDisplayVaults(prev => prev.map(v => v.id === 'vault-new' ? {...v, isNew: false} : v));
-            }, 8000));
-
-            timeouts.push(setTimeout(() => {
-                setFormState({ name: '', amount: '', autoSave: false });
-                setDisplayVaults(initialVaults);
-                scrollContainer.scrollTo({ top: 0, behavior: 'auto' });
-                animationSequence();
-            }, 8500));
         };
         
         animationSequence();
@@ -122,20 +143,32 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                     !showList ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
                 )}>
                     <h3 className="text-lg font-bold text-center mb-6 font-serif">Create New Vault</h3>
-                    <div className="space-y-4">
+                    <div className="space-y-3 text-sm">
                         <div className="relative">
                             <Edit className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input value={formState.name} readOnly className="bg-input border-border h-12 pl-10" placeholder="e.g. Japan Trip 2025" />
+                            <Input value={formState.name} readOnly className="bg-input border-border h-11 pl-10" placeholder="e.g. Japan Trip 2025" />
                         </div>
                         <div className="relative">
                             <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input value={formState.amount ? formatCurrency(Number(formState.amount)) : ''} readOnly className="bg-input border-border h-12 pl-10" placeholder="IDR 0" />
+                            <Input value={formState.amount ? formatCurrency(Number(formState.amount)) : ''} readOnly className="bg-input border-border h-11 pl-10" placeholder="IDR 0" />
                         </div>
-                        <div className="flex items-center justify-between rounded-lg border border-border p-3 bg-secondary">
-                            <label className="text-sm font-medium">Enable Auto-Saving</label>
+                         <div className={cn("flex items-center space-x-3 rounded-lg border p-3 bg-secondary transition-all", formState.sourceSelected ? "border-primary" : "border-border")}>
+                            <div className={cn("w-5 h-5 rounded-sm border-2 flex items-center justify-center transition-all", formState.sourceSelected ? "bg-primary border-primary" : "border-muted-foreground")}>
+                                {formState.sourceSelected && <Check className="w-4 h-4 text-white" />}
+                            </div>
+                            <label className="font-normal text-white">Funding Source: BCA Main Account</label>
+                        </div>
+                        <div className={cn("flex h-11 w-full items-center justify-between rounded-md border border-input bg-input px-3 py-2")}>
+                            <span className={cn(formState.destinationSelected ? "text-white" : "text-muted-foreground")}>
+                                {formState.destinationSelected ? 'Destination: BCA Main Account' : 'Select a destination account'}
+                            </span>
+                            <ChevronDown className="h-4 w-4 opacity-50" />
+                        </div>
+                        <div className="flex flex-row items-center justify-between rounded-lg border border-border p-3 bg-secondary">
+                            <label className="font-medium text-white">Enable Auto-Saving</label>
                             <Switch checked={formState.autoSave} readOnly />
                         </div>
-                        <Button className={cn("w-full h-12 text-lg transition-colors duration-200", animationPhase === 'create_vault' ? 'bg-green-500' : 'bg-primary')}>Create Vault</Button>
+                        <Button className={cn("w-full h-11 text-lg transition-colors duration-200", animationPhase === 'create_vault' ? 'bg-green-500' : 'bg-primary')}>Create Vault</Button>
                     </div>
                 </div>
 
