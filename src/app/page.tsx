@@ -58,20 +58,6 @@ const slides = [
           <p className="text-lg text-muted-foreground max-w-lg mx-auto my-6 font-light">
             Welcome to Cuan. The secure, unified way to manage your entire financial life from a single, beautiful app.
           </p>
-          <div className="flex justify-center gap-4 mt-8">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-primary">
-                <CountingNumber target={500} suffix="K+" />
-              </div>
-              <div className="text-sm text-muted-foreground">Active Users</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-accent">
-                <CountingNumber target={50} suffix="M+" />
-              </div>
-              <div className="text-sm text-muted-foreground">Transactions</div>
-            </div>
-          </div>
         </div>
       )
     },
