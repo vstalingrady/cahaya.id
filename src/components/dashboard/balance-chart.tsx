@@ -147,14 +147,14 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
   };
 
   const yAxisTicks = useMemo(() => {
-      // Simple tick generation for demonstration
-      const tickCount = 3;
+      const tickCount = 4; // Increased for better grid
       const tickValues = [];
        for(let i=0; i<=tickCount; i++) {
         tickValues.push(minValue + (i/tickCount) * (maxValue - minValue));
       }
       return tickValues.map(t => ({ value: t, y: getY(t) }));
-  }, [dataPoints, rangePadding]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataPoints, rangePadding, minValue, maxValue]);
 
   const xAxisTicks = React.useMemo(() => {
       if (dataPoints.length < 2) return [];
@@ -169,7 +169,8 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
         if (point) {
           ticks.push({
             value: point.date,
-            x: getX(i)
+            x: getX(i),
+            index: i
           });
         }
       }
@@ -181,13 +182,15 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
           const lastPoint = dataPoints[numPoints - 1];
           ticks.push({
               value: lastPoint.date,
-              x: getX(numPoints - 1)
+              x: getX(numPoints - 1),
+              index: numPoints - 1
           });
       }
 
       return ticks.filter((tick, index, self) =>
           index === self.findIndex((t) => format(t.value, 'yyyy-MM-dd') === format(tick.value, 'yyyy-MM-dd'))
       );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataPoints]);
 
   const formatXAxisLabel = (date: Date) => {
@@ -232,8 +235,8 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
   const activePoint = activeIndex !== null && dataPoints[activeIndex] ? { ...dataPoints[activeIndex], index: activeIndex, x: getX(activeIndex), y: getY(dataPoints[activeIndex].netWorth) } : null;
 
   return (
-    <div className='w-full h-full flex flex-col'>
-       <div className="relative flex-grow">
+    <div className='w-full h-full flex flex-col overflow-hidden'>
+       <div className="relative flex-grow min-h-0">
           <svg
             ref={svgRef}
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
@@ -241,6 +244,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
             onClick={(e) => handleInteraction(e, true)}
             onMouseMove={(e) => handleInteraction(e, false)}
             onMouseLeave={() => setHoveredPoint(null)}
+            style={{ display: 'block' }}
           >
             <defs>
               <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -256,9 +260,9 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
               </clipPath>
             </defs>
 
-            {/* Y-Axis Grid Lines & Labels */}
+            {/* Horizontal Grid Lines (Y-Axis) */}
             {yAxisTicks.map((tick, index) => (
-              <g key={index} className="text-[10px] fill-muted-foreground">
+              <g key={`y-grid-${index}`} className="text-[10px] fill-muted-foreground">
                 <line
                   x1={padding.left}
                   y1={tick.y}
@@ -266,7 +270,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
                   y2={tick.y}
                   stroke="hsl(var(--border))"
                   strokeWidth="0.5"
-                  strokeDasharray="2 2"
+                  strokeOpacity="0.3"
                 />
                 <text x={padding.left - 8} y={tick.y + 3} textAnchor="end">
                   {formatYAxisLabel(tick.value)}
@@ -274,15 +278,25 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
               </g>
             ))}
 
-            {/* X-Axis Labels */}
+            {/* Vertical Grid Lines (X-Axis) */}
             {xAxisTicks.map((tick, index) => (
-                <g key={index} className="text-[10px] fill-muted-foreground">
-                    <text x={tick.x} y={chartHeight - padding.bottom + 15} textAnchor="middle">
-                    {formatXAxisLabel(tick.value)}
-                    </text>
-                </g>
+              <g key={`x-grid-${index}`} className="text-[10px] fill-muted-foreground">
+                <line
+                  x1={tick.x}
+                  y1={padding.top}
+                  x2={tick.x}
+                  y2={chartHeight - padding.bottom}
+                  stroke="hsl(var(--border))"
+                  strokeWidth="0.5"
+                  strokeOpacity="0.2"
+                />
+                <text x={tick.x} y={chartHeight - padding.bottom + 15} textAnchor="middle">
+                  {formatXAxisLabel(tick.value)}
+                </text>
+              </g>
             ))}
 
+            {/* Chart Area and Line */}
             <g clipPath="url(#chartClipPath)">
               <path
                 d={areaPathD}
@@ -307,6 +321,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
                   x1={activePoint.x} y1={padding.top}
                   x2={activePoint.x} y2={innerHeight + padding.top}
                   stroke="hsl(var(--primary))" strokeWidth="1" strokeDasharray="3 3"
+                  strokeOpacity="0.6"
                 />
                 <circle cx={activePoint.x} cy={activePoint.y} r="8" fill="hsl(var(--primary) / 0.3)" />
                 <circle cx={activePoint.x} cy={activePoint.y} r="4" fill="hsl(var(--primary))" stroke="hsl(var(--card))" strokeWidth="2" />
