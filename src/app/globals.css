@@ -63,17 +63,16 @@
     width: 8px;
   }
   .form-scrollbar::-webkit-scrollbar-track {
-    background: hsl(var(--muted) / 0.5);
-    border-radius: 10px;
+    background: transparent;
   }
   .form-scrollbar::-webkit-scrollbar-thumb {
-    background: hsl(var(--muted-foreground) / 0.5);
+    background-color: hsl(var(--muted-foreground) / 0.4);
     border-radius: 10px;
-    border: 2px solid transparent;
+    border: 3px solid transparent;
     background-clip: content-box;
   }
   .form-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--muted-foreground) / 0.7);
+    background-color: hsl(var(--muted-foreground) / 0.6);
   }
 
   .bg-hero-glow {
