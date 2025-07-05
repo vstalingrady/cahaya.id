@@ -54,8 +54,6 @@ export default function DashboardMockup({ isActive }: { isActive?: boolean }) {
 
         const accountGroups = {
             bank: accounts.filter(a => a.type === 'bank'),
-            'e-wallet': accounts.filter(a => a.type === 'e-wallet'),
-            investment: accounts.filter(a => a.type === 'investment'),
             loan: accounts.filter(a => a.type === 'loan'),
         };
 
@@ -85,24 +83,6 @@ export default function DashboardMockup({ isActive }: { isActive?: boolean }) {
                                 balance={formatCurrency(account.balance)}
                             />
                         ))}
-                    </div>
-                </div>
-
-                <div className="bg-card p-4 rounded-xl border-none shadow-md">
-                     <div className='flex items-center gap-3 text-white font-semibold text-sm'>
-                        <Briefcase className='w-4 h-4' />
-                        <span>Investments</span>
-                    </div>
-                    <div className="pt-2 space-y-2">
-                         {accountGroups.investment.map(account => (
-                             <MockAccountCard 
-                                key={account.id}
-                                icon={getAccountIcon('investment', account.name)}
-                                name={account.name}
-                                last4={`${account.last4}`}
-                                balance={formatCurrency(account.balance)}
-                            />
-                         ))}
                     </div>
                 </div>
             </div>
