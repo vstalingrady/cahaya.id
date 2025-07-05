@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
@@ -269,10 +268,10 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
                   y1={tick.y}
                   x2={chartWidth - padding.right}
                   y2={tick.y}
-                  stroke="hsl(var(--muted-foreground))"
-                  strokeWidth="0.5"
-                  strokeOpacity="0.2"
-                  strokeDasharray="2 3"
+                  stroke="hsl(var(--primary))"
+                  strokeWidth="1"
+                  strokeOpacity="0.4"
+                  strokeDasharray="2 4"
                 />
                 <text x={padding.left - 8} y={tick.y + 3} textAnchor="end">
                   {formatYAxisLabel(tick.value)}
