@@ -153,19 +153,18 @@ const slides = [
       description: "Unleash the power of Gemini 2.5, one of the world's most advanced AI models. It analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
       content: (props: { isActive: boolean }) => (
         <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
-          <GeminiLogo size={56} className="mb-4" />
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Get Smarter Insights with AI.
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
             Unleash the power of{' '}
-            <span className="flashy-gemini-text">
-                Gemini 2.5
+            <span className="flashy-gemini-text inline-flex items-center gap-1.5">
+              <GeminiLogo size="1.2em" />
+              <span>Gemini 2.5</span>
             </span>
-            , one of
-            the world's most advanced AI models. It analyzes your spending to give you a
-            Financial Health Score, find hidden saving opportunities, and create
-            a personalized action plan.
+            , one of the world's most advanced AI models. It analyzes your
+            spending to give you a Financial Health Score, find hidden saving
+            opportunities, and create a personalized action plan.
           </p>
           <WelcomeInsightsMockup isActive={props.isActive} />
         </div>
