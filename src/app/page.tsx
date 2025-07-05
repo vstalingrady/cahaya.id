@@ -141,7 +141,7 @@ const slides = [
       type: 'feature',
       title: 'Track Spending with Smart Budgets.',
       description: "Take control of your spending. Create custom budgets for any category and see at a glance how you're tracking towards your goals.",
-      content: (
+      content: (props: { isActive: boolean }) => (
         <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Track Spending with Smart Budgets.
@@ -149,7 +149,7 @@ const slides = [
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
              Take control of your spending. Create custom budgets for any category and see at a glance how you're tracking towards your goals.
           </p>
-          <WelcomeBudgetsMockup />
+          <WelcomeBudgetsMockup isActive={props.isActive} />
         </div>
       )
     },
@@ -173,7 +173,7 @@ const slides = [
       type: 'feature',
       title: 'Save Smarter with Cuan Vaults.',
       description: 'Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.',
-      content: (
+      content: (props: { isActive: boolean }) => (
         <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Save Smarter with Cuan Vaults.
@@ -181,7 +181,7 @@ const slides = [
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
             Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.
           </p>
-          <WelcomeVaultsMockup />
+          <WelcomeVaultsMockup isActive={props.isActive} />
         </div>
       )
     },
@@ -280,7 +280,7 @@ export default function WelcomePage() {
                             // This wrapper controls the animation for each slide
                             index === currentSlide ? 'animate-fade-in-up' : 'opacity-0'
                         )}>
-                            {slide.content}
+                            {typeof slide.content === 'function' ? slide.content({ isActive: index === currentSlide }) : slide.content}
                         </div>
                     </div>
                 </div>
