@@ -14,6 +14,7 @@ import { financialInstitutions } from '@/lib/data';
 import Image from 'next/image';
 import InfiniteLogoScroller from '@/components/infinite-logo-scroller';
 import WelcomePaymentMockup from '@/components/welcome-payment-mockup';
+import WelcomeInsightsMockup from '@/components/welcome-insights-mockup';
 
 const CountingNumber = ({ target, prefix = "", suffix = "" }: {target: number, prefix?: string, suffix?: string}) => {
   const [count, setCount] = useState(0);
@@ -130,6 +131,22 @@ const slides = [
             Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.
           </p>
           <WelcomePaymentMockup />
+        </div>
+      )
+    },
+    {
+      type: 'feature',
+      title: 'Get Smarter Insights with AI.',
+      description: "Our AI analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
+      content: (
+        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto animate-fade-in-up">
+          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+            Get Smarter Insights with AI.
+          </h2>
+          <p className="text-base leading-relaxed text-muted-foreground mb-8">
+            Our AI analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.
+          </p>
+          <WelcomeInsightsMockup />
         </div>
       )
     },
