@@ -1,7 +1,9 @@
+
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, Wallet, CreditCard, PiggyBank, TrendingUp, Shield, Zap, Target, Globe } from 'lucide-react';
@@ -59,10 +61,7 @@ const CountingNumber = ({ target, prefix = "", suffix = "" }: {target: number, p
   return <span>{prefix}{count.toLocaleString()}{suffix}</span>;
 };
 
-export default function WelcomePage() {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  
-  const slides = [
+const slides = [
     {
       type: 'hero',
       title: 'All your money,\nin one place.',
@@ -254,17 +253,39 @@ export default function WelcomePage() {
     }
   ];
 
-  const goToSlide = (index: number) => {
-    setCurrentSlide(index);
-  };
+export default function WelcomePage() {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
+    if (!emblaApi) return;
+    setCurrentSlide(emblaApi.selectedScrollSnap());
+  }, []);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect(emblaApi);
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+    };
+  }, [emblaApi, onSelect]);
 
   return (
     <div className="w-full h-screen bg-background text-foreground overflow-hidden relative">
       <div className="absolute inset-0 bg-hero-glow -z-10"></div>
       
-      <div className="relative w-full h-full flex items-center justify-center p-6">
-        <div className="w-full max-w-4xl">
-          {slides[currentSlide].content}
+      <div className="overflow-hidden h-full" ref={emblaRef}>
+        <div className="flex h-full">
+            {slides.map((slide, index) => (
+                <div key={index} className="flex-[0_0_100%] min-w-0 relative">
+                    <div className="flex items-center justify-center h-full p-6">
+                        {slide.content}
+                    </div>
+                </div>
+            ))}
         </div>
       </div>
 
@@ -273,7 +294,7 @@ export default function WelcomePage() {
           {slides.map((_, index) => (
             <button 
               key={index} 
-              onClick={() => goToSlide(index)}
+              onClick={() => emblaApi?.scrollTo(index)}
               className={cn(`w-2 h-2 rounded-full transition-all duration-300`,
                 index === currentSlide ? "bg-primary w-6" : "bg-muted hover:bg-muted-foreground/50"
               )}
