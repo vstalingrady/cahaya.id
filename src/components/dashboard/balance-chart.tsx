@@ -234,6 +234,9 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
                 <stop offset="0%" stopColor="hsl(var(--primary))" />
                 <stop offset="100%" stopColor="hsl(var(--accent))" />
               </linearGradient>
+              <clipPath id="chartClipPath">
+                <rect x={padding.left} y={padding.top} width={innerWidth} height={innerHeight + 2} />
+              </clipPath>
             </defs>
 
             {/* Y-Axis Grid Lines & Labels */}
@@ -263,21 +266,22 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
                 </g>
             ))}
 
-
-            <path
-              d={areaPathD}
-              fill="url(#areaGradient)"
-              className="transition-all duration-300"
-            />
-            <path
-              d={pathD}
-              fill="none"
-              stroke="url(#lineGradient)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="transition-all duration-300"
-            />
+            <g clipPath="url(#chartClipPath)">
+              <path
+                d={areaPathD}
+                fill="url(#areaGradient)"
+                className="transition-all duration-300"
+              />
+              <path
+                d={pathD}
+                fill="none"
+                stroke="url(#lineGradient)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="transition-all duration-300"
+              />
+            </g>
 
             {/* Active Point Indicator */}
             {activePoint && (
