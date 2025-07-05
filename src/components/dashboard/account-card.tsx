@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { type Account } from "@/lib/data";
 import React from 'react';
+import { cn } from '@/lib/utils';
 
 const getAccountIcon = (name: string) => {
     const lowerName = name.toLowerCase();
@@ -67,8 +68,11 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
           </div>
       </div>
       <div className="text-right ml-2">
-          <div className="font-semibold text-lg text-white">
-            {isPrivate ? 'IDR ••••••••' : formattedAmount}
+          <div className={cn(
+              "font-semibold text-lg",
+              isLoan ? "text-destructive" : "text-white"
+            )}>
+            {isPrivate ? 'IDR ••••••••' : isLoan ? `-${formattedAmount}` : formattedAmount}
           </div>
       </div>
     </>
@@ -80,7 +84,7 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
 
   if (!isClickable) {
     return (
-      <div className={`${baseClasses} ${isLoan ? 'opacity-70' : ''}`}>
+      <div className={`${baseClasses}`}>
           {cardContent}
       </div>
     );

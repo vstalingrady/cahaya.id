@@ -29,7 +29,7 @@ const formatDisplayNumber = (account: Account): string => {
   return `...${accountNumber}`; // Fallback
 };
 
-const MockAccountCard = ({ icon, name, displayNumber, balance }: { icon: React.ReactNode, name: string, displayNumber: string, balance: string }) => (
+const MockAccountCard = ({ icon, name, displayNumber, balance, isLoan = false }: { icon: React.ReactNode, name: string, displayNumber: string, balance: string, isLoan?: boolean }) => (
     <div className="bg-card/80 p-3 rounded-xl flex justify-between items-center border border-border/20 shadow-sm">
         <div className="flex items-center flex-1 min-w-0">
             {icon}
@@ -39,7 +39,10 @@ const MockAccountCard = ({ icon, name, displayNumber, balance }: { icon: React.R
             </div>
         </div>
         <div className="text-right ml-2">
-            <div className="font-semibold text-white text-sm">
+            <div className={cn(
+                "font-semibold text-sm",
+                isLoan ? "text-destructive" : "text-white"
+            )}>
                 {balance}
             </div>
         </div>
@@ -152,7 +155,8 @@ export default function DashboardMockup({ isActive }: { isActive?: boolean }) {
                                 icon={getAccountIcon('loan', account.name)}
                                 name={account.name}
                                 displayNumber={formatDisplayNumber(account)}
-                                balance={formatCurrency(account.balance)}
+                                balance={`-${formatCurrency(account.balance)}`}
+                                isLoan={true}
                             />
                         ))}
                     </div>
