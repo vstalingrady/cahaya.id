@@ -1,216 +1,251 @@
 'use client';
 
-import * as React from 'react';
-import { Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ComposedChart } from "recharts";
-import { format } from 'date-fns';
-import { type Transaction } from "@/lib/data";
-import { ChartConfig, ChartContainer } from "../ui/chart";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import React, { useState, useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { type Transaction } from "@/lib/data";
 
-
-const chartConfig = {
-  netWorth: {
-    label: "Net Worth",
-    color: "hsl(var(--chart-1))",
-  },
-  transactions: {
-    label: "Transactions",
-    color: "hsl(var(--chart-2))",
-  }
-} satisfies ChartConfig;
-
-const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-}).format(amount);
-
-const CustomTransactionDot = (props: any) => {
-    const { cx, cy, payload } = props;
-    const { transactions } = payload as { transactions: Transaction[], date: Date, netWorth: number };
-
-    if (!transactions || transactions.length === 0) {
-        return <circle cx={cx} cy={cy} r={2} fill="hsl(var(--primary))" stroke="hsl(var(--background))" strokeWidth={1} />;
-    }
-
-    const netChange = transactions.reduce((acc, t) => acc + t.amount, 0);
-    const dotColorClass = netChange > 0 ? "fill-green-400 stroke-green-300" : "fill-destructive stroke-red-400";
-    const dotRadius = 5;
-
-    return (
-        <TooltipProvider delayDuration={0}>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <g>
-                        <circle cx={cx} cy={cy} r={dotRadius+3} fill="hsl(var(--primary) / 0.3)" className="animate-pulse" />
-                        <circle cx={cx} cy={cy} r={dotRadius} strokeWidth={2} className={cn("transition-all", dotColorClass)} />
-                    </g>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-xs bg-popover text-popover-foreground border-border rounded-xl p-0">
-                    <div className="flex flex-col gap-2 p-3">
-                        <div className="flex justify-between items-center font-bold">
-                            <span className="text-white">{format(payload.date, 'eeee, d MMM')}</span>
-                            <span className={cn('text-sm font-mono', netChange > 0 ? "text-green-400" : "text-destructive")}>
-                                {netChange > 0 ? '+' : ''}{formatCurrency(netChange)}
-                            </span>
-                        </div>
-                        <div className="border-t border-border/50 my-1"></div>
-                        <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">
-                          {transactions.map((t: Transaction) => (
-                              <div key={t.id} className="text-xs flex justify-between items-center">
-                                  <div>
-                                      <p className="font-semibold text-white">{t.description}</p>
-                                      <p className="text-muted-foreground">{t.category}</p>
-                                  </div>
-                                  <p className={cn("font-mono ml-4", t.amount > 0 ? "text-green-400" : "text-destructive")}>
-                                      {formatCurrency(t.amount)}
-                                  </p>
-                              </div>
-                          ))}
-                        </div>
-                    </div>
-                </TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
-    );
+type ChartDataPoint = {
+    date: Date;
+    netWorth: number;
+    transactions: Transaction[];
 };
 
 type BalanceChartProps = {
-    chartData: any[];
+    chartData: ChartDataPoint[];
 };
 
-export default function BalanceChart({ chartData }: BalanceChartProps) {
-    const yAxisDomain = React.useMemo(() => {
-        if (!chartData || chartData.length === 0) {
-          return ['auto', 'auto'];
-        }
-        const netWorthValues = chartData.map(d => d.netWorth);
-        const yMin = Math.min(...netWorthValues);
-        const yMax = Math.max(...netWorthValues);
+export default function BalanceChart({ chartData: dataPoints }: BalanceChartProps) {
+  const [animationProgress, setAnimationProgress] = useState(0);
+  const [hoveredPoint, setHoveredPoint] = useState<any>(null);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const [activePeriod, setActivePeriod] = useState('1M');
 
-        const getNiceDomain = (min: number, max: number, tickCount: number = 4) => {
-            const range = max - min;
-            if (range <= 0) {
-                const buffer = Math.abs(min * 0.1) || 1000;
-                return [min - buffer, max + buffer];
-            }
+  useEffect(() => {
+    setAnimationProgress(0);
+    const timer = requestAnimationFrame(() => setAnimationProgress(0.02));
+    return () => cancelAnimationFrame(timer);
+  }, [dataPoints]);
 
-            const tempStep = range / (tickCount - 1);
-            const magnitude = Math.pow(10, Math.floor(Math.log10(tempStep)));
-            const tempStepNormalized = tempStep / magnitude;
+  useEffect(() => {
+    if (animationProgress > 0 && animationProgress < 1) {
+      const timer = requestAnimationFrame(() => {
+        setAnimationProgress(prev => Math.min(prev + 0.02, 1));
+      });
+      return () => cancelAnimationFrame(timer);
+    }
+  }, [animationProgress]);
+  
+  if (!dataPoints || dataPoints.length < 2) {
+      return (
+          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+              Not enough data to display chart.
+          </div>
+      )
+  }
 
-            let niceStep;
-            if (tempStepNormalized < 1.5) niceStep = 1 * magnitude;
-            else if (tempStepNormalized < 3) niceStep = 2 * magnitude;
-            else if (tempStepNormalized < 7) niceStep = 5 * magnitude;
-            else niceStep = 10 * magnitude;
+  const chartWidth = 350;
+  const chartHeight = 180;
+  const padding = { top: 10, right: 10, bottom: 30, left: 10 };
+  const innerWidth = chartWidth - padding.left - padding.right;
+  const innerHeight = chartHeight - padding.top - padding.bottom;
+
+  const minValue = Math.min(...dataPoints.map(d => d.netWorth));
+  const maxValue = Math.max(...dataPoints.map(d => d.netWorth));
+  const valueRange = maxValue - minValue === 0 ? 1 : maxValue - minValue;
+
+  const formatValueForPath = (value: number) => {
+      return padding.top + ((maxValue - value) / valueRange) * innerHeight;
+  }
+  
+  const createPath = (points: ChartDataPoint[], progress = 1) => {
+    const visiblePoints = points.slice(0, Math.ceil(points.length * progress));
+    
+    return visiblePoints.map((point, index) => {
+      const x = padding.left + (index / (points.length - 1)) * innerWidth;
+      const y = formatValueForPath(point.netWorth);
+      return `${index === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`;
+    }).join(' ');
+  };
+
+  const createAreaPath = (points: ChartDataPoint[], progress = 1) => {
+    const visiblePoints = points.slice(0, Math.ceil(points.length * progress));
+    
+    const linePath = visiblePoints.map((point, index) => {
+      const x = padding.left + (index / (points.length - 1)) * innerWidth;
+      const y = formatValueForPath(point.netWorth);
+      return `${index === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`;
+    }).join(' ');
+
+    if (visiblePoints.length === 0) return "";
+    const lastX = padding.left + ((visiblePoints.length - 1) / (points.length - 1)) * innerWidth;
+    
+    return `${linePath} L ${lastX.toFixed(2)} ${chartHeight - padding.bottom} L ${padding.left} ${chartHeight - padding.bottom} Z`;
+  };
+  
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('id-ID', {
+        style: 'currency',
+        currency: 'IDR',
+        minimumFractionDigits: 0,
+        notation: 'compact'
+    }).format(value);
+  };
+  
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!svgRef.current) return;
+
+    const rect = svgRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+
+    const pointIndex = Math.round(((x - padding.left) / innerWidth) * (dataPoints.length - 1));
+    
+    if (pointIndex >= 0 && pointIndex < dataPoints.length) {
+      const point = dataPoints[pointIndex];
+      const pointX = padding.left + (pointIndex / (dataPoints.length - 1)) * innerWidth;
+      const pointY = formatValueForPath(point.netWorth);
+      
+      const distance = Math.abs(x - pointX);
+      
+      if (distance < 15) { // Check proximity on x-axis
+        setHoveredPoint({ ...point, index: pointIndex, x: pointX, y: pointY });
+      } else {
+        setHoveredPoint(null);
+      }
+    }
+  };
+
+  const visibleDates = [0, 0.25, 0.5, 0.75, 1].map(ratio => {
+    const index = Math.floor(ratio * (dataPoints.length - 1));
+    return dataPoints[index];
+  });
+
+
+  return (
+    <div className='w-full h-full flex flex-col'>
+       <div className="relative flex-grow">
+          <svg
+            ref={svgRef}
+            viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+            className="w-full h-full"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={() => setHoveredPoint(null)}
+          >
+            <defs>
+              <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity="0.3" />
+                <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity="0.05" />
+              </linearGradient>
+              <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="hsl(var(--primary))" />
+                <stop offset="100%" stopColor="hsl(var(--accent))" />
+              </linearGradient>
+            </defs>
+
+            {/* Horizontal grid lines */}
+            {[0, 0.25, 0.5, 0.75, 1].map((ratio, index) => (
+              <line
+                key={index}
+                x1={padding.left}
+                y1={padding.top + ratio * innerHeight}
+                x2={chartWidth - padding.right}
+                y2={padding.top + ratio * innerHeight}
+                stroke="hsl(var(--border))"
+                strokeWidth="1"
+                strokeDasharray="2 2"
+              />
+            ))}
+
+            <path
+              d={createAreaPath(dataPoints, animationProgress)}
+              fill="url(#areaGradient)"
+              className="transition-all duration-300"
+            />
+            <path
+              d={createPath(dataPoints, animationProgress)}
+              fill="none"
+              stroke="url(#lineGradient)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-all duration-300"
+            />
             
-            const niceMin = Math.floor(min / niceStep) * niceStep;
-            const niceMax = Math.ceil(max / niceStep) * niceStep;
+            {dataPoints.slice(0, Math.ceil(dataPoints.length * animationProgress)).map((point, index) => {
+              if (index === dataPoints.length - 1) {
+                  const x = padding.left + (index / (dataPoints.length - 1)) * innerWidth;
+                  const y = formatValueForPath(point.netWorth);
+                  return (
+                    <g key={index}>
+                      <circle cx={x} cy={y} r="8" fill="hsl(var(--primary) / 0.3)" className="animate-pulse" />
+                      <circle cx={x} cy={y} r="4" fill="hsl(var(--primary))" stroke="hsl(var(--card))" strokeWidth="2" />
+                    </g>
+                  )
+              }
+              return null;
+            })}
+
+            {hoveredPoint && (
+              <g>
+                <rect
+                  x={hoveredPoint.x - 40}
+                  y={hoveredPoint.y - 40}
+                  width="80"
+                  height="32"
+                  fill="hsl(var(--popover))"
+                  rx="6"
+                  className="opacity-90"
+                />
+                <text
+                  x={hoveredPoint.x}
+                  y={hoveredPoint.y - 28}
+                  textAnchor="middle"
+                  className="text-xs fill-popover-foreground font-medium"
+                >
+                  {formatCurrency(hoveredPoint.netWorth)}
+                </text>
+                <text
+                  x={hoveredPoint.x}
+                  y={hoveredPoint.y - 16}
+                  textAnchor="middle"
+                  className="text-xs fill-muted-foreground"
+                >
+                   {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(hoveredPoint.date))}
+                </text>
+              </g>
+            )}
             
-            return [niceMin, niceMax];
-        };
+            {visibleDates.map((point, index) => (
+               <text
+                    key={index}
+                    x={padding.left + (dataPoints.indexOf(point) / (dataPoints.length-1)) * innerWidth}
+                    y={chartHeight - (padding.bottom / 2.5)}
+                    textAnchor="middle"
+                    className="text-[10px] fill-muted-foreground"
+                >
+                    {new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(new Date(point.date))}
+                </text>
+            ))}
+
+          </svg>
+        </div>
         
-        return getNiceDomain(yMin, yMax);
-    }, [chartData]);
-
-    const formatYAxisTick = (tick: number) => {
-        if (Math.abs(tick) >= 1_000_000_000) {
-            return `${(tick / 1_000_000_000).toFixed(1)}B`;
-        }
-        if (Math.abs(tick) >= 1_000_000) {
-            return `${(tick / 1_000_000).toFixed(1)}M`;
-        }
-        if (Math.abs(tick) >= 1_000) {
-            return `${Math.round(tick / 1_000)}K`;
-        }
-        return tick.toString();
-    };
-
-    return (
-        <ChartContainer config={chartConfig} className="min-h-0 w-full h-full">
-            <ComposedChart
-                data={chartData}
-                margin={{ top: 5, right: 25, left: 5, bottom: 5 }}
-            >
-                <defs>
-                    <linearGradient id="fillNetWorth" x1="0" y1="0" x2="0" y2="1">
-                        <stop
-                            offset="5%"
-                            stopColor="hsl(var(--primary))"
-                            stopOpacity={0.4}
-                        />
-                        <stop
-                            offset="95%"
-                            stopColor="hsl(var(--primary))"
-                            stopOpacity={0.05}
-                        />
-                    </linearGradient>
-                    <linearGradient id="strokeNetWorth" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={1} />
-                      <stop offset="95%" stopColor="hsl(var(--accent))" stopOpacity={1} />
-                    </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} stroke="hsl(var(--border))" strokeDasharray="3 3" opacity={0.5} />
-                <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    axisLine={false}
-                    stroke="hsl(var(--muted-foreground))"
-                    tickMargin={8}
-                    tickFormatter={(value) => format(new Date(value), 'd MMM')}
-                    interval="preserveStartEnd"
-                    minTickGap={40}
-                />
-                <YAxis
-                    dataKey="netWorth"
-                    domain={yAxisDomain}
-                    tickLine={false}
-                    axisLine={false}
-                    stroke="hsl(var(--muted-foreground))"
-                    tickMargin={5}
-                    width={60}
-                    tickFormatter={formatYAxisTick}
-                    tickCount={4}
-                />
-                <RechartsTooltip
-                    cursor={{ stroke: 'hsl(var(--primary))', strokeWidth: 1.5, strokeDasharray: "3 3" }}
-                    content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                        return (
-                            <div className="rounded-xl border border-border bg-popover/80 backdrop-blur-sm p-2 shadow-lg">
-                                <div className="grid grid-cols-1 gap-1">
-                                    <div className="flex flex-col">
-                                        <span className="text-xs uppercase text-muted-foreground">
-                                            {format(new Date(payload[0].payload.date), 'eeee, d MMM yyyy')}
-                                        </span>
-                                        <span className="font-bold text-lg text-foreground">
-                                        {new Intl.NumberFormat('id-ID', {
-                                            style: 'currency',
-                                            currency: 'IDR',
-                                            minimumFractionDigits: 0,
-                                        }).format(payload[0].value as number)}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        )
-                        }
-                        return null
-                    }}
-                />
-                <Area
-                    dataKey="netWorth"
-                    type="monotone"
-                    fill="url(#fillNetWorth)"
-                    stroke="url(#strokeNetWorth)"
-                    strokeWidth={2}
-                    dot={<CustomTransactionDot />}
-                    activeDot={false}
-                    connectNulls
-                />
-            </ComposedChart>
-        </ChartContainer>
-    );
+        <div className="px-1 pt-2">
+            <div className="flex gap-2">
+            {['1D', '1W', '1M', '3M', '1Y', 'ALL'].map((period) => (
+                <button
+                key={period}
+                onClick={() => setActivePeriod(period)}
+                className={cn(`px-3 py-1 text-xs rounded-full transition-colors`,
+                    activePeriod === period 
+                    ? 'bg-primary/20 text-primary font-medium' 
+                    : 'text-muted-foreground hover:bg-secondary'
+                )}
+                >
+                {period}
+                </button>
+            ))}
+            </div>
+        </div>
+    </div>
+  );
 }
