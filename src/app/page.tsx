@@ -279,8 +279,13 @@ export default function WelcomePage() {
     // The main container, occupying the full screen with a relative position
     // to contain the absolutely positioned dot indicators.
     <div className="w-full h-screen bg-background text-foreground overflow-hidden relative">
-      {/* A decorative background gradient element. */}
+      {/* A decorative background gradient element with enhanced glow effect. */}
       <div className="absolute top-0 left-0 right-0 h-1/3 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_80%)] -z-10" />
+      
+      {/* Enhanced glow effect at the top */}
+      <div className="absolute top-0 left-0 right-0 h-1/2 bg-[radial-gradient(ellipse_80%_40%_at_50%_0%,hsl(var(--primary)/0.3),hsl(var(--accent)/0.2)_40%,transparent_70%)] -z-10 animate-pulse" />
+      <div className="absolute top-0 left-0 right-0 h-1/3 bg-[radial-gradient(ellipse_60%_30%_at_50%_0%,hsl(var(--primary)/0.4),transparent_60%)] -z-10" />
+      <div className="absolute top-0 left-0 right-0 h-1/4 bg-[radial-gradient(ellipse_40%_20%_at_50%_0%,hsl(var(--primary)/0.6),transparent_50%)] -z-10 blur-sm" />
       
       {/* The Embla Carousel container. `emblaRef` is attached here. */}
       <div className="overflow-hidden h-full" ref={emblaRef}>
@@ -327,5 +332,3 @@ export default function WelcomePage() {
     </div>
   );
 }
-
-    
