@@ -3,6 +3,8 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { type Transaction } from "@/lib/data";
+import { format } from 'date-fns';
+
 
 type ChartDataPoint = {
     date: Date;
@@ -53,10 +55,11 @@ const createSmoothPath = (points: number[][]) => {
 export default function BalanceChart({ chartData: dataPoints, onPointSelect }: BalanceChartProps) {
   const [animationProgress, setAnimationProgress] = useState(0);
   const [hoveredPoint, setHoveredPoint] = useState<any>(null);
-  const [activeIndex, setActiveIndex] = useState<number>(dataPoints.length - 1);
+  const [activeIndex, setActiveIndex] = useState<number>(dataPoints.length > 0 ? dataPoints.length - 1 : 0);
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
+    setActiveIndex(dataPoints.length > 0 ? dataPoints.length - 1 : 0)
     setAnimationProgress(0);
     const timer = requestAnimationFrame(() => setAnimationProgress(0.02));
     return () => cancelAnimationFrame(timer);
@@ -70,6 +73,15 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
       return () => cancelAnimationFrame(timer);
     }
   }, [animationProgress]);
+
+  useEffect(() => {
+    if (dataPoints.length > 0 && activeIndex >= dataPoints.length) {
+        const newIndex = dataPoints.length - 1;
+        setActiveIndex(newIndex);
+        onPointSelect({ point: dataPoints[newIndex], index: newIndex });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataPoints, activeIndex]);
 
   if (!dataPoints || dataPoints.length < 2) {
       return (
@@ -118,6 +130,51 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
       const ticks = [minValue, minValue + valueRange * 0.5, maxValue];
       return ticks.map(t => ({ value: t, y: getY(t) }));
   }, [minValue, valueRange, maxValue, getY]);
+
+  const xAxisTicks = React.useMemo(() => {
+      if (dataPoints.length < 2) return [];
+
+      const ticks = [];
+      const numPoints = dataPoints.length;
+      const maxTicks = numPoints > 30 ? 6 : 5;
+      const tickIncrement = Math.max(1, Math.ceil(numPoints / maxTicks));
+
+      for (let i = 0; i < numPoints; i += tickIncrement) {
+        const point = dataPoints[i];
+        if (point) {
+          ticks.push({
+            value: point.date,
+            x: getX(i)
+          });
+        }
+      }
+      
+      const lastTickX = ticks[ticks.length - 1]?.x;
+      const endX = getX(numPoints - 1);
+
+      if (!lastTickX || endX - lastTickX > innerWidth / (maxTicks * 2)) {
+          const lastPoint = dataPoints[numPoints - 1];
+          ticks.push({
+              value: lastPoint.date,
+              x: getX(numPoints - 1)
+          });
+      }
+
+      return ticks.filter((tick, index, self) =>
+          index === self.findIndex((t) => format(t.value, 'yyyy-MM-dd') === format(tick.value, 'yyyy-MM-dd'))
+      );
+  }, [dataPoints, getX, innerWidth]);
+
+  const formatXAxisLabel = (date: Date) => {
+      const numPoints = dataPoints.length;
+      if (numPoints > 90) { // For 1Y or ALL, show abbreviated month
+          return format(date, 'MMM');
+      }
+      if (numPoints > 7) { // For 30D view
+          return format(date, 'd');
+      }
+      return format(date, 'EEE'); // For 7D view, show day of week
+  };
   
   const handleInteraction = (e: React.MouseEvent<SVGSVGElement>, isClick: boolean) => {
     if (!svgRef.current) return;
@@ -130,14 +187,15 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
     if (pointIndex >= 0 && pointIndex < dataPoints.length) {
       const point = dataPoints[pointIndex];
       const pointX = getX(pointIndex);
-      const pointY = getY(point.netWorth);
-      const distance = Math.abs(x - pointX);
       
-      if (distance < 20) {
+      const threshold = innerWidth / (dataPoints.length - 1) / 2;
+
+      if (Math.abs(x - pointX) < threshold + 5) {
         if(isClick) {
             setActiveIndex(pointIndex);
             onPointSelect({ point, index: pointIndex });
         } else {
+            const pointY = getY(point.netWorth);
             setHoveredPoint({ ...point, index: pointIndex, x: pointX, y: pointY });
         }
       } else if (!isClick) {
@@ -146,7 +204,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
     }
   };
 
-  const activePoint = activeIndex !== null ? { ...dataPoints[activeIndex], index: activeIndex, x: getX(activeIndex), y: getY(dataPoints[activeIndex].netWorth) } : null;
+  const activePoint = activeIndex !== null && dataPoints[activeIndex] ? { ...dataPoints[activeIndex], index: activeIndex, x: getX(activeIndex), y: getY(dataPoints[activeIndex].netWorth) } : null;
 
   return (
     <div className='w-full h-full flex flex-col'>
@@ -187,6 +245,16 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
                 </text>
               </g>
             ))}
+
+            {/* X-Axis Labels */}
+            {xAxisTicks.map((tick, index) => (
+                <g key={index} className="text-[10px] fill-muted-foreground">
+                    <text x={tick.x} y={chartHeight - padding.bottom + 15} textAnchor="middle">
+                    {formatXAxisLabel(tick.value)}
+                    </text>
+                </g>
+            ))}
+
 
             <path
               d={areaPathD}

@@ -33,6 +33,8 @@ type TotalBalanceProps = {
   isPrivate?: boolean;
 };
 
+type RangeOption = '7D' | '30D' | '1Y' | 'ALL';
+
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -43,58 +45,88 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
 export default function TotalBalance({ title, amount, transactions, showHistoryLink = false, isPrivate = false }: TotalBalanceProps) {
   const [chartData, setChartData] = React.useState<any[]>([]);
   const [displayData, setDisplayData] = React.useState<DisplayData | null>(null);
+  const [activeRange, setActiveRange] = React.useState<RangeOption>('30D');
 
   React.useEffect(() => {
-    const generateChartData = (currentBalance: number, allTransactions: Transaction[], days: number) => {
-        const latestTransactionDate = allTransactions.length > 0
-            ? allTransactions.reduce((latest, t) => new Date(t.date) > latest ? new Date(t.date) : latest, new Date(0))
+    const generateChartData = (currentBalance: number, allTransactions: Transaction[], range: RangeOption) => {
+        const sortedTransactions = allTransactions.slice().sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        
+        const latestTransactionDate = sortedTransactions.length > 0
+            ? new Date(sortedTransactions[sortedTransactions.length - 1].date)
             : new Date();
         
         const today = new Date(latestTransactionDate);
         today.setHours(23, 59, 59, 999);
 
-        const startDate = new Date(today);
+        let startDate: Date;
+        let days: number;
+
+        switch(range) {
+            case '7D':
+                days = 7;
+                break;
+            case '1Y':
+                days = 365;
+                break;
+            case 'ALL':
+                 if (sortedTransactions.length === 0) {
+                    days = 30;
+                 } else {
+                    const firstDate = new Date(sortedTransactions[0].date);
+                    days = Math.ceil((today.getTime() - firstDate.getTime()) / (1000 * 3600 * 24)) + 1;
+                 }
+                break;
+            case '30D':
+            default:
+                days = 30;
+                break;
+        }
+
+        startDate = new Date(today);
         startDate.setDate(today.getDate() - (days - 1));
         startDate.setHours(0, 0, 0, 0);
 
-        const relevantTransactions = allTransactions.filter(t => {
+        const relevantTransactions = sortedTransactions.filter(t => {
             const tDate = new Date(t.date);
             return tDate >= startDate && tDate <= today;
         });
-
+        
         const totalChangeInPeriod = relevantTransactions.reduce((sum, t) => sum + t.amount, 0);
         let startOfPeriodNetWorth = currentBalance - totalChangeInPeriod;
-
+        
         const data = [];
         let runningBalance = startOfPeriodNetWorth;
-        
-        for (let i = 0; i < days; i++) {
+        const actualDays = Math.ceil((today.getTime() - startDate.getTime()) / (1000 * 3600 * 24));
+
+        for (let i = 0; i <= actualDays; i++) {
             const loopDate = new Date(startDate);
             loopDate.setDate(startDate.getDate() + i);
 
-            const dailyTransactions = allTransactions.filter(t => isSameDay(new Date(t.date), loopDate));
-
-            if (i > 0) {
-              const dailyChange = dailyTransactions.reduce((sum, t) => sum + t.amount, 0);
+            const dailyTransactions = sortedTransactions.filter(t => isSameDay(new Date(t.date), loopDate));
+            const dailyChange = dailyTransactions.reduce((sum, t) => sum + t.amount, 0);
+            
+            if(i > 0) {
               runningBalance += dailyChange;
+            } else {
+              runningBalance = startOfPeriodNetWorth + dailyChange;
             }
-
+            
             data.push({
                 date: loopDate,
                 netWorth: runningBalance,
                 transactions: dailyTransactions,
             });
         }
-
-        if(data.length > 0) {
-          data[data.length - 1].netWorth = currentBalance;
-        }
         
+        if (data.length > 0) {
+            data[data.length - 1].netWorth = currentBalance;
+        }
+
         return data;
     };
     
     const timer = setTimeout(() => {
-        const data = generateChartData(amount, transactions, 30); // Generate 30 days of data
+        const data = generateChartData(amount, transactions, activeRange);
         setChartData(data);
         if (data.length > 1) {
             const lastPoint = data[data.length - 1];
@@ -119,7 +151,7 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
     }, 1);
 
     return () => clearTimeout(timer);
-  }, [amount, transactions]);
+  }, [amount, transactions, activeRange]);
 
 
   const handlePointSelection = React.useCallback((data: any | null) => {
@@ -198,6 +230,19 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
                         </div>
                     )
                 )}
+            </div>
+             <div className="flex justify-center gap-2">
+                {(['7D', '30D', '1Y', 'ALL'] as RangeOption[]).map((range) => (
+                    <Button
+                        key={range}
+                        variant={activeRange === range ? 'secondary' : 'ghost'}
+                        size="sm"
+                        onClick={() => setActiveRange(range)}
+                        className="rounded-full px-4"
+                    >
+                        {range}
+                    </Button>
+                ))}
             </div>
         </div>
       </div>
