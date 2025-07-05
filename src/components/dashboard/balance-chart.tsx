@@ -52,13 +52,13 @@ const createSmoothPath = (points: number[][]) => {
   let path = `M ${points[0][0]} ${points[0][1]}`
 
   for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i - 1]
-    const p1 = points[i]
-    const p2 = points[i + 1]
-    const p3 = points[i + 2]
+    const p0 = i > 0 ? points[i - 1] : points[i]; // Handle start of path
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = i < points.length - 2 ? points[i + 2] : p2; // Handle end of path
 
-    const cp1 = controlPoint(p1, p0, p2)
-    const cp2 = controlPoint(p2, p1, p3, true)
+    const cp1 = controlPoint(p1, p0, p2);
+    const cp2 = controlPoint(p2, p1, p3, true);
     
     path += ` C ${cp1[0]},${cp1[1]} ${cp2[0]},${cp2[1]} ${p2[0]},${p2[1]}`
   }
@@ -115,7 +115,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
   const dataMin = Math.min(...dataPoints.map(d => d.netWorth));
   const dataMax = Math.max(...dataPoints.map(d => d.netWorth));
   const dataRange = dataMax - dataMin;
-  const rangePadding = dataRange === 0 ? dataMax * 0.1 : dataRange * 0.05;
+  const rangePadding = dataRange === 0 ? dataMax * 0.1 : dataRange * 0.1;
 
   const minValue = dataMin - rangePadding;
   const maxValue = dataMax + rangePadding;
