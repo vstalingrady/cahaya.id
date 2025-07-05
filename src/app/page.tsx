@@ -6,25 +6,10 @@ import Link from 'next/link';
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Wallet, CreditCard, PiggyBank, TrendingUp, Shield, Zap, Target, Globe } from 'lucide-react';
+import { ArrowRight, CreditCard, PiggyBank, TrendingUp, Shield, Zap, Target, Globe } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import CuanLogo from '@/components/icons/CuanLogo';
-
-const AccountCard = ({ name, balance, color, delay = 0 }: {name: string, balance: string, color: string, delay?: number}) => (
-  <Card className={cn(`bg-gradient-to-br text-white border-0 shadow-lg animate-fade-in-up`, color)} style={{ animationDelay: `${delay}ms` }}>
-    <CardContent className="p-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <p className="text-sm opacity-90">{name}</p>
-          <p className="text-lg font-bold">{balance}</p>
-        </div>
-        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
-          <Wallet className="w-4 h-4" />
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-);
+import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
 
 const FeatureIcon = ({ icon: Icon, title, description, color }: {icon: React.ElementType, title: string, description: string, color: string}) => (
   <div className="text-center group">
@@ -68,7 +53,7 @@ const slides = [
       description: 'Welcome to Cuan. The secure, unified way to manage your entire financial life from a single, beautiful app.',
       content: (
         <div className="text-center relative z-10 animate-fade-in-up">
-          <CuanLogo className="w-24 h-auto mx-auto mb-6 animate-logo-blink-glow" />
+          <CuanLogo className="w-32 h-auto mx-auto mb-6 animate-logo-blink-glow" />
           <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line drop-shadow-[0_0_5px_hsl(var(--primary)/0.3)]">
             All your money,{'\n'}in one place.
           </h1>
@@ -101,21 +86,10 @@ const slides = [
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Connect Everything. See Everything.
           </h2>
-          <p className="text-base leading-relaxed text-muted-foreground mb-8">
+          <p className="text-base leading-relaxed text-muted-foreground mb-6">
             BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.
           </p>
-          <div className="grid grid-cols-2 gap-3 w-full max-w-sm mb-6">
-            <AccountCard name="BCA Checking" balance="Rp 12.5M" color="from-blue-500 to-blue-600" delay={0} />
-            <AccountCard name="GoPay" balance="Rp 850K" color="from-green-500 to-green-600" delay={200} />
-            <AccountCard name="OVO" balance="Rp 1.2M" color="from-purple-500 to-purple-600" delay={400} />
-            <AccountCard name="Bibit" balance="Rp 5.8M" color="from-orange-500 to-orange-600" delay={600} />
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground mb-2">Total Net Worth</p>
-            <p className="text-3xl font-bold text-foreground">
-              <CountingNumber target={20350000} prefix="Rp " />
-            </p>
-          </div>
+          <WelcomeDashboardMockup />
         </div>
       )
     },
