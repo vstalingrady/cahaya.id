@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { cn } from "@/lib/utils";
-import { Sparkles, Loader2, Check, Info } from "lucide-react";
+import { Sparkles, Loader2, Check, Info, Send } from "lucide-react";
 import { Button } from '@/components/ui/button';
 
 const ScoreCircle = ({ score, isActive }: { score: number, isActive: boolean }) => {
@@ -46,61 +46,86 @@ const ScoreCircle = ({ score, isActive }: { score: number, isActive: boolean }) 
 
 export default function WelcomeInsightsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
   const [animationState, setAnimationState] = useState<'initial' | 'loading' | 'finished'>('initial');
+  const [showChat, setShowChat] = useState(false);
+  const [typedMessage, setTypedMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Main animation cycle controller
   useEffect(() => {
     let timeouts: NodeJS.Timeout[] = [];
   
     const cycleAnimation = () => {
+      // Reset all sub-states
       setAnimationState('initial');
+      setShowChat(false);
+      setTypedMessage('');
+      setIsTyping(false);
+
       timeouts.push(setTimeout(() => {
         setAnimationState('loading');
         timeouts.push(setTimeout(() => {
           setAnimationState('finished');
-          timeouts.push(setTimeout(cycleAnimation, 8000)); // Show results for 8s
-        }, 1500)); // Show loading for 1.5s
-      }, 3000)); // Show button for 3s
+          // Wait for results to show before starting chat animation
+          timeouts.push(setTimeout(() => setShowChat(true), 2500));
+          // Reset the whole cycle after a while
+          timeouts.push(setTimeout(cycleAnimation, 12000)); // Total cycle time
+        }, 1500)); // Loading duration
+      }, 3000)); // Initial button view duration
     };
   
     if (isActive) {
       cycleAnimation();
     } else {
-      setAnimationState('initial'); // Reset when not active
+      // Hard reset if component becomes inactive
+      setAnimationState('initial');
+      setShowChat(false);
+      setTypedMessage('');
+      setIsTyping(false);
     }
   
     return () => {
-      timeouts.forEach(clearTimeout); // Cleanup all scheduled timeouts
+      timeouts.forEach(clearTimeout);
     };
   }, [isActive]);
 
+  // Scroll effect for results
   useEffect(() => {
     if (animationState === 'finished' && scrollRef.current) {
         const scroller = scrollRef.current;
-        
-        // Give a moment for the content to render, then scroll down.
         const scrollTimeout = setTimeout(() => {
             if(scroller) {
-                // First, ensure we're at the top before scrolling down
                 scroller.scrollTo({ top: 0, behavior: 'auto' });
-                // Then, scroll down smoothly
-                setTimeout(() => {
-                    scroller.scrollTo({
-                        top: scroller.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                }, 100);
+                setTimeout(() => scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' }), 100);
             }
-        }, 1500); // Wait 1.5s before starting scroll
-
-        return () => {
-            clearTimeout(scrollTimeout);
-        }
+        }, 1500);
+        return () => clearTimeout(scrollTimeout);
     }
   }, [animationState]);
+  
+  // Typing animation for chat
+  useEffect(() => {
+    if (showChat) {
+      setIsTyping(true);
+      const fullMessage = "How can I invest in an index fund?";
+      let index = 0;
+      const intervalId = setInterval(() => {
+        setTypedMessage(fullMessage.slice(0, index + 1));
+        index++;
+        if (index >= fullMessage.length) {
+          clearInterval(intervalId);
+          setIsTyping(false);
+        }
+      }, 60); // Typing speed
+      
+      return () => clearInterval(intervalId);
+    }
+  }, [showChat]);
+
 
   return (
     <div className={cn(
-        "relative w-full max-w-sm h-[500px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
+        "relative w-full max-w-sm h-[550px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
         className
     )}>
         {/* Initial State: Button */}
@@ -125,45 +150,57 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
             <Loader2 className="w-12 h-12 text-primary animate-spin" />
         </div>
 
-        {/* Finished State: Insights */}
-        <div
-            ref={scrollRef} 
-            className={cn(
-            "w-full h-full flex flex-col gap-4 transition-opacity duration-500 overflow-y-auto custom-scrollbar",
+        {/* Finished State: Insights + Chat */}
+        <div className={cn(
+            "w-full h-full flex flex-col gap-4 transition-opacity duration-500",
             animationState === 'finished' ? 'opacity-100' : 'opacity-0 pointer-events-none'
         )}>
-            <div className="text-center p-4 bg-secondary/50 rounded-lg border border-border/50">
-                <p className="text-sm font-semibold uppercase tracking-widest text-primary">Your Spender Personality</p>
-                <h3 className="text-2xl font-bold font-serif text-white mt-1">"The Foodie Explorer"</h3>
-            </div>
-            
-            <div className="flex-1 flex flex-col items-center justify-center p-4 bg-secondary/50 rounded-lg border border-border/50 min-h-[220px]">
-                 <ScoreCircle score={78} isActive={animationState === 'finished'} />
-            </div>
+            {/* Scrollable results area */}
+            <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto custom-scrollbar pr-2 -mr-3">
+                <div className="text-center p-4 bg-secondary/50 rounded-lg border border-border/50">
+                    <p className="text-sm font-semibold uppercase tracking-widest text-primary">Your Spender Personality</p>
+                    <h3 className="text-2xl font-bold font-serif text-white mt-1">"The Foodie Explorer"</h3>
+                </div>
+                
+                <div className="flex-1 flex flex-col items-center justify-center p-4 bg-secondary/50 rounded-lg border border-border/50 min-h-[220px]">
+                     <ScoreCircle score={78} isActive={animationState === 'finished'} />
+                </div>
 
-            <div className="space-y-3">
-                <h3 className="font-semibold text-lg text-white font-serif">Summary:</h3>
-                <p className="text-muted-foreground text-sm">
-                    Your Financial Health Score is a solid 78! You're doing great with savings. As a "Foodie Explorer," your largest spending area is dining out, which presents a great opportunity to save without impacting your lifestyle too much.
-                </p>
+                <div className="space-y-3">
+                    <h3 className="font-semibold text-lg text-white font-serif">Summary:</h3>
+                    <p className="text-muted-foreground text-sm">
+                        Your Financial Health Score is a solid 78! You're doing great with savings. As a "Foodie Explorer," your largest spending area is dining out, which presents a great opportunity to save without impacting your lifestyle too much.
+                    </p>
+                </div>
+                
+                <div className="space-y-3">
+                    <h3 className="font-semibold text-lg text-white font-serif">Your Action Plan:</h3>
+                    <ul className="space-y-2">
+                        <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
+                            <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
+                            <span className="text-foreground text-sm">You spent Rp 2.5jt on Food & Drink. Try reducing this by 30% to save Rp 750rb.</span>
+                        </li>
+                        <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
+                            <div className="w-5 h-5 bg-green-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Info className="w-3 h-3 text-white" /></div>
+                            <span className="text-foreground text-sm">With an income of Rp 55jt, you could start investing Rp 5jt/month in a low-cost index fund.</span>
+                        </li>
+                         <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
+                            <div className="w-5 h-5 bg-blue-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
+                            <span className="text-foreground text-sm">Local Deal: Get 50% cashback at Kopi Kenangan when you pay with OVO.</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
             
-            <div className="space-y-3">
-                <h3 className="font-semibold text-lg text-white font-serif">Your Action Plan:</h3>
-                <ul className="space-y-2">
-                    <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
-                        <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
-                        <span className="text-foreground text-sm">You spent Rp 2.5jt on Food & Drink. Try reducing this by 30% to save Rp 750rb.</span>
-                    </li>
-                    <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
-                        <div className="w-5 h-5 bg-green-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Info className="w-3 h-3 text-white" /></div>
-                        <span className="text-foreground text-sm">With an income of Rp 55jt, you could start investing Rp 5jt/month in a low-cost index fund.</span>
-                    </li>
-                     <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
-                        <div className="w-5 h-5 bg-blue-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
-                        <span className="text-foreground text-sm">Local Deal: Get 50% cashback at Kopi Kenangan when you pay with OVO.</span>
-                    </li>
-                </ul>
+            {/* Chat input area */}
+            <div className={cn("mt-auto pt-3 border-t border-border/50 transition-opacity duration-500", showChat ? 'opacity-100' : 'opacity-0')}>
+                <div className="relative h-11 rounded-xl border border-input bg-input/50 px-4 py-2 text-sm text-left flex items-center justify-between">
+                    <p className="text-white">
+                        {typedMessage}
+                        {isTyping && <span className="cursor-blink">|</span>}
+                    </p>
+                    <Send className="w-5 h-5 text-primary"/>
+                </div>
             </div>
         </div>
     </div>
