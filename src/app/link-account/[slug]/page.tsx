@@ -79,7 +79,7 @@ export default function InstitutionAuthPage() {
                 ) : (
                     <div className="space-y-2">
                     <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" name="phone" type="tel" placeholder="081234567890" defaultValue={`0812-cuan-demo`} className="bg-input h-12 text-base" />
+                    <Input id="phone" name="phone" type="tel" placeholder="081234567890" defaultValue={`0812-clarity-demo`} className="bg-input h-12 text-base" />
                     </div>
                 )}
                 </div>
@@ -95,7 +95,7 @@ export default function InstitutionAuthPage() {
         </div>
 
         <div className="mt-8 text-center text-xs text-muted-foreground max-w-xs mx-auto">
-            <p>This is a mock environment. Cuan will not see your credentials.</p>
+            <p>This is a mock environment. Clarity will not see your credentials.</p>
         </div>
       </div>
     </div>

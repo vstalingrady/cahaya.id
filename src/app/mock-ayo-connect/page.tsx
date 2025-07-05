@@ -33,7 +33,7 @@ function MockConnectContent() {
     // In our mock DB, we just have one user. We'll check against their credentials.
     const user = db.users[0];
     if (user.bank_login.username === username && user.bank_login.password_plaintext === password) {
-      // Success! Redirect back to Cuan with a public_token.
+      // Success! Redirect back to Clarity with a public_token.
       const callbackUrl = new URL(redirectUri);
       callbackUrl.searchParams.set('public_token', 'good_public_token_for_budi');
       callbackUrl.searchParams.set('institution_id', institution.institution_id);
@@ -64,7 +64,7 @@ function MockConnectContent() {
         </Button>
       </form>
       <p className="mt-4 text-xs text-slate-500 text-center">
-        This is a mock environment. Cuan will not see your credentials.
+        This is a mock environment. Clarity will not see your credentials.
       </p>
     </div>
   );

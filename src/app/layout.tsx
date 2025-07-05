@@ -5,8 +5,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { Plus_Jakarta_Sans, DM_Serif_Display } from 'next/font/google';
 
 export const metadata: Metadata = {
-  title: 'Cuan - All your money, in one place.',
-  description: 'Welcome to Cuan. The secure way to manage your finances.',
+  title: 'Clarity - All your money, in one place.',
+  description: 'Welcome to Clarity. The secure way to manage your finances.',
 };
 
 const jakarta = Plus_Jakarta_Sans({ subsets: ['latin'], variable: '--font-sans' });

@@ -109,7 +109,7 @@ export default function SetupSecurityForm() {
       toast({
         variant: 'destructive',
         title: 'PIN is too short',
-        description: 'Your Cuan PIN must be 8 characters long.',
+        description: 'Your Clarity PIN must be 8 characters long.',
       });
       return;
     }
@@ -129,7 +129,7 @@ export default function SetupSecurityForm() {
     setTimeout(() => {
         toast({
           title: 'Security Set Up!',
-          description: `Your Cuan PIN has been configured.`,
+          description: `Your Clarity PIN has been configured.`,
         });
         router.push('/link-account');
         setLoading(false);

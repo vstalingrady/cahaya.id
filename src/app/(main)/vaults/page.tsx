@@ -83,7 +83,7 @@ export default function VaultsPage() {
             <div className="space-y-4 animate-fade-in-up">
                 <div>
                     <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                        Cuan Vaults
+                        Clarity Vaults
                     </h1>
                     <p className="text-muted-foreground">Save for all your goals, together.</p>
                 </div>

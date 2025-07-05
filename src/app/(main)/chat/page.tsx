@@ -17,7 +17,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'model',
-      content: "Hello! I'm Cuan, your personal AI financial assistant. How can I help you today? You can ask me about budgeting, saving, or understanding your finances.",
+      content: "Hello! I'm Clarity, your personal AI financial assistant. How can I help you today? You can ask me about budgeting, saving, or understanding your finances.",
     },
   ]);
   const [inputValue, setInputValue] = useState('');

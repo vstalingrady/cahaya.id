@@ -31,8 +31,8 @@ const formSchema = z.object({
 
 const BI_FAST_FEE = 2500;
 const BANK_API_FEE = 1000;
-const CUAN_FEE = 500;
-const TOTAL_FEE = BI_FAST_FEE + BANK_API_FEE + CUAN_FEE;
+const CLARITY_FEE = 500;
+const TOTAL_FEE = BI_FAST_FEE + BANK_API_FEE + CLARITY_FEE;
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -195,8 +195,8 @@ export default function InitiateTransferPage() {
                     <span className="font-mono text-white">{formatCurrency(BANK_API_FEE)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
-                    <span className="text-muted-foreground">Cuan Service Fee</span>
-                    <span className="font-mono text-white">{formatCurrency(CUAN_FEE)}</span>
+                    <span className="text-muted-foreground">Clarity Service Fee</span>
+                    <span className="font-mono text-white">{formatCurrency(CLARITY_FEE)}</span>
                     </div>
                     <div className="flex justify-between items-center font-bold text-base pt-3 mt-2 border-t border-border/50">
                     <span className="text-white">Total Debited</span>

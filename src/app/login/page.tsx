@@ -10,7 +10,7 @@ export default function LoginPage() {
       <div className="relative z-10">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4 text-primary font-serif">Welcome Back</h1>
-          <p className="text-muted-foreground text-lg font-light">Log in to continue to Cuan.</p>
+          <p className="text-muted-foreground text-lg font-light">Log in to continue to Clarity.</p>
         </div>
         <LoginForm />
         <div className="text-center mt-6">

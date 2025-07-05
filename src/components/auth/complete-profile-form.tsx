@@ -107,7 +107,7 @@ export default function CompleteProfileForm() {
     setIsSubmitting(true);
     setError(null);
     try {
-      const bypassEmail = `dev-bypass-${Date.now()}@cuan.app`;
+      const bypassEmail = `dev-bypass-${Date.now()}@clarity.app`;
       const bypassPassword = 'PasswordForDev123!';
       const bypassFullName = 'Dev User';
 

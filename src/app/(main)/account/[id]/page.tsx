@@ -82,7 +82,7 @@ export default function AccountDetailPage() {
             <AlertDialogHeader>
             <AlertDialogTitle>Unlink "{account.name}"?</AlertDialogTitle>
             <AlertDialogDescription>
-                This action cannot be undone. To continue, please enter your 8-character Cuan PIN.
+                This action cannot be undone. To continue, please enter your 8-character Clarity PIN.
             </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="py-4">
