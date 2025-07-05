@@ -1,13 +1,14 @@
 
 'use client';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useAuth } from '@/components/auth/auth-provider';
+import { getDashboardData, getSavingSuggestions, getBillSuggestions } from '@/lib/actions';
+import { type Transaction } from '@/lib/data';
 import { PieChart, Pie, ResponsiveContainer, Cell, Sector } from 'recharts';
-import { transactions } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
 import { Loader2, Sparkles, Check, Info, Repeat, Plus, ReceiptText, Clapperboard, Music, Wifi, Shield, Calendar as CalendarIcon } from 'lucide-react';
-import { getSavingSuggestions } from '@/lib/actions';
 import { type PersonalizedSavingSuggestionsOutput } from '@/ai/flows/saving-opportunities';
 import {
   Dialog,
@@ -20,7 +21,6 @@ import {
 } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { format, addMonths, isBefore, getDate, parseISO, subDays, startOfMonth, startOfYear, isEqual } from 'date-fns';
-import { getBillSuggestions } from '@/lib/actions';
 import { type BillDiscoveryOutput } from '@/ai/flows/bill-discovery';
 import { useToast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -149,6 +149,13 @@ const ScoreCircle = ({ score }: { score: number }) => {
 
 
 export default function InsightsPage() {
+    const { user } = useAuth();
+    const { toast } = useToast();
+    
+    // Data state
+    const [isLoading, setIsLoading] = useState(true);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+
     // Spending Analysis State
     const [activeIndex, setActiveIndex] = useState(0);
     const [isGenerating, setIsGenerating] = useState(false);
@@ -165,13 +172,34 @@ export default function InsightsPage() {
     const [manualSubscriptions, setManualSubscriptions] = useState<ManualSubscription[]>([]);
     const [isAddSubDialogOpen, setIsAddSubDialogOpen] = useState(false);
     const [calendarMonth, setCalendarMonth] = useState(new Date());
-    const { toast } = useToast();
 
     const addSubForm = useForm<z.infer<typeof addSubSchema>>({
       resolver: zodResolver(addSubSchema),
       defaultValues: { name: '', amount: 1000 },
     });
     
+    // --- DATA FETCHING ---
+    useEffect(() => {
+        if (!user) return;
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                const { transactions } = await getDashboardData(user.uid);
+                setTransactions(transactions);
+            } catch (error) {
+                console.error("Failed to fetch insights data:", error);
+                toast({
+                    variant: 'destructive',
+                    title: 'Error',
+                    description: 'Could not load your insights data.'
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
+    }, [user, toast]);
+
     // --- DERIVED STATE & LOGIC ---
     
     const allTimeDateRange = useMemo(() => {
@@ -183,7 +211,7 @@ export default function InsightsPage() {
             from: new Date(Math.min(...dates.map(d => d.getTime()))),
             to: new Date(Math.max(...dates.map(d => d.getTime())))
         };
-    }, []);
+    }, [transactions]);
 
     const datePresets = useMemo(() => [
       { label: "Last 7 Days", range: { from: subDays(new Date(), 6), to: new Date() } },
@@ -227,7 +255,7 @@ export default function InsightsPage() {
         }, { value: { label: "Spending" } } as ChartConfig);
 
         return { spendingData, totalSpending, chartConfig };
-    }, [dateRange]);
+    }, [dateRange, transactions]);
 
     const filteredTransactionsForAI = useMemo(() => {
       if (!dateRange?.from) return transactions;
@@ -236,7 +264,7 @@ export default function InsightsPage() {
           const transactionDate = new Date(t.date);
           return transactionDate >= dateRange.from! && transactionDate <= toDate;
       });
-    }, [dateRange]);
+    }, [dateRange, transactions]);
 
     const categoryTransactions = useMemo(() => {
       if (!detailCategory || !dateRange?.from) return [];
@@ -248,7 +276,7 @@ export default function InsightsPage() {
                  transactionDate >= dateRange.from! &&
                  transactionDate <= toDate;
       });
-    }, [detailCategory, dateRange]);
+    }, [detailCategory, dateRange, transactions]);
 
     const combinedSubscriptions = useMemo(() => {
         const aiSubs = aiScanResult?.potentialBills || [];
@@ -314,6 +342,14 @@ export default function InsightsPage() {
         setIsScanning(false);
     };
     
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center h-full pt-24">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        </div>
+      );
+    }
+
     // --- RENDER ---
 
     return (
@@ -326,7 +362,7 @@ export default function InsightsPage() {
                     </h1>
                     <p className="text-muted-foreground">Understand your money, take control.</p>
                 </div>
-                 <Button onClick={handleGetSuggestions} disabled={isGenerating} size="sm" className="bg-primary/80 hover:bg-primary text-white font-semibold">
+                 <Button onClick={handleGetSuggestions} disabled={isGenerating || transactions.length === 0} size="sm" className="bg-primary/80 hover:bg-primary text-white font-semibold">
                     {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                     <span>{isGenerating ? 'Analyzing...' : 'AI Plan'}</span>
                 </Button>
@@ -623,5 +659,3 @@ export default function InsightsPage() {
         </>
     );
 }
-
-    

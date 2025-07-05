@@ -1,10 +1,12 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/components/auth/auth-provider';
 import { Cable, Phone, Droplets, Lightbulb, Shield, Car, CreditCard, Sparkles, Loader2, Plus, X, Landmark, Tv } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { transactions } from '@/lib/data';
-import { getBillSuggestions } from '@/lib/actions';
+import { getDashboardData, getBillSuggestions } from '@/lib/actions';
+import { type Transaction } from '@/lib/data';
 import { type BillDiscoveryOutput } from '@/ai/flows/bill-discovery';
 import { useToast } from '@/hooks/use-toast';
 
@@ -26,9 +28,34 @@ const billers = [
 ];
 
 export default function BillsPage() {
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isScanning, setIsScanning] = useState(false);
   const [aiResult, setAiResult] = useState<BillDiscoveryOutput | null>(null);
-  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            const { transactions } = await getDashboardData(user.uid);
+            setTransactions(transactions);
+        } catch (error) {
+            console.error("Failed to fetch transaction data:", error);
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Could not load your transaction data.'
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    fetchData();
+  }, [user, toast]);
 
   const handleScanForBills = async () => {
     setIsScanning(true);
@@ -62,6 +89,14 @@ export default function BillsPage() {
     toast({ title: 'Success!', description: `${billName} has been added to your tracked bills.` });
     dismissSuggestion(billName);
   }
+  
+  if (isLoading) {
+      return (
+        <div className="flex items-center justify-center h-full pt-24">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        </div>
+      );
+  }
 
   return (
     <div className="space-y-8 animate-fade-in-up">
@@ -82,7 +117,7 @@ export default function BillsPage() {
         </div>
 
         {aiResult === null && !isScanning && (
-          <Button onClick={handleScanForBills} className="w-full bg-primary/80 hover:bg-primary text-white font-semibold">
+          <Button onClick={handleScanForBills} disabled={transactions.length === 0} className="w-full bg-primary/80 hover:bg-primary text-white font-semibold">
             <Sparkles className="w-4 h-4 mr-2" />
             Scan for Recurring Bills
           </Button>

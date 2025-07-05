@@ -329,9 +329,8 @@ export async function removeFavorite(userId: string, favoriteId: string) {
 
 // ---- AI Actions ----
 
-export async function getSavingSuggestions(userId: string): Promise<PersonalizedSavingSuggestionsOutput & { error?: string }> {
+export async function getSavingSuggestions(transactions: Transaction[]): Promise<PersonalizedSavingSuggestionsOutput & { error?: string }> {
   try {
-    const { transactions } = await getDashboardData(userId);
     const spendingData = transactions
         .filter(t => t.amount < 0)
         .map(t => `${t.date}: ${t.description} (${t.category}) - ${Math.abs(t.amount)}`)
@@ -402,9 +401,8 @@ export async function getBudgetAnalysis(userId: string): Promise<BudgetAnalysisO
     }
 }
 
-export async function getBillSuggestions(userId: string): Promise<BillDiscoveryOutput & { error?: string }> {
+export async function getBillSuggestions(transactions: Transaction[]): Promise<BillDiscoveryOutput & { error?: string }> {
   try {
-    const { transactions } = await getDashboardData(userId);
     const transactionHistory = transactions
       .filter(t => t.amount < 0)
       .map(t => `${t.date}: ${t.description} - ${Math.abs(t.amount)}`)
