@@ -29,34 +29,53 @@ const line = (pointA: number[], pointB: number[]) => {
 }
 
 const controlPoint = (current: number[], previous: number[] | undefined, next: number[] | undefined, reverse?: boolean) => {
+  // When 'previous' or 'next' is undefined, we're at an endpoint.
+  // The control point should be the current point itself to ensure the line is straight at the edges.
   const p = previous || current
   const n = next || current
-
-  // If we are at an endpoint (i.e. no previous or next point), the control
-  // point should be the point itself to prevent the line from extending past the edge.
+  const smoothing = 0.2
+  
+  // Properties of the line connecting previous and next points
+  const o = line(p, n)
+  
+  // If we're at an endpoint, the control point is the current point.
   if (!previous || !next) {
-    return current;
+    return current
   }
 
-  const smoothing = 0.2
-  const o = line(p, n)
+  // Angle of the line
   const angle = o.angle + (reverse ? Math.PI : 0)
+  
+  // Length of the control point vector
   const length = o.length * smoothing
+  
+  // Calculate the control point coordinates
   const x = current[0] + Math.cos(angle) * length
   const y = current[1] + Math.sin(angle) * length
+  
   return [x, y]
 }
 
+
 const createSmoothPath = (points: number[][]) => {
-  const bezierCommand = (point: number[], i: number, a: number[][]) => {
-    const [cpsX, cpsY] = controlPoint(a[i - 1], a[i - 2], point)
-    const [cpeX, cpeY] = controlPoint(point, a[i - 1], a[i + 1], true)
-    return `C ${cpsX},${cpsY} ${cpeX},${cpeY} ${point[0]},${point[1]}`
+  if (points.length < 2) {
+    return `M ${points[0]?.[0] || 0} ${points[0]?.[1] || 0}`;
   }
-  return points.reduce((acc, point, i, a) => i === 0
-    ? `M ${point[0]},${point[1]}`
-    : `${acc} ${bezierCommand(point, i, a)}`
-  , '')
+  let path = `M ${points[0][0]} ${points[0][1]}`
+
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i - 1]
+    const p1 = points[i]
+    const p2 = points[i + 1]
+    const p3 = points[i + 2]
+
+    const cp1 = controlPoint(p1, p0, p2)
+    const cp2 = controlPoint(p2, p1, p3, true)
+    
+    path += ` C ${cp1[0]},${cp1[1]} ${cp2[0]},${cp2[1]} ${p2[0]},${p2[1]}`
+  }
+
+  return path
 }
 // --- End of SVG Path Helpers ---
 
@@ -116,16 +135,16 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
       dataPoints.map((p, i) => [getX(i), getY(p.netWorth)])
   , [dataPoints, getX, getY]);
   
-  const pathD = createSmoothPath(pathPoints.slice(0, Math.ceil(pathPoints.length * animationProgress)));
+  const animatedPoints = pathPoints.slice(0, Math.ceil(pathPoints.length * animationProgress));
+  const pathD = createSmoothPath(animatedPoints);
 
   const createAreaPath = (points: number[][]) => {
+      if (points.length < 2) return "";
       const linePath = createSmoothPath(points);
-      if (points.length === 0) return "";
       const lastX = points[points.length-1][0];
-      const firstX = points[0][0];
-      return `${linePath} L ${lastX.toFixed(2)} ${chartHeight - padding.bottom} L ${firstX.toFixed(2)} ${chartHeight - padding.bottom} Z`;
+      return `${linePath} L ${lastX.toFixed(2)} ${chartHeight - padding.bottom} L ${points[0][0].toFixed(2)} ${chartHeight - padding.bottom} Z`;
   };
-  const areaPathD = createAreaPath(pathPoints.slice(0, Math.ceil(pathPoints.length * animationProgress)));
+  const areaPathD = createAreaPath(animatedPoints);
   
   const formatYAxisLabel = (value: number) => {
     if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
@@ -235,7 +254,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
                 <stop offset="100%" stopColor="hsl(var(--accent))" />
               </linearGradient>
               <clipPath id="chartClipPath">
-                <rect x={padding.left} y={padding.top} width={innerWidth} height={innerHeight + 2} />
+                <rect x={padding.left - 2} y={padding.top} width={innerWidth + 4} height={innerHeight + 2} />
               </clipPath>
             </defs>
 
