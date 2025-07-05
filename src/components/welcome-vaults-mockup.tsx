@@ -1,3 +1,4 @@
+
 /**
  * @file src/components/welcome-vaults-mockup.tsx
  * @fileoverview A sophisticated, animated mockup demonstrating the savings vaults feature.
@@ -219,7 +220,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
             {/* Mockup Header */}
             <div className="flex-shrink-0 mb-4 pointer-events-none">
                 <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    Clarity Vaults
+                    CuanFlex Vaults
                 </h1>
             </div>
             
@@ -301,7 +302,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                         </div>
                     </div>
                      {/* "Create Vault" Button */}
-                     <Button className={cn("w-full h-10 text-base mt-2 flex-shrink-0 transition-colors duration-200", animationPhase === 'create_vault' ? 'bg-green-500' : 'bg-primary')}>
+                     <Button className={cn("w-full h-10 text-base mt-2 flex-shrink-0 transition-colors duration-200", animationPhase === 'create_vault' ? 'bg-accent text-white' : 'bg-primary')}>
                         {animationPhase === 'create_vault' ? <Check className="w-5 h-5"/> : 'Create Vault'}
                      </Button>
                 </div>
@@ -331,9 +332,9 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                 </div>
                                 <div className="mb-3"><Progress value={progress} className="h-2 bg-secondary [&>div]:bg-primary [&>div]:transition-all [&>div]:duration-1000 [&>div]:ease-out" /></div>
                                 <div className="flex items-center justify-between min-h-[34px]"><div className="text-xs space-y-1">
-                                    {vault.autoSaveEnabled && (<div className="flex items-center gap-2 font-semibold text-green-400"><Repeat className="w-3 h-3" /><span>Auto-saving {formatCurrency(vault.autoSaveAmount || 0)} / {vault.autoSaveFrequency}</span></div>)}
-                                    {vault.roundUpEnabled && (<div className="flex items-center gap-2 font-semibold text-green-400"><Coins className="w-3 h-3" /><span>Round-up savings active</span></div>)}
-                                    {sourceNames && (
+                                    {vault.autoSaveEnabled && (<div className="flex items-center gap-2 font-semibold text-primary"><Repeat className="w-3 h-3" /><span>Auto-saving {formatCurrency(vault.autoSaveAmount || 0)} / {vault.autoSaveFrequency}</span></div>)}
+                                    {vault.roundUpEnabled && (<div className="flex items-center gap-2 font-semibold text-primary"><Coins className="w-3 h-3" /><span>Round-up savings active</span></div>)}
+                                     {sourceNames && (
                                         <div className="flex items-center gap-2 font-medium text-muted-foreground pt-1">
                                             <ArrowUpFromLine className="w-3 h-3" />
                                             <span className="truncate">From: {sourceNames}</span>

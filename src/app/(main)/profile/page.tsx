@@ -71,7 +71,7 @@ export default function ProfilePage() {
                     <div className="flex justify-between items-center">
                         <p className="text-sm text-muted-foreground">Email</p>
                         {user?.emailVerified && (
-                          <Badge variant="outline" className="bg-green-900/50 border-green-700 text-green-300 text-xs">
+                          <Badge variant="outline" className="bg-primary/20 border-primary/50 text-primary text-xs">
                               <CheckCircle2 className="w-3 h-3 mr-1.5"/>
                               Verified
                           </Badge>

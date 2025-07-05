@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -120,19 +121,19 @@ export default function TransactionCalendar({ transactions, currentBalance }: { 
                 <div className="grid grid-cols-3 gap-2 text-center mb-4">
                     <div className="bg-secondary p-3 rounded-lg flex flex-col justify-center min-h-[90px]">
                         <p className="text-xs text-muted-foreground">Spent</p>
-                        <p className="font-bold text-red-400 text-sm">{formatCurrency(dailySummary.spent)}</p>
+                        <p className="font-bold text-destructive text-sm">{formatCurrency(dailySummary.spent)}</p>
                     </div>
                     <div className="bg-secondary p-3 rounded-lg flex flex-col justify-center min-h-[90px]">
                         <p className="text-xs text-muted-foreground">Received</p>
-                        <p className="font-bold text-green-400 text-sm">{formatCurrency(dailySummary.received)}</p>
+                        <p className="font-bold text-primary text-sm">{formatCurrency(dailySummary.received)}</p>
                     </div>
                     <div className="bg-secondary p-3 rounded-lg flex flex-col justify-center min-h-[90px]">
                         <p className="text-xs text-muted-foreground">Net Change</p>
-                        <p className={cn("font-bold text-sm", dailySummary.net >= 0 ? 'text-green-400' : 'text-red-400')}>
+                        <p className={cn("font-bold text-sm", dailySummary.net >= 0 ? 'text-primary' : 'text-destructive')}>
                             {dailySummary.net >= 0 ? '+' : ''}{formatCurrency(dailySummary.net)}
                         </p>
                          {(dailySummary.spent > 0 || dailySummary.received > 0) && Math.abs(dailySummary.percentage) > 0.001 ? (
-                            <p className={cn("text-xs font-semibold", dailySummary.net >= 0 ? 'text-green-400/70' : 'text-red-400/70')}>
+                            <p className={cn("text-xs font-semibold", dailySummary.net >= 0 ? 'text-primary opacity-70' : 'text-destructive opacity-70')}>
                                 {dailySummary.net >= 0 ? '+' : ''}{dailySummary.percentage.toFixed(2)}%
                             </p>
                          ) : null }
@@ -153,7 +154,7 @@ export default function TransactionCalendar({ transactions, currentBalance }: { 
                                     </div>
                                     <p className={cn(
                                         "font-bold font-mono",
-                                        t.amount > 0 ? "text-green-400" : "text-destructive"
+                                        t.amount > 0 ? "text-primary" : "text-destructive"
                                     )}>
                                         {t.amount > 0 ? '+' : ''}{formatCurrency(t.amount)}
                                     </p>

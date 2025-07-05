@@ -1,3 +1,4 @@
+
 /**
  * @file src/components/dashboard/transaction-history.tsx
  * @fileoverview This component renders a list of transactions. It takes both transactions
@@ -100,10 +101,10 @@ export default function TransactionHistory({ transactions, accounts }: { transac
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        {/* Display the transaction amount, colored green for income and red for expenses. */}
+                        {/* Display the transaction amount, colored for income and red for expenses. */}
                         <p className={cn(
                             "font-semibold font-mono",
-                            t.amount > 0 ? "text-green-400" : "text-destructive"
+                            t.amount > 0 ? "text-primary" : "text-destructive"
                         )}>
                             {formatCurrency(t.amount)}
                         </p>

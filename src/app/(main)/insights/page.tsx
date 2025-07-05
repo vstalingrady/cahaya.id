@@ -111,7 +111,7 @@ type ManualSubscription = {
 const ScoreCircle = ({ score }: { score: number }) => {
     const circumference = 2 * Math.PI * 45; // 2 * pi * radius
     const strokeDashoffset = circumference - (score / 100) * circumference;
-    const scoreColor = score > 75 ? 'text-green-400' : score > 40 ? 'text-yellow-400' : 'text-destructive';
+    const scoreColor = score > 75 ? 'text-primary' : score > 40 ? 'text-yellow-400' : 'text-destructive';
 
     return (
         <div className="relative w-40 h-40 mx-auto">
@@ -612,7 +612,7 @@ export default function InsightsPage() {
                                 <div className="space-y-3">
                                     <h3 className="font-semibold text-lg text-white font-serif">Investment Idea:</h3>
                                     <div className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
-                                        <div className="w-5 h-5 bg-green-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Info className="w-3 h-3 text-white" /></div>
+                                        <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Info className="w-3 h-3 text-white" /></div>
                                         <span className="text-foreground text-sm">{aiResult.investmentPlan}</span>
                                     </div>
                                 </div>

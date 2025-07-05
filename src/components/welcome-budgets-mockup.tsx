@@ -60,7 +60,7 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                     className="h-2.5 transition-all duration-1000 ease-out delay-300" 
                 />
                 <p className={cn(
-                    "text-sm text-green-400 font-semibold mt-2 transition-opacity duration-500 delay-500",
+                    "text-sm text-primary font-semibold mt-2 transition-opacity duration-500 delay-500",
                     isActive ? 'opacity-100' : 'opacity-0'
                 )}>Rp 375,000 left</p>
             </div>

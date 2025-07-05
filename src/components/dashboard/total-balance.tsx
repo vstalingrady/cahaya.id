@@ -212,7 +212,7 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
                         {displayData && displayData.change !== 0 && (
                           <div className={cn(
                             "flex items-center text-sm font-semibold",
-                            displayData.change >= 0 ? "text-green-400" : "text-destructive"
+                            displayData.change >= 0 ? "text-primary" : "text-destructive"
                           )}>
                               {displayData.change >= 0 ? <TrendingUp className="w-4 h-4 mr-1"/> : <TrendingDown className="w-4 h-4 mr-1"/>}
                               <span>{displayData.change >= 0 ? '+' : ''}{formatCurrency(displayData.change)}</span>

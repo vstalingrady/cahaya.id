@@ -1,3 +1,4 @@
+
 /**
  * @file src/components/auth/complete-profile-form.tsx
  * @fileoverview This form handles the final step of user registration.
@@ -83,7 +84,7 @@ function PasswordRequirements({ password }: { password: string }) {
         const isValid = req.regex.test(password);
         return (
           // Dynamically change text color based on validity.
-          <div key={req.name} className={cn("flex items-center transition-colors", isValid ? 'text-green-400' : 'text-muted-foreground')}>
+          <div key={req.name} className={cn("flex items-center transition-colors", isValid ? 'text-primary' : 'text-muted-foreground')}>
             {isValid ? <Check className="w-4 h-4 mr-1.5" /> : <X className="w-4 h-4 mr-1.5" />}
             {req.text}
           </div>
