@@ -82,7 +82,7 @@ const slides = [
       title: 'Broad Compatibility',
       description: 'We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.',
       content: (
-        <div className="flex flex-col items-center w-full text-center py-12">
+        <div className="w-full text-center py-12">
            <div className="max-w-xl mx-auto px-4">
             <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
               Broad Compatibility
