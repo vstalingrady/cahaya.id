@@ -327,9 +327,10 @@ export default function InsightsPage() {
             </div>
 
             <Tabs defaultValue="spending" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-card border-border">
+              <TabsList className="grid w-full grid-cols-3 bg-card border-border">
                 <TabsTrigger value="spending">Spending</TabsTrigger>
                 <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+                <TabsTrigger value="plan">AI Plan</TabsTrigger>
               </TabsList>
 
               {/* Spending Tab */}
@@ -390,13 +391,8 @@ export default function InsightsPage() {
                       <ScrollBar orientation="horizontal" />
                     </ScrollArea>
                   </div>
-
-                  <Button onClick={handleGetSuggestions} disabled={isGenerating} className="w-full bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30 py-5 rounded-2xl font-semibold text-lg shadow-lg h-auto">
-                      {isGenerating ? <Loader2 className="w-6 h-6 animate-spin" /> : <Sparkles className="w-6 h-6" />}
-                      <span>{isGenerating ? 'Analyzing your spending...' : 'Get AI Financial Plan'}</span>
-                  </Button>
                   <div className="bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg shadow-primary/10">
-                      <h3 className="font-semibold text-white text-center mb-4 font-serif">Spending this month</h3>
+                      <h3 className="font-semibold text-white text-center mb-4 font-serif">Spending Breakdown</h3>
                       <div className="h-56 w-full">
                          {spendingData.length > 0 ? (
                           <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
@@ -430,6 +426,21 @@ export default function InsightsPage() {
                         </div>
                       )}
                   </div>
+                </div>
+              </TabsContent>
+              
+              {/* AI Plan Tab */}
+              <TabsContent value="plan" className="mt-6">
+                <div className="space-y-4">
+                    <div className="text-center bg-card p-6 rounded-2xl border border-border shadow-lg shadow-primary/10">
+                        <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
+                        <h3 className="text-xl font-bold font-serif text-white">Your Personal Financial Analyst</h3>
+                        <p className="text-muted-foreground mt-2 mb-6">Let our AI analyze your spending patterns to uncover personalized insights, saving opportunities, and a clear path to financial health.</p>
+                        <Button onClick={handleGetSuggestions} disabled={isGenerating} className="w-full bg-primary hover:bg-primary/90 py-5 rounded-2xl font-semibold text-lg shadow-lg h-auto">
+                            {isGenerating ? <Loader2 className="w-6 h-6 animate-spin" /> : <Sparkles className="w-6 h-6" />}
+                            <span>{isGenerating ? 'Analyzing your spending...' : 'Generate My Financial Plan'}</span>
+                        </Button>
+                    </div>
                 </div>
               </TabsContent>
 
