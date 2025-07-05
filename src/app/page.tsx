@@ -93,17 +93,19 @@ const slides = [
     },
     {
       type: 'logo_wall',
-      title: 'Trusted By Top Institutions',
-      description: 'We support all major banks and e-wallets in Indonesia, with more coming soon.',
+      title: 'Broad Compatibility',
+      description: 'We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.',
       content: (
         <div className="flex flex-col items-center text-center w-full py-12">
-           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
-            Trusted by 200+ Institutions
-          </h2>
-          <p className="text-base leading-relaxed text-muted-foreground mb-8 max-w-lg mx-auto">
-            We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
-          </p>
-          <div className="w-full max-w-4xl space-y-4">
+           <div className="w-full max-w-lg mx-auto px-4">
+             <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+              Broad Compatibility
+            </h2>
+            <p className="text-base leading-relaxed text-muted-foreground mb-8">
+              We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
+            </p>
+           </div>
+          <div className="w-full space-y-4">
             <InfiniteLogoScroller 
               institutions={financialInstitutions.slice(0, 10)} 
               direction="reverse" 
