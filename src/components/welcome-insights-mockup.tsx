@@ -49,49 +49,51 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let timeouts: NodeJS.Timeout[] = [];
+  
+    const cycleAnimation = () => {
+      setAnimationState('initial');
+      timeouts.push(setTimeout(() => {
+        setAnimationState('loading');
+        timeouts.push(setTimeout(() => {
+          setAnimationState('finished');
+          timeouts.push(setTimeout(cycleAnimation, 8000)); // Show results for 8s
+        }, 1500)); // Show loading for 1.5s
+      }, 3000)); // Show button for 3s
+    };
+  
     if (isActive) {
-      setAnimationState('initial'); // Reset on re-activation
-      const timer1 = setTimeout(() => setAnimationState('loading'), 1000); // Wait 1s, then show loading
-      const timer2 = setTimeout(() => setAnimationState('finished'), 2500); // Wait 2.5s total, then show results
-      return () => {
-        clearTimeout(timer1);
-        clearTimeout(timer2);
-      };
+      cycleAnimation();
+    } else {
+      setAnimationState('initial'); // Reset when not active
     }
+  
+    return () => {
+      timeouts.forEach(clearTimeout); // Cleanup all scheduled timeouts
+    };
   }, [isActive]);
 
   useEffect(() => {
     if (animationState === 'finished' && scrollRef.current) {
         const scroller = scrollRef.current;
-        let scrollInterval: NodeJS.Timeout;
-
-        const scrollDownAndUp = () => {
-            if(!scroller) return;
-            // Scroll down smoothly
-            scroller.scrollTo({
-                top: scroller.scrollHeight,
-                behavior: 'smooth'
-            });
-
-            // Wait at the bottom, then scroll back up smoothly
-            setTimeout(() => {
-                if(!scroller) return;
-                scroller.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            }, 4000); // 4-second delay at the bottom
-        };
         
-        // Give a moment for the content to render, then start the first scroll
-        const initialScrollTimeout = setTimeout(scrollDownAndUp, 1500);
-
-        // Set up a loop. The interval should account for scroll time + delay.
-        scrollInterval = setInterval(scrollDownAndUp, 8000); 
+        // Give a moment for the content to render, then scroll down.
+        const scrollTimeout = setTimeout(() => {
+            if(scroller) {
+                // First, ensure we're at the top before scrolling down
+                scroller.scrollTo({ top: 0, behavior: 'auto' });
+                // Then, scroll down smoothly
+                setTimeout(() => {
+                    scroller.scrollTo({
+                        top: scroller.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }, 100);
+            }
+        }, 1500); // Wait 1.5s before starting scroll
 
         return () => {
-            clearTimeout(initialScrollTimeout);
-            clearInterval(scrollInterval);
+            clearTimeout(scrollTimeout);
         }
     }
   }, [animationState]);
@@ -109,10 +111,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
             <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
             <h3 className="text-xl font-bold font-serif text-white">Your Personal Financial Analyst</h3>
             <p className="text-muted-foreground mt-2 mb-6">Let our AI analyze your spending patterns to uncover personalized insights and saving opportunities.</p>
-            <Button size="lg" className={cn(
-                "bg-primary hover:bg-primary/90 rounded-xl font-semibold text-lg shadow-lg h-auto transition-transform duration-500",
-                isActive && 'animate-slow-pulse'
-            )}>
+            <Button size="lg" className="bg-primary hover:bg-primary/90 rounded-xl font-semibold text-lg shadow-lg h-auto animate-slow-pulse">
                 <Sparkles className="w-5 h-5 mr-2" />
                 <span>Generate My Financial Plan</span>
             </Button>
