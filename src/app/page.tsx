@@ -1,6 +1,6 @@
 /**
  * @file src/app/page.tsx
- * @fileoverview This is the main welcome and onboarding page for the Clarity application.
+ * @fileoverview This is the main welcome and onboarding page for the CuanFlex application.
  * It features a full-screen, scrollable carousel that introduces users to the
  * app's key features before they sign up. This component is client-side rendered
  * due to its interactive nature.
@@ -21,8 +21,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, Sparkles } from 'lucide-react';
 // Import a utility function for conditional class names.
 import { cn } from '@/lib/utils';
-// Import the app's logo component. Note: The component is named CuanLogo for historical reasons but displays "Clarity".
-import CuanLogo from '@/components/icons/CuanLogo';
+// Import the app's logo component.
+import CuanLogo from '@/components/icons/cuanlogo';
 // Import the custom mockup components used in the feature slides.
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
 import { financialInstitutions } from '@/lib/data';
@@ -44,15 +44,15 @@ const slides = [
     {
       type: 'hero',
       title: 'All your money,\nin one place.',
-      description: 'Welcome to Clarity. The secure, unified way to manage your entire financial life from a single, beautiful app.',
+      description: 'Welcome to CuanFlex. The secure, unified way to manage your entire financial life from a single, beautiful app.',
       content: (
         <div className="text-center relative z-10">
-          <CuanLogo className="w-32 h-auto mx-auto mb-6 animate-logo-blink-glow" />
+          <CuanLogo className="w-48 h-auto mx-auto mb-6 animate-logo-blink-glow" />
           <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line drop-shadow-[0_0_5px_hsl(var(--primary)/0.3)]">
             All your money,{'\n'}in one place.
           </h1>
           <p className="text-lg text-muted-foreground max-w-lg mx-auto my-6 font-light">
-            Welcome to Clarity. The secure, unified way to manage your entire financial life from a single, beautiful app.
+            Welcome to CuanFlex. The secure, unified way to manage your entire financial life from a single, beautiful app.
           </p>
         </div>
       )
@@ -171,12 +171,12 @@ const slides = [
     // Slide 7: Feature showcase for savings vaults.
     {
       type: 'feature',
-      title: 'Save Smarter with Clarity Vaults.',
+      title: 'Save Smarter with CuanFlex Vaults.',
       description: 'Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.',
       content: (props: { isActive: boolean }) => (
         <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
-            Save Smarter with Clarity Vaults.
+            Save Smarter with CuanFlex Vaults.
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
             Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.
@@ -206,14 +206,14 @@ const slides = [
     {
       type: 'cta',
       title: 'Ready to take control?',
-      description: "Join Clarity today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.",
+      description: "Join CuanFlex today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.",
       content: (
         <div className="text-center relative z-10">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-tr from-primary via-purple-400 to-accent bg-clip-text text-transparent leading-tight font-serif drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-tr from-primary to-accent bg-clip-text text-transparent leading-tight font-serif drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
             Ready to take control?
           </h2>
           <p className="text-base text-muted-foreground max-w-lg mx-auto my-6 font-light">
-            Join Clarity today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.
+            Join CuanFlex today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.
           </p>
           <div className="space-y-4">
             <Button asChild className="w-64 h-14 text-lg animate-slow-pulse">
