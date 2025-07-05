@@ -67,7 +67,7 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
             {subtitle && <div className="text-muted-foreground text-sm text-left">{subtitle}</div>}
           </div>
       </div>
-      <div className="text-right ml-2">
+      <div className="text-right ml-2 flex-shrink-0">
           <div className={cn(
               "font-semibold text-lg whitespace-nowrap",
               isLoan ? "text-destructive" : "text-white"
