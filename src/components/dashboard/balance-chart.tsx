@@ -154,7 +154,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
       }
       return tickValues.map(t => ({ value: t, y: getY(t) }));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataPoints, rangePadding, minValue, maxValue]);
+  }, [dataPoints, rangePadding]);
 
   const xAxisTicks = React.useMemo(() => {
       if (dataPoints.length < 2) return [];

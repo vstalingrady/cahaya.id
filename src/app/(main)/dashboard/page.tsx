@@ -167,7 +167,7 @@ export default function DashboardPage() {
             <header className="sticky top-0 -mt-6 pt-6 pb-4 -mx-6 px-6 bg-background/80 backdrop-blur-md z-20 flex justify-between items-center">
                 <div>
                     <h1 className="text-xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                        Good morning, {user?.displayName || 'User'}
+                        Good morning, {user?.displayName?.split(' ')[0] || 'User'}
                     </h1>
                     <p className="text-sm text-muted-foreground">Welcome back to your dashboard.</p>
                 </div>
