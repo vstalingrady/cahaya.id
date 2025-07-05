@@ -39,7 +39,7 @@ export default function InfiniteLogoScroller({
               alt={inst.name}
               width={80}
               height={80}
-              className="object-contain h-full w-auto"
+              className="object-contain h-full w-full"
               data-ai-hint={`${inst.name} logo`}
             />
           </div>
@@ -52,26 +52,22 @@ export default function InfiniteLogoScroller({
               alt={inst.name}
               width={80}
               height={80}
-              className="object-contain h-full w-auto"
+              className="object-contain h-full w-full"
               data-ai-hint={`${inst.name} logo`}
             />
           </div>
         ))}
       </div>
       
-      {/* 
-        This JSX style block defines the animation locally. 
-        This can help ensure the animation styles are applied immediately, 
-        preventing the "flash of unstyled content" where items wrap before animating.
-      */}
       <style jsx>{`
         @keyframes scroll {
           to {
             /* 
-              We translate by -50% to move the entire duplicated list.
-              We also subtract half of the gap (0.5rem for gap-4) to ensure a seamless transition.
+              Translate by -50% of the inner container's width.
+              The inner container holds two sets of logos, so -50% moves
+              it exactly by the width of one full set, creating a seamless loop.
             */
-            transform: translateX(calc(-50% - 0.5rem));
+            transform: translateX(-50%);
           }
         }
 
