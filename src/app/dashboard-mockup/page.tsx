@@ -1,7 +1,12 @@
 
+'use client';
+
 import { Landmark, Briefcase, Wallet } from 'lucide-react';
 import EwalletIcon from '@/components/icons/ewallet-icon';
 import { cn } from "@/lib/utils"
+import { accounts, transactions } from '@/lib/data';
+import TotalBalance from '@/components/dashboard/total-balance';
+import { useMemo } from 'react';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -37,20 +42,32 @@ const getAccountIcon = (type: string, name: string) => {
 
 
 export default function DashboardMockupPage() {
+    const { totalAssets, totalLiabilities, netWorth, accountGroups } = useMemo(() => {
+        const totalAssets = accounts
+            .filter(acc => acc.type !== 'loan')
+            .reduce((sum, acc) => sum + acc.balance, 0);
+        
+        const totalLiabilities = accounts
+            .filter(acc => acc.type === 'loan')
+            .reduce((sum, acc) => sum + acc.balance, 0);
+            
+        const netWorth = totalAssets - totalLiabilities;
+
+        const accountGroups = {
+            bank: accounts.filter(a => a.type === 'bank'),
+            'e-wallet': accounts.filter(a => a.type === 'e-wallet'),
+            investment: accounts.filter(a => a.type === 'investment'),
+            loan: accounts.filter(a => a.type === 'loan'),
+        };
+
+        return { totalAssets, totalLiabilities, netWorth, accountGroups };
+    }, []);
+
   return (
     <div className="h-full w-full p-2 bg-background">
       <div className="h-full space-y-3 rounded-xl bg-background/50 overflow-y-auto custom-scrollbar">
             {/* Total Balance Card */}
-            <div className="bg-card p-4 rounded-xl shadow-md border border-border/20">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground font-semibold uppercase">
-                    <Wallet className="w-3 h-3" />
-                    Total Net Worth
-                </div>
-                <div className="text-2xl font-bold text-white mt-1">
-                    {formatCurrency(174768501)}
-                </div>
-                 <div className="h-20 mt-2 bg-secondary/30 rounded-md animate-pulse"></div>
-            </div>
+            <TotalBalance title="Total Net Worth" amount={netWorth} transactions={transactions} showHistoryLink={false} />
             
             {/* Accounts Section */}
             <div className="space-y-2">
@@ -60,12 +77,15 @@ export default function DashboardMockupPage() {
                         <span>Banks</span>
                     </div>
                     <div className="pt-2 space-y-2">
-                        <MockAccountCard 
-                            icon={getAccountIcon('bank', 'BCA Main Account')}
-                            name="BCA Main Account"
-                            last4="...2847"
-                            balance={formatCurrency(85200501)}
-                        />
+                         {accountGroups.bank.map(account => (
+                            <MockAccountCard 
+                                key={account.id}
+                                icon={getAccountIcon('bank', account.name)}
+                                name={account.name}
+                                last4={`...${account.last4}`}
+                                balance={formatCurrency(account.balance)}
+                            />
+                        ))}
                     </div>
                 </div>
 
@@ -75,12 +95,15 @@ export default function DashboardMockupPage() {
                         <span>E-Wallets</span>
                     </div>
                     <div className="pt-2 space-y-2">
-                         <MockAccountCard 
-                            icon={getAccountIcon('e-wallet', 'GoPay')}
-                            name="GoPay"
-                            last4="...0812"
-                            balance={formatCurrency(1068000)}
-                        />
+                         {accountGroups['e-wallet'].map(account => (
+                             <MockAccountCard 
+                                key={account.id}
+                                icon={getAccountIcon('e-wallet', account.name)}
+                                name={account.name}
+                                last4={`...${account.last4}`}
+                                balance={formatCurrency(account.balance)}
+                            />
+                         ))}
                     </div>
                 </div>
 
@@ -90,12 +113,15 @@ export default function DashboardMockupPage() {
                         <span>Investments</span>
                     </div>
                     <div className="pt-2 space-y-2">
-                         <MockAccountCard 
-                            icon={getAccountIcon('investment', 'Bibit Portfolio')}
-                            name="Bibit Portfolio"
-                            last4="Invst"
-                            balance={formatCurrency(125000000)}
-                        />
+                         {accountGroups.investment.map(account => (
+                             <MockAccountCard 
+                                key={account.id}
+                                icon={getAccountIcon('investment', account.name)}
+                                name={account.name}
+                                last4={`${account.last4}`}
+                                balance={formatCurrency(account.balance)}
+                            />
+                         ))}
                     </div>
                 </div>
             </div>
