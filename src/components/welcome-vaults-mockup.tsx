@@ -116,21 +116,32 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
             // Phase 4: Animate the filling of the form fields.
             timeouts.push(setTimeout(() => {
                 setAnimationPhase('fill_form');
-                // Simulate typing the vault name.
+                // Step 4.1: Simulate typing the vault name.
                 type('European Tour', (t) => setFormState(p => ({...p, name: t})), 
                     () => timeouts.push(setTimeout(() => {
-                        // Simulate typing the target amount.
+                        // Step 4.2: Simulate typing the target amount.
                         type('80000000', (t) => setFormState(p => ({...p, targetAmount: t})),
                             () => {
-                                // Simulate selecting funding sources and destination account.
+                                // Step 4.3: Simulate selecting funding sources and destination account.
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, fundingSources: ['bca1']})), 300));
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, fundingSources: ['bca1', 'gopay1']})), 600));
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, destinationAccount: 'BCA Main Account'})), 900));
+
+                                // Step 4.4: Imperatively scroll the form down to reveal the next section.
+                                // This is more reliable than using a separate useEffect, as it's timed precisely within the animation sequence.
+                                timeouts.push(setTimeout(() => {
+                                    const scroller = formScrollRef.current;
+                                    // We check if the scroller exists before trying to scroll it.
+                                    if (scroller) {
+                                        // Use smooth behavior for a nice scrolling animation.
+                                        scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' });
+                                    }
+                                }, 1100)); // Timed to happen just before the next section appears.
                                 
-                                // Simulate enabling auto-saving. This state change will trigger the dedicated scrolling useEffect.
+                                // Step 4.5: Simulate enabling the auto-saving feature, which reveals the next set of controls.
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSaveEnabled: true})), 1200));
                                 
-                                // Simulate setting auto-save details.
+                                // Step 4.6: Simulate setting auto-save details.
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSaveFrequency: 'weekly'})), 1500));
                                 timeouts.push(setTimeout(() => type('250000', (t) => setFormState(p => ({...p, autoSaveAmount: t}))), 1800));
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, roundUpEnabled: true})), 2300));
@@ -195,27 +206,6 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
     // This effect re-runs only when the `isActive` prop changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isActive]);
-
-    /**
-     * @description This dedicated `useEffect` hook handles the logic for auto-scrolling the form.
-     * It triggers whenever the `autoSaveEnabled` state changes, ensuring the scroll happens
-     * *after* React has rendered the new content, which is more reliable than a fixed timer.
-     */
-    useEffect(() => {
-        // Only trigger this logic if the component is active and the form-filling animation is running.
-        if (isActive && animationPhase === 'fill_form') {
-            const scroller = formScrollRef.current;
-            if (scroller) {
-                // We add a small delay to ensure the DOM has updated with the new content
-                // (e.g., the auto-save options) before we try to scroll to it.
-                const scrollTimeout = setTimeout(() => {
-                    scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' });
-                }, 100); // A 100ms delay should be sufficient for the render to complete.
-                
-                return () => clearTimeout(scrollTimeout);
-            }
-        }
-    }, [isActive, animationPhase, formState.autoSaveEnabled]); // Dependency array ensures this runs only when autoSaveEnabled changes.
 
 
     // A boolean to determine if the vault list should be visible based on the current animation phase.
