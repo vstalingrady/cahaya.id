@@ -93,10 +93,6 @@ export default function InfiniteLogoScroller({
           animation-name: scroll-right;
         }
 
-        .scroller:hover .scroller-inner {
-          animation-play-state: paused;
-        }
-
         @keyframes scroll-left {
           from { transform: translateX(0%); }
           to { transform: translateX(-50%); }
