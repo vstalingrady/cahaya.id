@@ -9,25 +9,33 @@ import {
   type Transaction,
   type Account,
   type Budget,
-  type FinancialInstitution,
+  type Vault,
+  type Beneficiary,
+  type FavoriteTransaction,
+} from "./data";
+import {
   accounts as seedAccounts,
   transactions as seedTransactions,
-} from "./data";
-import { isWithinInterval } from 'date-fns';
+  beneficiaries as seedBeneficiaries,
+  budgets as seedBudgets,
+  vaults as seedVaults,
+  favoriteTransactions as seedFavoriteTransactions,
+} from './data-seed';
+
+import { isWithinInterval, format } from 'date-fns';
 import { z } from 'zod';
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth, db } from './firebase';
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, getDoc, deleteDoc, collection, writeBatch, getDocs } from "firebase/firestore";
+import { doc, setDoc, getDoc, deleteDoc, collection, writeBatch, getDocs, addDoc, query, where } from "firebase/firestore";
 import { headers } from 'next/headers';
 import { db as mockApiDb } from './mock-api-db';
 import { type MockAccount, type MockTransaction } from './mock-api-db';
 
 
 /**
- * Seeds initial data (accounts, transactions) for a new user in Firestore.
- * This is for demonstration purposes to give new users sample data to explore.
+ * Seeds initial data for a new user in Firestore.
  */
 async function seedInitialDataForUser(uid: string) {
   try {
@@ -45,24 +53,42 @@ async function seedInitialDataForUser(uid: string) {
       batch.set(transactionDocRef, transaction);
     });
 
+    // Seed Budgets
+    seedBudgets.forEach(budget => {
+        const budgetDocRef = doc(db, 'users', uid, 'budgets', budget.id);
+        batch.set(budgetDocRef, budget);
+    });
+
+    // Seed Vaults
+    seedVaults.forEach(vault => {
+        const vaultDocRef = doc(db, 'users', uid, 'vaults', vault.id);
+        batch.set(vaultDocRef, vault);
+    });
+
+    // Seed Beneficiaries
+    seedBeneficiaries.forEach(beneficiary => {
+        const beneficiaryDocRef = doc(db, 'users', uid, 'beneficiaries', beneficiary.id);
+        batch.set(beneficiaryDocRef, beneficiary);
+    });
+
+    // Seed Favorite Transactions
+    seedFavoriteTransactions.forEach(favorite => {
+        const favoriteDocRef = doc(db, 'users', uid, 'favorites', favorite.id);
+        batch.set(favoriteDocRef, favorite);
+    });
+
     await batch.commit();
     console.log(`Successfully seeded initial data for user ${uid}`);
   } catch (error) {
     console.error('Error seeding initial data for user:', error);
-    // Non-critical error, so we don't throw.
   }
 }
 
-/**
- * This action is called after a user has authenticated and linked their credentials.
- * Its purpose is to create the user's profile document in Firestore.
- */
 export async function completeUserProfile(uid: string, fullName: string, email: string, phone: string) {
   try {
     const userDocRef = doc(db, "users", uid);
     const userDoc = await getDoc(userDocRef);
     
-    // Only seed data if the user document doesn't exist yet.
     if (!userDoc.exists()) {
       await setDoc(userDocRef, {
         uid: uid,
@@ -71,14 +97,12 @@ export async function completeUserProfile(uid: string, fullName: string, email: 
         phone: phone,
         createdAt: new Date(),
       });
-      // Seed the new user with sample data
       await seedInitialDataForUser(uid);
     } else {
       console.log(`User ${uid} already exists. Skipping data seeding.`);
     }
   } catch (error: any) {
     console.error("Error creating user document in Firestore:", error);
-    // Check for the specific Firestore API disabled error
     if (error.code === 'permission-denied' || (error.message && error.message.includes('Cloud Firestore API has not been used'))) {
       throw new Error("Account creation failed: The Firestore database isn't enabled for this project. Please visit the Firebase console, go to the Firestore Database section, and enable it.");
     }
@@ -107,7 +131,6 @@ export async function login(prevState: any, formData: FormData) {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Log login history
     const ip = headers().get('x-forwarded-for') ?? 'Unknown';
     const userAgent = headers().get('user-agent') ?? 'Unknown';
 
@@ -133,138 +156,232 @@ export async function login(prevState: any, formData: FormData) {
   redirect('/dashboard');
 }
 
-
-// Placeholder for a database or session update
-const addNewAccountToDB = async (institution: FinancialInstitution) => {
-  console.log('Adding new account to the database:', institution);
-  // In a real app, you would save this to Firestore or your database
-  // For this prototype, we'll just log it.
-  // You might also fetch the real balance here.
-  await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
-  return { success: true, accountId: `${institution.slug}-${Math.random().toString(36).substring(7)}` };
-}
-
-const LinkAccountSchema = z.object({
-  institutionSlug: z.string().min(1, "Institution is required."),
-  // In a real app, you'd have more robust validation
-  username: z.string().optional(),
-  password: z.string().optional(),
-  phone: z.string().optional(),
-});
-
-export async function linkAccount(prevState: any, formData: FormData) {
-  const validatedFields = LinkAccountSchema.safeParse({
-    institutionSlug: formData.get('institutionSlug'),
-    username: formData.get('username'),
-    password: formData.get('password'),
-    phone: formData.get('phone'),
-  });
-
-  if (!validatedFields.success) {
-    return {
-      message: 'Invalid form data.',
-      errors: validatedFields.error.flatten().fieldErrors,
-    };
+export async function exchangePublicToken(publicToken: string | null) {
+  if (!publicToken) {
+    return { error: 'Invalid public token provided.' };
   }
 
-  const { institutionSlug } = validatedFields.data;
-  // Find institution details from our data file
-  // In a real app, you might fetch this from a database
-  const { financialInstitutions } = await import('./data');
-  const institution = financialInstitutions.find(inst => inst.slug === institutionSlug);
-
-  if (!institution) {
-    return { message: 'Institution not found.' };
-  }
-
-  console.log('Simulating linking account with:', validatedFields.data);
-  
-  // Here you would typically call a financial data aggregator API (e.g., Plaid, Brick)
-  // with the user's credentials to securely link the account.
-  // For this prototype, we'll just simulate a successful link.
-  
-  const result = await addNewAccountToDB(institution);
-
-  if (result.success) {
-    // Revalidate the dashboard path to show the new account
-    revalidatePath('/dashboard');
-    // Redirect to the dashboard
-    redirect('/dashboard?new_account=true');
-  } else {
-    return { message: 'Failed to link account. Please try again.' };
-  }
-}
-
-
-export async function getSavingSuggestions(
-  transactions: Transaction[]
-): Promise<PersonalizedSavingSuggestionsOutput & { error?: string }> {
   try {
+    const tokenInfo = mockApiDb.exchangePublicToken(publicToken);
+    if (tokenInfo.error) {
+      return { error: 'The public token is invalid or expired.' };
+    }
+    return { accessToken: tokenInfo.access_token };
+  } catch (error) {
+    console.error("[Server Action exchangePublicToken] Error:", error);
+    return { error: 'An internal server error occurred.' };
+  }
+}
+
+// ---- Data Fetching Actions ----
+
+export async function getDashboardData(
+  userId: string
+): Promise<{ accounts: Account[]; transactions: Transaction[] }> {
+  if (!userId) {
+    console.error('getDashboardData called without a userId.');
+    return { accounts: [], transactions: [] };
+  }
+  try {
+    const accountsCol = collection(db, 'users', userId, 'accounts');
+    const accountsSnapshot = await getDocs(accountsCol);
+    const fetchedAccounts = accountsSnapshot.docs.map(
+      doc => doc.data() as Account
+    );
+
+    const transactionsCol = collection(db, 'users', userId, 'transactions');
+    const transactionsSnapshot = await getDocs(transactionsCol);
+    const fetchedTransactions = transactionsSnapshot.docs.map(
+      doc => doc.data() as Transaction
+    );
+
+    return {
+      accounts: fetchedAccounts,
+      transactions: fetchedTransactions,
+    };
+  } catch (error) {
+    console.error('Error in getDashboardData from Firestore:', error);
+    return { accounts: [], transactions: [] };
+  }
+}
+
+export async function getAccountDetails(userId: string, accountId: string): Promise<{ account: Account | null, transactions: Transaction[] }> {
+    if (!userId || !accountId) return { account: null, transactions: [] };
+    try {
+        const accountDocRef = doc(db, 'users', userId, 'accounts', accountId);
+        const accountDoc = await getDoc(accountDocRef);
+
+        if (!accountDoc.exists()) return { account: null, transactions: [] };
+        
+        const account = accountDoc.data() as Account;
+
+        const transactionsCol = collection(db, 'users', userId, 'transactions');
+        const q = query(transactionsCol, where('accountId', '==', accountId));
+        const transactionsSnapshot = await getDocs(q);
+        const transactions = transactionsSnapshot.docs.map(doc => doc.data() as Transaction);
+
+        return { account, transactions };
+    } catch (error) {
+        console.error('Error fetching account details:', error);
+        return { account: null, transactions: [] };
+    }
+}
+
+// ---- Budget Actions ----
+
+export async function getBudgets(userId: string): Promise<Budget[]> {
+  if (!userId) return [];
+  const budgetsCol = collection(db, 'users', userId, 'budgets');
+  const snapshot = await getDocs(budgetsCol);
+  return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Budget));
+}
+
+export async function addBudget(userId: string, values: Omit<Budget, 'id'>) {
+    if (!userId) throw new Error("User not authenticated.");
+    const budgetsCol = collection(db, 'users', userId, 'budgets');
+    await addDoc(budgetsCol, values);
+    revalidatePath('/budgets');
+}
+
+export async function deleteBudget(userId: string, budgetId: string) {
+    if (!userId || !budgetId) return;
+    const budgetDocRef = doc(db, 'users', userId, 'budgets', budgetId);
+    await deleteDoc(budgetDocRef);
+    revalidatePath('/budgets');
+}
+
+export async function getUniqueTransactionCategories(userId: string): Promise<string[]> {
+    if (!userId) return [];
+    const { transactions } = await getDashboardData(userId);
+    const categories = new Set(transactions.map(t => t.category));
+    return Array.from(categories).filter(c => c !== 'Income');
+}
+
+
+// ---- Vault Actions ----
+export async function getVaults(userId: string): Promise<Vault[]> {
+  if (!userId) return [];
+  const vaultsCol = collection(db, 'users', userId, 'vaults');
+  const snapshot = await getDocs(vaultsCol);
+  return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Vault));
+}
+
+export async function getVaultDetails(userId: string, vaultId: string): Promise<Vault | null> {
+    if (!userId || !vaultId) return null;
+    const vaultDocRef = doc(db, 'users', userId, 'vaults', vaultId);
+    const docSnap = await getDoc(vaultDocRef);
+    return docSnap.exists() ? { ...docSnap.data(), id: docSnap.id } as Vault : null;
+}
+
+export async function addVault(userId: string, values: Omit<Vault, 'id' | 'currentAmount'>) {
+    if (!userId) throw new Error("User not authenticated.");
+    const newVault: Omit<Vault, 'id'> = { ...values, currentAmount: 0 };
+    const vaultsCol = collection(db, 'users', userId, 'vaults');
+    await addDoc(vaultsCol, newVault);
+    revalidatePath('/vaults');
+}
+
+export async function deleteVault(userId: string, vaultId: string) {
+    if (!userId || !vaultId) return;
+    const vaultDocRef = doc(db, 'users', userId, 'vaults', vaultId);
+    await deleteDoc(vaultDocRef);
+    revalidatePath('/vaults');
+}
+
+// ---- Beneficiary Actions ----
+export async function getBeneficiaries(userId: string): Promise<Beneficiary[]> {
+  if (!userId) return [];
+  const beneficiariesCol = collection(db, 'users', userId, 'beneficiaries');
+  const snapshot = await getDocs(beneficiariesCol);
+  return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Beneficiary));
+}
+
+export async function addBeneficiary(userId: string, values: Omit<Beneficiary, 'id'>) {
+    if (!userId) throw new Error("User not authenticated.");
+    const beneficiariesCol = collection(db, 'users', userId, 'beneficiaries');
+    await addDoc(beneficiariesCol, values);
+    revalidatePath('/transfer/recipients');
+    redirect('/transfer/recipients');
+}
+
+// ---- Favorites Actions ----
+export async function getFavorites(userId: string): Promise<FavoriteTransaction[]> {
+  if (!userId) return [];
+  const favoritesCol = collection(db, 'users', userId, 'favorites');
+  const snapshot = await getDocs(favoritesCol);
+  return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as FavoriteTransaction));
+}
+
+export async function addFavorite(userId: string, favorite: Omit<FavoriteTransaction, 'id'>) {
+    if (!userId) throw new Error("User not authenticated.");
+    const favoritesCol = collection(db, 'users', userId, 'favorites');
+    const newDoc = await addDoc(favoritesCol, favorite);
+    revalidatePath('/transfer');
+    return { ...favorite, id: newDoc.id };
+}
+
+export async function removeFavorite(userId: string, favoriteId: string) {
+    if (!userId || !favoriteId) return;
+    const favoriteDocRef = doc(db, 'users', userId, 'favorites', favoriteId);
+    await deleteDoc(favoriteDocRef);
+    revalidatePath('/transfer');
+}
+
+// ---- AI Actions ----
+
+export async function getSavingSuggestions(userId: string): Promise<PersonalizedSavingSuggestionsOutput & { error?: string }> {
+  try {
+    const { transactions } = await getDashboardData(userId);
     const spendingData = transactions
-        .filter(t => t.amount < 0) // Only consider expenses
+        .filter(t => t.amount < 0)
         .map(t => `${t.date}: ${t.description} (${t.category}) - ${Math.abs(t.amount)}`)
         .join('\n');
 
     if (transactions.length === 0) {
         return { 
-            error: "No transaction data available to analyze.",
-            financialHealthScore: 0,
-            spenderType: "N/A",
-            summary: "We need some transaction data to give you suggestions.",
-            suggestions: [],
-            investmentPlan: "",
-            localDeals: [],
+            error: "No transaction data available to analyze.", financialHealthScore: 0, spenderType: "N/A",
+            summary: "We need some transaction data to give you suggestions.", suggestions: [],
+            investmentPlan: "", localDeals: [],
          };
     }
     
-    // Estimate monthly income by finding the largest single income transaction.
     const monthlyIncome = transactions
         .filter(t => t.amount > 0)
         .reduce((max, t) => t.amount > max ? t.amount : max, 0);
 
     const result = await personalizedSavingSuggestions({ 
-        spendingData,
-        monthlyIncome: monthlyIncome || 0, // Pass 0 if no income found
-        location: "Jakarta, Indonesia", // Hardcode location for prototype
+        spendingData, monthlyIncome: monthlyIncome || 0, location: "Jakarta, Indonesia",
     });
     return result;
 
   } catch (error) {
     console.error("Error getting saving suggestions:", error);
     return { 
-        error: "Failed to get AI-powered suggestions. Please try again later.",
-        financialHealthScore: 0,
-        spenderType: "Error",
-        summary: "An unexpected error occurred while fetching suggestions.",
-        suggestions: [],
-        investmentPlan: "Could not generate an investment plan at this time.",
-        localDeals: ["Could not fetch local deals."],
+        error: "Failed to get AI-powered suggestions.", financialHealthScore: 0, spenderType: "Error",
+        summary: "An unexpected error occurred while fetching suggestions.", suggestions: [],
+        investmentPlan: "Could not generate an investment plan.", localDeals: [],
     };
   }
 }
 
-export async function getBudgetAnalysis(
-    budgets: Budget[],
-    transactions: Transaction[]
-): Promise<BudgetAnalysisOutput & { error?: string }> {
+export async function getBudgetAnalysis(userId: string): Promise<BudgetAnalysisOutput & { error?: string }> {
     try {
+        const budgets = await getBudgets(userId);
+        const { transactions } = await getDashboardData(userId);
+
         if (budgets.length === 0) {
             return {
-                error: "No budgets created. Please create a budget to get an analysis.",
-                coachTitle: "N/A",
+                error: "No budgets created.", coachTitle: "N/A",
                 summary: "You haven't set any budgets yet. Create one to get started!",
-                suggestions: [],
-                proTip: "",
+                suggestions: [], proTip: "",
             };
         }
 
-        // Calculate spending for each budget
         const budgetData = budgets.map(budget => {
             const budgetInterval = { start: new Date(budget.startDate), end: new Date(budget.endDate) };
             const spent = transactions
                 .filter(t =>
-                    t.category === budget.category &&
-                    t.amount < 0 &&
+                    t.category === budget.category && t.amount < 0 &&
                     isWithinInterval(new Date(t.date), budgetInterval)
                 )
                 .reduce((acc, t) => acc + Math.abs(t.amount), 0);
@@ -278,28 +395,23 @@ export async function getBudgetAnalysis(
     } catch (error) {
         console.error("Error getting budget analysis:", error);
         return {
-            error: "Failed to get AI-powered analysis. Please try again later.",
-            coachTitle: "Error",
+            error: "Failed to get AI-powered analysis.", coachTitle: "Error",
             summary: "An unexpected error occurred while fetching analysis.",
-            suggestions: [],
-            proTip: "Could not generate a tip at this time.",
+            suggestions: [], proTip: "Could not generate a tip.",
         };
     }
 }
 
-export async function getBillSuggestions(
-  transactions: Transaction[]
-): Promise<BillDiscoveryOutput & { error?: string }> {
+export async function getBillSuggestions(userId: string): Promise<BillDiscoveryOutput & { error?: string }> {
   try {
+    const { transactions } = await getDashboardData(userId);
     const transactionHistory = transactions
-      .filter(t => t.amount < 0) // Only consider expenses
+      .filter(t => t.amount < 0)
       .map(t => `${t.date}: ${t.description} - ${Math.abs(t.amount)}`)
       .join('\n');
 
     if (transactions.length === 0) {
-      return {
-        potentialBills: [],
-      };
+      return { potentialBills: [] };
     }
 
     const result = await discoverRecurringBills({ transactionHistory });
@@ -308,66 +420,9 @@ export async function getBillSuggestions(
   } catch (error) {
     console.error("Error getting bill suggestions:", error);
     return {
-      error: "Failed to get AI-powered bill suggestions. Please try again later.",
+      error: "Failed to get AI-powered bill suggestions.",
       potentialBills: [],
     };
-  }
-}
-
-export async function exchangePublicToken(publicToken: string | null) {
-  if (!publicToken) {
-    return { error: 'Invalid public token provided.' };
-  }
-
-  try {
-    const tokenInfo = mockApiDb.exchangePublicToken(publicToken);
-
-    if (tokenInfo.error) {
-      return { error: 'The public token is invalid or expired.' };
-    }
-
-    // Success
-    return { accessToken: tokenInfo.access_token };
-
-  } catch (error) {
-    console.error("[Server Action exchangePublicToken] Error:", error);
-    return { error: 'An internal server error occurred.' };
-  }
-}
-
-// ---- Live Data Fetching Actions ----
-
-export async function getDashboardData(
-  userId: string
-): Promise<{ accounts: Account[]; transactions: Transaction[] }> {
-  if (!userId) {
-    console.error('getDashboardData called without a userId.');
-    return { accounts: [], transactions: [] };
-  }
-
-  try {
-    // 1. Fetch accounts from Firestore
-    const accountsCol = collection(db, 'users', userId, 'accounts');
-    const accountsSnapshot = await getDocs(accountsCol);
-    const fetchedAccounts = accountsSnapshot.docs.map(
-      doc => doc.data() as Account
-    );
-
-    // 2. Fetch transactions from Firestore
-    const transactionsCol = collection(db, 'users', userId, 'transactions');
-    const transactionsSnapshot = await getDocs(transactionsCol);
-    const fetchedTransactions = transactionsSnapshot.docs.map(
-      doc => doc.data() as Transaction
-    );
-
-    return {
-      accounts: fetchedAccounts,
-      transactions: fetchedTransactions,
-    };
-  } catch (error) {
-    console.error('Error in getDashboardData from Firestore:', error);
-    // In case of error, return empty arrays to prevent app crash
-    return { accounts: [], transactions: [] };
   }
 }
 
@@ -383,9 +438,14 @@ export async function getAiChatResponse(
   }
 }
 
-
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
   style: 'currency',
   currency: 'IDR',
   minimumFractionDigits: 0,
 }).format(value);
+
+// This action is no longer needed as linking is handled by the mock API flow.
+// It's kept here to avoid breaking changes if it was referenced, but it's now a no-op.
+export async function linkAccount(prevState: any, formData: FormData) {
+  redirect('/dashboard?new_account=true');
+}

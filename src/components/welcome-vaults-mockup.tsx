@@ -3,7 +3,7 @@
 
 import { Plus, Repeat, Link2, Trash2, Edit, Banknote, Check, ChevronDown, Coins, ChevronsUpDown, ArrowUpFromLine, ArrowDownToLine } from "lucide-react";
 import React, { useState, useEffect, useRef } from 'react';
-import { vaults as initialVaults, type Vault, accounts } from '@/lib/data';
+import { vaults as initialVaults, type Vault, accounts } from '@/lib/data-seed';
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";

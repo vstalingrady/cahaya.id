@@ -3,7 +3,8 @@
 
 import { Landmark, Briefcase, Wallet, Coins } from 'lucide-react';
 import { cn } from "@/lib/utils"
-import { accounts, transactions, type Account } from '@/lib/data';
+import { accounts, transactions } from '@/lib/data-seed';
+import { type Account } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
 import { useMemo } from 'react';
 
