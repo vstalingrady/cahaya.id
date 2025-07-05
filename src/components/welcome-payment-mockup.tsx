@@ -22,16 +22,21 @@ const sources = [
   { name: 'GoPay', logoUrl: gopay?.logoUrl || '', balance: 'Balance: Rp 1.0M' },
 ];
 
-export default function WelcomePaymentMockup() {
+export default function WelcomePaymentMockup({ isActive }: { isActive?: boolean }) {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
+    if (!isActive) {
+      setStep(0);
+      return;
+    }
+
     const timer = setInterval(() => {
       setStep(prev => (prev + 1) % 4); // 0: initial, 1: bill selected, 2: source selected, 3: success
     }, 2500);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [isActive]);
   
   const isBillSelected = step >= 1;
   const isSourceSelected = step >= 2;
@@ -59,14 +64,18 @@ export default function WelcomePaymentMockup() {
 
       {/* Main Content */}
       <div className="relative z-10">
-        <h3 className="text-sm font-semibold text-muted-foreground mb-4">Choose a bill to pay:</h3>
+        <h3 className={cn(
+          "text-sm font-semibold text-muted-foreground mb-4 transition-all duration-300",
+          isActive ? 'opacity-100' : 'opacity-0 -translate-y-2'
+        )}>Choose a bill to pay:</h3>
         <div className="space-y-3">
           {billers.map((biller, index) => (
             <div key={biller.name} className={cn(
               "bg-secondary p-3 rounded-xl flex items-center justify-between border-2 transition-all duration-500",
+              isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
               isBillSelected && index === 0 ? 'border-primary shadow-lg shadow-primary/20' : 'border-transparent',
-              isBillSelected && index !== 0 ? 'opacity-30 scale-95' : 'opacity-100 scale-100'
-            )}>
+              isBillSelected && index !== 0 ? 'opacity-30 scale-95' : ''
+            )} style={{ transitionDelay: `${index * 150}ms`}}>
               <div className="flex items-center gap-3">
                 <Image src={biller.logoUrl} alt={biller.name} width={40} height={40} className="rounded-lg bg-white p-1" data-ai-hint={`${biller.name} logo`} />
                 <div>
@@ -86,9 +95,9 @@ export default function WelcomePaymentMockup() {
           {sources.map((source, index) => (
             <div key={source.name} className={cn(
                 "bg-secondary p-3 rounded-xl flex items-center justify-between border-2 transition-all duration-500",
-                isBillSelected ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0',
+                isBillSelected ? 'translate-y-0 opacity-100' : 'translate-y-5 opacity-0 pointer-events-none',
                 isSourceSelected && index === 0 ? 'border-accent shadow-lg shadow-accent/20' : 'border-transparent',
-                isSourceSelected && index !== 0 ? 'opacity-30 scale-95' : 'opacity-100 scale-100',
+                isSourceSelected && index !== 0 ? 'opacity-30 scale-95' : '',
             )} style={{ transitionDelay: `${index * 100}ms`}}>
               <div className="flex items-center gap-3">
                 <Image src={source.logoUrl} alt={source.name} width={40} height={40} className="rounded-lg bg-white p-1" data-ai-hint={`${source.name} logo`} />

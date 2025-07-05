@@ -90,7 +90,7 @@ const slides = [
       type: 'feature',
       title: 'Pay Any Bill, From Any Source.',
       description: 'Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.',
-      content: (
+      content: (props: { isActive: boolean }) => (
         <div className="flex flex-col items-center justify-center text-center w-full max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Pay Any Bill, From Any Source.
@@ -98,7 +98,7 @@ const slides = [
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
             Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.
           </p>
-          <WelcomePaymentMockup />
+          <WelcomePaymentMockup isActive={props.isActive} />
         </div>
       )
     },
