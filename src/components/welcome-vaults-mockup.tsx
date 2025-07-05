@@ -7,8 +7,8 @@ import { vaults as initialVaults, type Vault } from '@/lib/data';
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Input } from "../ui/input";
-import { Switch } from "../ui/switch";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 
 const icons: { [key: string]: string } = {
   "Emergency": "🚨",
