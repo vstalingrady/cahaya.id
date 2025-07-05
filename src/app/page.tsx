@@ -271,7 +271,7 @@ export default function WelcomePage() {
 
   return (
     <div className="w-full h-screen bg-background text-foreground overflow-hidden relative">
-      <div className="absolute inset-0 bg-hero-glow -z-10"></div>
+      <div className="absolute -top-1/2 left-0 right-0 h-full bg-[radial-gradient(ellipse_50%_50%_at_50%_0%,hsl(var(--primary)/0.25),transparent_70%)] -z-10"></div>
       
       <div className="overflow-hidden h-full" ref={emblaRef}>
         <div className="flex h-full">
