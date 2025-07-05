@@ -73,25 +73,36 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
   const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
-    // For drawing animation
-    setActiveIndex(dataPoints.length > 0 ? dataPoints.length - 1 : 0);
-    setAnimationProgress(0);
-    const drawTimer = requestAnimationFrame(() => setAnimationProgress(0.02));
+    let animationFrameId: number;
+    const animationDuration = 800; // ms for the animation to complete
+    let startTime: number | null = null;
+
+    const animate = (timestamp: number) => {
+        if (!startTime) {
+            startTime = timestamp;
+        }
+        
+        const elapsedTime = timestamp - startTime;
+        const progress = Math.min(elapsedTime / animationDuration, 1);
+        
+        setAnimationProgress(progress);
+
+        if (progress < 1) {
+            animationFrameId = requestAnimationFrame(animate);
+        }
+    };
     
+    // Reset and start animation whenever dataPoints change
+    setAnimationProgress(0);
+    setActiveIndex(dataPoints.length > 0 ? dataPoints.length - 1 : 0);
+    animationFrameId = requestAnimationFrame(animate);
+
     return () => {
-      cancelAnimationFrame(drawTimer);
-    }
+      cancelAnimationFrame(animationFrameId);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataPoints]);
 
-
-  useEffect(() => {
-    if (animationProgress > 0 && animationProgress < 1) {
-      const timer = requestAnimationFrame(() => {
-        setAnimationProgress(prev => Math.min(prev + 0.02, 1));
-      });
-      return () => cancelAnimationFrame(timer);
-    }
-  }, [animationProgress]);
 
   useEffect(() => {
     if (dataPoints.length > 0 && activeIndex >= dataPoints.length) {
