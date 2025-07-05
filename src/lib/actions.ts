@@ -27,8 +27,8 @@ import { z } from 'zod';
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth, db } from './firebase';
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, getDoc, deleteDoc, collection, writeBatch, getDocs, addDoc, query, where } from "firebase/firestore";
+import { signInWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { doc, setDoc, getDoc, deleteDoc, collection, writeBatch, getDocs, addDoc, query, where, updateDoc } from "firebase/firestore";
 import { headers } from 'next/headers';
 import { db as mockApiDb } from './mock-api-db';
 import { type MockAccount, type MockTransaction } from './mock-api-db';
@@ -172,6 +172,44 @@ export async function exchangePublicToken(publicToken: string | null) {
     return { error: 'An internal server error occurred.' };
   }
 }
+
+export async function updateUserProfile(
+  uid: string,
+  data: { displayName: string; email: string; phone: string }
+) {
+  const { displayName, email, phone } = data;
+  if (!uid) {
+    throw new Error("User is not authenticated.");
+  }
+  
+  const currentUser = auth.currentUser;
+  if (!currentUser || currentUser.uid !== uid) {
+      throw new Error("Authentication mismatch.");
+  }
+
+  try {
+    // Update Firebase Auth display name
+    if (currentUser.displayName !== displayName) {
+      await updateProfile(currentUser, { displayName });
+    }
+
+    // Update Firestore document
+    const userDocRef = doc(db, 'users', uid);
+    await updateDoc(userDocRef, {
+      fullName: displayName,
+      email: email, // Note: This doesn't verify the new email.
+      phone: phone, // Note: This doesn't verify the new phone.
+    });
+    
+    // Revalidate the path to ensure the UI updates with new data
+    revalidatePath('/profile');
+    
+  } catch (error) {
+    console.error("Error updating user profile:", error);
+    throw new Error("Failed to update profile.");
+  }
+}
+
 
 // ---- Data Fetching Actions ----
 

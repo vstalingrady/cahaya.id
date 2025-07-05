@@ -1,10 +1,11 @@
 
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, User, Mail, Phone, CheckCircle2, Cog, Shield, LogOut } from 'lucide-react';
+import { ArrowLeft, User as UserIcon, Mail, Phone, CheckCircle2, Shield, LogOut, Loader2, Edit, X, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/components/auth/auth-provider';
@@ -12,11 +13,22 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { updateUserProfile } from '@/lib/actions';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ThemeSwitcher } from '@/components/theme-switcher';
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  const [displayName, setDisplayName] = useState(user?.displayName || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phoneNumber || '');
 
   const handleLogout = async () => {
     try {
@@ -36,22 +48,51 @@ export default function ProfilePage() {
     }
   };
 
+  const handleEditToggle = () => {
+    if (isEditing) {
+        // If canceling, reset fields to original user data
+        setDisplayName(user?.displayName || '');
+        setEmail(user?.email || '');
+        setPhone(user?.phoneNumber || '');
+    }
+    setIsEditing(!isEditing);
+  }
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+        await updateUserProfile(user.uid, { displayName, email, phone });
+        toast({
+            title: "Profile Updated",
+            description: "Your information has been saved successfully.",
+        });
+        setIsEditing(false);
+    } catch (error: any) {
+        toast({
+            variant: "destructive",
+            title: "Update Failed",
+            description: error.message || "Could not save your changes.",
+        });
+    } finally {
+        setIsSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-8 animate-fade-in-up">
       <header className="flex items-center relative">
         <Link href="/dashboard" className="absolute left-0">
-          <ArrowLeft className="w-6 h-6 text-white" />
+          <ArrowLeft className="w-6 h-6" />
         </Link>
         <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           Profile & Settings
         </h1>
       </header>
 
-      <div className="bg-card backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
+      <div className="bg-card backdrop-blur-xl p-6 md:p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
         
         <div className="flex flex-col items-center text-center">
-            <div className="relative mb-4">
+            <div className="relative mb-4 group">
                 <Image 
                     src={user?.photoURL || 'https://placehold.co/128x128.png'}
                     alt="User Avatar"
@@ -60,48 +101,78 @@ export default function ProfilePage() {
                     className="rounded-full border-4 border-primary/50"
                     data-ai-hint="person avatar"
                 />
+                 <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-secondary rounded-full flex items-center justify-center border-2 border-background hover:bg-primary transition-colors cursor-pointer" onClick={() => toast({ title: 'Feature coming soon!'})}>
+                    <Edit className="w-4 h-4 text-foreground" />
+                </button>
             </div>
-            <h2 className="text-xl font-semibold text-white font-serif">{user?.displayName || 'Anonymous User'}</h2>
+            {isEditing ? (
+                <Input
+                    id="displayName"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    className="text-xl font-semibold text-foreground font-serif bg-input h-auto p-1 text-center border-primary/50"
+                />
+            ) : (
+                <h2 className="text-xl font-semibold text-foreground font-serif">{displayName}</h2>
+            )}
         </div>
 
         <div className="my-8 space-y-4">
-            <div className="flex items-start gap-4 bg-secondary p-4 rounded-lg">
-                <Mail className="w-5 h-5 text-muted-foreground mt-1 flex-shrink-0"/>
-                <div className="flex-1">
-                    <div className="flex justify-between items-center">
-                        <p className="text-sm text-muted-foreground">Email</p>
-                        {user?.emailVerified && (
-                          <Badge variant="outline" className="bg-primary/20 border-primary/50 text-primary text-xs">
-                              <CheckCircle2 className="w-3 h-3 mr-1.5"/>
-                              Verified
-                          </Badge>
-                        )}
-                    </div>
-                    <p className="text-white font-semibold mt-0.5">{user?.email || 'No email provided'}</p>
+            <div className="space-y-1">
+                <Label htmlFor="email" className="text-sm text-muted-foreground">Email</Label>
+                <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"/>
+                    <Input id="email" value={email} onChange={e => setEmail(e.target.value)} readOnly={!isEditing} className="bg-input border-border h-14 pl-12 text-base disabled:opacity-100 disabled:cursor-default" />
+                    {user?.emailVerified && (
+                        <Badge variant="outline" className="absolute right-3 top-1/2 -translate-y-1/2 bg-primary/20 border-primary/50 text-primary text-xs">
+                            <CheckCircle2 className="w-3 h-3 mr-1.5"/>
+                            Verified
+                        </Badge>
+                    )}
                 </div>
             </div>
-            <div className="flex items-start gap-4 bg-secondary p-4 rounded-lg">
-                <Phone className="w-5 h-5 text-muted-foreground mt-1 flex-shrink-0"/>
-                <div className="flex-1">
-                    <p className="text-sm text-muted-foreground">Phone</p>
-                    <p className="text-white font-semibold mt-0.5">{user?.phoneNumber || 'No phone provided'}</p>
+             <div className="space-y-1">
+                <Label htmlFor="phone" className="text-sm text-muted-foreground">Phone</Label>
+                <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"/>
+                    <Input id="phone" value={phone} onChange={e => setPhone(e.target.value)} readOnly={!isEditing} className="bg-input border-border h-14 pl-12 text-base disabled:opacity-100 disabled:cursor-default" />
                 </div>
             </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 pt-6 border-t border-border/50">
-           <Button variant="outline" className="w-full justify-start text-left font-normal bg-secondary border-border h-14 text-base placeholder:text-muted-foreground hover:bg-secondary/80 hover:text-white" disabled>
-             <User className="mr-3" /> Update Profile
-           </Button>
-           <Button asChild variant="outline" className="w-full justify-start text-left font-normal bg-secondary border-border h-14 text-base placeholder:text-muted-foreground hover:bg-secondary/80 hover:text-white">
-             <Link href="/profile/security">
-                <Shield className="mr-3" /> Security & Login
-             </Link>
-           </Button>
-           <Button variant="outline" className="w-full justify-start text-left font-normal bg-secondary border-border h-14 text-base placeholder:text-muted-foreground hover:bg-secondary/80 hover:text-white" disabled>
-             <Cog className="mr-3" /> App Settings
-           </Button>
+        <div className="grid grid-cols-1 gap-2">
+            {isEditing ? (
+                <div className="flex gap-2">
+                    <Button variant="outline" className="w-full h-12" onClick={handleEditToggle}>
+                        <X className="mr-2"/> Cancel
+                    </Button>
+                    <Button className="w-full h-12" onClick={handleSave} disabled={isSaving}>
+                        {isSaving ? <Loader2 className="animate-spin" /> : <><Save className="mr-2"/> Save Changes</>}
+                    </Button>
+                </div>
+            ) : (
+                <Button variant="outline" className="w-full justify-center h-12 text-base" onClick={handleEditToggle}>
+                    <Edit className="mr-3" /> Edit Profile
+                </Button>
+            )}
         </div>
+
+        <Separator className="my-6 bg-border/50" />
+        
+        {/* APP SETTINGS */}
+        <div className="space-y-4">
+             <h3 className="text-lg font-semibold text-foreground font-serif">App Settings</h3>
+             <div className="bg-secondary p-4 rounded-lg border border-border">
+                <Label className="text-muted-foreground">Theme</Label>
+                <ThemeSwitcher />
+             </div>
+             <Button asChild variant="outline" className="w-full justify-start text-left font-normal bg-secondary border-border h-14 text-base placeholder:text-muted-foreground hover:bg-secondary/80 hover:text-white">
+                <Link href="/profile/security">
+                    <Shield className="mr-3" /> Security & Login
+                </Link>
+             </Button>
+        </div>
+
 
         <Separator className="my-6 bg-border/50" />
 
