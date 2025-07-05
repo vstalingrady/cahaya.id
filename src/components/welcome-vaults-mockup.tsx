@@ -8,6 +8,8 @@ const icons: { [key: string]: string } = {
   "Emergency": "🚨",
   "Holiday": "✈️", 
   "New Gadget": "📱",
+  "Home": "🏠",
+  "Wedding": "💍",
 };
 
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
@@ -16,7 +18,7 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
   minimumFractionDigits: 0,
 }).format(value);
 
-// Data trimmed to match the screenshot
+// Data to match the design
 const vaults = [
   {
     id: 1,
@@ -44,21 +46,33 @@ const vaults = [
     icon: "New Gadget",
     currentAmount: 850000,
     targetAmount: 25000000,
-    autoSaveEnabled: false,
+    autoSaveEnabled: true,
+    autoSaveAmount: 1000000,
+    autoSaveFrequency: "monthly",
     roundUpEnabled: false,
   },
+   {
+    id: 4,
+    name: "Honeymoon Fund",
+    icon: "Wedding",
+    currentAmount: 7500000,
+    targetAmount: 75000000,
+    autoSaveEnabled: false,
+    roundUpEnabled: false,
+  }
 ];
 
 export default function WelcomeVaultsMockup({ className }: { className?: string }) {
     return (
         <div className={cn(
-            // Use app theme colors and disable interactivity for the mockup
             "relative w-full max-w-sm h-[500px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-background text-white p-6 flex flex-col gap-6 pointer-events-none",
             className
         )}>
-            {/* Header, now left-aligned */}
+            {/* Header */}
             <div>
-                <h2 className="text-3xl font-bold text-white mb-1 font-serif">Cuan Vaults</h2>
+                <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    Cuan Vaults
+                </h1>
                 <p className="text-muted-foreground">Save for all your goals, together.</p>
             </div>
 
