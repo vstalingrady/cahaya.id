@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Landmark, Briefcase, Wallet } from 'lucide-react';
+import { Landmark, Briefcase } from 'lucide-react';
 import EwalletIcon from '@/components/icons/ewallet-icon';
 import { cn } from "@/lib/utils"
 import { accounts, transactions } from '@/lib/data';
@@ -91,7 +91,7 @@ export default function DashboardMockup({ isActive }: { isActive?: boolean }) {
 
                 <div className="bg-card p-4 rounded-xl border-none shadow-md">
                      <div className='flex items-center gap-3 text-white font-semibold text-sm'>
-                        <EwalletIcon className='w-4 h-4 stroke-current' />
+                        <EwalletIcon className='w-4 h-4' />
                         <span>E-Wallets</span>
                     </div>
                     <div className="pt-2 space-y-2">

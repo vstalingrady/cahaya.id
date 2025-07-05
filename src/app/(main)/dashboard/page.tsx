@@ -8,7 +8,8 @@ import { type Account, type Transaction } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
 import AccountCard from '@/components/dashboard/account-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Briefcase, Landmark, Coins, Eye, EyeOff, Loader2, Wallet } from 'lucide-react';
+import { Briefcase, Landmark, Coins, Eye, EyeOff, Loader2 } from 'lucide-react';
+import EwalletIcon from '@/components/icons/ewallet-icon';
 import Image from 'next/image';
 import { 
   AlertDialog, 
@@ -240,7 +241,7 @@ export default function DashboardPage() {
                                 <AccordionTrigger className="hover:no-underline text-white">
                                     <div className='flex items-center gap-3'>
                                         <div className="w-6 flex justify-center">
-                                            <Wallet className='w-5 h-5' />
+                                            <EwalletIcon className='w-5 h-5' />
                                         </div>
                                         <span className='font-semibold'>E-Wallets</span>
                                     </div>
