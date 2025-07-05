@@ -42,7 +42,7 @@ export default function AccountDetailPage() {
   const account = accounts.find(acc => acc.id === accountId);
   
   const handleConfirmUnlink = () => {
-    if (pin.length < 8) return;
+    if (pin.length < 6) return;
 
     toast({
         title: "Account Unlinked",
@@ -82,14 +82,14 @@ export default function AccountDetailPage() {
             <AlertDialogHeader>
             <AlertDialogTitle>Unlink "{account.name}"?</AlertDialogTitle>
             <AlertDialogDescription>
-                This action cannot be undone. To continue, please enter your 8-character Clarity PIN.
+                This action cannot be undone. To continue, please enter your 6-character Clarity PIN.
             </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="py-4">
             <Input
                 type="password"
-                placeholder="••••••••"
-                maxLength={8}
+                placeholder="••••••"
+                maxLength={6}
                 value={pin}
                 onChange={(e) => setPin(e.target.value)}
                 className="bg-input border-border h-14 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground"
@@ -99,7 +99,7 @@ export default function AccountDetailPage() {
             <AlertDialogCancel onClick={() => setPin('')}>Cancel</AlertDialogCancel>
             <AlertDialogAction
                 onClick={handleConfirmUnlink}
-                disabled={pin.length < 8}
+                disabled={pin.length < 6}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
                 Unlink Account

@@ -37,7 +37,7 @@ const PinInput = ({
     onChange(newPin);
 
     // Move to next input if a character is entered
-    if (sanitizedValue && index < 7) {
+    if (sanitizedValue && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -49,14 +49,14 @@ const PinInput = ({
   };
 
   const handlePaste = (pastedValue: string) => {
-    const sanitizedValue = pastedValue.replace(/[^a-zA-Z0-9]/g, '').slice(0, 8);
+    const sanitizedValue = pastedValue.replace(/[^a-zA-Z0-9]/g, '').slice(0, 6);
     const newPin = [...value]; // start with current value
     for (let i = 0; i < sanitizedValue.length; i++) {
         newPin[i] = sanitizedValue[i];
     }
     onChange(newPin);
 
-    const focusIndex = Math.min(sanitizedValue.length, 7);
+    const focusIndex = Math.min(sanitizedValue.length, 5);
     inputRefs.current[focusIndex]?.focus();
   };
 
@@ -67,8 +67,8 @@ const PinInput = ({
   }
 
   return (
-    <div className="flex justify-between items-center gap-1" onPaste={handleWrapperPaste}>
-      {Array(8)
+    <div className="flex justify-between items-center gap-2" onPaste={handleWrapperPaste}>
+      {Array(6)
         .fill('')
         .map((_, index) => (
           <React.Fragment key={index}>
@@ -81,12 +81,9 @@ const PinInput = ({
               value={value[index]}
               onChange={(e) => handleInputChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
-              className="w-10 h-12 text-center text-xl font-mono"
+              className="w-12 h-14 text-center text-xl font-mono"
               autoComplete="one-time-code"
             />
-            {index === 3 && (
-              <span className="text-2xl text-muted-foreground font-mono px-1">-</span>
-            )}
           </React.Fragment>
         ))}
     </div>
@@ -98,18 +95,18 @@ export default function SetupSecurityForm() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  const [pin, setPin] = useState(Array(8).fill(''));
-  const [confirmPin, setConfirmPin] = useState(Array(8).fill(''));
+  const [pin, setPin] = useState(Array(6).fill(''));
+  const [confirmPin, setConfirmPin] = useState(Array(6).fill(''));
 
   const handleSetPin = () => {
     const pinString = pin.join('');
     const confirmPinString = confirmPin.join('');
 
-    if (pinString.length < 8) {
+    if (pinString.length < 6) {
       toast({
         variant: 'destructive',
         title: 'PIN is too short',
-        description: 'Your Clarity PIN must be 8 characters long.',
+        description: 'Your Clarity PIN must be 6 characters long.',
       });
       return;
     }
@@ -136,13 +133,13 @@ export default function SetupSecurityForm() {
     }, 1000);
   };
   
-  const isSubmitDisabled = pin.join('').length < 8 || confirmPin.join('').length < 8 || loading;
+  const isSubmitDisabled = pin.join('').length < 6 || confirmPin.join('').length < 6 || loading;
 
   return (
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10 relative z-10">
       <form onSubmit={(e) => { e.preventDefault(); handleSetPin(); }} className="space-y-6">
         <div className="space-y-2">
-            <Label htmlFor="pin-0">Create 8-Character PIN</Label>
+            <Label htmlFor="pin-0">Create 6-Character PIN</Label>
             <PinInput idPrefix="pin" value={pin} onChange={setPin} />
         </div>
 

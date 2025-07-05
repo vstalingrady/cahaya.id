@@ -133,7 +133,7 @@ export default function DashboardPage() {
                 <AlertDialogHeader>
                     <AlertDialogTitle>Enter PIN to Show Balances</AlertDialogTitle>
                     <AlertDialogDescription>
-                        For your security, please enter your 6-digit PIN to view sensitive information for 20 seconds.
+                        For your security, please enter your 6-character PIN to view sensitive information for 20 seconds.
                     </AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className="py-4 space-y-2">
@@ -143,7 +143,7 @@ export default function DashboardPage() {
                         maxLength={6}
                         value={pin}
                         onChange={(e) => {
-                            setPin(e.target.value.replace(/\D/g, ''));
+                            setPin(e.target.value);
                             if (pinError) setPinError('');
                         }}
                         className="bg-input border-border h-14 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground"
