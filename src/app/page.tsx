@@ -121,7 +121,7 @@ const slides = [
     {
       type: 'feature',
       title: 'Get Smarter Insights with AI.',
-      description: "Unleash the power of Gemini 2.5, the world's most advanced AI. It analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
+      description: "Unleash the power of Gemini 2.5 Flash Lite, the world's most advanced AI. It analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
       content: (props: { isActive: boolean }) => (
         <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
@@ -129,7 +129,7 @@ const slides = [
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
             Unleash the power of{' '}
-            <span className="flashy-gemini-text">Gemini 2.5</span>, the
+            <span className="flashy-gemini-text">Gemini 2.5 Flash Lite</span>, the
             world's most advanced AI. It analyzes your spending to give you a
             Financial Health Score, find hidden saving opportunities, and create
             a personalized action plan.
