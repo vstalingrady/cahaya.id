@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useRef, useEffect } from 'react';
@@ -30,6 +31,13 @@ const line = (pointA: number[], pointB: number[]) => {
 const controlPoint = (current: number[], previous: number[] | undefined, next: number[] | undefined, reverse?: boolean) => {
   const p = previous || current
   const n = next || current
+
+  // If we are at an endpoint (i.e. no previous or next point), the control
+  // point should be the point itself to prevent the line from extending past the edge.
+  if (!previous || !next) {
+    return current;
+  }
+
   const smoothing = 0.2
   const o = line(p, n)
   const angle = o.angle + (reverse ? Math.PI : 0)
