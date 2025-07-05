@@ -190,7 +190,7 @@ export default function AddVaultPage() {
               name="sourceAccountIds"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-foreground text-base">Funding Sources</FormLabel>
+                  <FormLabel className="text-muted-foreground">Funding Sources</FormLabel>
                    <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -230,11 +230,13 @@ export default function AddVaultPage() {
                               field.onChange(newSelected);
                             }}
                           >
-                            <Checkbox
-                              checked={field.value?.includes(account.id)}
-                              readOnly
-                              className="cursor-pointer"
-                            />
+                            <FormControl>
+                                <Checkbox
+                                checked={field.value?.includes(account.id)}
+                                readOnly
+                                className="cursor-pointer"
+                                />
+                            </FormControl>
                             <FormLabel className="font-normal text-white flex-1 cursor-pointer">
                               {account.name}
                             </FormLabel>
