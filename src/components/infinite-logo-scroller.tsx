@@ -23,20 +23,24 @@ export default function InfiniteLogoScroller({
 
   useEffect(() => {
     const scroller = scrollerRef.current;
-    if (scroller) {
-      scroller.setAttribute('data-animated', 'true');
+    if (!scroller) return;
+    
+    // Prevent re-running the duplication logic on re-renders, especially during development with HMR
+    if (scroller.hasAttribute("data-animated")) return;
 
-      const scrollerInner = scroller.querySelector('.scroller__inner');
-      if (scrollerInner) {
-        const scrollerContent = Array.from(scrollerInner.children);
-        scrollerContent.forEach(item => {
-          const duplicatedItem = item.cloneNode(true) as HTMLElement;
-          duplicatedItem.setAttribute('aria-hidden', 'true');
-          scrollerInner.appendChild(duplicatedItem);
-        });
-      }
+    scroller.setAttribute('data-animated', 'true');
+
+    const scrollerInner = scroller.querySelector('.scroller__inner');
+    if (scrollerInner) {
+      const scrollerContent = Array.from(scrollerInner.children);
+      scrollerContent.forEach(item => {
+        const duplicatedItem = item.cloneNode(true) as HTMLElement;
+        duplicatedItem.setAttribute('aria-hidden', 'true');
+        scrollerInner.appendChild(duplicatedItem);
+      });
     }
-  }, [institutions]);
+    // Using an empty dependency array ensures this effect runs only once after the component mounts.
+  }, []);
 
   return (
     <div
