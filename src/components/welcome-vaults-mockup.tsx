@@ -1,69 +1,98 @@
 
 'use client';
 
+import { Plus, Repeat, Link2 } from "lucide-react";
+import Image from "next/image";
+import { vaults as allVaults } from '@/lib/data';
+import { Progress } from "@/components/ui/progress";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { PiggyBank, Target } from "lucide-react";
 
-export default function WelcomeVaultsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
-    const holidayProgress = isActive ? 68 : 0;
-    const laptopProgress = isActive ? 45 : 0;
+const icons: { [key: string]: string } = {
+  "Emergency": "🚨",
+  "Holiday": "✈️",
+  "New Gadget": "📱",
+  "Home": "🏠",
+  "Wedding": "💍",
+};
 
+const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  minimumFractionDigits: 0,
+}).format(value);
+
+// Use a subset of vaults for the mockup, especially the shared one
+const vaults = allVaults.filter(v => v.id === 'vault1' || v.id === 'vault4').slice(0, 2);
+
+export default function WelcomeVaultsMockup({ className }: { className?: string }) {
     return (
         <div className={cn(
-            "relative w-full max-w-sm h-[400px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col justify-center gap-4",
+            "relative w-full max-w-sm h-[400px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden",
             className
         )}>
-            {/* Holiday Fund Card */}
-            <div className={cn(
-                "bg-secondary/50 rounded-xl p-4 border border-border transition-all duration-500", 
-                isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            )}>
-                <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
-                        <Target className="w-5 h-5 text-white" />
+            <div className="w-full h-full space-y-3 overflow-y-auto custom-scrollbar pr-2 -mr-2">
+                {vaults.map(vault => (
+                    <div key={vault.id} className="block bg-card/90 backdrop-blur-sm p-4 rounded-xl border border-border/50 group">
+                        <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                                <div className="text-2xl">{icons[vault.icon] || '💰'}</div>
+                                <div>
+                                    <p className="font-semibold text-base text-white">{vault.name}</p>
+                                    <p className="text-sm text-white font-semibold">{formatCurrency(vault.currentAmount)} <span className="font-normal text-muted-foreground">of {formatCurrency(vault.targetAmount)}</span></p>
+                                </div>
+                            </div>
+                        </div>
+                        <Progress value={(vault.currentAmount / vault.targetAmount) * 100} className="h-2 bg-secondary [&>div]:bg-primary" />
+                        <div className="flex items-center justify-between mt-3 min-h-[28px]">
+                             <div className="text-xs text-muted-foreground space-y-1">
+                                {vault.autoSaveEnabled && (
+                                    <div className="flex items-center gap-2 font-semibold text-green-400">
+                                        <Repeat className="w-3 h-3" />
+                                        <span>Auto-saving active</span>
+                                    </div>
+                                )}
+                                {vault.roundUpEnabled && (
+                                    <div className="flex items-center gap-2 font-semibold text-green-400">
+                                        <Link2 className="w-3 h-3" />
+                                        <span>Round-up savings active</span>
+                                    </div>
+                                )}
+                            </div>
+                            {vault.isShared && vault.members && (
+                                 <TooltipProvider>
+                                    <div className="flex -space-x-3 rtl:space-x-reverse items-center">
+                                        {vault.members.map(member => (
+                                             <Tooltip key={member.id}>
+                                                <TooltipTrigger asChild>
+                                                    <Image 
+                                                        className="w-8 h-8 border-2 border-card rounded-full" 
+                                                        src={member.avatarUrl} 
+                                                        alt={member.name}
+                                                        width={32}
+                                                        height={32}
+                                                        data-ai-hint="person avatar"
+                                                     />
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>{member.name}</p>
+                                                </TooltipContent>
+                                             </Tooltip>
+                                        ))}
+                                        <div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-white bg-primary border-2 border-card rounded-full">
+                                            +{vault.members.length}
+                                        </div>
+                                    </div>
+                                 </TooltipProvider>
+                            )}
+                        </div>
                     </div>
-                    <div className="flex-1">
-                        <p className="text-foreground font-medium">Holiday Fund</p>
-                        <p className="text-sm text-muted-foreground">Rp 15,000,000 goal</p>
-                    </div>
+                ))}
+                 <div className="w-full bg-card/60 p-4 rounded-xl flex items-center justify-center text-muted-foreground border-2 border-dashed border-border/50 group">
+                    <Plus className="w-5 h-5 mr-2 transition-colors" />
+                    <span className="font-semibold text-sm transition-colors">Create New Vault</span>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2.5">
-                    <div 
-                        className="bg-gradient-to-r from-primary to-accent h-2.5 rounded-full transition-all duration-1000 ease-out delay-300" 
-                        style={{ width: `${holidayProgress}%` }}
-                    />
-                </div>
-                <p className={cn(
-                    "text-sm text-muted-foreground mt-2 transition-opacity duration-500 delay-500",
-                    isActive ? 'opacity-100' : 'opacity-0'
-                )}>Rp 10,200,000 saved ({holidayProgress.toFixed(0)}%)</p>
-            </div>
-
-            {/* New Laptop Card */}
-            <div className={cn(
-                "bg-secondary/50 rounded-xl p-4 border border-border transition-all duration-500 delay-150", 
-                isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            )}>
-                <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center">
-                        <PiggyBank className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                        <p className="text-foreground font-medium">New Laptop</p>
-                        <p className="text-sm text-muted-foreground">Rp 20,000,000 goal</p>
-                    </div>
-                </div>
-                <div className="w-full bg-muted rounded-full h-2.5">
-                    <div 
-                        className="bg-gradient-to-r from-accent to-red-500 h-2.5 rounded-full transition-all duration-1000 ease-out delay-300" 
-                        style={{ width: `${laptopProgress}%` }}
-                    />
-                </div>
-                <p className={cn(
-                    "text-sm text-muted-foreground mt-2 transition-opacity duration-500 delay-500",
-                     isActive ? 'opacity-100' : 'opacity-0'
-                )}>Rp 9,000,000 saved ({laptopProgress.toFixed(0)}%)</p>
             </div>
         </div>
-    )
+    );
 }
