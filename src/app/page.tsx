@@ -12,6 +12,7 @@ import CuanLogo from '@/components/icons/CuanLogo';
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
 import { financialInstitutions } from '@/lib/data';
 import Image from 'next/image';
+import InfiniteLogoScroller from '@/components/infinite-logo-scroller';
 
 const FeatureIcon = ({ icon: Icon, title, description, color }: {icon: React.ElementType, title: string, description: string, color: string}) => (
   <div className="text-center group">
@@ -97,30 +98,17 @@ const slides = [
     },
     {
       type: 'logo_wall',
-      title: 'Supports Your Services.',
+      title: 'Trusted By Top Institutions',
       description: 'We support all major banks and e-wallets in Indonesia, with more coming soon.',
       content: (
-        <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto animate-fade-in-up">
-          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
-            Supports Your Services
+         <div className="flex flex-col items-center justify-center h-full text-center w-full animate-fade-in-up">
+          <h2 className="text-2xl lg:text-3xl font-bold mb-4 font-serif text-white">
+            Trusted by <span className="text-primary">200+ Institutions</span>
           </h2>
-          <p className="text-base leading-relaxed text-muted-foreground mb-8">
-            We support all major banks and e-wallets in Indonesia, with more coming soon.
+          <p className="text-base leading-relaxed text-muted-foreground mb-8 max-w-lg">
+            We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
           </p>
-          <div className="grid grid-cols-4 gap-x-6 gap-y-8 w-full items-center justify-center">
-            {financialInstitutions.slice(0, 12).map((inst) => (
-              <div key={inst.id} className="flex flex-col items-center justify-center gap-2 group transition-transform duration-300 hover:scale-110">
-                <Image
-                  src={inst.logoUrl}
-                  alt={inst.name}
-                  width={64}
-                  height={64}
-                  className="rounded-2xl grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300"
-                  data-ai-hint={`${inst.name} logo`}
-                />
-              </div>
-            ))}
-          </div>
+          <InfiniteLogoScroller />
         </div>
       )
     },

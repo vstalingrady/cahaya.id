@@ -81,22 +81,27 @@ export type FinancialInstitution = {
   slug: string;
   name: string;
   logoUrl: string;
-  type: 'bank' | 'e-wallet';
+  type: 'bank' | 'e-wallet' | 'other';
 };
 
 export const financialInstitutions: FinancialInstitution[] = [
-  { id: 'bca', slug: 'bca', name: 'BCA', logoUrl: 'https://placehold.co/64x64.png', type: 'bank' },
-  { id: 'gopay', slug: 'gopay', name: 'GoPay', logoUrl: 'https://placehold.co/64x64.png', type: 'e-wallet' },
-  { id: 'ovo', slug: 'ovo', name: 'OVO', logoUrl: 'https://placehold.co/64x64.png', type: 'e-wallet' },
-  { id: 'mandiri', slug: 'mandiri', name: 'Mandiri', logoUrl: 'https://placehold.co/64x64.png', type: 'bank' },
-  { id: 'bni', slug: 'bni', name: 'BNI', logoUrl: 'https://placehold.co/64x64.png', type: 'bank' },
-  { id: 'dana', slug: 'dana', name: 'DANA', logoUrl: 'https://placehold.co/64x64.png', type: 'e-wallet' },
-  { id: 'cimb', slug: 'cimb', name: 'CIMB Niaga', logoUrl: 'https://placehold.co/64x64.png', type: 'bank' },
-  { id: 'permata', slug: 'permata', name: 'Permata', logoUrl: 'https://placehold.co/64x64.png', type: 'bank' },
-  { id: 'jenius', slug: 'jenius', name: 'Jenius', logoUrl: 'https://placehold.co/64x64.png', type: 'bank' },
-  { id: 'shopeepay', slug: 'shopeepay', name: 'ShopeePay', logoUrl: 'https://placehold.co/64x64.png', type: 'e-wallet' },
-  { id: 'linkaja', slug: 'linkaja', name: 'LinkAja', logoUrl: 'https://placehold.co/64x64.png', type: 'e-wallet' },
-  { id: 'blu', slug: 'blu', name: 'Blu by BCA', logoUrl: 'https://placehold.co/64x64.png', type: 'bank' },
+  { id: 'bca', slug: 'bca', name: 'BCA', logoUrl: 'https://placehold.co/100x40.png', type: 'bank' },
+  { id: 'gopay', slug: 'gopay', name: 'GoPay', logoUrl: 'https://placehold.co/100x40.png', type: 'e-wallet' },
+  { id: 'ovo', slug: 'ovo', name: 'OVO', logoUrl: 'https://placehold.co/100x40.png', type: 'e-wallet' },
+  { id: 'mandiri', slug: 'mandiri', name: 'Mandiri', logoUrl: 'https://placehold.co/100x40.png', type: 'bank' },
+  { id: 'bni', slug: 'bni', name: 'BNI', logoUrl: 'https://placehold.co/100x40.png', type: 'bank' },
+  { id: 'bri', slug: 'bri', name: 'BRI', logoUrl: 'https://placehold.co/100x40.png', type: 'bank' },
+  { id: 'dana', slug: 'dana', name: 'DANA', logoUrl: 'https://placehold.co/100x40.png', type: 'e-wallet' },
+  { id: 'shopee', slug: 'shopee', name: 'Shopee', logoUrl: 'https://placehold.co/100x40.png', type: 'other' },
+  { id: 'kredivo', slug: 'kredivo', name: 'Kredivo', logoUrl: 'https://placehold.co/100x40.png', type: 'other' },
+  { id: 'traveloka', slug: 'traveloka', name: 'Traveloka', logoUrl: 'https://placehold.co/100x40.png', type: 'other' },
+  { id: 'cimb', slug: 'cimb', name: 'CIMB Niaga', logoUrl: 'https://placehold.co/100x40.png', type: 'bank' },
+  { id: 'permata', slug: 'permata', name: 'Permata', logoUrl: 'https://placehold.co/100x40.png', type: 'bank' },
+  { id: 'jenius', slug: 'jenius', name: 'Jenius', logoUrl: 'https://placehold.co/100x40.png', type: 'bank' },
+  { id: 'shopeepay', slug: 'shopeepay', name: 'ShopeePay', logoUrl: 'https://placehold.co/100x40.png', type: 'e-wallet' },
+  { id: 'bukalapak', slug: 'bukalapak', name: 'Bukalapak', logoUrl: 'https://placehold.co/100x40.png', type: 'other' },
+  { id: 'linkaja', slug: 'linkaja', name: 'LinkAja', logoUrl: 'https://placehold.co/100x40.png', type: 'e-wallet' },
+  { id: 'blu', slug: 'blu', name: 'Blu by BCA', logoUrl: 'https://placehold.co/100x40.png', type: 'bank' },
 ];
 
 
