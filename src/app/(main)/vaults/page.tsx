@@ -1,11 +1,13 @@
 
 'use client'
 
-import { useState } from "react";
-import { Plus, Repeat, Trash2, Coins, ArrowUpFromLine, ArrowDownToLine } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Repeat, Trash2, Coins, ArrowUpFromLine, ArrowDownToLine, Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { vaults as initialVaults, Vault, accounts } from '@/lib/data';
+import { type Vault, type Account } from '@/lib/data';
+import { getVaults, getDashboardData, deleteVault } from '@/lib/actions';
+import { useAuth } from '@/components/auth/auth-provider';
 import { Progress } from "@/components/ui/progress";
 import {
   AlertDialog,
@@ -35,10 +37,40 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
 }).format(value);
 
 export default function VaultsPage() {
-    const [vaults, setVaults] = useState<Vault[]>(initialVaults);
+    const { user } = useAuth();
+    const { toast } = useToast();
+
+    const [isLoading, setIsLoading] = useState(true);
+    const [vaults, setVaults] = useState<Vault[]>([]);
+    const [accounts, setAccounts] = useState<Account[]>([]);
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [vaultToDelete, setVaultToDelete] = useState<Vault | null>(null);
-    const { toast } = useToast();
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!user) return;
+            setIsLoading(true);
+            try {
+                const [fetchedVaults, dashboardData] = await Promise.all([
+                    getVaults(user.uid),
+                    getDashboardData(user.uid),
+                ]);
+                setVaults(fetchedVaults);
+                setAccounts(dashboardData.accounts);
+            } catch (error) {
+                console.error("Failed to fetch vaults data:", error);
+                toast({
+                    variant: 'destructive',
+                    title: 'Error',
+                    description: 'Could not load your savings vaults.'
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
+    }, [user, toast]);
+
 
     const handleDeleteClick = (e: React.MouseEvent, vault: Vault) => {
         e.preventDefault();
@@ -47,16 +79,30 @@ export default function VaultsPage() {
         setShowDeleteDialog(true);
     }
 
-    const handleDeleteConfirm = () => {
-        if (!vaultToDelete) return;
+    const handleDeleteConfirm = async () => {
+        if (!vaultToDelete || !user) return;
+        try {
+            await deleteVault(user.uid, vaultToDelete.id);
+            setVaults(vaults.filter(v => v.id !== vaultToDelete.id));
+            toast({
+                title: "Vault Deleted",
+                description: `The "${vaultToDelete.name}" vault has been successfully deleted.`,
+            });
+        } catch (error) {
+            console.error("Failed to delete vault:", error);
+            toast({ variant: 'destructive', title: 'Error', description: 'Could not delete the vault.' });
+        } finally {
+            setShowDeleteDialog(false);
+            setVaultToDelete(null);
+        }
+    }
 
-        setVaults(vaults.filter(v => v.id !== vaultToDelete.id));
-        toast({
-            title: "Vault Deleted",
-            description: `The "${vaultToDelete.name}" vault has been successfully deleted.`,
-        });
-        setShowDeleteDialog(false);
-        setVaultToDelete(null);
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center h-full pt-24">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        </div>
+      );
     }
 
     return (
@@ -89,7 +135,7 @@ export default function VaultsPage() {
                 </div>
 
                 <div className="space-y-4">
-                    {vaults.map(vault => {
+                    {vaults.length > 0 ? vaults.map(vault => {
                         const sourceNames = vault.sourceAccountIds
                             .map(id => accounts.find(acc => acc.id === id)?.name)
                             .filter(Boolean)
@@ -147,18 +193,25 @@ export default function VaultsPage() {
                                     )}
                                 </div>
 
-                                {vault.isShared && (
+                                {vault.isShared && vault.members && (
                                      <div className="flex -space-x-3 rtl:space-x-reverse items-center">
-                                        <div className="w-8 h-8 rounded-full bg-muted border-2 border-card" />
-                                        <div className="w-8 h-8 rounded-full bg-muted border-2 border-card" />
-                                        <div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-white bg-primary border-2 border-card rounded-full">
-                                            +2
-                                        </div>
+                                        {vault.members.slice(0, 2).map(member => (
+                                            <Image key={member.id} className="w-8 h-8 rounded-full bg-muted border-2 border-card" src={member.avatarUrl} alt={member.name} width={32} height={32} data-ai-hint="person avatar"/>
+                                        ))}
+                                        {vault.members.length > 2 && (
+                                            <div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-white bg-primary border-2 border-card rounded-full">
+                                                +{vault.members.length - 2}
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
                         </Link>
-                    )})}
+                    )}) : (
+                         <div className="bg-card p-6 rounded-xl text-center text-muted-foreground border border-border">
+                            No savings vaults created yet. Get started by creating one!
+                        </div>
+                    )}
                 </div>
 
                 <Link href="/vaults/add" className="w-full bg-card p-5 rounded-2xl flex items-center justify-center text-muted-foreground border-2 border-dashed border-border hover:border-primary/80 hover:text-primary transition-colors group">

@@ -1,14 +1,18 @@
+
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Edit, PlusCircle } from 'lucide-react';
-
-import { vaults } from '@/lib/data';
+import { ArrowLeft, Edit, PlusCircle, Loader2 } from 'lucide-react';
+import { useAuth } from '@/components/auth/auth-provider';
+import { getVaultDetails } from '@/lib/actions';
+import { Vault } from '@/lib/data';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import { useEffect, useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
   style: 'currency',
@@ -25,11 +29,43 @@ const icons: { [key: string]: string } = {
 };
 
 export default function VaultDetailPage() {
+  const { user } = useAuth();
+  const { toast } = useToast();
   const params = useParams();
   const router = useRouter();
   const vaultId = params.id as string;
 
-  const vault = vaults.find(v => v.id === vaultId);
+  const [isLoading, setIsLoading] = useState(true);
+  const [vault, setVault] = useState<Vault | null>(null);
+  
+  useEffect(() => {
+    if (!user || !vaultId) return;
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const fetchedVault = await getVaultDetails(user.uid, vaultId);
+        setVault(fetchedVault);
+      } catch (error) {
+        console.error("Failed to fetch vault details:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Error',
+          description: 'Could not load vault details.'
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [user, vaultId, toast]);
+
+  if (isLoading) {
+    return (
+        <div className="flex items-center justify-center h-full pt-24">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        </div>
+    );
+  }
 
   if (!vault) {
     return (

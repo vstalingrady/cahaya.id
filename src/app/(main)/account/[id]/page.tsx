@@ -1,11 +1,14 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft } from 'lucide-react';
-import { accounts, transactions } from '@/lib/data';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import { type Account, type Transaction } from '@/lib/data';
+import { getAccountDetails } from '@/lib/actions';
+import { useAuth } from '@/components/auth/auth-provider';
 import TransactionCalendar from '@/components/profile/transaction-calendar';
 import TotalBalance from '@/components/dashboard/total-balance';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -31,19 +34,48 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
 }).format(amount);
 
 export default function AccountDetailPage() {
+  const { user } = useAuth();
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
   const accountId = params.id as string;
   
+  const [isLoading, setIsLoading] = useState(true);
+  const [account, setAccount] = useState<Account | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+
   const [isUnlinkConfirmOpen, setIsUnlinkConfirmOpen] = useState(false);
   const [pin, setPin] = useState('');
 
-  const account = accounts.find(acc => acc.id === accountId);
+  useEffect(() => {
+    if (!user || !accountId) return;
+
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            const { account: fetchedAccount, transactions: fetchedTransactions } = await getAccountDetails(user.uid, accountId);
+            setAccount(fetchedAccount);
+            setTransactions(fetchedTransactions);
+        } catch (error) {
+            console.error("Failed to fetch account details:", error);
+            toast({
+                variant: 'destructive',
+                title: 'Error',
+                description: 'Could not load account details.'
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    fetchData();
+  }, [user, accountId, toast]);
   
   const handleConfirmUnlink = () => {
     if (pin.length < 6) return;
 
+    // In a real app, this would be an async server action to delete the account link.
+    // For this prototype, we'll just simulate it.
     toast({
         title: "Account Unlinked",
         description: `The "${account?.name}" account has been unlinked.`,
@@ -55,6 +87,14 @@ export default function AccountDetailPage() {
     router.push('/dashboard');
   };
   
+  if (isLoading) {
+    return (
+        <div className="flex items-center justify-center h-full pt-24">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        </div>
+    );
+  }
+
   if (!account) {
     return (
       <div className="space-y-8 animate-fade-in-up">
@@ -72,8 +112,6 @@ export default function AccountDetailPage() {
     </div>
     );
   }
-
-  const accountTransactions = transactions.filter(t => t.accountId === accountId);
 
   return (
     <>
@@ -122,7 +160,7 @@ export default function AccountDetailPage() {
       <TotalBalance
         title="Current Balance"
         amount={account.balance}
-        transactions={accountTransactions}
+        transactions={transactions}
         showHistoryLink={false}
       />
 
@@ -151,8 +189,8 @@ export default function AccountDetailPage() {
       {(account.type === 'bank' || account.type === 'e-wallet') && (
          <div className="space-y-4">
           <h2 className="text-xl font-semibold text-white font-serif">Transaction History</h2>
-          {accountTransactions.length > 0 ? (
-            <TransactionCalendar transactions={accountTransactions} currentBalance={account.balance} />
+          {transactions.length > 0 ? (
+            <TransactionCalendar transactions={transactions} currentBalance={account.balance} />
           ) : (
             <div className="bg-card p-6 rounded-xl text-center text-muted-foreground border border-border">
                 No transactions for this account yet.

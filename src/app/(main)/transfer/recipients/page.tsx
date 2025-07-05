@@ -1,11 +1,15 @@
+
 'use client';
 
-import { useState } from 'react';
-import { Plus, ChevronRight, ArrowLeft, Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Plus, ChevronRight, ArrowLeft, Search, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-import { beneficiaries } from '@/lib/data';
+import { type Beneficiary } from '@/lib/data';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/components/auth/auth-provider';
+import { getBeneficiaries } from '@/lib/actions';
+import { useToast } from '@/hooks/use-toast';
 
 const getBankLogo = (bankName: string) => {
     const lowerName = bankName.toLowerCase();
@@ -18,7 +22,28 @@ const getBankLogo = (bankName: string) => {
 }
 
 export default function SelectRecipientPage() {
+    const { user } = useAuth();
+    const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(true);
+    const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
+
+    useEffect(() => {
+        if (!user) return;
+        const fetchData = async () => {
+            setIsLoading(true);
+            try {
+                const data = await getBeneficiaries(user.uid);
+                setBeneficiaries(data);
+            } catch (error) {
+                console.error("Failed to fetch beneficiaries:", error);
+                toast({ variant: 'destructive', title: 'Error', description: 'Could not load recipients.' });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData();
+    }, [user, toast]);
 
     const filteredBeneficiaries = beneficiaries.filter(
         b =>
@@ -56,20 +81,30 @@ export default function SelectRecipientPage() {
                         <Plus className="w-4 h-4" /> Add New
                     </Link>
                 </div>
-                <div className="grid grid-cols-1 gap-4">
-                {filteredBeneficiaries.map((beneficiary) => (
-                    <Link key={beneficiary.id} href={`/transfer/${beneficiary.id}`} className="w-full text-left bg-card p-5 rounded-2xl flex items-center justify-between hover:bg-secondary transition-all duration-300 border border-border shadow-lg shadow-primary/10 group">
-                        <div className="flex items-center gap-3">
-                            {getBankLogo(beneficiary.bankName)}
-                            <div>
-                                <p className="font-semibold text-lg text-white">{beneficiary.name}</p>
-                                <p className="text-muted-foreground text-sm">{beneficiary.bankName} &bull; {beneficiary.accountNumber}</p>
+                 {isLoading ? (
+                    <div className="flex items-center justify-center pt-10">
+                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 gap-4">
+                    {filteredBeneficiaries.length > 0 ? filteredBeneficiaries.map((beneficiary) => (
+                        <Link key={beneficiary.id} href={`/transfer/${beneficiary.id}`} className="w-full text-left bg-card p-5 rounded-2xl flex items-center justify-between hover:bg-secondary transition-all duration-300 border border-border shadow-lg shadow-primary/10 group">
+                            <div className="flex items-center gap-3">
+                                {getBankLogo(beneficiary.bankName)}
+                                <div>
+                                    <p className="font-semibold text-lg text-white">{beneficiary.name}</p>
+                                    <p className="text-muted-foreground text-sm">{beneficiary.bankName} &bull; {beneficiary.accountNumber}</p>
+                                </div>
                             </div>
+                            <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                        </Link>
+                    )) : (
+                        <div className="text-center py-10 bg-card rounded-2xl border border-border">
+                            <p className="text-muted-foreground">No recipients found.</p>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
-                    </Link>
-                ))}
-                </div>
+                    )}
+                    </div>
+                )}
             </div>
         </div>
     )

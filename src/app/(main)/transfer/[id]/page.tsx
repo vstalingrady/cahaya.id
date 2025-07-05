@@ -1,10 +1,11 @@
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter, useParams } from 'next/navigation';
-import { ArrowLeft, Banknote, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Banknote, MessageSquare, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -20,8 +21,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { accounts, beneficiaries } from '@/lib/data';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/components/auth/auth-provider';
+import { getBeneficiaries, getDashboardData } from '@/lib/actions';
+import { type Account, type Beneficiary } from '@/lib/data';
 
 const formSchema = z.object({
   fromAccountId: z.string().min(1, { message: 'Please select an account to transfer from.' }),
@@ -44,11 +48,35 @@ export default function InitiateTransferPage() {
   const router = useRouter();
   const params = useParams();
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const recipientId = params.id as string;
-  const recipient = beneficiaries.find(b => b.id === recipientId);
   
-  const userAccounts = accounts.filter(acc => acc.type === 'bank' || acc.type === 'e-wallet');
+  const [isLoading, setIsLoading] = useState(true);
+  const [recipient, setRecipient] = useState<Beneficiary | null>(null);
+  const [userAccounts, setUserAccounts] = useState<Account[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchData = async () => {
+        setIsLoading(true);
+        try {
+            const [beneficiaries, { accounts }] = await Promise.all([
+                getBeneficiaries(user.uid),
+                getDashboardData(user.uid)
+            ]);
+            const foundRecipient = beneficiaries.find(b => b.id === recipientId) || null;
+            setRecipient(foundRecipient);
+            setUserAccounts(accounts.filter(acc => acc.type === 'bank' || acc.type === 'e-wallet'));
+        } catch (error) {
+            console.error("Failed to fetch transfer page data:", error);
+            toast({ variant: 'destructive', title: 'Error', description: 'Could not load page data.' });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    fetchData();
+  }, [user, recipientId, toast]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,7 +90,7 @@ export default function InitiateTransferPage() {
   const amount = form.watch('amount');
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    const selectedAccount = accounts.find(acc => acc.id === values.fromAccountId);
+    const selectedAccount = userAccounts.find(acc => acc.id === values.fromAccountId);
     const numericAmount = Number(values.amount);
     const totalDebit = numericAmount + TOTAL_FEE;
 
@@ -75,12 +103,17 @@ export default function InitiateTransferPage() {
         return;
     }
     
+    // In a real app, this would be an async server action to perform the transfer.
     console.log(values);
     toast({
       title: "Transfer Successful!",
       description: `You have successfully transferred ${formatCurrency(numericAmount)} to ${recipient?.name}. Total debited: ${formatCurrency(totalDebit)}`,
     });
     router.push('/dashboard');
+  }
+
+  if (isLoading) {
+      return <div className="flex items-center justify-center pt-24"><Loader2 className="w-10 h-10 text-primary animate-spin" /></div>;
   }
 
   if (!recipient) {
@@ -104,7 +137,7 @@ export default function InitiateTransferPage() {
   return (
     <div className="space-y-8 animate-fade-in-up">
         <header className="flex items-center relative">
-            <Link href="/transfer" className="absolute left-0">
+            <Link href="/transfer/recipients" className="absolute left-0">
                 <ArrowLeft className="w-6 h-6 text-white" />
             </Link>
             <div className="text-center mx-auto">
