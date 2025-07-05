@@ -6,7 +6,7 @@ import Link from 'next/link';
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react'
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, CreditCard, PiggyBank, TrendingUp, Shield, Zap, Target, Globe } from 'lucide-react';
+import { ArrowRight, CreditCard, PiggyBank, TrendingUp, Shield, Zap, Target, Globe, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import CuanLogo from '@/components/icons/CuanLogo';
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
@@ -15,6 +15,8 @@ import Image from 'next/image';
 import InfiniteLogoScroller from '@/components/infinite-logo-scroller';
 import WelcomePaymentMockup from '@/components/welcome-payment-mockup';
 import WelcomeInsightsMockup from '@/components/welcome-insights-mockup';
+import WelcomeVaultsMockup from '@/components/welcome-vaults-mockup';
+import WelcomeSecurityMockup from '@/components/welcome-security-mockup';
 
 const CountingNumber = ({ target, prefix = "", suffix = "" }: {target: number, prefix?: string, suffix?: string}) => {
   const [count, setCount] = useState(0);
@@ -162,38 +164,23 @@ const slides = [
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
             Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.
           </p>
-          <div className="space-y-4 w-full max-w-sm">
-            <div className="bg-secondary/50 rounded-xl p-4 border border-border">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                  <Target className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-foreground font-medium">Holiday Fund</p>
-                  <p className="text-sm text-muted-foreground">Rp 15M goal</p>
-                </div>
-              </div>
-              <div className="w-full bg-muted rounded-full h-2 mb-2">
-                <div className="bg-gradient-to-r from-primary to-accent h-2 rounded-full" style={{ width: '68%' }}></div>
-              </div>
-              <p className="text-sm text-muted-foreground">Rp 10.2M saved (68%)</p>
-            </div>
-            <div className="bg-secondary/50 rounded-xl p-4 border border-border">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
-                  <PiggyBank className="w-4 h-4 text-white" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-foreground font-medium">New Laptop</p>
-                  <p className="text-sm text-muted-foreground">Rp 20M goal</p>
-                </div>
-              </div>
-              <div className="w-full bg-muted rounded-full h-2 mb-2">
-                <div className="bg-gradient-to-r from-accent to-red-500 h-2 rounded-full" style={{ width: '45%' }}></div>
-              </div>
-              <p className="text-sm text-muted-foreground">Rp 9M saved (45%)</p>
-            </div>
-          </div>
+          <WelcomeVaultsMockup />
+        </div>
+      )
+    },
+    {
+      type: 'feature_showcase',
+      title: 'Your Security is Our Priority.',
+      description: "We use bank-level security, end-to-end encryption, and give you full control over your data. Your trust is our most important asset.",
+      content: (
+        <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto animate-fade-in-up">
+          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+            Your Security is Our Priority.
+          </h2>
+          <p className="text-base leading-relaxed text-muted-foreground mb-6">
+            We use bank-level security, end-to-end encryption, and give you full control over your data. Your trust is our most important asset.
+          </p>
+          <WelcomeSecurityMockup />
         </div>
       )
     },

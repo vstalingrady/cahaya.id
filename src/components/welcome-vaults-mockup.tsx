@@ -1,0 +1,70 @@
+
+'use client';
+
+import { cn } from "@/lib/utils";
+import { PiggyBank, Target } from "lucide-react";
+import { useEffect, useState } from "react";
+
+export default function WelcomeVaultsMockup({ className }: { className?: string }) {
+    const [isAnimating, setIsAnimating] = useState(false);
+    
+    useEffect(() => {
+        const timer = setTimeout(() => setIsAnimating(true), 300);
+        const resetTimer = setInterval(() => {
+            setIsAnimating(false);
+            setTimeout(() => setIsAnimating(true), 300);
+        }, 5000);
+
+        return () => {
+            clearTimeout(timer);
+            clearInterval(resetTimer);
+        };
+    }, []);
+
+    const holidayProgress = isAnimating ? 68 : 0;
+    const laptopProgress = isAnimating ? 45 : 0;
+
+    return (
+        <div className={cn(
+            "relative w-full max-w-sm h-[400px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col justify-center gap-4",
+            className
+        )}>
+            <div className="bg-secondary/50 rounded-xl p-4 border border-border">
+                <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                    <Target className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                    <p className="text-foreground font-medium">Holiday Fund</p>
+                    <p className="text-sm text-muted-foreground">Rp 15,000,000 goal</p>
+                    </div>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2.5">
+                    <div 
+                        className="bg-gradient-to-r from-primary to-accent h-2.5 rounded-full transition-all duration-1000 ease-out" 
+                        style={{ width: `${holidayProgress}%` }}
+                    />
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">Rp 10,200,000 saved ({holidayProgress}%)</p>
+            </div>
+            <div className="bg-secondary/50 rounded-xl p-4 border border-border">
+                <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center">
+                    <PiggyBank className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                    <p className="text-foreground font-medium">New Laptop</p>
+                    <p className="text-sm text-muted-foreground">Rp 20,000,000 goal</p>
+                    </div>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2.5">
+                     <div 
+                        className="bg-gradient-to-r from-accent to-red-500 h-2.5 rounded-full transition-all duration-1000 ease-out" 
+                        style={{ width: `${laptopProgress}%` }}
+                    />
+                </div>
+                <p className="text-sm text-muted-foreground mt-2">Rp 9,000,000 saved ({laptopProgress}%)</p>
+            </div>
+        </div>
+    )
+}
