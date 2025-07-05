@@ -175,35 +175,43 @@ export async function exchangePublicToken(publicToken: string | null) {
 
 export async function updateUserProfile(
   uid: string,
-  data: { displayName: string; email: string; phone: string }
+  data: { displayName?: string; email?: string; phone?: string; photoURL?: string }
 ) {
-  const { displayName, email, phone } = data;
   if (!uid) {
     throw new Error("User is not authenticated.");
   }
-  
+
   const currentUser = auth.currentUser;
   if (!currentUser || currentUser.uid !== uid) {
-      throw new Error("Authentication mismatch.");
+    throw new Error("Authentication mismatch.");
   }
 
   try {
-    // Update Firebase Auth display name
-    if (currentUser.displayName !== displayName) {
-      await updateProfile(currentUser, { displayName });
+    const { displayName, email, phone, photoURL } = data;
+
+    // Prepare data for Firebase Auth update (only displayName and photoURL can be updated here)
+    const authUpdateData: { displayName?: string; photoURL?: string } = {};
+    if (displayName !== undefined) authUpdateData.displayName = displayName;
+    if (photoURL !== undefined) authUpdateData.photoURL = photoURL;
+
+    if (Object.keys(authUpdateData).length > 0) {
+      await updateProfile(currentUser, authUpdateData);
     }
 
-    // Update Firestore document
-    const userDocRef = doc(db, 'users', uid);
-    await updateDoc(userDocRef, {
-      fullName: displayName,
-      email: email, // Note: This doesn't verify the new email.
-      phone: phone, // Note: This doesn't verify the new phone.
-    });
-    
+    // Prepare data for Firestore update
+    const firestoreUpdateData: { [key: string]: string } = {};
+    if (displayName !== undefined) firestoreUpdateData.fullName = displayName;
+    if (email !== undefined) firestoreUpdateData.email = email;
+    if (phone !== undefined) firestoreUpdateData.phone = phone;
+    if (photoURL !== undefined) firestoreUpdateData.photoURL = photoURL;
+
+    if (Object.keys(firestoreUpdateData).length > 0) {
+      const userDocRef = doc(db, "users", uid);
+      await updateDoc(userDocRef, firestoreUpdateData);
+    }
+
     // Revalidate the path to ensure the UI updates with new data
     revalidatePath('/profile');
-    
   } catch (error) {
     console.error("Error updating user profile:", error);
     throw new Error("Failed to update profile.");

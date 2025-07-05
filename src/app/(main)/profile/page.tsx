@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
@@ -10,13 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/components/auth/auth-provider';
 import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { auth, storage } from '@/lib/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { updateUserProfile } from '@/lib/actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ThemeSwitcher } from '@/components/theme-switcher';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function ProfilePage() {
   const { user } = useAuth();
@@ -25,10 +25,13 @@ export default function ProfilePage() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   
   const [displayName, setDisplayName] = useState(user?.displayName || '');
   const [email, setEmail] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phoneNumber || '');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleLogout = async () => {
     try {
@@ -59,6 +62,7 @@ export default function ProfilePage() {
   }
 
   const handleSave = async () => {
+    if (!user) return;
     setIsSaving(true);
     try {
         await updateUserProfile(user.uid, { displayName, email, phone });
@@ -67,6 +71,7 @@ export default function ProfilePage() {
             description: "Your information has been saved successfully.",
         });
         setIsEditing(false);
+        router.refresh();
     } catch (error: any) {
         toast({
             variant: "destructive",
@@ -75,6 +80,49 @@ export default function ProfilePage() {
         });
     } finally {
         setIsSaving(false);
+    }
+  };
+
+  const handleAvatarClick = () => {
+    if (!isUploading) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      toast({ variant: 'destructive', title: 'File too large', description: 'Please select an image smaller than 5MB.' });
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      toast({ variant: 'destructive', title: 'Invalid file type', description: 'Please select an image file (jpg, png, etc.).' });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const filePath = `avatars/${user.uid}/${Date.now()}_${file.name}`;
+      const fileRef = storageRef(storage, filePath);
+      
+      const snapshot = await uploadBytes(fileRef, file);
+      const photoURL = await getDownloadURL(snapshot.ref);
+
+      await updateUserProfile(user.uid, { photoURL });
+
+      toast({ title: "Avatar Updated", description: "Your new profile picture has been saved." });
+      router.refresh();
+
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast({ variant: 'destructive', title: 'Upload Failed', description: 'Could not upload your new avatar.' });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     }
   };
 
@@ -89,6 +137,14 @@ export default function ProfilePage() {
         </h1>
       </header>
 
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        hidden
+        accept="image/png, image/jpeg, image/gif"
+      />
+
       <div className="bg-card backdrop-blur-xl p-6 md:p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
         
         <div className="flex flex-col items-center text-center">
@@ -101,8 +157,12 @@ export default function ProfilePage() {
                     className="rounded-full border-4 border-primary/50"
                     data-ai-hint="person avatar"
                 />
-                 <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-secondary rounded-full flex items-center justify-center border-2 border-background hover:bg-primary transition-colors cursor-pointer" onClick={() => toast({ title: 'Feature coming soon!'})}>
-                    <Edit className="w-4 h-4 text-foreground" />
+                 <button 
+                    className="absolute -bottom-1 -right-1 w-8 h-8 bg-secondary rounded-full flex items-center justify-center border-2 border-background hover:bg-primary transition-colors cursor-pointer"
+                    onClick={handleAvatarClick}
+                    disabled={isUploading}
+                >
+                    {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Edit className="w-4 h-4 text-foreground" />}
                 </button>
             </div>
             {isEditing ? (
@@ -113,7 +173,7 @@ export default function ProfilePage() {
                     className="text-xl font-semibold text-foreground font-serif bg-input h-auto p-1 text-center border-primary/50"
                 />
             ) : (
-                <h2 className="text-xl font-semibold text-foreground font-serif">{displayName}</h2>
+                <h2 className="text-xl font-semibold text-foreground font-serif">{user?.displayName || 'User'}</h2>
             )}
         </div>
 

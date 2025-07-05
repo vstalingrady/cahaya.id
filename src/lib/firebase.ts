@@ -1,9 +1,11 @@
 
+
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
+import { getStorage } from "firebase/storage";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 // Your web app's Firebase configuration
@@ -45,6 +47,7 @@ let app;
 let auth;
 let db;
 let analytics;
+let storage;
 
 try {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
@@ -78,6 +81,7 @@ try {
     // Initialize other Firebase services AFTER App Check
     auth = getAuth(app);
     db = getFirestore(app);
+    storage = getStorage(app);
 
 } catch (error: any) {
     if (error.message && (error.message.includes("invalid-api-key") || error.message.includes("Invalid API key"))) {
@@ -90,4 +94,4 @@ try {
 }
 
 
-export { app, auth, db, analytics };
+export { app, auth, db, analytics, storage };
