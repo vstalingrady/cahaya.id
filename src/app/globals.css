@@ -30,8 +30,8 @@
     --chart-3: 33 80% 65%;
     --chart-4: 45 90% 60%;
     --chart-5: 33 90% 45%;
-    --gemini-start: 45 95% 51%;
-    --gemini-end: 30 96% 54%;
+    --gemini-start: 217 100% 55%;
+    --gemini-end: 14 53% 89%;
   }
 
   .dark {
@@ -59,8 +59,8 @@
     --chart-3: 33 80% 70%;
     --chart-4: 45 90% 65%;
     --chart-5: 33 90% 40%;
-    --gemini-start: 45 100% 50%;
-    --gemini-end: 30 100% 55%;
+    --gemini-start: 217 100% 55%;
+    --gemini-end: 14 53% 89%;
   }
 }
 
