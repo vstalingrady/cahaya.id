@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Banknote, Edit, Repeat, Coins, Image as ImageIcon, Users, Send } from 'lucide-react';
+import { ArrowLeft, Banknote, Edit, Repeat, Coins, Image as ImageIcon, Users, Send, ChevronsUpDown } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -25,6 +25,7 @@ import { accounts } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 
 
@@ -187,49 +188,64 @@ export default function AddVaultPage() {
             <FormField
               control={form.control}
               name="sourceAccountIds"
-              render={() => (
+              render={({ field }) => (
                 <FormItem>
-                   <div className="mb-4">
-                    <FormLabel className="text-foreground text-base">Funding Sources</FormLabel>
-                    <FormDescription className="text-muted-foreground text-sm">
-                      Select accounts to fund auto-saving and round-ups.
-                    </FormDescription>
-                   </div>
-                   <div className="space-y-2">
-                    {fundingAccounts.map((account) => (
-                      <FormField
-                        key={account.id}
-                        control={form.control}
-                        name="sourceAccountIds"
-                        render={({ field }) => {
-                          return (
-                            <FormItem
-                              key={account.id}
-                              className="flex flex-row items-start space-x-3 space-y-0 bg-secondary p-4 rounded-xl"
-                            >
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value?.includes(account.id)}
-                                  onCheckedChange={(checked) => {
-                                    return checked
-                                      ? field.onChange([...(field.value || []), account.id])
-                                      : field.onChange(
-                                          field.value?.filter(
-                                            (value) => value !== account.id
-                                          )
-                                        )
-                                  }}
-                                />
-                              </FormControl>
-                              <FormLabel className="font-normal text-white">
-                                {account.name}
-                              </FormLabel>
-                            </FormItem>
-                          )
-                        }}
-                      />
-                    ))}
-                   </div>
+                  <FormLabel className="text-foreground text-base">Funding Sources</FormLabel>
+                   <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between bg-input border-border h-14 text-base",
+                            !field.value?.length && "text-muted-foreground"
+                          )}
+                        >
+                          <span className="truncate">
+                            {field.value?.length > 0
+                              ? field.value
+                                  .map(
+                                    (id) => fundingAccounts.find((acc) => acc.id === id)?.name
+                                  )
+                                  .join(', ')
+                              : "Select funding sources"}
+                          </span>
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                      <div className="p-2 space-y-1">
+                        {fundingAccounts.map((account) => (
+                           <FormItem
+                            key={account.id}
+                            className="flex flex-row items-center space-x-3 space-y-0 p-2 rounded-md hover:bg-secondary cursor-pointer"
+                            onClick={() => {
+                              const selected = field.value || [];
+                              const isSelected = selected.includes(account.id);
+                              const newSelected = isSelected
+                                ? selected.filter((id) => id !== account.id)
+                                : [...selected, account.id];
+                              field.onChange(newSelected);
+                            }}
+                          >
+                            <Checkbox
+                              checked={field.value?.includes(account.id)}
+                              readOnly
+                              className="cursor-pointer"
+                            />
+                            <FormLabel className="font-normal text-white flex-1 cursor-pointer">
+                              {account.name}
+                            </FormLabel>
+                          </FormItem>
+                        ))}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  <FormDescription className="text-muted-foreground text-sm">
+                    Select one or more accounts to fund auto-saving and round-ups.
+                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
