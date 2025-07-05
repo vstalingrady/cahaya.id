@@ -203,14 +203,6 @@ const slides = [
               </div>
             </div>
           </div>
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Already have an account?{' '}
-              <Link href="/login" className="font-semibold text-primary hover:text-primary/80 underline">
-                Log In
-              </Link>
-            </p>
-          </div>
         </div>
       )
     }
