@@ -126,6 +126,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
 
   const pathPoints = useMemo(() => 
       dataPoints.map((p, i) => [getX(i), getY(p.netWorth)])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   , [dataPoints, rangePadding]);
   
   const animatedPoints = pathPoints.slice(0, Math.ceil(pathPoints.length * animationProgress));
@@ -279,19 +280,9 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
               </g>
             ))}
 
-            {/* Vertical Grid Lines (X-Axis) */}
+            {/* X-Axis Labels (no lines) */}
             {xAxisTicks.map((tick, index) => (
               <g key={`x-grid-${index}`} className="text-[10px] fill-muted-foreground">
-                <line
-                  x1={tick.x}
-                  y1={padding.top}
-                  x2={tick.x}
-                  y2={chartHeight - padding.bottom}
-                  stroke="hsl(var(--muted-foreground))"
-                  strokeWidth="0.5"
-                  strokeOpacity="0.2"
-                  strokeDasharray="2 3"
-                />
                 <text x={tick.x} y={chartHeight - padding.bottom + 15} textAnchor="middle">
                   {formatXAxisLabel(tick.value)}
                 </text>
