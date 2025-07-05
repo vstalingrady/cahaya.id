@@ -2,7 +2,6 @@
 'use client';
 
 import { Landmark, Briefcase } from 'lucide-react';
-import EwalletIcon from '@/components/icons/ewallet-icon';
 import { cn } from "@/lib/utils"
 import { accounts, transactions } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
@@ -86,24 +85,6 @@ export default function DashboardMockup({ isActive }: { isActive?: boolean }) {
                                 balance={formatCurrency(account.balance)}
                             />
                         ))}
-                    </div>
-                </div>
-
-                <div className="bg-card p-4 rounded-xl border-none shadow-md">
-                     <div className='flex items-center gap-3 text-white font-semibold text-sm'>
-                        <EwalletIcon className='w-4 h-4' />
-                        <span>E-Wallets</span>
-                    </div>
-                    <div className="pt-2 space-y-2">
-                         {accountGroups['e-wallet'].map(account => (
-                             <MockAccountCard 
-                                key={account.id}
-                                icon={getAccountIcon('e-wallet', account.name)}
-                                name={account.name}
-                                last4={`...${account.last4}`}
-                                balance={formatCurrency(account.balance)}
-                            />
-                         ))}
                     </div>
                 </div>
 

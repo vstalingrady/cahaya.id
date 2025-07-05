@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -9,7 +8,6 @@ import TotalBalance from '@/components/dashboard/total-balance';
 import AccountCard from '@/components/dashboard/account-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Briefcase, Landmark, Coins, Eye, EyeOff, Loader2 } from 'lucide-react';
-import EwalletIcon from '@/components/icons/ewallet-icon';
 import Image from 'next/image';
 import { 
   AlertDialog, 
@@ -217,7 +215,7 @@ export default function DashboardPage() {
                             Link New
                         </Link>
                     </div>
-                    <Accordion type="multiple" defaultValue={['bank', 'e-wallet', 'investment', 'loan']} className="w-full space-y-2">
+                    <Accordion type="multiple" defaultValue={['bank', 'investment', 'loan']} className="w-full space-y-2">
                         {accountGroups.bank.length > 0 && (
                             <AccordionItem value="bank" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
                                 <AccordionTrigger className="hover:no-underline text-white">
@@ -230,24 +228,6 @@ export default function DashboardPage() {
                                 </AccordionTrigger>
                                 <AccordionContent className="pt-2 space-y-2">
                                     {accountGroups.bank.map(account => (
-                                        <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
-                                    ))}
-                                </AccordionContent>
-                            </AccordionItem>
-                        )}
-
-                        {accountGroups['e-wallet'].length > 0 && (
-                            <AccordionItem value="e-wallet" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
-                                <AccordionTrigger className="hover:no-underline text-white">
-                                    <div className='flex items-center gap-3'>
-                                        <div className="w-6 flex justify-center">
-                                            <EwalletIcon className='w-5 h-5' />
-                                        </div>
-                                        <span className='font-semibold'>E-Wallets</span>
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="pt-2 space-y-2">
-                                    {accountGroups['e-wallet'].map(account => (
                                         <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
                                     ))}
                                 </AccordionContent>
