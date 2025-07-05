@@ -18,7 +18,6 @@ export default function InfiniteLogoScroller({
   direction = 'forward',
   className,
 }: InfiniteLogoScrollerProps) {
-  // Prepare logo lists for cleaner rendering
   const originalLogos = institutions.map((inst, index) => (
     <div
       key={`logo-${inst.id}-${index}`}
@@ -55,20 +54,10 @@ export default function InfiniteLogoScroller({
   return (
     <div
       className={cn("scroller w-full overflow-hidden", className)}
+      data-speed={speed}
+      data-direction={direction}
     >
-      <div
-        className={cn(
-          "scroller-inner flex flex-nowrap gap-4 py-1",
-          direction === 'reverse' && 'scroller-inner-reverse'
-        )}
-        style={
-          {
-            "--animation-duration":
-              speed === "fast" ? "20s" : speed === "slow" ? "80s" : "40s",
-            "--animation-direction": direction === "reverse" ? "reverse" : "normal",
-          } as React.CSSProperties
-        }
-      >
+      <div className="scroller-inner flex flex-nowrap gap-4 py-1">
         {direction === 'reverse' ? (
           <>
             {clonedLogos}
@@ -81,27 +70,38 @@ export default function InfiniteLogoScroller({
           </>
         )}
       </div>
-      
+
       <style jsx>{`
-        .scroller-inner {
-          animation: scroll var(--animation-duration) linear infinite;
-          animation-direction: var(--animation-direction);
+        .scroller[data-direction="forward"] .scroller-inner {
+          animation: scroll-left linear infinite;
         }
 
-        .scroller-inner-reverse {
-          /* This is the crucial part for the reverse animation.
-             It sets the starting position to the halfway point. */
-          transform: translateX(-50%);
+        .scroller[data-direction="reverse"] .scroller-inner {
+          animation: scroll-right linear infinite;
+        }
+        
+        .scroller[data-speed="fast"] .scroller-inner {
+            animation-duration: 20s;
+        }
+        .scroller[data-speed="normal"] .scroller-inner {
+            animation-duration: 40s;
+        }
+        .scroller[data-speed="slow"] .scroller-inner {
+            animation-duration: 80s;
         }
 
         .scroller:hover .scroller-inner {
           animation-play-state: paused;
         }
 
-        @keyframes scroll {
-          to {
-            transform: translateX(-50%);
-          }
+        @keyframes scroll-left {
+          from { transform: translateX(0%); }
+          to { transform: translateX(-50%); }
+        }
+
+        @keyframes scroll-right {
+          from { transform: translateX(-50%); }
+          to { transform: translateX(0%); }
         }
       `}</style>
     </div>
