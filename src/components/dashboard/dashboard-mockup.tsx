@@ -3,7 +3,7 @@
 
 import { Landmark, Briefcase, Wallet, Coins } from 'lucide-react';
 import { cn } from "@/lib/utils"
-import { accounts, transactions } from '@/lib/data';
+import { accounts, transactions, type Account } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
 import { useMemo } from 'react';
 
@@ -13,13 +13,26 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     minimumFractionDigits: 0,
 }).format(amount);
 
-const MockAccountCard = ({ icon, name, last4, balance }: { icon: React.ReactNode, name: string, last4: string, balance: string }) => (
+const formatDisplayNumber = (account: Account): string => {
+  const { accountNumber, type } = account;
+  if (type === 'investment' || type === 'loan') {
+    return `...${accountNumber}`;
+  }
+  if (accountNumber && accountNumber.length > 4) {
+    const firstTwo = accountNumber.substring(0, 2);
+    const lastTwo = accountNumber.substring(accountNumber.length - 2);
+    return `${firstTwo}********${lastTwo}`;
+  }
+  return `...${accountNumber}`; // Fallback
+};
+
+const MockAccountCard = ({ icon, name, displayNumber, balance }: { icon: React.ReactNode, name: string, displayNumber: string, balance: string }) => (
     <div className="bg-card/80 p-3 rounded-xl flex justify-between items-center border border-border/20 shadow-sm">
         <div className="flex items-center flex-1 min-w-0">
             {icon}
             <div className="flex-1 min-w-0 flex flex-col items-start">
                 <div className="font-semibold text-white truncate text-sm text-left">{name}</div>
-                <div className="text-muted-foreground text-xs text-left">{last4}</div>
+                <div className="text-muted-foreground text-xs text-left">{displayNumber}</div>
             </div>
         </div>
         <div className="text-right ml-2">
@@ -84,7 +97,7 @@ export default function DashboardMockup({ isActive }: { isActive?: boolean }) {
                                 key={account.id}
                                 icon={getAccountIcon('bank', account.name)}
                                 name={account.name}
-                                last4={`...${account.last4}`}
+                                displayNumber={formatDisplayNumber(account)}
                                 balance={formatCurrency(account.balance)}
                             />
                         ))}
@@ -101,7 +114,7 @@ export default function DashboardMockup({ isActive }: { isActive?: boolean }) {
                                 key={account.id}
                                 icon={getAccountIcon('e-wallet', account.name)}
                                 name={account.name}
-                                last4={`...${account.last4}`}
+                                displayNumber={formatDisplayNumber(account)}
                                 balance={formatCurrency(account.balance)}
                             />
                         ))}
@@ -118,7 +131,7 @@ export default function DashboardMockup({ isActive }: { isActive?: boolean }) {
                                 key={account.id}
                                 icon={getAccountIcon('investment', account.name)}
                                 name={account.name}
-                                last4={`...${account.last4}`}
+                                displayNumber={formatDisplayNumber(account)}
                                 balance={formatCurrency(account.balance)}
                             />
                         ))}
@@ -135,7 +148,7 @@ export default function DashboardMockup({ isActive }: { isActive?: boolean }) {
                                 key={account.id}
                                 icon={getAccountIcon('loan', account.name)}
                                 name={account.name}
-                                last4={'Outstanding debt'}
+                                displayNumber={formatDisplayNumber(account)}
                                 balance={formatCurrency(account.balance)}
                             />
                         ))}

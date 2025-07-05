@@ -24,7 +24,7 @@ export type Account = {
   name: string;
   type: 'bank' | 'e-wallet' | 'investment' | 'loan';
   balance: number;
-  last4: string;
+  accountNumber: string;
   holdings?: CryptoHolding[];
 };
 
@@ -150,35 +150,35 @@ export const accounts: Account[] = [
     name: 'BCA Main Account',
     type: 'bank',
     balance: 85200501,
-    last4: '2847',
+    accountNumber: '479988776623',
   },
   {
     id: 'gopay1',
     name: 'GoPay',
     type: 'e-wallet',
     balance: 1068000,
-    last4: '0812',
+    accountNumber: '081234560812',
   },
   {
     id: 'ovo1',
     name: 'OVO Premier',
     type: 'e-wallet',
     balance: 310001,
-    last4: '0857',
+    accountNumber: '085711227829',
   },
   {
     id: 'bibit1',
     name: 'Bibit Portfolio',
     type: 'investment',
     balance: 125000000,
-    last4: 'Invst'
+    accountNumber: 'Invst'
   },
   {
     id: 'pintu1',
     name: 'Pintu Crypto',
     type: 'investment',
     balance: 75000000,
-    last4: 'Crpto',
+    accountNumber: 'Crpto',
     holdings: [
       { id: 'btc', name: 'Bitcoin', symbol: 'BTC', amount: 0.65, value: 45000000, logoUrl: 'https://placehold.co/48x48.png' },
       { id: 'eth', name: 'Ethereum', symbol: 'ETH', amount: 5, value: 25000000, logoUrl: 'https://placehold.co/48x48.png' },
@@ -190,7 +190,7 @@ export const accounts: Account[] = [
     name: 'Kredivo PayLater',
     type: 'loan',
     balance: 5500000, // Represents outstanding debt
-    last4: 'Loan'
+    accountNumber: 'Loan'
   }
 ];
 

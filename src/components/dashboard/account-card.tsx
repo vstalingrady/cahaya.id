@@ -30,6 +30,19 @@ type AccountCardProps = {
   isPrivate: boolean;
 };
 
+const formatDisplayNumber = (account: Account): string => {
+  const { accountNumber, type } = account;
+  if (type === 'investment' || type === 'loan') {
+    return `...${accountNumber}`;
+  }
+  if (accountNumber && accountNumber.length > 4) {
+    const firstTwo = accountNumber.substring(0, 2);
+    const lastTwo = accountNumber.substring(accountNumber.length - 2);
+    return `${firstTwo}********${lastTwo}`;
+  }
+  return `...${accountNumber}`; // Fallback
+};
+
 export default function AccountCard({ account, isPrivate }: AccountCardProps) {
   const formattedAmount = new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -46,7 +59,7 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
           {getAccountIcon(account.name)}
           <div className="flex-1 min-w-0 flex flex-col items-start">
             <div className="font-semibold text-lg text-white truncate text-left">{account.name}</div>
-            <div className="text-muted-foreground text-sm text-left">{isLoan ? "Outstanding debt" : `...${account.last4}`}</div>
+            <div className="text-muted-foreground text-sm text-left">{isLoan ? "Outstanding debt" : formatDisplayNumber(account)}</div>
           </div>
       </div>
       <div className="text-right ml-2">
