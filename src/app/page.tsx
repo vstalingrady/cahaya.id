@@ -97,27 +97,28 @@ const slides = [
       description: 'We support all major banks and e-wallets in Indonesia, with more coming soon.',
       content: (
         <div className="flex flex-col items-center justify-center h-full text-center w-full">
-          <h2 className="text-2xl lg:text-3xl font-bold mb-4 text-white">
-            Trusted by <span className="text-primary">200+ Institutions</span>
+          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+            Trusted by 200+ Institutions
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8 max-w-lg mx-auto">
             We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
           </p>
-          <div className="w-full max-w-4xl">
-            <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-4">
-                {financialInstitutions.slice(0, 14).map((inst) => (
-                    <div key={inst.id} className="aspect-square bg-card/60 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 border border-border/50 shadow-md">
-                        <Image
-                            src={inst.logoUrl}
-                            alt={inst.name}
-                            width={80}
-                            height={80}
-                            className="object-contain h-full w-auto max-h-12"
-                            data-ai-hint={`${inst.name} logo`}
-                        />
-                    </div>
-                ))}
-            </div>
+          <div className="w-full max-w-4xl space-y-4">
+            <InfiniteLogoScroller 
+              institutions={financialInstitutions.slice(0, 10)} 
+              direction="reverse" 
+              speed="slow" 
+            />
+            <InfiniteLogoScroller 
+              institutions={financialInstitutions.slice(10, 20)} 
+              direction="forward" 
+              speed="normal" 
+            />
+            <InfiniteLogoScroller 
+              institutions={financialInstitutions.slice(20, 30)} 
+              direction="reverse" 
+              speed="slow" 
+            />
           </div>
         </div>
       )
