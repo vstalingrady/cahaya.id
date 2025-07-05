@@ -3,10 +3,11 @@
 import * as React from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { Wallet, Loader2, Calendar, EyeOff } from "lucide-react";
+import { Wallet, Loader2, Calendar, EyeOff, TrendingUp, TrendingDown } from "lucide-react";
 import { type Transaction } from "@/lib/data";
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { format, isSameDay } from 'date-fns';
 
 const BalanceChart = dynamic(() => import('./balance-chart'), {
   ssr: false,
@@ -17,6 +18,12 @@ const BalanceChart = dynamic(() => import('./balance-chart'), {
   ),
 });
 
+type DisplayData = {
+    date: Date;
+    amount: number;
+    change: number;
+    percentageChange: number;
+};
 
 type TotalBalanceProps = {
   title: string;
@@ -26,15 +33,16 @@ type TotalBalanceProps = {
   isPrivate?: boolean;
 };
 
-export default function TotalBalance({ title, amount, transactions, showHistoryLink = false, isPrivate = false }: TotalBalanceProps) {
-  const [chartData, setChartData] = React.useState<any[]>([]);
-
-  const formattedAmount = new Intl.NumberFormat('id-ID', {
+const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+}).format(value);
+
+
+export default function TotalBalance({ title, amount, transactions, showHistoryLink = false, isPrivate = false }: TotalBalanceProps) {
+  const [chartData, setChartData] = React.useState<any[]>([]);
+  const [displayData, setDisplayData] = React.useState<DisplayData | null>(null);
 
   React.useEffect(() => {
     const generateChartData = (currentBalance: number, allTransactions: Transaction[], days: number) => {
@@ -64,15 +72,10 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
             const loopDate = new Date(startDate);
             loopDate.setDate(startDate.getDate() + i);
 
-            const dailyTransactions = allTransactions.filter(t => {
-                const tDate = new Date(t.date);
-                return tDate.getFullYear() === loopDate.getFullYear() &&
-                       tDate.getMonth() === loopDate.getMonth() &&
-                       tDate.getDate() === loopDate.getDate();
-            });
+            const dailyTransactions = allTransactions.filter(t => isSameDay(new Date(t.date), loopDate));
 
-            const dailyChange = dailyTransactions.reduce((sum, t) => sum + t.amount, 0);
-            if (dailyTransactions.length > 0) {
+            if (i > 0) {
+              const dailyChange = dailyTransactions.reduce((sum, t) => sum + t.amount, 0);
               runningBalance += dailyChange;
             }
 
@@ -91,24 +94,52 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
     };
     
     const timer = setTimeout(() => {
-        setChartData(generateChartData(amount, transactions, 14));
+        const data = generateChartData(amount, transactions, 30); // Generate 30 days of data
+        setChartData(data);
+        if (data.length > 1) {
+            const lastPoint = data[data.length - 1];
+            const secondLastPoint = data[data.length - 2];
+            const change = lastPoint.netWorth - secondLastPoint.netWorth;
+            const percentageChange = secondLastPoint.netWorth === 0 ? 0 : (change / secondLastPoint.netWorth) * 100;
+            setDisplayData({
+                date: lastPoint.date,
+                amount: lastPoint.netWorth,
+                change: change,
+                percentageChange: percentageChange
+            });
+        } else if (data.length === 1) {
+             setDisplayData({
+                date: data[0].date,
+                amount: data[0].netWorth,
+                change: 0,
+                percentageChange: 0,
+            });
+        }
+
     }, 1);
 
     return () => clearTimeout(timer);
   }, [amount, transactions]);
 
-  const dailyChange = React.useMemo(() => {
-    if (chartData.length === 0) return 0;
-    const lastDayData = chartData[chartData.length - 1];
-    if (!lastDayData || !lastDayData.transactions) return 0;
-    return lastDayData.transactions.reduce((acc: number, t: Transaction) => acc + t.amount, 0);
+
+  const handlePointSelection = React.useCallback((data: any | null) => {
+    if (!data || !chartData || chartData.length === 0) {
+      return;
+    }
+    const { point, index } = data;
+    const prevPoint = index > 0 ? chartData[index - 1] : null;
+
+    const change = prevPoint ? point.netWorth - prevPoint.netWorth : 0;
+    const percentageChange = prevPoint && prevPoint.netWorth !== 0 ? (change / prevPoint.netWorth) * 100 : 0;
+
+    setDisplayData({
+      date: point.date,
+      amount: point.netWorth,
+      change,
+      percentageChange
+    });
   }, [chartData]);
 
-  const formattedDailyChange = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(dailyChange);
 
   return (
     <div className="bg-card p-5 rounded-2xl shadow-lg shadow-primary/10 border border-border/50 relative overflow-hidden bg-gradient-to-br from-card to-primary/10">
@@ -125,20 +156,34 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
                       </Link>
                     )}
                  </div>
-                <div className="text-3xl font-bold mb-2 text-white">
-                    {isPrivate ? 'IDR ••••••••' : formattedAmount}
-                </div>
-                 {dailyChange !== 0 && !isPrivate && (
-                  <div className={cn(
-                    "flex items-center text-sm font-semibold",
-                    dailyChange > 0 ? "text-green-400" : "text-destructive"
-                  )}>
-                      <span className="text-base mr-1">{dailyChange > 0 ? '↗' : '↘'}</span>
-                      <span>{dailyChange > 0 ? '+' : ''}{formattedDailyChange} today</span>
-                  </div>
-                )}
+                 {isPrivate ? (
+                    <>
+                        <div className="text-3xl font-bold mb-2 text-white">IDR ••••••••</div>
+                        <div className="h-5"></div>
+                    </>
+                 ) : (
+                    <>
+                        <p className="text-sm text-muted-foreground">
+                            {displayData ? format(displayData.date, 'PPP') : 'Current Balance'}
+                        </p>
+                        <div className="text-3xl font-bold text-white">
+                            {displayData ? formatCurrency(displayData.amount) : <Loader2 className="w-6 h-6 animate-spin" />}
+                        </div>
+                        {displayData && displayData.change !== 0 && (
+                          <div className={cn(
+                            "flex items-center text-sm font-semibold",
+                            displayData.change >= 0 ? "text-green-400" : "text-destructive"
+                          )}>
+                              {displayData.change >= 0 ? <TrendingUp className="w-4 h-4 mr-1"/> : <TrendingDown className="w-4 h-4 mr-1"/>}
+                              <span>{displayData.change >= 0 ? '+' : ''}{formatCurrency(displayData.change)}</span>
+                              <span className="text-muted-foreground/80 ml-2">({displayData.change >= 0 ? '+' : ''}{displayData.percentageChange.toFixed(2)}%)</span>
+                          </div>
+                        )}
+                        {displayData && displayData.change === 0 && <div className="h-5" />}
+                    </>
+                 )}
             </div>
-            <div className="h-48 relative">
+            <div className="h-48 relative -ml-4 -mr-2">
                 {isPrivate ? (
                     <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-secondary/30 rounded-lg">
                         <EyeOff className="w-10 h-10 mb-2" />
@@ -146,7 +191,7 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
                     </div>
                 ) : (
                      chartData.length > 0 ? (
-                        <BalanceChart chartData={chartData} />
+                        <BalanceChart chartData={chartData} onPointSelect={handlePointSelection} />
                     ) : (
                         <div className="w-full h-full flex items-center justify-center">
                             <Loader2 className="w-8 h-8 text-muted-foreground animate-spin" />

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { type Transaction } from "@/lib/data";
 
@@ -12,13 +12,49 @@ type ChartDataPoint = {
 
 type BalanceChartProps = {
     chartData: ChartDataPoint[];
+    onPointSelect: (data: any) => void;
 };
 
-export default function BalanceChart({ chartData: dataPoints }: BalanceChartProps) {
+// --- SVG Path Smoothing Helpers ---
+const line = (pointA: number[], pointB: number[]) => {
+  const lengthX = pointB[0] - pointA[0]
+  const lengthY = pointB[1] - pointA[1]
+  return {
+    length: Math.sqrt(Math.pow(lengthX, 2) + Math.pow(lengthY, 2)),
+    angle: Math.atan2(lengthY, lengthX)
+  }
+}
+
+const controlPoint = (current: number[], previous: number[] | undefined, next: number[] | undefined, reverse?: boolean) => {
+  const p = previous || current
+  const n = next || current
+  const smoothing = 0.2
+  const o = line(p, n)
+  const angle = o.angle + (reverse ? Math.PI : 0)
+  const length = o.length * smoothing
+  const x = current[0] + Math.cos(angle) * length
+  const y = current[1] + Math.sin(angle) * length
+  return [x, y]
+}
+
+const createSmoothPath = (points: number[][]) => {
+  const bezierCommand = (point: number[], i: number, a: number[][]) => {
+    const [cpsX, cpsY] = controlPoint(a[i - 1], a[i - 2], point)
+    const [cpeX, cpeY] = controlPoint(point, a[i - 1], a[i + 1], true)
+    return `C ${cpsX},${cpsY} ${cpeX},${cpeY} ${point[0]},${point[1]}`
+  }
+  return points.reduce((acc, point, i, a) => i === 0
+    ? `M ${point[0]},${point[1]}`
+    : `${acc} ${bezierCommand(point, i, a)}`
+  , '')
+}
+// --- End of SVG Path Helpers ---
+
+export default function BalanceChart({ chartData: dataPoints, onPointSelect }: BalanceChartProps) {
   const [animationProgress, setAnimationProgress] = useState(0);
   const [hoveredPoint, setHoveredPoint] = useState<any>(null);
+  const [activeIndex, setActiveIndex] = useState<number>(dataPoints.length - 1);
   const svgRef = useRef<SVGSVGElement>(null);
-  const [activePeriod, setActivePeriod] = useState('1M');
 
   useEffect(() => {
     setAnimationProgress(0);
@@ -34,7 +70,7 @@ export default function BalanceChart({ chartData: dataPoints }: BalanceChartProp
       return () => cancelAnimationFrame(timer);
     }
   }, [animationProgress]);
-  
+
   if (!dataPoints || dataPoints.length < 2) {
       return (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
@@ -45,7 +81,7 @@ export default function BalanceChart({ chartData: dataPoints }: BalanceChartProp
 
   const chartWidth = 350;
   const chartHeight = 180;
-  const padding = { top: 10, right: 10, bottom: 30, left: 10 };
+  const padding = { top: 10, right: 10, bottom: 30, left: 50 };
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
 
@@ -53,45 +89,37 @@ export default function BalanceChart({ chartData: dataPoints }: BalanceChartProp
   const maxValue = Math.max(...dataPoints.map(d => d.netWorth));
   const valueRange = maxValue - minValue === 0 ? 1 : maxValue - minValue;
 
-  const formatValueForPath = (value: number) => {
-      return padding.top + ((maxValue - value) / valueRange) * innerHeight;
-  }
+  const getX = (index: number) => padding.left + (index / (dataPoints.length - 1)) * innerWidth;
+  const getY = (value: number) => padding.top + ((maxValue - value) / valueRange) * innerHeight;
+
+  const pathPoints = useMemo(() => 
+      dataPoints.map((p, i) => [getX(i), getY(p.netWorth)])
+  , [dataPoints, getX, getY]);
   
-  const createPath = (points: ChartDataPoint[], progress = 1) => {
-    const visiblePoints = points.slice(0, Math.ceil(points.length * progress));
-    
-    return visiblePoints.map((point, index) => {
-      const x = padding.left + (index / (points.length - 1)) * innerWidth;
-      const y = formatValueForPath(point.netWorth);
-      return `${index === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`;
-    }).join(' ');
+  const pathD = createSmoothPath(pathPoints.slice(0, Math.ceil(pathPoints.length * animationProgress)));
+
+  const createAreaPath = (points: number[][]) => {
+      const linePath = createSmoothPath(points);
+      if (points.length === 0) return "";
+      const lastX = points[points.length-1][0];
+      const firstX = points[0][0];
+      return `${linePath} L ${lastX.toFixed(2)} ${chartHeight - padding.bottom} L ${firstX.toFixed(2)} ${chartHeight - padding.bottom} Z`;
+  };
+  const areaPathD = createAreaPath(pathPoints.slice(0, Math.ceil(pathPoints.length * animationProgress)));
+  
+  const formatYAxisLabel = (value: number) => {
+    if (value >= 1e9) return `${(value / 1e9).toFixed(1)}B`;
+    if (value >= 1e6) return `${(value / 1e6).toFixed(0)}M`;
+    if (value >= 1e3) return `${(value / 1e3).toFixed(0)}K`;
+    return value.toString();
   };
 
-  const createAreaPath = (points: ChartDataPoint[], progress = 1) => {
-    const visiblePoints = points.slice(0, Math.ceil(points.length * progress));
-    
-    const linePath = visiblePoints.map((point, index) => {
-      const x = padding.left + (index / (points.length - 1)) * innerWidth;
-      const y = formatValueForPath(point.netWorth);
-      return `${index === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`;
-    }).join(' ');
-
-    if (visiblePoints.length === 0) return "";
-    const lastX = padding.left + ((visiblePoints.length - 1) / (points.length - 1)) * innerWidth;
-    
-    return `${linePath} L ${lastX.toFixed(2)} ${chartHeight - padding.bottom} L ${padding.left} ${chartHeight - padding.bottom} Z`;
-  };
+  const yAxisTicks = useMemo(() => {
+      const ticks = [minValue, minValue + valueRange * 0.5, maxValue];
+      return ticks.map(t => ({ value: t, y: getY(t) }));
+  }, [minValue, valueRange, maxValue, getY]);
   
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR',
-        minimumFractionDigits: 0,
-        notation: 'compact'
-    }).format(value);
-  };
-  
-  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+  const handleInteraction = (e: React.MouseEvent<SVGSVGElement>, isClick: boolean) => {
     if (!svgRef.current) return;
 
     const rect = svgRef.current.getBoundingClientRect();
@@ -101,24 +129,24 @@ export default function BalanceChart({ chartData: dataPoints }: BalanceChartProp
     
     if (pointIndex >= 0 && pointIndex < dataPoints.length) {
       const point = dataPoints[pointIndex];
-      const pointX = padding.left + (pointIndex / (dataPoints.length - 1)) * innerWidth;
-      const pointY = formatValueForPath(point.netWorth);
-      
+      const pointX = getX(pointIndex);
+      const pointY = getY(point.netWorth);
       const distance = Math.abs(x - pointX);
       
-      if (distance < 15) { // Check proximity on x-axis
-        setHoveredPoint({ ...point, index: pointIndex, x: pointX, y: pointY });
-      } else {
+      if (distance < 20) {
+        if(isClick) {
+            setActiveIndex(pointIndex);
+            onPointSelect({ point, index: pointIndex });
+        } else {
+            setHoveredPoint({ ...point, index: pointIndex, x: pointX, y: pointY });
+        }
+      } else if (!isClick) {
         setHoveredPoint(null);
       }
     }
   };
 
-  const visibleDates = [0, 0.25, 0.5, 0.75, 1].map(ratio => {
-    const index = Math.floor(ratio * (dataPoints.length - 1));
-    return dataPoints[index];
-  });
-
+  const activePoint = activeIndex !== null ? { ...dataPoints[activeIndex], index: activeIndex, x: getX(activeIndex), y: getY(dataPoints[activeIndex].netWorth) } : null;
 
   return (
     <div className='w-full h-full flex flex-col'>
@@ -126,8 +154,9 @@ export default function BalanceChart({ chartData: dataPoints }: BalanceChartProp
           <svg
             ref={svgRef}
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-            className="w-full h-full"
-            onMouseMove={handleMouseMove}
+            className="w-full h-full cursor-pointer"
+            onClick={(e) => handleInteraction(e, true)}
+            onMouseMove={(e) => handleInteraction(e, false)}
             onMouseLeave={() => setHoveredPoint(null)}
           >
             <defs>
@@ -141,27 +170,31 @@ export default function BalanceChart({ chartData: dataPoints }: BalanceChartProp
               </linearGradient>
             </defs>
 
-            {/* Horizontal grid lines */}
-            {[0, 0.25, 0.5, 0.75, 1].map((ratio, index) => (
-              <line
-                key={index}
-                x1={padding.left}
-                y1={padding.top + ratio * innerHeight}
-                x2={chartWidth - padding.right}
-                y2={padding.top + ratio * innerHeight}
-                stroke="hsl(var(--border))"
-                strokeWidth="1"
-                strokeDasharray="2 2"
-              />
+            {/* Y-Axis Grid Lines & Labels */}
+            {yAxisTicks.map((tick, index) => (
+              <g key={index} className="text-[10px] fill-muted-foreground">
+                <line
+                  x1={padding.left}
+                  y1={tick.y}
+                  x2={chartWidth - padding.right}
+                  y2={tick.y}
+                  stroke="hsl(var(--border))"
+                  strokeWidth="0.5"
+                  strokeDasharray="2 2"
+                />
+                <text x={padding.left - 8} y={tick.y + 3} textAnchor="end">
+                  {formatYAxisLabel(tick.value)}
+                </text>
+              </g>
             ))}
 
             <path
-              d={createAreaPath(dataPoints, animationProgress)}
+              d={areaPathD}
               fill="url(#areaGradient)"
               className="transition-all duration-300"
             />
             <path
-              d={createPath(dataPoints, animationProgress)}
+              d={pathD}
               fill="none"
               stroke="url(#lineGradient)"
               strokeWidth="2"
@@ -169,82 +202,28 @@ export default function BalanceChart({ chartData: dataPoints }: BalanceChartProp
               strokeLinejoin="round"
               className="transition-all duration-300"
             />
-            
-            {dataPoints.slice(0, Math.ceil(dataPoints.length * animationProgress)).map((point, index) => {
-              if (index === dataPoints.length - 1) {
-                  const x = padding.left + (index / (dataPoints.length - 1)) * innerWidth;
-                  const y = formatValueForPath(point.netWorth);
-                  return (
-                    <g key={index}>
-                      <circle cx={x} cy={y} r="8" fill="hsl(var(--primary) / 0.3)" className="animate-pulse" />
-                      <circle cx={x} cy={y} r="4" fill="hsl(var(--primary))" stroke="hsl(var(--card))" strokeWidth="2" />
-                    </g>
-                  )
-              }
-              return null;
-            })}
 
-            {hoveredPoint && (
+            {/* Active Point Indicator */}
+            {activePoint && (
               <g>
-                <rect
-                  x={hoveredPoint.x - 40}
-                  y={hoveredPoint.y - 40}
-                  width="80"
-                  height="32"
-                  fill="hsl(var(--popover))"
-                  rx="6"
-                  className="opacity-90"
+                <line
+                  x1={activePoint.x} y1={padding.top}
+                  x2={activePoint.x} y2={innerHeight + padding.top}
+                  stroke="hsl(var(--primary))" strokeWidth="1" strokeDasharray="3 3"
                 />
-                <text
-                  x={hoveredPoint.x}
-                  y={hoveredPoint.y - 28}
-                  textAnchor="middle"
-                  className="text-xs fill-popover-foreground font-medium"
-                >
-                  {formatCurrency(hoveredPoint.netWorth)}
-                </text>
-                <text
-                  x={hoveredPoint.x}
-                  y={hoveredPoint.y - 16}
-                  textAnchor="middle"
-                  className="text-xs fill-muted-foreground"
-                >
-                   {new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(new Date(hoveredPoint.date))}
-                </text>
+                <circle cx={activePoint.x} cy={activePoint.y} r="8" fill="hsl(var(--primary) / 0.3)" />
+                <circle cx={activePoint.x} cy={activePoint.y} r="4" fill="hsl(var(--primary))" stroke="hsl(var(--card))" strokeWidth="2" />
               </g>
             )}
-            
-            {visibleDates.map((point, index) => (
-               <text
-                    key={index}
-                    x={padding.left + (dataPoints.indexOf(point) / (dataPoints.length-1)) * innerWidth}
-                    y={chartHeight - (padding.bottom / 2.5)}
-                    textAnchor="middle"
-                    className="text-[10px] fill-muted-foreground"
-                >
-                    {new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(new Date(point.date))}
-                </text>
-            ))}
+
+             {/* Hover Tooltip (different from active point) */}
+            {hoveredPoint && hoveredPoint.index !== activeIndex && (
+              <g>
+                <circle cx={hoveredPoint.x} cy={hoveredPoint.y} r="4" fill="hsl(var(--foreground))" />
+              </g>
+            )}
 
           </svg>
-        </div>
-        
-        <div className="px-1 pt-2">
-            <div className="flex gap-2">
-            {['1D', '1W', '1M', '3M', '1Y', 'ALL'].map((period) => (
-                <button
-                key={period}
-                onClick={() => setActivePeriod(period)}
-                className={cn(`px-3 py-1 text-xs rounded-full transition-colors`,
-                    activePeriod === period 
-                    ? 'bg-primary/20 text-primary font-medium' 
-                    : 'text-muted-foreground hover:bg-secondary'
-                )}
-                >
-                {period}
-                </button>
-            ))}
-            </div>
         </div>
     </div>
   );
