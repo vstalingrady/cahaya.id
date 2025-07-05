@@ -130,7 +130,7 @@ export default function ProfilePage() {
     <div className="space-y-8 animate-fade-in-up">
       <header className="flex items-center relative">
         <Link href="/dashboard" className="absolute left-0">
-          <ArrowLeft className="w-6 h-6" />
+          <ArrowLeft className="w-6 h-6 text-foreground" />
         </Link>
         <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           Profile & Settings
@@ -226,7 +226,7 @@ export default function ProfilePage() {
                 <Label className="text-muted-foreground">Theme</Label>
                 <ThemeSwitcher />
              </div>
-             <Button asChild variant="outline" className="w-full justify-start text-left font-normal bg-secondary border-border h-14 text-base placeholder:text-muted-foreground hover:bg-secondary/80 hover:text-white">
+             <Button asChild variant="outline" className="w-full justify-start text-left font-normal bg-secondary border-border h-14 text-base placeholder:text-muted-foreground hover:bg-secondary/80">
                 <Link href="/profile/security">
                     <Shield className="mr-3" /> Security & Login
                 </Link>

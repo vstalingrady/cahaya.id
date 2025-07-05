@@ -57,7 +57,7 @@ export default function SecurityPage() {
     <div className="space-y-8 animate-fade-in-up">
       <header className="flex items-center relative">
         <Link href="/profile" className="absolute left-0">
-          <ArrowLeft className="w-6 h-6 text-white" />
+          <ArrowLeft className="w-6 h-6 text-foreground" />
         </Link>
         <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           Security & Login
@@ -72,7 +72,7 @@ export default function SecurityPage() {
         </Alert>
 
       <div className="bg-card p-5 rounded-2xl border border-border shadow-lg shadow-primary/10">
-        <h2 className="text-xl font-semibold text-white font-serif mb-2">Login History</h2>
+        <h2 className="text-xl font-semibold text-foreground font-serif mb-2">Login History</h2>
         <p className="text-muted-foreground text-sm mb-4">
             Here are the last 10 successful logins to your account.
         </p>

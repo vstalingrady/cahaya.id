@@ -65,7 +65,7 @@ export default function AddRecipientPage() {
     <div className="space-y-8 animate-fade-in-up">
        <header className="flex items-center relative">
         <Link href="/transfer" className="absolute left-0">
-          <ArrowLeft className="w-6 h-6 text-white" />
+          <ArrowLeft className="w-6 h-6 text-foreground" />
         </Link>
         <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           Add Recipient

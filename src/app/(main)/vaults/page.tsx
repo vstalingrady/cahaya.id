@@ -149,9 +149,9 @@ export default function VaultsPage() {
                                 <div className="flex items-start gap-3">
                                     <div className="text-2xl mt-1">{icons[vault.icon] || '💰'}</div>
                                     <div>
-                                        <p className="font-semibold text-lg text-white">{vault.name}</p>
+                                        <p className="font-semibold text-lg text-card-foreground">{vault.name}</p>
                                         <p className="text-sm">
-                                            <span className="text-white font-semibold">{formatCurrency(vault.currentAmount)}</span>
+                                            <span className="text-card-foreground font-semibold">{formatCurrency(vault.currentAmount)}</span>
                                             <span className="font-normal text-muted-foreground"> of {formatCurrency(vault.targetAmount)}</span>
                                         </p>
                                     </div>

@@ -99,7 +99,7 @@ export default function AddVaultPage() {
     <div className="space-y-8 animate-fade-in-up">
        <header className="flex items-center relative">
         <Link href="/vaults" className="absolute left-0">
-          <ArrowLeft className="w-6 h-6 text-white" />
+          <ArrowLeft className="w-6 h-6 text-foreground" />
         </Link>
         <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           Create New Vault
@@ -237,7 +237,7 @@ export default function AddVaultPage() {
                                 className="cursor-pointer"
                                 />
                             </FormControl>
-                            <FormLabel className="font-normal text-white flex-1 cursor-pointer">
+                            <FormLabel className="font-normal text-popover-foreground flex-1 cursor-pointer">
                               {account.name}
                             </FormLabel>
                           </FormItem>
@@ -363,19 +363,19 @@ export default function AddVaultPage() {
                                     <FormControl>
                                     <RadioGroupItem value="daily" id="daily" className="sr-only" />
                                     </FormControl>
-                                    <FormLabel htmlFor="daily" className="font-normal cursor-pointer">Daily</FormLabel>
+                                    <FormLabel htmlFor="daily" className="font-normal cursor-pointer text-card-foreground">Daily</FormLabel>
                                 </FormItem>
                                 <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'weekly' ? 'border-primary' : 'border-border')}>
                                     <FormControl>
                                     <RadioGroupItem value="weekly" id="weekly" className="sr-only" />
                                     </FormControl>
-                                    <FormLabel htmlFor="weekly" className="font-normal cursor-pointer">Weekly</FormLabel>
+                                    <FormLabel htmlFor="weekly" className="font-normal cursor-pointer text-card-foreground">Weekly</FormLabel>
                                 </FormItem>
                                 <FormItem className={cn("relative flex items-center justify-center rounded-lg border-2 p-4 transition-colors", field.value === 'monthly' ? 'border-primary' : 'border-border')}>
                                     <FormControl>
                                     <RadioGroupItem value="monthly" id="monthly" className="sr-only" />
                                     </FormControl>
-                                    <FormLabel htmlFor="monthly" className="font-normal cursor-pointer">Monthly</FormLabel>
+                                    <FormLabel htmlFor="monthly" className="font-normal cursor-pointer text-card-foreground">Monthly</FormLabel>
                                 </FormItem>
                                 </RadioGroup>
                             </FormControl>

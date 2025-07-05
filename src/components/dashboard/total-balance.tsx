@@ -198,7 +198,7 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
                  </div>
                  {isPrivate ? (
                     <>
-                        <div className="text-3xl font-bold mb-2 text-white">IDR ••••••••</div>
+                        <div className="text-3xl font-bold mb-2 text-card-foreground">IDR ••••••••</div>
                         <div className="h-5"></div>
                     </>
                  ) : (
@@ -206,7 +206,7 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
                         <p className="text-sm text-muted-foreground">
                             {displayData ? format(displayData.date, 'PPP') : 'Current Balance'}
                         </p>
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-bold text-card-foreground">
                             {displayData ? formatCurrency(displayData.amount) : <Loader2 className="w-6 h-6 animate-spin" />}
                         </div>
                         {displayData && displayData.change !== 0 && (

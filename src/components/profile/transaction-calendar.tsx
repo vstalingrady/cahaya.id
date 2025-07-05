@@ -109,13 +109,13 @@ export default function TransactionCalendar({ transactions, currentBalance }: { 
                 />
             </div>
             <div className="mt-4 border-t border-border/50 pt-4">
-                <h3 className="font-bold text-white mb-2 text-lg">
+                <h3 className="font-bold text-card-foreground mb-2 text-lg">
                     Activity on {date ? format(date, 'PPP') : 'selected date'}
                 </h3>
                 
                 <div className="mb-4 text-center">
                     <p className="text-sm text-muted-foreground">Balance at end of day</p>
-                    <p className="text-2xl font-bold text-white">{formatCurrency(dailySummary.balanceOnDate)}</p>
+                    <p className="text-2xl font-bold text-card-foreground">{formatCurrency(dailySummary.balanceOnDate)}</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 text-center mb-4">
@@ -148,7 +148,7 @@ export default function TransactionCalendar({ transactions, currentBalance }: { 
                                     <div className="flex items-center gap-3">
                                         {getAccountLogo(t.accountId)}
                                         <div>
-                                            <p className="font-semibold text-white">{t.description}</p>
+                                            <p className="font-semibold text-card-foreground">{t.description}</p>
                                             <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'p')}</p>
                                         </div>
                                     </div>

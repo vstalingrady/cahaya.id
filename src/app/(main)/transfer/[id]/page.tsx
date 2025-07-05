@@ -121,7 +121,7 @@ export default function InitiateTransferPage() {
         <div className="space-y-8 animate-fade-in-up">
             <header className="flex items-center relative">
                 <Link href="/transfer" className="absolute left-0">
-                    <ArrowLeft className="w-6 h-6 text-white" />
+                    <ArrowLeft className="w-6 h-6 text-foreground" />
                 </Link>
                 <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                     Error
@@ -138,7 +138,7 @@ export default function InitiateTransferPage() {
     <div className="space-y-8 animate-fade-in-up">
         <header className="flex items-center relative">
             <Link href="/transfer/recipients" className="absolute left-0">
-                <ArrowLeft className="w-6 h-6 text-white" />
+                <ArrowLeft className="w-6 h-6 text-foreground" />
             </Link>
             <div className="text-center mx-auto">
                 <h1 className="text-2xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -217,22 +217,22 @@ export default function InitiateTransferPage() {
                 <div className="space-y-3 bg-secondary p-5 rounded-2xl border border-border">
                     <div className="flex justify-between items-center text-sm">
                     <span className="text-muted-foreground">Transfer Amount</span>
-                    <span className="font-mono text-white">{formatCurrency(Number(amount))}</span>
+                    <span className="font-mono text-card-foreground">{formatCurrency(Number(amount))}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                     <span className="text-muted-foreground">BI-FAST Fee</span>
-                    <span className="font-mono text-white">{formatCurrency(BI_FAST_FEE)}</span>
+                    <span className="font-mono text-card-foreground">{formatCurrency(BI_FAST_FEE)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                     <span className="text-muted-foreground">Bank API Fee</span>
-                    <span className="font-mono text-white">{formatCurrency(BANK_API_FEE)}</span>
+                    <span className="font-mono text-card-foreground">{formatCurrency(BANK_API_FEE)}</span>
                     </div>
                     <div className="flex justify-between items-center text-sm">
                     <span className="text-muted-foreground">Clarity Service Fee</span>
-                    <span className="font-mono text-white">{formatCurrency(CLARITY_FEE)}</span>
+                    <span className="font-mono text-card-foreground">{formatCurrency(CLARITY_FEE)}</span>
                     </div>
                     <div className="flex justify-between items-center font-bold text-base pt-3 mt-2 border-t border-border/50">
-                    <span className="text-white">Total Debited</span>
+                    <span className="text-card-foreground">Total Debited</span>
                     <span className="font-mono text-primary">{formatCurrency(Number(amount) + TOTAL_FEE)}</span>
                     </div>
                 </div>

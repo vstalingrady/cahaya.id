@@ -72,7 +72,7 @@ export default function VaultDetailPage() {
       <div className="space-y-8 animate-fade-in-up">
         <header className="flex items-center relative">
           <Link href="/vaults" className="absolute left-0">
-            <ArrowLeft className="w-6 h-6 text-white" />
+            <ArrowLeft className="w-6 h-6 text-foreground" />
           </Link>
           <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Error
@@ -92,12 +92,12 @@ export default function VaultDetailPage() {
     <div className="space-y-8 animate-fade-in-up">
       <header className="flex items-center relative">
         <Link href="/vaults" className="absolute left-0">
-          <ArrowLeft className="w-6 h-6 text-white" />
+          <ArrowLeft className="w-6 h-6 text-foreground" />
         </Link>
         <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent truncate px-12">
            {icons[vault.icon] || '💰'} {vault.name}
         </h1>
-        <button className="absolute right-0 text-muted-foreground hover:text-white">
+        <button className="absolute right-0 text-muted-foreground hover:text-foreground">
             <Edit className="w-5 h-5"/>
         </button>
       </header>
@@ -117,13 +117,13 @@ export default function VaultDetailPage() {
 
       <div className="bg-card p-5 rounded-2xl border border-border shadow-lg">
           <div className="flex justify-between items-baseline mb-2">
-            <span className="text-white font-semibold">{formatCurrency(vault.currentAmount)}</span>
+            <span className="text-card-foreground font-semibold">{formatCurrency(vault.currentAmount)}</span>
             <span className="text-muted-foreground text-sm">Target: {formatCurrency(vault.targetAmount)}</span>
           </div>
           <div className="relative">
             <Progress value={progress} className="h-3" />
             <div 
-              className="absolute -top-1 text-xs font-bold text-white bg-primary px-2 py-0.5 rounded-full"
+              className="absolute -top-1 text-xs font-bold text-primary-foreground bg-primary px-2 py-0.5 rounded-full"
               style={{ left: `calc(${progress}% - 1.25rem)`}}
             >
                 {progressPercentage}
@@ -133,7 +133,7 @@ export default function VaultDetailPage() {
 
        {vault.isShared && vault.members && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-white font-serif">Members ({vault.members.length})</h2>
+          <h2 className="text-xl font-semibold text-foreground font-serif">Members ({vault.members.length})</h2>
           <div className="grid grid-cols-1 gap-3">
             {vault.members.map(member => (
               <div key={member.id} className="bg-card p-4 rounded-xl flex items-center justify-between border border-border">
@@ -146,9 +146,9 @@ export default function VaultDetailPage() {
                     height={40}
                     data-ai-hint="person avatar"
                    />
-                   <span className="font-semibold text-white">{member.name}</span>
+                   <span className="font-semibold text-card-foreground">{member.name}</span>
                 </div>
-                 <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-white">View Contributions</Button>
+                 <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">View Contributions</Button>
               </div>
             ))}
           </div>
@@ -156,7 +156,7 @@ export default function VaultDetailPage() {
       )}
 
        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-white font-serif">Recent Activity</h2>
+          <h2 className="text-xl font-semibold text-foreground font-serif">Recent Activity</h2>
            <div className="bg-card p-4 rounded-xl text-center text-muted-foreground border border-border">
                 No recent activity for this vault.
             </div>

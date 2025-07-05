@@ -140,7 +140,7 @@ const ScoreCircle = ({ score }: { score: number }) => {
                 />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-4xl font-bold text-white">{score}</span>
+                <span className="text-4xl font-bold text-foreground">{score}</span>
                 <span className="text-sm text-muted-foreground">Score</span>
             </div>
         </div>
@@ -362,7 +362,7 @@ export default function InsightsPage() {
                     </h1>
                     <p className="text-muted-foreground">Understand your money, take control.</p>
                 </div>
-                 <Button onClick={handleGetSuggestions} disabled={isGenerating || transactions.length === 0} size="sm" className="bg-primary/80 hover:bg-primary text-white font-semibold">
+                 <Button onClick={handleGetSuggestions} disabled={isGenerating || transactions.length === 0} size="sm" className="bg-primary/80 hover:bg-primary text-primary-foreground font-semibold">
                     {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                     <span>{isGenerating ? 'Analyzing...' : 'AI Plan'}</span>
                 </Button>
@@ -433,7 +433,7 @@ export default function InsightsPage() {
                     </ScrollArea>
                   </div>
                   <div className="bg-card backdrop-blur-xl p-5 rounded-2xl border border-border shadow-lg shadow-primary/10">
-                      <h3 className="font-semibold text-white text-center mb-4 font-serif">Spending Breakdown</h3>
+                      <h3 className="font-semibold text-card-foreground text-center mb-4 font-serif">Spending Breakdown</h3>
                       <div className="h-56 w-full">
                          {spendingData.length > 0 ? (
                           <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
@@ -454,10 +454,10 @@ export default function InsightsPage() {
                                 <div key={entry.category} onClick={() => setDetailCategory(entry.name)} className={cn("flex items-center justify-between rounded-lg p-2 transition-colors cursor-pointer hover:bg-secondary/60", activeIndex === index ? "bg-secondary" : "")}>
                                     <div className="flex items-center gap-3 flex-1 min-w-0">
                                         <div className="h-2 w-2 rounded-full flex-shrink-0" style={{ backgroundColor: chartConfig[entry.category]?.color }} />
-                                        <span className="font-medium text-white truncate">{entry.name}</span>
+                                        <span className="font-medium text-card-foreground truncate">{entry.name}</span>
                                     </div>
                                     <div className="flex items-baseline justify-end gap-x-2 ml-4 flex-shrink-0">
-                                        <span className="font-semibold text-white">{formatCurrency(entry.value)}</span>
+                                        <span className="font-semibold text-card-foreground">{formatCurrency(entry.value)}</span>
                                         <span className="w-[4ch] text-right font-mono text-muted-foreground">
                                             {totalSpending > 0 ? `${((entry.value / totalSpending) * 100).toFixed(0)}%` : '0%'}
                                         </span>
@@ -476,11 +476,11 @@ export default function InsightsPage() {
                   <div className="bg-card p-5 rounded-2xl shadow-lg shadow-primary/10 border border-border/50">
                       <div className="flex items-center justify-between gap-4">
                           <div>
-                              <h3 className="font-semibold text-white text-lg font-serif">Manage Subscriptions</h3>
+                              <h3 className="font-semibold text-card-foreground text-lg font-serif">Manage Subscriptions</h3>
                               <p className="text-sm text-muted-foreground">Find, track, and manage all your recurring payments.</p>
                           </div>
                           <div className="flex gap-2">
-                              <Button onClick={handleScanForBills} disabled={isScanning} size="sm" className="bg-primary/80 hover:bg-primary text-white font-semibold">
+                              <Button onClick={handleScanForBills} disabled={isScanning} size="sm" className="bg-primary/80 hover:bg-primary text-primary-foreground font-semibold">
                                   {isScanning ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                               </Button>
                                <Dialog open={isAddSubDialogOpen} onOpenChange={setIsAddSubDialogOpen}>
@@ -542,7 +542,7 @@ export default function InsightsPage() {
                       <>
                           <div className="bg-card p-5 rounded-2xl shadow-lg shadow-primary/10 border border-border/50 bg-gradient-to-br from-card to-primary/10">
                               <h3 className="text-sm text-muted-foreground font-semibold uppercase tracking-wide">Total Monthly Costs</h3>
-                              <p className="text-3xl font-bold text-white mt-1">{formatCurrency(totalMonthlyCost)}</p>
+                              <p className="text-3xl font-bold text-card-foreground mt-1">{formatCurrency(totalMonthlyCost)}</p>
                               <p className="text-muted-foreground text-sm mt-1">from {combinedSubscriptions.length} subscriptions</p>
                           </div>
                           
@@ -554,13 +554,13 @@ export default function InsightsPage() {
                                         <div className="flex items-center gap-4">
                                             <div className="bg-secondary p-3 rounded-lg"><Icon className="w-5 h-5 text-primary" /></div>
                                             <div>
-                                              <p className="font-semibold text-white">{bill.name}</p>
+                                              <p className="font-semibold text-card-foreground">{bill.name}</p>
                                               <p className="text-muted-foreground text-sm font-semibold">{formatCurrency(bill.estimatedAmount)}</p>
                                             </div>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-xs text-muted-foreground">Next Bill</p>
-                                            <p className="font-semibold text-white">{format(bill.nextBillDate, 'd MMM')}</p>
+                                            <p className="font-semibold text-card-foreground">{format(bill.nextBillDate, 'd MMM')}</p>
                                         </div>
                                     </div>
                                   )
@@ -571,7 +571,7 @@ export default function InsightsPage() {
                   {combinedSubscriptions.length === 0 && !isScanning && (
                       <div className="bg-card p-10 rounded-xl text-center text-muted-foreground border-2 border-dashed border-border flex flex-col items-center">
                           <Repeat className="w-12 h-12 text-muted-foreground/50 mb-4" />
-                          <h3 className="text-lg font-semibold text-white mb-2">No subscriptions found</h3>
+                          <h3 className="text-lg font-semibold text-card-foreground mb-2">No subscriptions found</h3>
                           <p className="max-w-xs mb-4">Use the AI Scan to find recurring payments or add them manually.</p>
                       </div>
                   )}
@@ -588,7 +588,7 @@ export default function InsightsPage() {
                      <div className="text-center p-6 bg-secondary/50 rounded-t-lg -m-6 mb-0 border-b border-border">
                         {aiResult?.financialHealthScore != null && <ScoreCircle score={aiResult.financialHealthScore} />}
                          <p className="text-sm font-semibold uppercase tracking-widest text-primary mt-4">Your Spender Personality</p>
-                         <DialogTitle className="text-3xl font-bold font-serif text-white mt-1">{aiResult?.spenderType}</DialogTitle>
+                         <DialogTitle className="text-3xl font-bold font-serif text-popover-foreground mt-1">{aiResult?.spenderType}</DialogTitle>
                      </div>
                  )}</DialogHeader>
                  <div className="pt-6 flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4">
@@ -597,7 +597,7 @@ export default function InsightsPage() {
                             <div><p className="text-muted-foreground leading-relaxed text-center">{aiResult?.summary}</p></div>
                             {aiResult?.suggestions && aiResult.suggestions.length > 0 && (
                                 <div className="space-y-3">
-                                    <h3 className="font-semibold text-lg text-white font-serif">Your Action Plan:</h3>
+                                    <h3 className="font-semibold text-lg text-popover-foreground font-serif">Your Action Plan:</h3>
                                     <ul className="space-y-3">
                                         {aiResult.suggestions.map((s, i) => (
                                             <li key={`sugg-${i}`} className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
@@ -610,7 +610,7 @@ export default function InsightsPage() {
                             )}
                             {aiResult?.investmentPlan && (
                                 <div className="space-y-3">
-                                    <h3 className="font-semibold text-lg text-white font-serif">Investment Idea:</h3>
+                                    <h3 className="font-semibold text-lg text-popover-foreground font-serif">Investment Idea:</h3>
                                     <div className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
                                         <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Info className="w-3 h-3 text-white" /></div>
                                         <span className="text-foreground text-sm">{aiResult.investmentPlan}</span>
@@ -619,7 +619,7 @@ export default function InsightsPage() {
                             )}
                             {aiResult?.localDeals && aiResult.localDeals.length > 0 && (
                                  <div className="space-y-3">
-                                    <h3 className="font-semibold text-lg text-white font-serif">Local Deals For You:</h3>
+                                    <h3 className="font-semibold text-lg text-popover-foreground font-serif">Local Deals For You:</h3>
                                     <ul className="space-y-3">
                                         {aiResult.localDeals.map((deal, i) => (
                                             <li key={`deal-${i}`} className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
@@ -646,7 +646,7 @@ export default function InsightsPage() {
                     {categoryTransactions.length > 0 ? categoryTransactions.map(t => (
                         <div key={t.id} className="bg-secondary p-3 rounded-lg flex items-center justify-between">
                             <div>
-                                <p className="font-semibold text-white">{t.description}</p>
+                                <p className="font-semibold text-popover-foreground">{t.description}</p>
                                 <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'dd MMM yyyy')}</p>
                             </div>
                             <p className="font-semibold font-mono text-destructive">{formatCurrency(t.amount)}</p>

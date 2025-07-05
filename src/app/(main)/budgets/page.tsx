@@ -256,7 +256,7 @@ export default function BudgetsPage() {
                              <div className="flex items-center gap-3">
                                 {getAccountLogo(t.accountId, accounts)}
                                 <div>
-                                    <p className="font-semibold text-white">{t.description}</p>
+                                    <p className="font-semibold text-popover-foreground">{t.description}</p>
                                     <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'dd MMM yyyy')}</p>
                                 </div>
                             </div>
@@ -280,7 +280,7 @@ export default function BudgetsPage() {
                         <div className="text-center p-6 bg-secondary/50 rounded-t-lg -m-6 mb-0 border-b border-border">
                             <Sparkles className="w-12 h-12 text-primary mx-auto mb-4 animate-pulse" />
                             <p className="text-sm font-semibold uppercase tracking-widest text-primary">Your AI Budget Coach</p>
-                            <DialogTitle className="text-3xl font-bold font-serif text-white mt-2">
+                            <DialogTitle className="text-3xl font-bold font-serif text-foreground mt-2">
                                 {aiResult?.coachTitle}
                             </DialogTitle>
                         </div>
@@ -297,7 +297,7 @@ export default function BudgetsPage() {
                             
                             {aiResult?.suggestions && aiResult.suggestions.length > 0 && (
                                 <div className="space-y-3">
-                                    <h3 className="font-semibold text-lg text-white font-serif">Your Action Plan:</h3>
+                                    <h3 className="font-semibold text-lg text-foreground font-serif">Your Action Plan:</h3>
                                     <ul className="space-y-3">
                                         {aiResult.suggestions.map((s, i) => (
                                             <li key={`sugg-${i}`} className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
@@ -313,7 +313,7 @@ export default function BudgetsPage() {
 
                             {aiResult?.proTip && (
                                 <div className="space-y-3">
-                                    <h3 className="font-semibold text-lg text-white font-serif">Pro Tip:</h3>
+                                    <h3 className="font-semibold text-lg text-foreground font-serif">Pro Tip:</h3>
                                     <div className="flex items-start gap-3 bg-secondary p-4 rounded-xl border border-border">
                                         <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center">
                                             <Info className="w-3 h-3 text-white" />
@@ -340,7 +340,7 @@ export default function BudgetsPage() {
                     </h1>
                     <p className="text-muted-foreground">Set spending limits for custom periods.</p>
                 </div>
-                 <Button onClick={handleGetSuggestions} disabled={isGenerating} size="sm" className="bg-primary/80 hover:bg-primary text-white font-semibold">
+                 <Button onClick={handleGetSuggestions} disabled={isGenerating} size="sm" className="bg-primary/80 hover:bg-primary text-primary-foreground font-semibold">
                     {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                     <span>{isGenerating ? 'Analyzing...' : 'AI Coach'}</span>
                 </Button>
@@ -356,7 +356,7 @@ export default function BudgetsPage() {
                         <div key={budget.id} onClick={() => setSelectedBudget(budget)} className="w-full text-left bg-card p-5 rounded-2xl border border-border shadow-lg shadow-primary/10 transition-all duration-300 hover:border-primary/50 cursor-pointer">
                             <div className="flex items-start justify-between mb-3">
                                 <div>
-                                    <p className="font-bold text-lg text-white">{budget.name}</p>
+                                    <p className="font-bold text-lg text-card-foreground">{budget.name}</p>
                                     <p className="text-sm text-muted-foreground font-medium">{budget.category} &bull; <span className="text-primary/80">{formatDateRange(budget.startDate, budget.endDate)}</span></p>
                                 </div>
                                 <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground" onClick={(e) => handleDeleteClick(e, budget)}>

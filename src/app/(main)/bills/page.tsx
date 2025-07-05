@@ -111,20 +111,20 @@ export default function BillsPage() {
         <div className="flex items-center gap-4 mb-4">
           <Sparkles className="w-8 h-8 text-primary" />
           <div>
-            <h3 className="font-semibold text-white text-lg font-serif">AI Bill Discovery</h3>
+            <h3 className="font-semibold text-card-foreground text-lg font-serif">AI Bill Discovery</h3>
             <p className="text-sm text-muted-foreground">Find recurring subscriptions & bills automatically.</p>
           </div>
         </div>
 
         {aiResult === null && !isScanning && (
-          <Button onClick={handleScanForBills} disabled={transactions.length === 0} className="w-full bg-primary/80 hover:bg-primary text-white font-semibold">
+          <Button onClick={handleScanForBills} disabled={transactions.length === 0} className="w-full bg-primary/80 hover:bg-primary text-primary-foreground font-semibold">
             <Sparkles className="w-4 h-4 mr-2" />
             Scan for Recurring Bills
           </Button>
         )}
 
         {isScanning && (
-          <Button disabled className="w-full bg-primary/80 text-white font-semibold">
+          <Button disabled className="w-full bg-primary/80 text-primary-foreground font-semibold">
             <Loader2 className="w-4 h-4 mr-2 animate-spin" />
             Scanning Transactions...
           </Button>
@@ -135,7 +135,7 @@ export default function BillsPage() {
             {aiResult.potentialBills.map(bill => (
               <div key={bill.name} className="bg-secondary p-4 rounded-lg flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-white">{bill.name}</p>
+                  <p className="font-semibold text-card-foreground">{bill.name}</p>
                   <p className="text-xs text-muted-foreground">~{formatCurrency(bill.estimatedAmount)} / month</p>
                 </div>
                 <div className="flex gap-2">
@@ -159,7 +159,7 @@ export default function BillsPage() {
                 <biller.icon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <p className="font-semibold text-lg text-white">{biller.name}</p>
+              <p className="font-semibold text-lg text-card-foreground">{biller.name}</p>
               <p className="text-muted-foreground text-sm">{biller.subtext}</p>
             </div>
           </button>

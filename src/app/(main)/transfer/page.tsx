@@ -275,7 +275,7 @@ export default function TransferPage() {
             className="p-[2px] rounded-2xl bg-gradient-to-r from-primary to-accent block"
         >
           <div className="w-full h-full bg-card rounded-[calc(1rem-2px)] p-5 flex items-center justify-center border-2 border-dashed border-card">
-              <span className="font-semibold text-xl text-white flex items-center gap-3">
+              <span className="font-semibold text-xl text-card-foreground flex items-center gap-3">
                   Pay with <Image src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Logo_QRIS.svg" alt="QRIS Logo" width={80} height={37} className="dark:invert w-20 h-auto" />
               </span>
           </div>
@@ -284,7 +284,7 @@ export default function TransferPage() {
         {/* Favorites Section */}
         <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-white font-serif">Favorites</h2>
+              <h2 className="text-xl font-semibold text-foreground font-serif">Favorites</h2>
               <div className="flex items-center gap-2">
                  <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full" onClick={() => setIsAddDialogOpen(true)}>
                   <Plus className="w-5 h-5" />
@@ -318,7 +318,7 @@ export default function TransferPage() {
                                  <Icon className="w-6 h-6" />
                                </div>
                                <div className="min-w-0 flex-1 flex flex-col justify-end overflow-hidden">
-                                 <p className="font-semibold text-sm text-white truncate mb-1" title={fav.name}>{fav.name}</p>
+                                 <p className="font-semibold text-sm text-card-foreground truncate mb-1" title={fav.name}>{fav.name}</p>
                                  <p className="text-xs text-muted-foreground font-mono truncate">{formatCurrency(fav.amount)}</p>
                                </div>
                            </div>
@@ -347,7 +347,7 @@ export default function TransferPage() {
 
         {/* Services Section */}
         <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-white font-serif">Services</h2>
+            <h2 className="text-xl font-semibold text-foreground font-serif">Services</h2>
             <div className="grid grid-cols-1 gap-4">
               {transferActions.map((action) => (
                 <Link
@@ -359,7 +359,7 @@ export default function TransferPage() {
                       <action.icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold text-lg text-white">{action.name}</p>
+                    <p className="font-semibold text-lg text-card-foreground">{action.name}</p>
                     <p className="text-muted-foreground text-sm">{action.description}</p>
                   </div>
                 </Link>
@@ -369,7 +369,7 @@ export default function TransferPage() {
         
         {/* Recent Transactions Section */}
         <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-white font-serif">Recent Transactions</h2>
+            <h2 className="text-xl font-semibold text-foreground font-serif">Recent Transactions</h2>
               <div className="relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <Input

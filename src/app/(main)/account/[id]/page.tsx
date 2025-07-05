@@ -100,7 +100,7 @@ export default function AccountDetailPage() {
       <div className="space-y-8 animate-fade-in-up">
         <header className="flex items-center relative">
             <Link href="/dashboard" className="absolute left-0">
-                <ArrowLeft className="w-6 h-6 text-white" />
+                <ArrowLeft className="w-6 h-6 text-foreground" />
             </Link>
             <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Error
@@ -149,7 +149,7 @@ export default function AccountDetailPage() {
     <div className="space-y-8 animate-fade-in-up">
       <header className="flex items-center relative">
         <Link href="/dashboard" className="absolute left-0">
-          <ArrowLeft className="w-6 h-6 text-white" />
+          <ArrowLeft className="w-6 h-6 text-foreground" />
         </Link>
         <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           {account.name}
@@ -166,19 +166,19 @@ export default function AccountDetailPage() {
 
       {account.type === 'investment' && account.holdings && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-white font-serif">Portfolio Holdings</h2>
+          <h2 className="text-xl font-semibold text-foreground font-serif">Portfolio Holdings</h2>
           <div className="grid grid-cols-1 gap-4">
             {account.holdings.map(holding => (
               <div key={holding.id} className="bg-card p-5 rounded-2xl flex items-center justify-between border border-border shadow-lg shadow-primary/10">
                 <div className="flex items-center gap-4">
                    <Image src={holding.logoUrl} alt={holding.name} width={48} height={48} className="rounded-full" data-ai-hint={`${holding.name} coin`} />
                   <div>
-                    <p className="font-semibold text-lg text-white">{holding.name}</p>
+                    <p className="font-semibold text-lg text-card-foreground">{holding.name}</p>
                     <p className="text-muted-foreground text-sm font-mono">{holding.amount} {holding.symbol}</p>
                   </div>
                 </div>
                 <div className="text-right">
-                    <p className="font-semibold text-lg text-white">{formatCurrency(holding.value)}</p>
+                    <p className="font-semibold text-lg text-card-foreground">{formatCurrency(holding.value)}</p>
                 </div>
               </div>
             ))}
@@ -188,7 +188,7 @@ export default function AccountDetailPage() {
 
       {(account.type === 'bank' || account.type === 'e-wallet') && (
          <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-white font-serif">Transaction History</h2>
+          <h2 className="text-xl font-semibold text-foreground font-serif">Transaction History</h2>
           {transactions.length > 0 ? (
             <TransactionCalendar transactions={transactions} currentBalance={account.balance} />
           ) : (

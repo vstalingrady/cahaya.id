@@ -20,7 +20,7 @@ export default function TopUpPage() {
     <div className="space-y-8 animate-fade-in-up">
       <header className="flex items-center relative">
         <Link href="/transfer" className="absolute left-0">
-          <ArrowLeft className="w-6 h-6 text-white" />
+          <ArrowLeft className="w-6 h-6 text-foreground" />
         </Link>
         <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           Top Up & Vouchers
@@ -37,7 +37,7 @@ export default function TopUpPage() {
               <service.icon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <p className="font-semibold text-lg text-white">{service.name}</p>
+              <p className="font-semibold text-lg text-card-foreground">{service.name}</p>
               <p className="text-muted-foreground text-sm">{service.description}</p>
             </div>
           </button>

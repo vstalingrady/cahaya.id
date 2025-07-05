@@ -65,7 +65,7 @@ export default function QrisPage() {
     <div className="space-y-8 animate-fade-in-up">
       <header className="flex items-center relative">
         <Link href="/transfer" className="absolute left-0">
-          <ArrowLeft className="w-6 h-6 text-white" />
+          <ArrowLeft className="w-6 h-6 text-foreground" />
         </Link>
         <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           Pay with QRIS
@@ -89,7 +89,7 @@ export default function QrisPage() {
           <div className="absolute inset-0 flex items-center justify-center p-4">
             {hasCameraPermission === null && <Loader2 className="w-12 h-12 text-primary animate-spin" />}
             {hasCameraPermission === false && (
-                <Alert variant="destructive" className="bg-destructive/80 border-red-500 text-white text-center">
+                <Alert variant="destructive" className="bg-destructive/80 border-red-500 text-destructive-foreground text-center">
                   <AlertTitle>Camera Access Required</AlertTitle>
                   <AlertDescription>
                     Please enable camera permissions in browser settings.

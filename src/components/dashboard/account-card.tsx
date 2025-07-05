@@ -7,22 +7,22 @@ const getAccountIcon = (name: string) => {
     const lowerName = name.toLowerCase();
     // Removed margins from each icon, as spacing is now handled by the parent flex container's `gap` property.
     if (lowerName.includes('bca')) {
-        return <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">BCA</div>;
+        return <div className="w-14 h-14 bg-blue-600 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">BCA</div>;
     }
     if (lowerName.includes('gopay')) {
-        return <div className="w-14 h-14 bg-sky-500 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">GP</div>;
+        return <div className="w-14 h-14 bg-sky-500 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">GP</div>;
     }
     if (lowerName.includes('ovo')) {
-        return <div className="w-14 h-14 bg-purple-600 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">OVO</div>;
+        return <div className="w-14 h-14 bg-purple-600 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">OVO</div>;
     }
     if (lowerName.includes('bibit')) {
-        return <div className="w-14 h-14 bg-green-500 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">BB</div>;
+        return <div className="w-14 h-14 bg-green-500 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">BB</div>;
     }
     if (lowerName.includes('pintu')) {
-        return <div className="w-14 h-14 bg-indigo-500 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">PT</div>;
+        return <div className="w-14 h-14 bg-indigo-500 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">PT</div>;
     }
      if (lowerName.includes('kredivo')) {
-        return <div className="w-14 h-14 bg-orange-500 rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">KR</div>;
+        return <div className="w-14 h-14 bg-orange-500 text-white rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">KR</div>;
     }
     return <div className="w-14 h-14 bg-secondary rounded-xl flex items-center justify-center text-sm font-bold shadow-lg flex-shrink-0">AC</div>;
 }
@@ -64,14 +64,14 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
       <div className="flex items-center gap-4 flex-1 min-w-0">
           {getAccountIcon(account.name)}
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-lg text-white truncate">{account.name}</p>
+            <p className="font-semibold text-lg text-card-foreground truncate">{account.name}</p>
             {subtitle && <p className="text-muted-foreground text-sm truncate">{subtitle}</p>}
           </div>
       </div>
       <div className="flex-shrink-0">
           <div className={cn(
               "font-semibold text-lg whitespace-nowrap",
-              isLoan ? "text-destructive" : "text-white"
+              isLoan ? "text-destructive" : "text-card-foreground"
             )}>
             {isPrivate ? 'IDR ••••••••' : isLoan ? `-${formattedAmount}` : formattedAmount}
           </div>
