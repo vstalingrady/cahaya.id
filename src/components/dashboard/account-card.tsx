@@ -41,9 +41,9 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
     <>
       <div className="flex items-center flex-1 min-w-0">
           {getAccountIcon(account.name)}
-          <div className="flex-1 min-w-0">
-            <div className="font-semibold text-lg text-white truncate">{account.name}</div>
-            <div className="text-muted-foreground text-sm">{isLoan ? "Outstanding debt" : `...${account.last4}`}</div>
+          <div className="flex-1 min-w-0 flex flex-col">
+            <div className="font-semibold text-lg text-white truncate text-left">{account.name}</div>
+            <div className="text-muted-foreground text-sm text-left">{isLoan ? "Outstanding debt" : `...${account.last4}`}</div>
           </div>
       </div>
       <div className="text-right ml-2">

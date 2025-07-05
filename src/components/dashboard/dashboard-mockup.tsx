@@ -17,9 +17,9 @@ const MockAccountCard = ({ icon, name, last4, balance }: { icon: React.ReactNode
     <div className="bg-card/80 p-3 rounded-xl flex justify-between items-center border border-border/20 shadow-sm">
         <div className="flex items-center flex-1 min-w-0">
             {icon}
-            <div className="flex-1 min-w-0">
-                <div className="font-semibold text-white truncate text-sm">{name}</div>
-                <div className="text-muted-foreground text-xs">{last4}</div>
+            <div className="flex-1 min-w-0 flex flex-col">
+                <div className="font-semibold text-white truncate text-sm text-left">{name}</div>
+                <div className="text-muted-foreground text-xs text-left">{last4}</div>
             </div>
         </div>
         <div className="text-right ml-2">
