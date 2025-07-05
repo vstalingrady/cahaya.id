@@ -156,4 +156,21 @@
     background-size: 200% auto;
     animation: text-shine 3s linear infinite, gemini-glow 4s ease-in-out infinite;
   }
+  
+  .has-hero-glow::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 50vh;
+    background: radial-gradient(
+      ellipse 80% 50% at 50% 0%,
+      hsl(var(--primary) / 0.15),
+      transparent 80%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
 }
