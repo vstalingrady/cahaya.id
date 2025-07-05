@@ -86,7 +86,7 @@ export default function VaultsPage() {
             </AlertDialog>
 
 
-            <div className="space-y-6 animate-fade-in-up">
+            <div className="space-y-4 animate-fade-in-up">
                 <div>
                     <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                         Cuan Vaults

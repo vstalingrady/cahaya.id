@@ -31,7 +31,7 @@ export default function WelcomeVaultsMockup({ className }: { className?: string 
             "relative w-full max-w-sm h-[400px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden",
             className
         )}>
-            <div className="w-full h-full space-y-3 overflow-y-auto custom-scrollbar pr-2 -mr-2">
+            <div className="w-full h-full space-y-2 overflow-y-auto custom-scrollbar pr-2 -mr-2">
                 {vaults.map(vault => (
                     <div key={vault.id} className="block bg-card/90 backdrop-blur-sm p-4 rounded-xl border border-border/50 group">
                         <div className="flex items-start justify-between mb-3">
