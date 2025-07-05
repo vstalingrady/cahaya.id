@@ -18,9 +18,28 @@ export default function InfiniteLogoScroller({
   direction = 'forward',
   className,
 }: InfiniteLogoScrollerProps) {
-  const logoList = institutions.map((inst, index) => (
+  // Create the list of original logos
+  const originalLogos = institutions.map((inst, index) => (
     <div
-      key={`${inst.id}-${index}`}
+      key={`logo-${inst.id}-${index}`}
+      className="flex-shrink-0 w-24 h-24 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 border border-border shadow-md transition-all duration-300 hover:shadow-primary/20 hover:bg-white hover:scale-105"
+    >
+      <Image
+        src={inst.logoUrl}
+        alt={inst.name}
+        width={80}
+        height={80}
+        className="object-contain w-full h-full"
+        data-ai-hint={`${inst.name} logo`}
+      />
+    </div>
+  ));
+
+  // Create the identical list of cloned logos for the loop
+  const clonedLogos = institutions.map((inst, index) => (
+    <div
+      key={`logo-clone-${inst.id}-${index}`}
+      aria-hidden="true"
       className="flex-shrink-0 w-24 h-24 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 border border-border shadow-md transition-all duration-300 hover:shadow-primary/20 hover:bg-white hover:scale-105"
     >
       <Image
@@ -39,29 +58,45 @@ export default function InfiniteLogoScroller({
       className={cn("scroller w-full overflow-hidden", className)}
     >
       <div
-        className="scroller-inner flex flex-nowrap gap-4 py-1"
-        data-direction={direction}
+        className={cn(
+          "scroller-inner flex flex-nowrap gap-4 py-1",
+          direction === 'reverse' && 'scroller-inner-reverse'
+        )}
         style={
           {
             "--animation-duration":
               speed === "fast" ? "20s" : speed === "slow" ? "80s" : "40s",
+            "--animation-direction": direction === "reverse" ? "reverse" : "normal",
           } as React.CSSProperties
         }
       >
-        {logoList}
-        {/* We add the duplicated logos here, inside an aria-hidden div for accessibility */}
-        <div className="flex flex-nowrap gap-4" aria-hidden="true">
-            {logoList}
-        </div>
+        {/* Conditionally render the logo order based on direction, as per your spec */}
+        {direction === 'reverse' ? (
+          <>
+            {clonedLogos}
+            {originalLogos}
+          </>
+        ) : (
+          <>
+            {originalLogos}
+            {clonedLogos}
+          </>
+        )}
       </div>
       
       <style jsx>{`
         .scroller-inner {
           animation: scroll var(--animation-duration) linear infinite;
+          animation-direction: var(--animation-direction);
         }
 
-        .scroller-inner[data-direction="reverse"] {
-            animation-direction: reverse;
+        .scroller-inner-reverse {
+          /* 
+            This sets the initial state for the reverse animation.
+            The 'reverse' animation direction will then animate it
+            from -50% (the end) back to 0% (the start), creating a seamless loop.
+          */
+          transform: translateX(-50%);
         }
 
         .scroller:hover .scroller-inner {
@@ -69,9 +104,6 @@ export default function InfiniteLogoScroller({
         }
 
         @keyframes scroll {
-          from {
-            transform: translateX(0%);
-          }
           to {
             transform: translateX(-50%);
           }
