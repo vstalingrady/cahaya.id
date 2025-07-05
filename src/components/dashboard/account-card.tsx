@@ -10,6 +10,9 @@ const getAccountIcon = (name: string) => {
     if (lowerName.includes('gopay')) {
         return <div className="w-14 h-14 bg-sky-500 rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">GP</div>;
     }
+    if (lowerName.includes('ovo')) {
+        return <div className="w-14 h-14 bg-purple-600 rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">OVO</div>;
+    }
     if (lowerName.includes('bibit')) {
         return <div className="w-14 h-14 bg-green-500 rounded-xl mr-4 flex items-center justify-center text-sm font-bold shadow-lg">BB</div>;
     }
@@ -41,7 +44,7 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
     <>
       <div className="flex items-center flex-1 min-w-0">
           {getAccountIcon(account.name)}
-          <div className="flex-1 min-w-0 flex flex-col">
+          <div className="flex-1 min-w-0 flex flex-col items-start">
             <div className="font-semibold text-lg text-white truncate text-left">{account.name}</div>
             <div className="text-muted-foreground text-sm text-left">{isLoan ? "Outstanding debt" : `...${account.last4}`}</div>
           </div>
@@ -56,9 +59,11 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
 
   const baseClasses = "bg-card p-3 rounded-2xl flex justify-between items-center border border-border shadow-lg";
 
-  if (isLoan) {
+  const isClickable = account.type === 'bank' || account.type === 'investment';
+
+  if (!isClickable) {
     return (
-      <div className={`${baseClasses} opacity-70`}>
+      <div className={`${baseClasses} ${isLoan ? 'opacity-70' : ''}`}>
           {cardContent}
       </div>
     );

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Landmark, Briefcase } from 'lucide-react';
+import { Landmark, Briefcase, Wallet, Coins } from 'lucide-react';
 import { cn } from "@/lib/utils"
 import { accounts, transactions } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
@@ -17,7 +17,7 @@ const MockAccountCard = ({ icon, name, last4, balance }: { icon: React.ReactNode
     <div className="bg-card/80 p-3 rounded-xl flex justify-between items-center border border-border/20 shadow-sm">
         <div className="flex items-center flex-1 min-w-0">
             {icon}
-            <div className="flex-1 min-w-0 flex flex-col">
+            <div className="flex-1 min-w-0 flex flex-col items-start">
                 <div className="font-semibold text-white truncate text-sm text-left">{name}</div>
                 <div className="text-muted-foreground text-xs text-left">{last4}</div>
             </div>
@@ -35,7 +35,10 @@ const getAccountIcon = (type: string, name: string) => {
     const lowerName = name.toLowerCase();
     if (lowerName.includes('bca')) return <div className={cn(baseClasses, "bg-blue-600")}>BCA</div>;
     if (lowerName.includes('gopay')) return <div className={cn(baseClasses, "bg-sky-500")}>GP</div>;
+    if (lowerName.includes('ovo')) return <div className={cn(baseClasses, "bg-purple-600")}>OVO</div>;
     if (lowerName.includes('bibit')) return <div className={cn(baseClasses, "bg-green-500")}>BB</div>;
+    if (lowerName.includes('pintu')) return <div className={cn(baseClasses, "bg-indigo-500")}>PT</div>;
+    if (lowerName.includes('kredivo')) return <div className={cn(baseClasses, "bg-orange-500")}>KR</div>;
     return <div className={cn(baseClasses, "bg-secondary")}>AC</div>;
 }
 
@@ -54,6 +57,8 @@ export default function DashboardMockup({ isActive }: { isActive?: boolean }) {
 
         const accountGroups = {
             bank: accounts.filter(a => a.type === 'bank'),
+            ewallet: accounts.filter(a => a.type === 'e-wallet'),
+            investment: accounts.filter(a => a.type === 'investment'),
             loan: accounts.filter(a => a.type === 'loan'),
         };
 
@@ -80,6 +85,57 @@ export default function DashboardMockup({ isActive }: { isActive?: boolean }) {
                                 icon={getAccountIcon('bank', account.name)}
                                 name={account.name}
                                 last4={`...${account.last4}`}
+                                balance={formatCurrency(account.balance)}
+                            />
+                        ))}
+                    </div>
+                </div>
+                 <div className="bg-card p-4 rounded-xl border-none shadow-md">
+                     <div className='flex items-center gap-3 text-white font-semibold text-sm'>
+                        <Wallet className='w-4 h-4' />
+                        <span>E-Money</span>
+                    </div>
+                    <div className="pt-2 space-y-2">
+                         {accountGroups.ewallet.map(account => (
+                            <MockAccountCard 
+                                key={account.id}
+                                icon={getAccountIcon('e-wallet', account.name)}
+                                name={account.name}
+                                last4={`...${account.last4}`}
+                                balance={formatCurrency(account.balance)}
+                            />
+                        ))}
+                    </div>
+                </div>
+                 <div className="bg-card p-4 rounded-xl border-none shadow-md">
+                     <div className='flex items-center gap-3 text-white font-semibold text-sm'>
+                        <Briefcase className='w-4 h-4' />
+                        <span>Investments</span>
+                    </div>
+                    <div className="pt-2 space-y-2">
+                         {accountGroups.investment.map(account => (
+                            <MockAccountCard 
+                                key={account.id}
+                                icon={getAccountIcon('investment', account.name)}
+                                name={account.name}
+                                last4={`...${account.last4}`}
+                                balance={formatCurrency(account.balance)}
+                            />
+                        ))}
+                    </div>
+                </div>
+                 <div className="bg-card p-4 rounded-xl border-none shadow-md">
+                     <div className='flex items-center gap-3 text-white font-semibold text-sm'>
+                        <Coins className='w-4 h-4' />
+                        <span>Loans</span>
+                    </div>
+                    <div className="pt-2 space-y-2">
+                         {accountGroups.loan.map(account => (
+                            <MockAccountCard 
+                                key={account.id}
+                                icon={getAccountIcon('loan', account.name)}
+                                name={account.name}
+                                last4={'Outstanding debt'}
                                 balance={formatCurrency(account.balance)}
                             />
                         ))}

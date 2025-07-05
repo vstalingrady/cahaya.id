@@ -7,7 +7,7 @@ import { type Account, type Transaction } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
 import AccountCard from '@/components/dashboard/account-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Landmark, Coins, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Landmark, Coins, Eye, EyeOff, Loader2, Wallet, Briefcase } from 'lucide-react';
 import Image from 'next/image';
 import { 
   AlertDialog, 
@@ -117,6 +117,8 @@ export default function DashboardPage() {
 
         const accountGroups = {
             bank: accountList.filter(a => a.type === 'bank'),
+            ewallet: accountList.filter(a => a.type === 'e-wallet'),
+            investment: accountList.filter(a => a.type === 'investment'),
             loan: accountList.filter(a => a.type === 'loan'),
         };
 
@@ -213,7 +215,7 @@ export default function DashboardPage() {
                             Link New
                         </Link>
                     </div>
-                    <Accordion type="multiple" defaultValue={['bank', 'loan']} className="w-full space-y-2">
+                    <Accordion type="multiple" defaultValue={['bank', 'ewallet', 'investment', 'loan']} className="w-full space-y-2">
                         {accountGroups.bank.length > 0 && (
                             <AccordionItem value="bank" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
                                 <AccordionTrigger className="hover:no-underline text-white">
@@ -232,6 +234,42 @@ export default function DashboardPage() {
                             </AccordionItem>
                         )}
                         
+                        {accountGroups.ewallet.length > 0 && (
+                            <AccordionItem value="ewallet" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
+                                <AccordionTrigger className="hover:no-underline text-white">
+                                    <div className='flex items-center gap-3'>
+                                        <div className="w-6 flex justify-center">
+                                            <Wallet className='w-5 h-5' />
+                                        </div>
+                                        <span className='font-semibold'>E-Money</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="pt-2 space-y-2">
+                                    {accountGroups.ewallet.map(account => (
+                                        <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
+                                    ))}
+                                </AccordionContent>
+                            </AccordionItem>
+                        )}
+
+                        {accountGroups.investment.length > 0 && (
+                            <AccordionItem value="investment" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
+                                <AccordionTrigger className="hover:no-underline text-white">
+                                    <div className='flex items-center gap-3'>
+                                        <div className="w-6 flex justify-center">
+                                            <Briefcase className='w-5 h-5' />
+                                        </div>
+                                        <span className='font-semibold'>Investments</span>
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="pt-2 space-y-2">
+                                    {accountGroups.investment.map(account => (
+                                        <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
+                                    ))}
+                                </AccordionContent>
+                            </AccordionItem>
+                        )}
+
                         {accountGroups.loan.length > 0 && (
                             <AccordionItem value="loan" className="bg-card backdrop-blur-xl rounded-2xl border-none shadow-lg shadow-primary/10 px-5">
                                 <AccordionTrigger className="hover:no-underline text-white">
