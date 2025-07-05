@@ -1,9 +1,12 @@
+
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Plus, Trash2, Loader2, Sparkles, Check, Info } from 'lucide-react';
 import Link from 'next/link';
-import { budgets as initialBudgets, transactions, accounts, Budget, Transaction } from '@/lib/data';
+import { type Budget, type Transaction, type Account } from '@/lib/data';
+import { getBudgets, getDashboardData, deleteBudget, getBudgetAnalysis } from '@/lib/actions';
+import { useAuth } from '@/components/auth/auth-provider';
 import { Progress } from '@/components/ui/progress';
 import {
   AlertDialog,
@@ -26,25 +29,39 @@ import {
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { format, isWithinInterval } from 'date-fns';
-import { getBudgetAnalysis } from '@/lib/actions';
 import { type BudgetAnalysisOutput } from '@/ai/flows/budget-analysis';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-
+/**
+ * A utility function to format a number into Indonesian Rupiah currency format.
+ * @param {number} value - The numeric value to format.
+ * @returns {string} The formatted currency string (e.g., "Rp 50.000").
+ */
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
   style: 'currency',
   currency: 'IDR',
   minimumFractionDigits: 0,
 }).format(value);
 
+/**
+ * Formats a date range string for display.
+ * @param {string} startDate - The start date string ("YYYY-MM-DD").
+ * @param {string} endDate - The end date string ("YYYY-MM-DD").
+ * @returns {string} The formatted date range (e.g., "1 Jul - 31 Jul 2024").
+ */
 const formatDateRange = (startDate: string, endDate: string) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     return `${format(start, 'd MMM')} - ${format(end, 'd MMM yyyy')}`;
 }
 
-const getAccountLogo = (accountId: string) => {
+/**
+ * A helper function to determine which account logo to display based on the account name.
+ * @param {string} accountId - The ID of the account for the transaction.
+ * @param {Account[]} accounts - The full list of the user's accounts.
+ * @returns {JSX.Element} A div styled to look like an account logo.
+ */
+const getAccountLogo = (accountId: string, accounts: Account[]) => {
     const account = accounts.find(a => a.id === accountId);
     if (!account) return <div className="w-8 h-8 rounded-lg bg-gray-500 flex-shrink-0"></div>;
     const name = account.name.toLowerCase();
@@ -54,15 +71,61 @@ const getAccountLogo = (accountId: string) => {
     return <div className="w-8 h-8 rounded-lg bg-gray-500 flex-shrink-0"></div>;
 }
 
+/**
+ * The main component for the Budgets page.
+ * It fetches and displays user budgets, shows spending progress, and allows for deletions and AI analysis.
+ */
 export default function BudgetsPage() {
-    const [budgets, setBudgets] = useState<Budget[]>(initialBudgets);
+    // --- STATE MANAGEMENT ---
+    const { user } = useAuth(); // Get the authenticated user.
+    const { toast } = useToast(); // Hook for showing notifications.
+
+    // State for the data fetched from Firestore.
+    const [isLoading, setIsLoading] = useState(true);
+    const [budgets, setBudgets] = useState<Budget[]>([]);
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [accounts, setAccounts] = useState<Account[]>([]);
+
+    // State for UI interactions (dialogs, AI results).
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const [budgetToDelete, setBudgetToDelete] = useState<Budget | null>(null);
     const [selectedBudget, setSelectedBudget] = useState<Budget | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [aiResult, setAiResult] = useState<(BudgetAnalysisOutput & { error?: string }) | null>(null);
-    const { toast } = useToast();
 
+    // --- DATA FETCHING ---
+    // This effect fetches all necessary data from Firestore when the component mounts or the user changes.
+    useEffect(() => {
+      const fetchData = async () => {
+        if (!user) return;
+        setIsLoading(true);
+        try {
+          // Fetch budgets and dashboard data (accounts, transactions) in parallel.
+          const [fetchedBudgets, dashboardData] = await Promise.all([
+            getBudgets(user.uid),
+            getDashboardData(user.uid),
+          ]);
+          setBudgets(fetchedBudgets);
+          setTransactions(dashboardData.transactions);
+          setAccounts(dashboardData.accounts);
+        } catch (error) {
+          console.error("Failed to fetch budgets data:", error);
+          toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Could not load your budgets data.'
+          });
+        } finally {
+          setIsLoading(false);
+        }
+      };
+      fetchData();
+    }, [user, toast]);
+
+    // --- MEMOIZED COMPUTATIONS ---
+    // These hooks recalculate derived data only when their dependencies change, improving performance.
+
+    // Calculate total spending for each budget.
     const spendingPerBudget = useMemo(() => {
         const spending = new Map<string, number>();
         budgets.forEach(budget => {
@@ -70,15 +133,16 @@ export default function BudgetsPage() {
             const budgetSpending = transactions
                 .filter(t => 
                     t.category === budget.category &&
-                    t.amount < 0 &&
+                    t.amount < 0 && // Only count expenses
                     isWithinInterval(new Date(t.date), budgetInterval)
                 )
                 .reduce((acc, t) => acc + Math.abs(t.amount), 0);
             spending.set(budget.id, budgetSpending);
         });
         return spending;
-    }, [budgets]);
+    }, [budgets, transactions]);
     
+    // Get the list of transactions associated with the currently selected budget.
     const budgetTransactions = useMemo(() => {
         if (!selectedBudget) return [];
         const budgetInterval = { start: new Date(selectedBudget.startDate), end: new Date(selectedBudget.endDate) };
@@ -87,30 +151,46 @@ export default function BudgetsPage() {
             t.amount < 0 &&
             isWithinInterval(new Date(t.date), budgetInterval)
         );
-    }, [selectedBudget]);
+    }, [selectedBudget, transactions]);
 
+    // --- EVENT HANDLERS ---
+
+    // Set the state to show the delete confirmation dialog.
     const handleDeleteClick = (e: React.MouseEvent, budget: Budget) => {
-        e.stopPropagation();
+        e.stopPropagation(); // Prevent the click from opening the details dialog.
         setBudgetToDelete(budget);
         setShowDeleteDialog(true);
     }
 
-    const handleDeleteConfirm = () => {
-        if (!budgetToDelete) return;
-        setBudgets(budgets.filter(b => b.id !== budgetToDelete.id));
-        toast({
-            title: "Budget Deleted",
-            description: `The "${budgetToDelete.name}" budget has been successfully deleted.`,
-        });
-        setShowDeleteDialog(false);
-        setBudgetToDelete(null);
+    // Handle the actual deletion after confirmation.
+    const handleDeleteConfirm = async () => {
+        if (!budgetToDelete || !user) return;
+        try {
+            // Call the server action to delete the budget from Firestore.
+            await deleteBudget(user.uid, budgetToDelete.id);
+            // Update the local state to remove the budget from the UI instantly.
+            setBudgets(budgets.filter(b => b.id !== budgetToDelete.id));
+            toast({
+                title: "Budget Deleted",
+                description: `The "${budgetToDelete.name}" budget has been successfully deleted.`,
+            });
+        } catch (error) {
+            console.error("Failed to delete budget:", error);
+            toast({ variant: 'destructive', title: 'Error', description: 'Could not delete the budget.' });
+        } finally {
+            setShowDeleteDialog(false);
+            setBudgetToDelete(null);
+        }
     }
 
+    // Handle the request for AI-powered budget analysis.
     const handleGetSuggestions = async () => {
         setIsGenerating(true);
         setAiResult(null);
         try {
-            const result = await getBudgetAnalysis(budgets, transactions);
+            if (!user) throw new Error("User not authenticated");
+            // Pass the user ID to the server action, which will fetch the necessary data.
+            const result = await getBudgetAnalysis(user.uid);
             setAiResult(result);
         } catch (e) {
             setAiResult({
@@ -124,14 +204,26 @@ export default function BudgetsPage() {
         setIsGenerating(false);
     };
     
+    // Helper function to determine the color of the progress bar based on spending.
     const getProgressColor = (progress: number) => {
-        if (progress > 100) return '[&>div]:bg-destructive';
-        if (progress > 75) return '[&>div]:bg-yellow-500';
-        return '[&>div]:bg-primary';
+        if (progress > 100) return '[&>div]:bg-destructive'; // Red if over budget
+        if (progress > 75) return '[&>div]:bg-yellow-500'; // Yellow as a warning
+        return '[&>div]:bg-primary'; // Default primary color
+    }
+    
+    // Show a loading spinner while fetching initial data.
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center h-full pt-24">
+            <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        </div>
+      );
     }
 
+    // --- RENDER ---
     return (
         <>
+        {/* Delete Confirmation Dialog */}
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
             <AlertDialogContent className="bg-popover text-popover-foreground border-border">
                 <AlertDialogHeader>
@@ -149,6 +241,7 @@ export default function BudgetsPage() {
             </AlertDialogContent>
         </AlertDialog>
 
+        {/* Transaction Details Dialog */}
         <Dialog open={!!selectedBudget} onOpenChange={(open) => !open && setSelectedBudget(null)}>
             <DialogContent className="bg-popover text-popover-foreground border-border">
                 <DialogHeader>
@@ -161,7 +254,7 @@ export default function BudgetsPage() {
                     {budgetTransactions.length > 0 ? budgetTransactions.map(t => (
                         <div key={t.id} className="bg-secondary p-3 rounded-lg flex items-center justify-between">
                              <div className="flex items-center gap-3">
-                                {getAccountLogo(t.accountId)}
+                                {getAccountLogo(t.accountId, accounts)}
                                 <div>
                                     <p className="font-semibold text-white">{t.description}</p>
                                     <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'dd MMM yyyy')}</p>
@@ -177,6 +270,7 @@ export default function BudgetsPage() {
             </DialogContent>
         </Dialog>
         
+        {/* AI Analysis Result Dialog */}
         <Dialog open={!!aiResult} onOpenChange={(open) => !open && setAiResult(null)}>
             <DialogContent className="bg-popover text-popover-foreground border-border max-w-md max-h-[85vh] flex flex-col">
                  <DialogHeader>
@@ -237,6 +331,7 @@ export default function BudgetsPage() {
             </DialogContent>
         </Dialog>
 
+        {/* Main Page Content */}
         <div className="space-y-8 animate-fade-in-up">
             <div className="flex justify-between items-start">
                 <div>

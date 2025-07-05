@@ -1,53 +1,66 @@
+/**
+ * @file src/app/(main)/transfer/page.tsx
+ * @fileoverview This is the main "Pay & Transfer" page. It serves as a central hub for
+ * all payment-related activities, including QRIS payments, managing favorite transactions,
+ * accessing services like bill pay and top-up, and viewing recent transaction history.
+ * It's a client component because it requires significant user interaction and state management.
+ */
 
 'use client';
 
+// Import core React hooks for state and side-effect management.
 import { useState, useMemo, useCallback, useEffect, type ElementType } from 'react';
+// Import the Embla Carousel hook for the "Favorites" scroller.
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react'
+// Import Next.js components for images and navigation.
 import Image from 'next/image';
-import {
-  ChevronRight,
-  Send,
-  Wallet,
-  ReceiptText,
-  Search,
-  Plus,
-  X,
-  User,
-  Clapperboard,
-  CreditCard,
-  ShoppingCart,
-  Home,
-  Building,
-} from 'lucide-react';
 import Link from 'next/link';
+// Import Lucide icons for a consistent UI.
+import {
+  ChevronRight, Send, Wallet, ReceiptText, Search, Plus, X, User, Clapperboard,
+  CreditCard, ShoppingCart, Home, Building, Loader2,
+} from 'lucide-react';
+// Import UI components from ShadCN.
 import { Input } from '@/components/ui/input';
 import TransactionHistory from '@/components/dashboard/transaction-history';
-import { transactions } from '@/lib/data';
-import { FavoriteTransaction } from '@/app/api/favorites/route';
 import { Button } from '@/components/ui/button';
-import { useToast } from '@/hooks/use-toast';
-
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+// Import server actions to interact with the Firestore database.
+import { addFavorite, getDashboardData, getFavorites, removeFavorite } from '@/lib/actions';
+// Import data type definitions.
+import { type Account, type Transaction, type FavoriteTransaction } from '@/lib/data';
+// Import custom hooks for authentication and toast notifications.
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/components/auth/auth-provider';
+// Import form validation libraries.
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+// Import utility function for conditional class names.
 import { cn } from '@/lib/utils';
 
 
+// An array of objects defining the main service actions on this page.
 const transferActions = [
   { name: 'Transfer', icon: Send, href: '/transfer/recipients', description: "To any bank account" },
   { name: 'Pay Bills', icon: ReceiptText, href: '/bills', description: "PLN, BPJS, TV, etc." },
   { name: 'Top Up', icon: Wallet, href: '/transfer/top-up', description: "GoPay, OVO, Credit" },
 ];
 
-const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
+/**
+ * A utility function to format a number into Indonesian Rupiah currency format.
+ * @param {number} amount - The numeric value to format.
+ * @returns {string} The formatted currency string (e.g., "Rp 50.000").
+ */
+const formatCurrency = (amount: number): string => new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
 }).format(amount);
 
+// Zod schema for validating the "Add Favorite" form.
 const favoriteSchema = z.object({
   name: z.string().min(1, { message: 'Name is required.' }).max(25, { message: 'Name cannot be longer than 25 characters.' }),
   amount: z.coerce.number().min(1000, { message: 'Minimum amount is IDR 1,000.' }),
@@ -55,17 +68,13 @@ const favoriteSchema = z.object({
   icon: z.string().min(1, { message: 'An icon is required.' }),
 });
 
+// A dictionary mapping icon names (strings) to their actual component types.
 const availableIcons: { [key: string]: ElementType } = {
-  User,
-  Clapperboard,
-  CreditCard,
-  Wallet,
-  ShoppingCart,
-  Home,
-  Building,
+  User, Clapperboard, CreditCard, Wallet, ShoppingCart, Home, Building,
 };
 type IconName = keyof typeof availableIcons;
 
+// An array of objects for the icon selection dropdown in the "Add Favorite" form.
 const iconSelectItems = [
   { value: 'User', label: 'Person / User' },
   { value: 'Clapperboard', label: 'Entertainment / Movie' },
@@ -76,83 +85,123 @@ const iconSelectItems = [
   { value: 'Building', label: 'Apartment / Bills' },
 ];
 
-
+/**
+ * The main component for the Transfer page.
+ * @returns {JSX.Element} The rendered page content.
+ */
 export default function TransferPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [favorites, setFavorites] = useState<FavoriteTransaction[]>([]);
+  // Hooks for authentication and notifications.
+  const { user } = useAuth();
+  const { toast } = useToast();
 
+  // State management for data, loading status, and UI controls.
+  const [isLoading, setIsLoading] = useState(true);
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [favorites, setFavorites] = useState<FavoriteTransaction[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+
+  // This effect fetches all necessary data from Firestore when the component mounts or the user changes.
   useEffect(() => {
-    const fetchFavorites = async () => {
+    // Don't fetch if there's no authenticated user.
+    if (!user) return;
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
-        const response = await fetch('/api/favorites');
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data: FavoriteTransaction[] = await response.json();
-        setFavorites(data);
+        // Fetch dashboard data (accounts, transactions) and favorites in parallel for efficiency.
+        const [dashboardData, favoritesData] = await Promise.all([
+          getDashboardData(user.uid),
+          getFavorites(user.uid),
+        ]);
+        setAccounts(dashboardData.accounts);
+        setTransactions(dashboardData.transactions);
+        setFavorites(favoritesData);
       } catch (error) {
-        console.error("Failed to fetch favorites:", error);
-        toast({ title: 'Error', description: 'Failed to load favorites.', variant: 'destructive' });
+        console.error("Failed to fetch page data:", error);
+        toast({ title: 'Error', description: 'Failed to load data for this page.', variant: 'destructive' });
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchFavorites();
-  }, []);
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const { toast } = useToast();
+    fetchData();
+  }, [user, toast]);
 
+  // Hooks for managing the Embla Carousel instance.
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: true,
     align: 'start',
   });
-
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 
+  // A memoized callback to update the active dot indicator for the carousel.
   const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
   }, []);
 
+  // An effect to initialize and manage the carousel's event listeners.
   useEffect(() => {
     if (!emblaApi) return;
     onSelect(emblaApi);
     setScrollSnaps(emblaApi.scrollSnapList());
     emblaApi.on('select', onSelect);
     emblaApi.on('reInit', onSelect);
+    // Cleanup function to remove listeners on unmount.
     return () => {
       emblaApi.off('select', onSelect);
       emblaApi.off('reInit', onSelect);
     };
   }, [emblaApi, onSelect]);
 
+  // Initialize the form for adding a new favorite transaction.
   const form = useForm<z.infer<typeof favoriteSchema>>({
     resolver: zodResolver(favoriteSchema),
     defaultValues: { name: '', amount: 0, category: '', icon: '' },
   });
 
-  const onAddFavorite = (values: z.infer<typeof favoriteSchema>) => {
-    const newFavorite: FavoriteTransaction = {
-      id: `fav-${Date.now()}`,
-      ...values,
-      amount: Number(values.amount)
-    };
-    // TODO: Implement API call to add favorite to backend
-    setFavorites([...favorites, newFavorite]);
-    setIsAddDialogOpen(false);
-    form.reset();
-    toast({ title: 'Favorite Added!', description: `"${values.name}" is now saved.` });
+  /**
+   * Handles the submission of the "Add Favorite" form.
+   * @param {z.infer<typeof favoriteSchema>} values - The validated form values.
+   */
+  const onAddFavorite = async (values: z.infer<typeof favoriteSchema>) => {
+    if (!user) return;
+    const newFavoriteData = { ...values, amount: Number(values.amount) };
+    try {
+      // Call the server action to add the favorite to Firestore.
+      const addedFavorite = await addFavorite(user.uid, newFavoriteData);
+      // Update the local state to reflect the change immediately.
+      setFavorites([...favorites, addedFavorite]);
+      setIsAddDialogOpen(false);
+      form.reset();
+      toast({ title: 'Favorite Added!', description: `"${values.name}" is now saved.` });
+    } catch (error) {
+      console.error("Failed to add favorite:", error);
+      toast({ title: 'Error', description: 'Could not save favorite.', variant: 'destructive' });
+    }
   };
 
-  const handleRemoveFavorite = (id: string) => {
-    // TODO: Implement API call to remove favorite from backend
-    setFavorites(favorites.filter(f => f.id !== id));
-    toast({
-      variant: 'destructive',
-      title: 'Favorite Removed',
-    });
+  /**
+   * Handles the removal of a favorite transaction.
+   * @param {string} id - The ID of the favorite to remove.
+   */
+  const handleRemoveFavorite = async (id: string) => {
+    if (!user) return;
+    try {
+      // Call the server action to remove the favorite from Firestore.
+      await removeFavorite(user.uid, id);
+      // Update the local state to reflect the change.
+      setFavorites(favorites.filter(f => f.id !== id));
+      toast({ variant: 'destructive', title: 'Favorite Removed' });
+    } catch (error) {
+        console.error("Failed to remove favorite:", error);
+        toast({ title: 'Error', description: 'Could not remove favorite.', variant: 'destructive' });
+    }
   };
 
+  // A memoized computation to filter the transaction list based on the search query.
   const filteredTransactions = useMemo(() => {
     if (!searchQuery) return transactions;
     return transactions.filter(t =>
@@ -161,8 +210,18 @@ export default function TransferPage() {
     );
   }, [searchQuery, transactions]);
   
+  // Show a loading spinner while data is being fetched.
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center pt-24">
+          <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
+  
   return (
     <>
+      {/* Dialog for adding a new favorite */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
         <DialogContent className="bg-popover border-border">
           <DialogHeader>
@@ -201,6 +260,7 @@ export default function TransferPage() {
         </DialogContent>
       </Dialog>
 
+      {/* Main Page Content */}
       <div className="space-y-8 animate-fade-in-up">
         <div>
           <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
@@ -209,6 +269,7 @@ export default function TransferPage() {
           <p className="text-muted-foreground">Your central hub for all payments.</p>
         </div>
 
+        {/* QRIS Payment Link */}
         <Link
             href="/transfer/qris"
             className="p-[2px] rounded-2xl bg-gradient-to-r from-primary to-accent block"
@@ -220,6 +281,7 @@ export default function TransferPage() {
           </div>
         </Link>
         
+        {/* Favorites Section */}
         <div className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white font-serif">Favorites</h2>
@@ -236,12 +298,13 @@ export default function TransferPage() {
             <div className="w-full">
               <div className="overflow-hidden -ml-4" ref={emblaRef}>
                 <div className="flex">
+                  {/* Map over favorites to render carousel items */}
                   {favorites.map((fav, index) => {
                     const Icon = availableIcons[fav.icon as IconName] || Wallet;
                     return (
                       <div
                         key={fav.id}
-                        className="flex-[0_0_10rem] pl-2 min-w-0" // Added min-w-0 to prevent overflow
+                        className="flex-[0_0_10rem] pl-2 min-w-0" // flex-[0_0_10rem] sets the base width of each item.
                       >
                          <div className="w-full h-40">
                            <div className={cn(
@@ -266,6 +329,7 @@ export default function TransferPage() {
                 </div>
               </div>
 
+              {/* Carousel Dot Indicators */}
               <div className="flex justify-center gap-2 mt-4">
                 {scrollSnaps.map((_, index) => (
                     <button 
@@ -281,6 +345,7 @@ export default function TransferPage() {
             </div>
         </div>
 
+        {/* Services Section */}
         <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white font-serif">Services</h2>
             <div className="grid grid-cols-1 gap-4">
@@ -302,6 +367,7 @@ export default function TransferPage() {
             </div>
           </div>
         
+        {/* Recent Transactions Section */}
         <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white font-serif">Recent Transactions</h2>
               <div className="relative">
@@ -314,7 +380,8 @@ export default function TransferPage() {
                       onChange={e => setSearchQuery(e.target.value)}
                   />
               </div>
-              <TransactionHistory transactions={filteredTransactions} />
+              {/* Pass the filtered transactions and the full accounts list to the component */}
+              <TransactionHistory transactions={filteredTransactions} accounts={accounts} />
         </div>
       </div>
     </>
