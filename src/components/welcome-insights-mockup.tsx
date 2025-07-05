@@ -1,61 +1,124 @@
 
-import { cn } from "@/lib/utils";
-import { Sparkles } from "lucide-react";
+'use client';
 
-const ScoreCircle = ({ score }: { score: number }) => {
-    const circumference = 2 * Math.PI * 15.9155; // 2 * pi * r
-    const strokeDashoffset = circumference - (score / 100) * circumference;
+import { useState, useEffect } from 'react';
+import { cn } from "@/lib/utils";
+import { Sparkles, Loader2, Check, Info } from "lucide-react";
+import { Button } from '@/components/ui/button';
+
+const ScoreCircle = ({ score, isActive }: { score: number, isActive: boolean }) => {
+    const circumference = 2 * Math.PI * 20; // radius is 20
+    const strokeDashoffset = isActive ? circumference - (score / 100) * circumference : circumference;
     const scoreColor = score > 75 ? 'text-green-400' : score > 40 ? 'text-yellow-400' : 'text-destructive';
 
     return (
-        <div className="relative w-24 h-24">
-             <svg className="w-full h-full" viewBox="0 0 36 36">
-                <path
+        <div className="relative w-48 h-48">
+            <svg className="w-full h-full" viewBox="0 0 44 44">
+                <circle
                     className="stroke-current text-secondary"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
                     strokeWidth="3"
+                    cx="22"
+                    cy="22"
+                    r="20"
+                    fill="transparent"
                 />
-                <path
-                    className={cn("stroke-current transition-all duration-1000 ease-in-out", scoreColor)}
+                <circle
+                    className={cn("stroke-current transition-all duration-[2000ms] ease-out", scoreColor)}
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
                     strokeWidth="3"
                     strokeLinecap="round"
-                    transform="rotate(-90 18 18)"
+                    cx="22"
+                    cy="22"
+                    r="20"
+                    fill="transparent"
+                    transform="rotate(-90 22 22)"
                 />
             </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-2xl font-bold text-white">{score}</span>
+            <div className={cn("absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-500", isActive ? 'opacity-100' : 'opacity-0')}>
+                <span className="text-5xl font-bold text-white">{score}</span>
+                <span className="text-sm text-muted-foreground">Score</span>
             </div>
         </div>
     );
 };
 
 
-export default function WelcomeInsightsMockup({ className }: { className?: string }) {
+export default function WelcomeInsightsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
+  const [animationState, setAnimationState] = useState<'initial' | 'loading' | 'finished'>('initial');
+
+  useEffect(() => {
+    if (isActive) {
+      setAnimationState('initial'); // Reset on re-activation
+      const timer1 = setTimeout(() => setAnimationState('loading'), 1000); // Wait 1s, then show loading
+      const timer2 = setTimeout(() => setAnimationState('finished'), 2500); // Wait 2.5s total, then show results
+      return () => {
+        clearTimeout(timer1);
+        clearTimeout(timer2);
+      };
+    }
+  }, [isActive]);
+
   return (
     <div className={cn(
-        "relative w-full max-w-sm h-[400px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
+        "relative w-full max-w-sm h-[450px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
         className
     )}>
-        <div className="bg-secondary/50 rounded-xl p-4 border border-border/50 text-center">
-            <h3 className="font-bold font-serif text-white text-lg">Your Spender Personality</h3>
-            <p className="text-primary font-semibold">"The Weekend Warrior"</p>
+        {/* Initial State: Button */}
+        <div className={cn(
+            "absolute inset-0 flex flex-col items-center justify-center text-center p-6 transition-all duration-500",
+            animationState === 'initial' ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
+        )}>
+            <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
+            <h3 className="text-xl font-bold font-serif text-white">Your Personal Financial Analyst</h3>
+            <p className="text-muted-foreground mt-2 mb-6">Let our AI analyze your spending patterns to uncover personalized insights and saving opportunities.</p>
+            <Button size="lg" className={cn(
+                "bg-primary hover:bg-primary/90 rounded-xl font-semibold text-lg shadow-lg h-auto transition-transform duration-500",
+                isActive && 'animate-slow-pulse'
+            )}>
+                <Sparkles className="w-5 h-5 mr-2" />
+                <span>Generate My Financial Plan</span>
+            </Button>
         </div>
 
-        <div className="bg-secondary/50 rounded-xl p-4 border border-border/50 text-center flex-1 flex flex-col items-center justify-center">
-             <h3 className="text-sm font-semibold text-muted-foreground mb-2">Financial Health Score</h3>
-             <ScoreCircle score={78} />
+        {/* Loading State */}
+        <div className={cn(
+            "absolute inset-0 flex items-center justify-center transition-opacity duration-300",
+            animationState === 'loading' ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        )}>
+            <Loader2 className="w-12 h-12 text-primary animate-spin" />
         </div>
 
-        <div className="bg-secondary/50 rounded-xl p-4 border border-border/50">
-            <h3 className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2"><Sparkles className="text-primary w-4 h-4" /> AI Action Plan</h3>
-            <div className="space-y-2 text-sm">
-                <p className="bg-background/40 p-2 rounded-md text-foreground">Cut your 'Food & Drink' spending by 20% to save Rp 1.5M.</p>
-                <p className="bg-background/40 p-2 rounded-md text-foreground">Your shopping is high. Try using local deals to save more.</p>
+        {/* Finished State: Insights */}
+        <div className={cn(
+            "w-full h-full flex flex-col gap-4 transition-opacity duration-500 overflow-y-auto custom-scrollbar",
+            animationState === 'finished' ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        )}>
+            <div className="text-center p-4 bg-secondary/50 rounded-lg border border-border/50">
+                <p className="text-sm font-semibold uppercase tracking-widest text-primary">Your Spender Personality</p>
+                <h3 className="text-2xl font-bold font-serif text-white mt-1">"The Foodie Explorer"</h3>
+            </div>
+            
+            <div className="flex-1 flex flex-col items-center justify-center p-4 bg-secondary/50 rounded-lg border border-border/50">
+                 <ScoreCircle score={78} isActive={animationState === 'finished'} />
+            </div>
+            
+            <div className="space-y-3">
+                <h3 className="font-semibold text-lg text-white font-serif">Your Action Plan:</h3>
+                <ul className="space-y-2">
+                    <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
+                        <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
+                        <span className="text-foreground text-sm">You spent Rp 2,5jt on Food & Drink. Try reducing this by 30% to save Rp 750rb.</span>
+                    </li>
+                    <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
+                        <div className="w-5 h-5 bg-green-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Info className="w-3 h-3 text-white" /></div>
+                        <span className="text-foreground text-sm">With an income of Rp 55jt, you could start investing Rp 5jt/month in a low-cost index fund.</span>
+                    </li>
+                     <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
+                        <div className="w-5 h-5 bg-blue-500 rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
+                        <span className="text-foreground text-sm">Local Deal: Get 50% cashback at Kopi Kenangan when you pay with OVO.</span>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
