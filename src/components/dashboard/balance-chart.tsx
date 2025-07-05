@@ -115,7 +115,7 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
   const dataMin = Math.min(...dataPoints.map(d => d.netWorth));
   const dataMax = Math.max(...dataPoints.map(d => d.netWorth));
   const dataRange = dataMax - dataMin;
-  const rangePadding = dataRange === 0 ? dataMax * 0.15 : dataRange * 0.15; // Increased padding
+  const rangePadding = dataRange === 0 ? Math.abs(dataMax * 0.2) : dataRange * 0.2; // 20% padding
 
   const minValue = dataMin - rangePadding;
   const maxValue = dataMax + rangePadding;
@@ -126,7 +126,6 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
 
   const pathPoints = useMemo(() => 
       dataPoints.map((p, i) => [getX(i), getY(p.netWorth)])
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   , [dataPoints, rangePadding]);
   
   const animatedPoints = pathPoints.slice(0, Math.ceil(pathPoints.length * animationProgress));
@@ -155,7 +154,6 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
         tickValues.push(minValue + (i/tickCount) * (maxValue - minValue));
       }
       return tickValues.map(t => ({ value: t, y: getY(t) }));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataPoints, rangePadding]);
 
   const xAxisTicks = React.useMemo(() => {
@@ -190,7 +188,6 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
       return ticks.filter((tick, index, self) =>
           index === self.findIndex((t) => format(t.value, 'yyyy-MM-dd') === format(tick.value, 'yyyy-MM-dd'))
       );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataPoints]);
 
   const formatXAxisLabel = (date: Date) => {
