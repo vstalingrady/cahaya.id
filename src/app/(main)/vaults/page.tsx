@@ -2,10 +2,10 @@
 'use client'
 
 import { useState } from "react";
-import { Plus, Repeat, Trash2, Link2 } from "lucide-react";
+import { Plus, Repeat, Trash2, Coins, ArrowUpFromLine, ArrowDownToLine } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { vaults as initialVaults, Vault } from '@/lib/data';
+import { vaults as initialVaults, Vault, accounts } from '@/lib/data';
 import { Progress } from "@/components/ui/progress";
 import {
   AlertDialog,
@@ -89,7 +89,15 @@ export default function VaultsPage() {
                 </div>
 
                 <div className="space-y-4">
-                    {vaults.map(vault => (
+                    {vaults.map(vault => {
+                        const sourceNames = vault.sourceAccountIds
+                            .map(id => accounts.find(acc => acc.id === id)?.name)
+                            .filter(Boolean)
+                            .join(', ');
+
+                        const destinationName = accounts.find(acc => acc.id === vault.destinationAccountId)?.name;
+                        
+                        return (
                         <Link key={vault.id} href={`/vaults/${vault.id}`} className="block bg-card p-4 rounded-2xl border border-border">
                             <div className="flex items-start justify-between mb-3">
                                 <div className="flex items-start gap-3">
@@ -121,8 +129,20 @@ export default function VaultsPage() {
                                     )}
                                     {vault.roundUpEnabled && (
                                         <div className="flex items-center gap-2 font-semibold text-green-400">
-                                            <Link2 className="w-3 h-3" />
+                                            <Coins className="w-3 h-3" />
                                             <span>Round-up savings active</span>
+                                        </div>
+                                    )}
+                                     {sourceNames && (
+                                        <div className="flex items-center gap-2 font-medium text-muted-foreground pt-1">
+                                            <ArrowUpFromLine className="w-3 h-3" />
+                                            <span className="truncate">From: {sourceNames}</span>
+                                        </div>
+                                    )}
+                                    {destinationName && (
+                                        <div className="flex items-center gap-2 font-medium text-muted-foreground">
+                                            <ArrowDownToLine className="w-3 h-3" />
+                                            <span>To: {destinationName}</span>
                                         </div>
                                     )}
                                 </div>
@@ -138,7 +158,7 @@ export default function VaultsPage() {
                                 )}
                             </div>
                         </Link>
-                    ))}
+                    )})}
                 </div>
 
                 <Link href="/vaults/add" className="w-full bg-card p-5 rounded-2xl flex items-center justify-center text-muted-foreground border-2 border-dashed border-border hover:border-primary/80 hover:text-primary transition-colors group">
