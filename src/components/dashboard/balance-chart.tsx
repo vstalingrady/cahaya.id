@@ -29,27 +29,15 @@ const line = (pointA: number[], pointB: number[]) => {
 }
 
 const controlPoint = (current: number[], previous: number[] | undefined, next: number[] | undefined, reverse?: boolean) => {
-  // When 'previous' or 'next' is undefined, we're at an endpoint.
-  // The control point should be the current point itself to ensure the line is straight at the edges.
   const p = previous || current
   const n = next || current
   const smoothing = 0.2
   
-  // Properties of the line connecting previous and next points
   const o = line(p, n)
   
-  // If we're at an endpoint, the control point is the current point.
-  if (!previous || !next) {
-    return current
-  }
-
-  // Angle of the line
   const angle = o.angle + (reverse ? Math.PI : 0)
-  
-  // Length of the control point vector
   const length = o.length * smoothing
   
-  // Calculate the control point coordinates
   const x = current[0] + Math.cos(angle) * length
   const y = current[1] + Math.sin(angle) * length
   
@@ -123,9 +111,14 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
   const padding = { top: 10, right: 10, bottom: 30, left: 50 };
   const innerWidth = chartWidth - padding.left - padding.right;
   const innerHeight = chartHeight - padding.top - padding.bottom;
+  
+  const dataMin = Math.min(...dataPoints.map(d => d.netWorth));
+  const dataMax = Math.max(...dataPoints.map(d => d.netWorth));
+  const dataRange = dataMax - dataMin;
+  const rangePadding = dataRange === 0 ? dataMax * 0.1 : dataRange * 0.05;
 
-  const minValue = Math.min(...dataPoints.map(d => d.netWorth));
-  const maxValue = Math.max(...dataPoints.map(d => d.netWorth));
+  const minValue = dataMin - rangePadding;
+  const maxValue = dataMax + rangePadding;
   const valueRange = maxValue - minValue === 0 ? 1 : maxValue - minValue;
 
   const getX = (index: number) => padding.left + (index / (dataPoints.length - 1)) * innerWidth;
@@ -133,7 +126,8 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
 
   const pathPoints = useMemo(() => 
       dataPoints.map((p, i) => [getX(i), getY(p.netWorth)])
-  , [dataPoints, getX, getY]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  , [dataPoints, activeRange]);
   
   const animatedPoints = pathPoints.slice(0, Math.ceil(pathPoints.length * animationProgress));
   const pathD = createSmoothPath(animatedPoints);
@@ -154,9 +148,10 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
   };
 
   const yAxisTicks = useMemo(() => {
-      const ticks = [minValue, minValue + valueRange * 0.5, maxValue];
+      const ticks = [dataMin, dataMin + dataRange * 0.5, dataMax];
       return ticks.map(t => ({ value: t, y: getY(t) }));
-  }, [minValue, valueRange, maxValue, getY]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataPoints, activeRange]);
 
   const xAxisTicks = React.useMemo(() => {
       if (dataPoints.length < 2) return [];
@@ -190,7 +185,8 @@ export default function BalanceChart({ chartData: dataPoints, onPointSelect }: B
       return ticks.filter((tick, index, self) =>
           index === self.findIndex((t) => format(t.value, 'yyyy-MM-dd') === format(tick.value, 'yyyy-MM-dd'))
       );
-  }, [dataPoints, getX, innerWidth]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataPoints, activeRange]);
 
   const formatXAxisLabel = (date: Date) => {
       const numPoints = dataPoints.length;
