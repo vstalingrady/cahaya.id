@@ -13,16 +13,7 @@ import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
 import { financialInstitutions } from '@/lib/data';
 import Image from 'next/image';
 import InfiniteLogoScroller from '@/components/infinite-logo-scroller';
-
-const FeatureIcon = ({ icon: Icon, title, description, color }: {icon: React.ElementType, title: string, description: string, color: string}) => (
-  <div className="text-center group">
-    <div className={cn(`w-16 h-16 rounded-2xl bg-gradient-to-br flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`, color)}>
-      <Icon className="w-8 h-8 text-white" />
-    </div>
-    <h3 className="font-semibold text-foreground mb-2">{title}</h3>
-    <p className="text-sm text-muted-foreground">{description}</p>
-  </div>
-);
+import WelcomePaymentMockup from '@/components/welcome-payment-mockup';
 
 const CountingNumber = ({ target, prefix = "", suffix = "" }: {target: number, prefix?: string, suffix?: string}) => {
   const [count, setCount] = useState(0);
@@ -131,39 +122,14 @@ const slides = [
       title: 'Pay Any Bill, From Any Source.',
       description: 'Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.',
       content: (
-        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto animate-fade-in-up">
+        <div className="flex flex-col items-center justify-center text-center w-full max-w-lg mx-auto animate-fade-in-up">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Pay Any Bill, From Any Source.
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
             Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.
           </p>
-          <div className="grid grid-cols-2 gap-6 w-full max-w-sm">
-            <FeatureIcon 
-              icon={Zap} 
-              title="Instant Payments" 
-              description="Pay bills in seconds" 
-              color="from-yellow-500 to-orange-500" 
-            />
-            <FeatureIcon 
-              icon={Globe} 
-              title="All Providers" 
-              description="PLN, BPJS, and more" 
-              color="from-blue-500 to-cyan-500" 
-            />
-            <FeatureIcon 
-              icon={CreditCard} 
-              title="Any Account" 
-              description="Choose payment source" 
-              color="from-green-500 to-teal-500" 
-            />
-            <FeatureIcon 
-              icon={Shield} 
-              title="Bank-Level Security" 
-              description="Your money is safe" 
-              color="from-purple-500 to-pink-500" 
-            />
-          </div>
+          <WelcomePaymentMockup />
         </div>
       )
     },
