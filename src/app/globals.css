@@ -119,15 +119,43 @@
     mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
   }
 
-  .scroller[data-animated="true"] .scroller__inner {
-    width: max-content;
+  .scroller__inner {
+    display: flex;
     flex-wrap: nowrap;
-    animation: scroll 60s linear infinite;
+    width: max-content;
   }
 
-  @keyframes scroll {
+  .scroller[data-animated="true"] .scroller__inner {
+    animation: scroll-forward 60s linear infinite;
+  }
+
+  .scroller[data-direction="reverse"][data-animated="true"] .scroller__inner {
+    animation-name: scroll-reverse;
+  }
+
+  .scroller[data-speed="fast"] .scroller__inner {
+    animation-duration: 40s;
+  }
+  
+  .scroller[data-speed="slow"] .scroller__inner {
+    animation-duration: 80s;
+  }
+
+  @keyframes scroll-forward {
+    from {
+      transform: translateX(0);
+    }
     to {
-      transform: translate(calc(-50% - 0.5rem));
+      transform: translateX(calc(-50% - 0.5rem)); /* Corresponds to half of gap-4 */
+    }
+  }
+  
+  @keyframes scroll-reverse {
+    from {
+      transform: translateX(calc(-50% - 0.5rem));
+    }
+    to {
+      transform: translateX(0);
     }
   }
 }

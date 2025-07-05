@@ -108,7 +108,21 @@ const slides = [
           <p className="text-base leading-relaxed text-muted-foreground mb-8 max-w-lg">
             We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
           </p>
-          <InfiniteLogoScroller />
+           <div className="w-full space-y-4">
+            <InfiniteLogoScroller 
+              institutions={financialInstitutions.slice(0, 6)}
+              speed="slow"
+            />
+            <InfiniteLogoScroller 
+              institutions={financialInstitutions.slice(6, 12)}
+              direction="reverse"
+              speed="normal"
+            />
+             <InfiniteLogoScroller 
+              institutions={financialInstitutions.slice(12)}
+              speed="fast"
+            />
+          </div>
         </div>
       )
     },
