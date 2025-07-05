@@ -5,24 +5,24 @@
 
 @layer base {
   :root {
-    --background: 30 10% 6%;
-    --foreground: 30 15% 98%;
-    --card: 30 10% 9%;
-    --card-foreground: 30 15% 98%;
-    --popover: 30 10% 7%;
-    --popover-foreground: 30 15% 98%;
+    --background: 40 10% 6%;
+    --foreground: 40 15% 98%;
+    --card: 40 10% 9%;
+    --card-foreground: 40 15% 98%;
+    --popover: 40 10% 7%;
+    --popover-foreground: 40 15% 98%;
     --primary: 33 100% 50%;
-    --primary-foreground: 30 10% 10%;
-    --secondary: 30 10% 15%;
-    --secondary-foreground: 30 15% 98%;
-    --muted: 30 10% 15%;
-    --muted-foreground: 30 5% 65%;
+    --primary-foreground: 40 10% 10%;
+    --secondary: 40 10% 15%;
+    --secondary-foreground: 40 15% 98%;
+    --muted: 40 10% 15%;
+    --muted-foreground: 40 5% 65%;
     --accent: 45 100% 50%;
-    --accent-foreground: 30 15% 98%;
+    --accent-foreground: 40 15% 98%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
-    --border: 30 10% 15%;
-    --input: 30 10% 15%;
+    --border: 40 10% 15%;
+    --input: 40 10% 15%;
     --ring: 33 100% 50%;
     --chart-1: 33 100% 50%;
     --chart-2: 45 100% 50%;
@@ -118,12 +118,6 @@
   .scroller {
     -webkit-mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
     mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
-  }
-
-  .scroller-inner {
-    display: flex;
-    flex-wrap: nowrap;
-    width: max-content;
   }
   
   @keyframes blink {
