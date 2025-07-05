@@ -110,17 +110,17 @@ const slides = [
           </p>
            <div className="w-full space-y-4">
             <InfiniteLogoScroller 
-              institutions={financialInstitutions.slice(0, 6)}
-              speed="slow"
+              institutions={financialInstitutions.slice(0, 15)}
+              speed="normal"
             />
             <InfiniteLogoScroller 
-              institutions={financialInstitutions.slice(6, 12)}
+              institutions={financialInstitutions.slice(15, 30)}
               direction="reverse"
               speed="normal"
             />
              <InfiniteLogoScroller 
-              institutions={financialInstitutions.slice(12)}
-              speed="fast"
+              institutions={financialInstitutions.slice(30, 45)}
+              speed="normal"
             />
           </div>
         </div>
