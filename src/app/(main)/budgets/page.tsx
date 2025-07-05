@@ -353,7 +353,7 @@ export default function BudgetsPage() {
                     const remaining = budget.amount - spent;
 
                     return (
-                        <button key={budget.id} onClick={() => setSelectedBudget(budget)} className="w-full text-left bg-card p-5 rounded-2xl border border-border shadow-lg shadow-primary/10 transition-all duration-300 hover:border-primary/50">
+                        <div key={budget.id} onClick={() => setSelectedBudget(budget)} className="w-full text-left bg-card p-5 rounded-2xl border border-border shadow-lg shadow-primary/10 transition-all duration-300 hover:border-primary/50 cursor-pointer">
                             <div className="flex items-start justify-between mb-3">
                                 <div>
                                     <p className="font-bold text-lg text-white">{budget.name}</p>
@@ -370,7 +370,7 @@ export default function BudgetsPage() {
                                     {formatCurrency(Math.abs(remaining))} {remaining < 0 ? 'over' : 'left'}
                                 </p>
                             </div>
-                        </button>
+                        </div>
                     )
                 }) : (
                      <div className="bg-card p-6 rounded-xl text-center text-muted-foreground border border-border">
