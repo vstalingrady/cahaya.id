@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -31,6 +32,7 @@ type TotalBalanceProps = {
   transactions: Transaction[];
   showHistoryLink?: boolean;
   isPrivate?: boolean;
+  isActive?: boolean;
 };
 
 type RangeOption = '7D' | '30D' | '1Y' | 'ALL';
@@ -42,12 +44,18 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
 }).format(value);
 
 
-export default function TotalBalance({ title, amount, transactions, showHistoryLink = false, isPrivate = false }: TotalBalanceProps) {
+export default function TotalBalance({ title, amount, transactions, showHistoryLink = false, isPrivate = false, isActive = true }: TotalBalanceProps) {
   const [chartData, setChartData] = React.useState<any[]>([]);
   const [displayData, setDisplayData] = React.useState<DisplayData | null>(null);
   const [activeRange, setActiveRange] = React.useState<RangeOption>('30D');
 
   React.useEffect(() => {
+    if (!isActive) {
+      setChartData([]);
+      setDisplayData(null);
+      return;
+    }
+
     const generateChartData = (currentBalance: number, allTransactions: Transaction[], range: RangeOption) => {
         const sortedTransactions = allTransactions.slice().sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
         
@@ -151,7 +159,7 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
     }, 1);
 
     return () => clearTimeout(timer);
-  }, [amount, transactions, activeRange]);
+  }, [amount, transactions, activeRange, isActive]);
 
 
   const handlePointSelection = React.useCallback((data: any | null) => {

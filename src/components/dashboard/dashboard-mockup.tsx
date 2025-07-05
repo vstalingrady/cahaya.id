@@ -41,7 +41,7 @@ const getAccountIcon = (type: string, name: string) => {
 }
 
 
-export default function DashboardMockup() {
+export default function DashboardMockup({ isActive }: { isActive?: boolean }) {
     const { totalAssets, totalLiabilities, netWorth, accountGroups } = useMemo(() => {
         const totalAssets = accounts
             .filter(acc => acc.type !== 'loan')
@@ -67,7 +67,7 @@ export default function DashboardMockup() {
     <div className="h-full w-full p-2 bg-background">
       <div className="h-full space-y-3 rounded-xl bg-background/50 overflow-y-auto custom-scrollbar">
             {/* Total Balance Card */}
-            <TotalBalance title="Total Net Worth" amount={netWorth} transactions={transactions} showHistoryLink={false} />
+            <TotalBalance title="Total Net Worth" amount={netWorth} transactions={transactions} showHistoryLink={false} isActive={isActive} />
             
             {/* Accounts Section */}
             <div className="space-y-2">

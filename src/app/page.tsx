@@ -79,7 +79,7 @@ const slides = [
       type: 'feature_showcase',
       title: 'Connect Everything. See Everything.',
       description: 'BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.',
-      content: (
+      content: (props: { isActive: boolean }) => (
         <div className="flex flex-col items-center justify-center h-full text-center w-full max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Connect Everything. See Everything.
@@ -87,7 +87,7 @@ const slides = [
           <p className="text-base leading-relaxed text-muted-foreground mb-6">
             BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.
           </p>
-          <WelcomeDashboardMockup />
+          <WelcomeDashboardMockup isActive={props.isActive} />
         </div>
       )
     },
@@ -97,7 +97,7 @@ const slides = [
       description: 'We support all major banks and e-wallets in Indonesia, with more coming soon.',
       content: (
         <div className="flex flex-col items-center justify-center h-full text-center w-full">
-          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
+           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Trusted by 200+ Institutions
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8 max-w-lg mx-auto">
