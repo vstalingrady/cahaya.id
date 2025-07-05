@@ -23,10 +23,10 @@ type TotalBalanceProps = {
   amount: number;
   transactions: Transaction[];
   showHistoryLink?: boolean;
-  isPrivate: boolean;
+  isPrivate?: boolean;
 };
 
-export default function TotalBalance({ title, amount, transactions, showHistoryLink = false, isPrivate }: TotalBalanceProps) {
+export default function TotalBalance({ title, amount, transactions, showHistoryLink = false, isPrivate = false }: TotalBalanceProps) {
   const [chartData, setChartData] = React.useState<any[]>([]);
 
   const formattedAmount = new Intl.NumberFormat('id-ID', {
