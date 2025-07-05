@@ -1,7 +1,8 @@
+
 'use client'
 
 import { useState } from "react";
-import { Plus, Repeat, Trash2, Coins, Users } from "lucide-react";
+import { Plus, Repeat, Trash2, Link2, Users } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { vaults, accounts, Vault } from '@/lib/data';
@@ -101,7 +102,7 @@ export default function VaultsPage() {
                                     <div className="text-3xl">{icons[vault.icon] || '💰'}</div>
                                     <div>
                                         <p className="font-semibold text-lg text-white">{vault.name}</p>
-                                        <p className="text-sm text-foreground font-semibold">{formatCurrency(vault.currentAmount)} <span className="font-normal text-muted-foreground">of {formatCurrency(vault.targetAmount)}</span></p>
+                                        <p className="text-sm text-white font-semibold">{formatCurrency(vault.currentAmount)} <span className="font-normal text-muted-foreground">of {formatCurrency(vault.targetAmount)}</span></p>
                                     </div>
                                 </div>
                                 <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full hover:bg-secondary text-muted-foreground hover:text-foreground" onClick={(e) => handleDeleteClick(e, vault)}>
@@ -118,8 +119,8 @@ export default function VaultsPage() {
                                         </div>
                                     )}
                                     {vault.roundUpEnabled && (
-                                        <div className="flex items-center gap-2 font-semibold text-sky-400">
-                                            <Coins className="w-3 h-3" />
+                                        <div className="flex items-center gap-2 font-semibold text-green-400">
+                                            <Link2 className="w-3 h-3" />
                                             <span>Round-up savings active</span>
                                         </div>
                                     )}
@@ -131,7 +132,7 @@ export default function VaultsPage() {
                                                  <Tooltip key={member.id}>
                                                     <TooltipTrigger asChild>
                                                         <Image 
-                                                            className="w-8 h-8 border-2 border-secondary rounded-full" 
+                                                            className="w-8 h-8 border-2 border-card rounded-full" 
                                                             src={member.avatarUrl} 
                                                             alt={member.name}
                                                             width={32}
@@ -144,7 +145,7 @@ export default function VaultsPage() {
                                                     </TooltipContent>
                                                  </Tooltip>
                                             ))}
-                                            <div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-white bg-primary border-2 border-secondary rounded-full">
+                                            <div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-white bg-primary border-2 border-card rounded-full">
                                                 +{vault.members.length}
                                             </div>
                                         </div>
