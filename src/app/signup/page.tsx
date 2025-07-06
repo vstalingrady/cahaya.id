@@ -38,6 +38,13 @@ export default function SignupPage() {
                 </Link>
             </p>
         </div>
+        {process.env.NODE_ENV === 'development' && (
+          <div className="text-center mt-4">
+            <Button variant="link" onClick={handleBypass} className="text-xs text-muted-foreground hover:text-accent">
+              Dev: Bypass Phone Verification
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
