@@ -22,6 +22,7 @@ const PinInput = ({
   focusedIndex,
   onFocusChange,
   onComplete,
+  blurOnComplete,
 }: {
   value: string[];
   onChange: (value: string[]) => void;
@@ -29,6 +30,7 @@ const PinInput = ({
   focusedIndex: number;
   onFocusChange: (index: number) => void;
   onComplete?: () => void;
+  blurOnComplete?: boolean;
 }) => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -53,6 +55,9 @@ const PinInput = ({
 
     if (newPin.join('').length === 6) {
       onComplete?.();
+      if (blurOnComplete) {
+        inputRefs.current[newFocusIndex]?.blur();
+      }
     }
   };
 
@@ -84,6 +89,9 @@ const PinInput = ({
         onFocusChange(index + 1);
       } else if (index === 5) {
         onComplete?.();
+        if (blurOnComplete) {
+          inputRefs.current[index]?.blur();
+        }
       }
     }
   };
@@ -216,6 +224,10 @@ export default function SetupSecurityForm() {
                 onChange={setConfirmPin}
                 focusedIndex={confirmPinFocusedIndex}
                 onFocusChange={setConfirmPinFocusedIndex}
+                blurOnComplete={true}
+                onComplete={() => {
+                    setConfirmPinFocusedIndex(-1);
+                }}
             />
         </div>
         
