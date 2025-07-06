@@ -21,18 +21,22 @@ const PinInput = ({
   idPrefix,
   focusedIndex,
   onFocusChange,
+  onComplete,
 }: {
   value: string[];
   onChange: (value: string[]) => void;
   idPrefix: string;
   focusedIndex: number;
   onFocusChange: (index: number) => void;
+  onComplete?: () => void;
 }) => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Effect to handle focusing inputs programmatically when parent state changes
   useEffect(() => {
-    inputRefs.current[focusedIndex]?.focus();
+    if (focusedIndex >= 0 && focusedIndex < 6) {
+      inputRefs.current[focusedIndex]?.focus();
+    }
   }, [focusedIndex]);
 
   const handlePaste = (pastedValue: string, startIndex: number) => {
@@ -46,12 +50,15 @@ const PinInput = ({
 
     const newFocusIndex = Math.min(startIndex + sanitizedValue.length, 5);
     onFocusChange(newFocusIndex);
+
+    if (newPin.join('').length === 6) {
+      onComplete?.();
+    }
   };
 
   const handleWrapperPaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
       e.preventDefault();
       const pastedText = e.clipboardData.getData('text');
-      // Find the currently active input to determine the paste start index
       const activeIndex = inputRefs.current.findIndex(ref => ref === document.activeElement);
       handlePaste(pastedText, activeIndex >= 0 ? activeIndex : 0);
   }
@@ -62,7 +69,6 @@ const PinInput = ({
   ) => {
     const { value: inputValue } = e.target;
     
-    // Handle pasting directly into the input
     if (inputValue.length > 1) {
         handlePaste(inputValue, index);
         return;
@@ -73,14 +79,16 @@ const PinInput = ({
     newPin[index] = sanitizedValue;
     onChange(newPin);
 
-    // Move focus to the next input if a character is entered
-    if (sanitizedValue && index < 5) {
-      onFocusChange(index + 1);
+    if (sanitizedValue) {
+      if (index < 5) {
+        onFocusChange(index + 1);
+      } else if (index === 5) {
+        onComplete?.();
+      }
     }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
-    // Move focus backward on backspace if the current input is empty
     if (e.key === 'Backspace' && value[index] === '' && index > 0) {
       onFocusChange(index - 1);
     }
@@ -91,7 +99,6 @@ const PinInput = ({
       {Array(6)
         .fill('')
         .map((_, index) => {
-            // The character is revealed only if the input is currently focused
             const displayValue = focusedIndex === index ? value[index] : (value[index] ? '●' : '');
 
             return (
@@ -99,7 +106,7 @@ const PinInput = ({
                 <Input
                   ref={(el) => (inputRefs.current[index] = el)}
                   id={`${idPrefix}-${index}`}
-                  type="text" // Using text to control visibility (● vs char)
+                  type="text" 
                   inputMode="text"
                   value={displayValue}
                   onChange={(e) => handleInputChange(e, index)}
@@ -120,11 +127,10 @@ export default function SetupSecurityForm() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
-  // Lifted state for both PIN inputs and their focused indices
   const [pin, setPin] = useState(Array(6).fill(''));
   const [pinFocusedIndex, setPinFocusedIndex] = useState(0);
   const [confirmPin, setConfirmPin] = useState(Array(6).fill(''));
-  const [confirmPinFocusedIndex, setConfirmPinFocusedIndex] = useState(0);
+  const [confirmPinFocusedIndex, setConfirmPinFocusedIndex] = useState(-1);
 
   const handleSetPin = async () => {
     const pinString = pin.join('');
@@ -145,7 +151,6 @@ export default function SetupSecurityForm() {
         title: 'PIN Mismatch',
         description: 'The PINs you entered do not match. Please try again.',
       });
-      // Clear the confirmation field and reset its focus for better UX
       setConfirmPin(Array(6).fill(''));
       setConfirmPinFocusedIndex(0);
       return;
@@ -196,6 +201,10 @@ export default function SetupSecurityForm() {
                 onChange={setPin}
                 focusedIndex={pinFocusedIndex}
                 onFocusChange={setPinFocusedIndex}
+                onComplete={() => {
+                    setPinFocusedIndex(-1);
+                    setConfirmPinFocusedIndex(0);
+                }}
             />
         </div>
 
