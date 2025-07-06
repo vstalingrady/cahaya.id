@@ -257,30 +257,37 @@ export default function CompleteProfileForm() {
       let finalPhoneNumber = currentUser?.phoneNumber || 'dev-bypass';
 
       if (isBypassMode && !currentUser) {
-        // If in bypass mode and no user, sign in directly with the popup.
+        console.log('[Clarity Debug] Bypass mode: Signing in with new social account.');
         const result = await signInWithPopup(auth, provider);
         finalUser = result.user;
       } else {
-        // Otherwise, link the popup to the existing phone-authed user.
         if (!currentUser) {
             throw new Error("No authenticated user found to link the account to.");
         }
+        console.log('[Clarity Debug] Normal mode: Linking social account to existing user.');
         const result = await linkWithPopup(currentUser, provider);
         finalUser = result.user;
       }
       
+      console.log('[Clarity Debug] User object after popup:', finalUser);
+      await finalUser.reload();
+      console.log('[Clarity Debug] User object after reload():', finalUser);
+
       const fullNameFromProvider = finalUser.displayName || '';
       const emailFromProvider = finalUser.email;
+      const photoURLFromProvider = finalUser.photoURL;
 
       if (!emailFromProvider) {
           throw new Error("Could not retrieve email from provider. Please try a different method.");
       }
       
-      // THIS IS THE FIX: Explicitly save displayName and photoURL to the Firebase Auth profile.
-      await updateProfile(finalUser, { 
+      const updatePayload = { 
         displayName: fullNameFromProvider, 
-        photoURL: finalUser.photoURL 
-      });
+        photoURL: photoURLFromProvider 
+      };
+      console.log('[Clarity Debug] Preparing to call updateProfile with payload:', updatePayload);
+      await updateProfile(finalUser, updatePayload);
+      console.log('[Clarity Debug] updateProfile call completed.');
 
       // Save the complete profile to Firestore.
       await completeUserProfile(finalUser.uid, fullNameFromProvider, emailFromProvider, finalPhoneNumber);
@@ -295,7 +302,7 @@ export default function CompleteProfileForm() {
       router.push('/setup-security');
 
     } catch (err: any) {
-      console.error("Full OAuth Error Object:", err);
+      console.error("[Clarity Debug] Full OAuth Error Object:", err);
       if (err.code === 'auth/account-exists-with-different-credential' || err.code === 'auth/credential-already-in-use') {
           setError('This social account is already linked to another user.');
       } else if (err.code && err.code.includes('app-check')) {

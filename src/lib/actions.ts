@@ -112,6 +112,7 @@ export async function ensureUserData(uid: string) {
 }
 
 export async function completeUserProfile(uid: string, fullName: string, email: string, phone: string) {
+  console.log(`[Clarity Debug] completeUserProfile action called with:`, { uid, fullName, email, phone });
   try {
     const userDocRef = doc(db, "users", uid);
     const userDoc = await getDoc(userDocRef);
