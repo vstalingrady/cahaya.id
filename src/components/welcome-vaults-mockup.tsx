@@ -71,6 +71,23 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
     const scrollContainerRef = useRef<HTMLDivElement>(null); // For the list of vaults.
     const formScrollRef = useRef<HTMLDivElement>(null); // For the form itself.
 
+    // This new effect handles scrolling the form when auto-saving is enabled.
+    // It's more reliable than using a timed event in the main animation sequence.
+    useEffect(() => {
+        if (formState.autoSaveEnabled && formScrollRef.current) {
+            // We use a small timeout to ensure the DOM has updated and the `scrollHeight`
+            // is correct before we try to scroll.
+            const scrollTimeout = setTimeout(() => {
+                const scroller = formScrollRef.current;
+                if (scroller) {
+                    scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' });
+                }
+            }, 50); // A 50ms delay is usually enough for the re-render.
+
+            return () => clearTimeout(scrollTimeout);
+        }
+    }, [formState.autoSaveEnabled]);
+
     // The main `useEffect` hook that controls the entire animation sequence.
     // It runs when the component becomes active (visible in the carousel).
     useEffect(() => {
@@ -129,16 +146,8 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, fundingSources: ['bca1', 'gopay1']})), 600));
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, destinationAccount: 'BCA Main Account'})), 900));
 
-                                // Step 4.4: Simulate enabling the auto-saving feature.
+                                // Step 4.4: Simulate enabling the auto-saving feature. This will trigger the new scroll effect.
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSaveEnabled: true})), 1200));
-
-                                // Step 4.5: Scroll the form down to reveal the new auto-saving controls.
-                                timeouts.push(setTimeout(() => {
-                                    const scroller = formScrollRef.current;
-                                    if (scroller) {
-                                        scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' });
-                                    }
-                                }, 1300)); // Timed to happen just after the section appears.
 
                                 // Step 4.6: Simulate setting auto-save details.
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSaveFrequency: 'weekly'})), 1500));
@@ -218,7 +227,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
             {/* Mockup Header */}
             <div className="flex-shrink-0 mb-4 pointer-events-none">
                 <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    CuanFlex Vaults
+                    Clarity Vaults
                 </h1>
             </div>
             
