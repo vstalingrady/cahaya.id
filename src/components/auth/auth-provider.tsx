@@ -3,12 +3,12 @@
 
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode, useRef } from 'react';
 import { auth } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
 
 interface AuthContextType {
-  user: User;
+  user: User | null; // Allow null in the type
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,22 +29,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const hasRedirected = useRef(false); // Prevent multiple redirects
+
+  useEffect(() => {
+    // Reset redirect flag when pathname changes
+    hasRedirected.current = false;
+  }, [pathname]);
 
   useEffect(() => {
     // This listener is the single source of truth for the user's auth state.
-    // It fires once on initial load, and again whenever the auth state changes.
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      console.log('Auth state changed:', currentUser ? 'User logged in' : 'User logged out');
       setUser(currentUser);
-      setLoading(false); // The initial check is now complete.
+      setLoading(false);
     });
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
-  // While the initial auth state is being determined, show a full-screen loader.
-  // This is the most crucial part of the fix. We don't do any logic until we know
-  // for sure if a user is logged in or not.
+  // Handle redirects after auth state is determined
+  useEffect(() => {
+    if (loading || hasRedirected.current) return;
+
+    const isProtectedRoute = !PUBLIC_ROUTES.includes(pathname);
+    
+    // Redirect unauthenticated users from protected routes
+    if (!user && isProtectedRoute) {
+      console.log('Redirecting to login - user not authenticated');
+      hasRedirected.current = true;
+      router.replace('/login');
+      return;
+    }
+    
+    // Redirect authenticated users from auth pages (but not from home page)
+    if (user && PUBLIC_ROUTES.includes(pathname) && pathname !== '/') {
+      console.log('Redirecting to dashboard - user already authenticated');
+      hasRedirected.current = true;
+      router.replace('/dashboard');
+      return;
+    }
+  }, [user, loading, pathname, router]);
+
+  // Show loader while determining initial auth state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -53,42 +80,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  const isProtectedRoute = !PUBLIC_ROUTES.includes(pathname);
-  
-  // If the initial check is complete, and we are on a protected route without a user,
-  // we must redirect to login.
-  if (!user && isProtectedRoute) {
-    router.replace('/login');
-    // Return a loader while the redirect is in progress to avoid screen flicker.
+  // Show loader while redirect is in progress
+  if (hasRedirected.current) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
       </div>
     );
   }
-  
-  // If the initial check is complete, and we have a user but they are on a public-only route,
-  // we should redirect them to the dashboard.
-  if (user && PUBLIC_ROUTES.includes(pathname) && pathname !== '/') {
-      router.replace('/dashboard');
-      // Return a loader while the redirect is in progress.
-      return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
-          <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        </div>
-      );
-  }
 
-  // If we've reached this point, the user's state is valid for the route they are on.
-  // We can either render the protected content with the user context, or render the public page.
-  if (user) {
-    return (
-      <AuthContext.Provider value={{ user }}>
-        {children}
-      </AuthContext.Provider>
-    );
-  }
-
-  // For public routes when the user is not logged in.
-  return <>{children}</>;
+  // Render the app with auth context
+  return (
+    <AuthContext.Provider value={{ user }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
