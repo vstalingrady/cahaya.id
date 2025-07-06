@@ -18,40 +18,66 @@ export default function InfiniteLogoScroller({
   direction = 'forward',
   className,
 }: InfiniteLogoScrollerProps) {
-
-  // Create a duplicated array for seamless infinite scroll
-  const allLogos = React.useMemo(() => [...institutions, ...institutions], [institutions]);
+  // Create a single array with original and cloned logos for the animation
+  const allLogos = React.useMemo(() => [...institutions, ...institutions].map((inst, index) => (
+    <div
+      key={`logo-${inst.id}-${index}`}
+      className="flex-shrink-0 w-24 h-24 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 border border-border shadow-md transition-all duration-300 hover:shadow-primary/20 hover:bg-white hover:scale-105"
+    >
+      <Image
+        src={inst.logoUrl}
+        alt={inst.name}
+        width={80}
+        height={80}
+        className="object-contain w-full h-full"
+        data-ai-hint={`${inst.name} logo`}
+      />
+    </div>
+  )), [institutions]);
 
   return (
     <div
       className={cn("w-full overflow-hidden relative", className)}
+      // This mask creates the fade-out effect on the edges
+      style={{
+        maskImage: 'linear-gradient(to right, transparent, white 20%, white 80%, transparent)'
+      }}
     >
       <div
-        className={cn(
-          "flex min-w-max shrink-0 items-center justify-around gap-4",
-          // Note: Tailwind animations don't support 'reverse', so we use a different animation for right scroll
-          direction === 'forward' ? 'animate-scroll-left' : 'animate-scroll-right'
-        )}
-        style={{ '--animation-duration': speed === 'fast' ? '20s' : speed === 'slow' ? '80s' : '40s' } as React.CSSProperties}
+        className="scroller-inner group-hover:[animation-play-state:paused]"
+        data-direction={direction}
+        style={
+          {
+            "--animation-duration":
+              speed === "fast" ? "20s" : speed === "slow" ? "80s" : "40s",
+          } as React.CSSProperties
+        }
       >
-        {allLogos.map((inst, index) => (
-          <div
-            key={`${inst.id}-${index}`}
-            className="flex-shrink-0 w-24 h-24 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 border border-border shadow-md"
-          >
-            <Image
-              src={inst.logoUrl}
-              alt={inst.name}
-              width={80}
-              height={80}
-              className="object-contain w-full h-full"
-              data-ai-hint={`${inst.name} logo`}
-            />
-          </div>
-        ))}
+        {allLogos}
       </div>
-       <div className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background to-transparent pointer-events-none z-10"></div>
-       <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background to-transparent pointer-events-none z-10"></div>
+
+      <style jsx>{`
+        .scroller-inner {
+          display: flex;
+          gap: 1rem; /* The space between logos */
+          padding: 0.25rem 0;
+          width: max-content;
+          animation: scroll var(--animation-duration) linear infinite;
+        }
+        
+        /* The animation moves from its starting position to the left by 50% of its total width. 
+           Since the inner container is 200% of the original logos' width, this results
+           in a perfect, seamless loop. */
+        @keyframes scroll {
+          to {
+            transform: translateX(-50%);
+          }
+        }
+        
+        .scroller-inner[data-direction="reverse"] {
+          animation-direction: reverse;
+        }
+      `}</style>
     </div>
   );
 }
