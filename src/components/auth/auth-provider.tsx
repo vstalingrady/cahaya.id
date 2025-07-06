@@ -32,37 +32,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // This listener is the single source of truth for the user's auth state.
+    // It fires once on initial load, and again whenever the auth state changes.
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      setLoading(false);
+      setLoading(false); // The initial check is now complete.
     });
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
-  useEffect(() => {
-    // Don't perform any redirects until the initial auth check is complete.
-    if (loading) {
-      return;
-    }
-
-    const isProtectedRoute = !PUBLIC_ROUTES.includes(pathname);
-
-    // If the user is not logged in and is trying to access a protected route,
-    // redirect them to the login page.
-    if (!user && isProtectedRoute) {
-      router.replace('/login');
-    }
-    
-    // If the user IS logged in and trying to access a public-only route (like login),
-    // redirect them to the dashboard.
-    if (user && PUBLIC_ROUTES.includes(pathname) && pathname !== '/') {
-        router.replace('/dashboard');
-    }
-  }, [user, loading, router, pathname]);
-
   // While the initial auth state is being determined, show a full-screen loader.
+  // This is the most crucial part of the fix. We don't do any logic until we know
+  // for sure if a user is logged in or not.
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -71,7 +53,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  // If the user is authenticated, provide the user context and render the children.
+  const isProtectedRoute = !PUBLIC_ROUTES.includes(pathname);
+  
+  // If the initial check is complete, and we are on a protected route without a user,
+  // we must redirect to login.
+  if (!user && isProtectedRoute) {
+    router.replace('/login');
+    // Return a loader while the redirect is in progress to avoid screen flicker.
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
+  }
+  
+  // If the initial check is complete, and we have a user but they are on a public-only route,
+  // we should redirect them to the dashboard.
+  if (user && PUBLIC_ROUTES.includes(pathname) && pathname !== '/') {
+      router.replace('/dashboard');
+      // Return a loader while the redirect is in progress.
+      return (
+        <div className="flex items-center justify-center min-h-screen bg-background">
+          <Loader2 className="w-10 h-10 text-primary animate-spin" />
+        </div>
+      );
+  }
+
+  // If we've reached this point, the user's state is valid for the route they are on.
+  // We can either render the protected content with the user context, or render the public page.
   if (user) {
     return (
       <AuthContext.Provider value={{ user }}>
@@ -80,17 +89,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  // If the user is not authenticated, but they are on a public route,
-  // render the children without the user context.
-  if (!user && PUBLIC_ROUTES.includes(pathname)) {
-    return <>{children}</>;
-  }
-
-  // If none of the above conditions are met (e.g., a protected route is being accessed
-  // by a logged-out user and the redirect is in progress), show a loader.
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <Loader2 className="w-10 h-10 text-primary animate-spin" />
-    </div>
-  );
+  // For public routes when the user is not logged in.
+  return <>{children}</>;
 }

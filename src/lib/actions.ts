@@ -162,7 +162,8 @@ export async function login(prevState: LoginState, formData: FormData): Promise<
     return { message: 'An unknown error occurred. Please try again.' };
   }
 
-  revalidatePath('/', 'layout');
+  // The redirect is now handled by the AuthProvider after the auth state changes.
+  // We just need to signal success to the form.
   return { success: true, message: null };
 }
 
