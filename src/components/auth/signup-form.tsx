@@ -214,6 +214,8 @@ export default function SignupForm() {
         errorMessage = 'Too many requests. Please try again later.';
       } else if (err.code === 'auth/operation-not-allowed' || err.code === 'auth/error-code:-39' || (err.message && (err.message.includes('auth/error-code') || err.message.includes('app-check')))) {
         errorMessage = "App security check failed. This often means Phone Sign-In isn't enabled in your Firebase project or App Check is misconfigured. Check the browser console for a debug token to add to your Firebase project settings.";
+      } else if (err.code === 'auth/internal-error') {
+        errorMessage = "An internal Firebase error occurred. This is often caused by a project configuration issue. Please go to the Firebase Console and ensure that the 'Phone' sign-in provider is enabled under the Authentication > Sign-in method tab.";
       }
       setError(errorMessage);
 
