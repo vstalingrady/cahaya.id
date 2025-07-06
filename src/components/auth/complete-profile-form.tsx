@@ -119,48 +119,36 @@ export default function CompleteProfileForm() {
   useEffect(() => {
     const bypassFlag = sessionStorage.getItem('devBypass') === 'true';
 
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        // If the user's profile is already complete (they have a name and email),
-        // redirect them to the next step so they don't get stuck.
-        if (currentUser.displayName && currentUser.email) {
-          console.log("User profile is already complete. Redirecting to security setup.");
-          router.replace('/setup-security');
-          return;
-        }
-
-        // If user is authenticated via phone, they can complete their profile.
-        if (currentUser.phoneNumber) {
-          setLoading(false);
-          toast({
-              title: "Phone Verified!",
-              description: "Please complete your profile to continue.",
-          });
-        } 
-        // A non-phone-authed user can only be here in bypass mode.
-        else if (!bypassFlag) {
-          toast({
-            variant: 'destructive',
-            title: 'Verification Needed',
-            description: 'Please start the sign up process over.',
-          });
-          router.replace('/signup');
-        } else {
-            // This is the bypass case
-            setLoading(false);
-        }
-      } else if (bypassFlag) {
-        // This is the bypass case for a new user not yet in auth state.
+    // If bypass is active, we don't need to wait for auth state. We can show the form.
+    if (bypassFlag) {
         setLoading(false);
-      } else {
-        // If there's no user and no bypass flag, they must sign up.
-        toast({
-          variant: 'destructive',
-          title: 'Authentication Required',
-          description: 'Please start by signing up.',
-        });
-        router.replace('/signup');
-      }
+        return; // Exit the effect early
+    }
+
+    // If no bypass, we MUST have a logged-in user. Let's check.
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        if (currentUser) {
+            // This is the normal, expected flow after phone verification.
+            if (currentUser.displayName && currentUser.email) {
+                // User is already fully set up, move them along.
+                console.log("User profile is already complete. Redirecting to security setup.");
+                router.replace('/setup-security');
+            } else {
+                setLoading(false); // Show the form
+                 toast({
+                    title: "Phone Verified!",
+                    description: "Please complete your profile to continue.",
+                });
+            }
+        } else {
+            // No user and no bypass flag. This is an invalid state.
+            toast({
+                variant: 'destructive',
+                title: 'Authentication Required',
+                description: 'Please start by signing up.',
+            });
+            router.replace('/signup');
+        }
     });
 
     // Cleanup the auth state listener on unmount.
