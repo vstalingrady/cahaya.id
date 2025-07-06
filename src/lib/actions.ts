@@ -84,6 +84,33 @@ async function seedInitialDataForUser(uid: string) {
   }
 }
 
+/**
+ * Checks if a user has data in Firestore subcollections, and if not, seeds it.
+ * This ensures that users who log in but didn't complete the signup flow
+ * still get their initial account and transaction data.
+ * @param {string} uid - The user's unique ID.
+ */
+export async function ensureUserData(uid: string) {
+    if (!uid) return;
+    try {
+        const accountsColRef = collection(db, 'users', uid, 'accounts');
+        // Check if the accounts collection is empty
+        const accountsSnapshot = await getDocs(query(accountsColRef, limit(1)));
+        
+        if (accountsSnapshot.empty) {
+            console.log(`User ${uid} is missing account data. Seeding now...`);
+            await seedInitialDataForUser(uid);
+            console.log(`Data seeding complete for user ${uid}.`);
+            // Revalidate the dashboard path to ensure the client gets the new data
+            revalidatePath('/dashboard');
+        }
+    } catch (error) {
+        console.error(`Error ensuring user data for ${uid}:`, error);
+        // We don't rethrow the error, as we don't want to break the login flow.
+        // The user will see an empty dashboard, but it won't crash the app.
+    }
+}
+
 export async function completeUserProfile(uid: string, fullName: string, email: string, phone: string) {
   try {
     const userDocRef = doc(db, "users", uid);

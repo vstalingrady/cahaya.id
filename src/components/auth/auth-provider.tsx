@@ -7,6 +7,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { auth, db } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
+import { ensureUserData } from '@/lib/actions';
 
 interface AuthContextType {
   user: User | null;
@@ -88,25 +89,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser && !currentUser.displayName) {
-        // If user is logged in but has no display name, try to fetch it from Firestore
-        // to handle cases where the auth profile is stale.
-        const userDocRef = doc(db, "users", currentUser.uid);
-        const userDoc = await getDoc(userDocRef);
-        
-        if (userDoc.exists() && userDoc.data().fullName) {
-          // Manually enrich the user object with data from Firestore for immediate UI updates.
-          const enrichedUser = {
-            ...currentUser,
-            displayName: userDoc.data().fullName,
-            photoURL: currentUser.photoURL || userDoc.data().photoURL || null,
-          } as User;
-          setUser(enrichedUser);
-        } else {
-          setUser(currentUser);
+      if (currentUser) {
+        // Ensure user data (accounts, etc.) exists before proceeding.
+        // This handles cases where signup was interrupted.
+        await ensureUserData(currentUser.uid);
+
+        let finalUser = currentUser;
+        // This part handles enriching the user object with displayName if it's stale.
+        if (!currentUser.displayName) {
+          const userDocRef = doc(db, "users", currentUser.uid);
+          const userDoc = await getDoc(userDocRef);
+          
+          if (userDoc.exists() && userDoc.data().fullName) {
+            finalUser = {
+              ...currentUser,
+              displayName: userDoc.data().fullName,
+              photoURL: currentUser.photoURL || userDoc.data().photoURL || null,
+            } as User;
+          }
         }
+        setUser(finalUser);
       } else {
-        setUser(currentUser);
+        setUser(null);
       }
       setLoading(false);
     });
