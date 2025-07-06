@@ -158,7 +158,7 @@ const slides = [
             Get Smarter Insights with AI.
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
-            Unleash the power of Gemini, one of the world's most advanced AI models. It analyzes your
+            Unleash the power of <span className="flashy-gemini-text">Gemini</span>, one of the world's most advanced AI models. It analyzes your
             spending to give you a Financial Health Score, find hidden saving
             opportunities, and create a personalized action plan.
           </p>
