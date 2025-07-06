@@ -22,6 +22,7 @@ export type CryptoHolding = {
 export type Account = {
   id: string;
   name: string;
+  institutionSlug: string;
   type: 'bank' | 'e-wallet' | 'investment' | 'loan';
   balance: number;
   accountNumber: string;
@@ -89,7 +90,7 @@ export type FinancialInstitution = {
   slug: string;
   name: string;
   logoUrl: string;
-  type: 'bank' | 'e-wallet' | 'other';
+  type: 'bank' | 'e-wallet' | 'investment' | 'loan' | 'other';
 };
 
 export const financialInstitutions: FinancialInstitution[] = [
@@ -108,6 +109,13 @@ export const financialInstitutions: FinancialInstitution[] = [
   { id: 'dana', slug: 'dana', name: 'DANA', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/72/Logo_DANA_blue.svg', type: 'e-wallet' },
   { id: 'shopeepay', slug: 'shopeepay', name: 'ShopeePay', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/ShopeePay_logo.svg/2560px-ShopeePay_logo.svg.png', type: 'e-wallet' },
   { id: 'linkaja', slug: 'linkaja', name: 'LinkAja', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/LinkAja.svg/2560px-LinkAja.svg.png', type: 'e-wallet' },
+
+  // Investment Platforms
+  { id: 'bibit', slug: 'bibit', name: 'Bibit', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/Bibit.id_logo.svg', type: 'investment' },
+  { id: 'pintu', slug: 'pintu', name: 'Pintu', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Pintu_logo.svg/2560px-Pintu_logo.svg.png', type: 'investment' },
+
+  // Loan Providers
+  { id: 'kredivo', slug: 'kredivo', name: 'Kredivo', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Kredivo_logo.svg/2560px-Kredivo_logo.svg.png', type: 'loan' },
 
   // Other Supported Banks
   { id: 'bsi', slug: 'bsi', name: 'BSI', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Bank_Syariah_Indonesia.svg/2560px-Bank_Syariah_Indonesia.svg.png', type: 'bank' },
@@ -138,8 +146,7 @@ export const financialInstitutions: FinancialInstitution[] = [
 
   // Multifinance
   { id: 'adira', slug: 'adira', name: 'Adira Finance', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Adira_Finance_logo.svg/1280px-Adira_Finance_logo.svg.png', type: 'other' },
-  { id: 'kredivo', slug: 'kredivo', name: 'Kredivo', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Kredivo_logo.svg/2560px-Kredivo_logo.svg.png', type: 'other' },
-
+  
   // E-Commerce & Transport
   { id: 'shopee', slug: 'shopee', name: 'Shopee', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Shopee.svg/1200px-Shopee.svg.png', type: 'other' },
   { id: 'traveloka', slug: 'traveloka', name: 'Traveloka', logoUrl: 'https://upload.wikimedia.org/wikipedia/id/thumb/d/d7/Traveloka_Primary_Logo.svg/2560px-Traveloka_Primary_Logo.svg.png', type: 'other' },

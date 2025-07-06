@@ -1,3 +1,4 @@
+
 // This file contains the initial seed data for new users.
 // It is imported by the `seedInitialDataForUser` function in actions.ts.
 
@@ -14,6 +15,7 @@ export const accounts: Account[] = [
   {
     id: 'bca1',
     name: 'BCA Main Account',
+    institutionSlug: 'bca',
     type: 'bank',
     balance: 85200501,
     accountNumber: '479988776623',
@@ -21,6 +23,7 @@ export const accounts: Account[] = [
   {
     id: 'gopay1',
     name: 'GoPay',
+    institutionSlug: 'gopay',
     type: 'e-wallet',
     balance: 1068000,
     accountNumber: '081234560812',
@@ -28,6 +31,7 @@ export const accounts: Account[] = [
   {
     id: 'ovo1',
     name: 'OVO Premier',
+    institutionSlug: 'ovo',
     type: 'e-wallet',
     balance: 310001,
     accountNumber: '085711227829',
@@ -35,6 +39,7 @@ export const accounts: Account[] = [
   {
     id: 'bibit1',
     name: 'Bibit Portfolio',
+    institutionSlug: 'bibit',
     type: 'investment',
     balance: 125000000,
     accountNumber: 'Invst',
@@ -42,6 +47,7 @@ export const accounts: Account[] = [
   {
     id: 'pintu1',
     name: 'Pintu Crypto',
+    institutionSlug: 'pintu',
     type: 'investment',
     balance: 75000000,
     accountNumber: 'Crpto',
@@ -54,6 +60,7 @@ export const accounts: Account[] = [
   {
     id: 'kredivo1',
     name: 'Kredivo PayLater',
+    institutionSlug: 'kredivo',
     type: 'loan',
     balance: 5500000, // Represents outstanding debt
     accountNumber: 'Loan',
