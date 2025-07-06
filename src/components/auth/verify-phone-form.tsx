@@ -8,7 +8,7 @@
 'use client';
 
 // React hooks for state management.
-import { useState } from 'react';
+import React, { useState, useRef, ChangeEvent, KeyboardEvent } from 'react';
 // Next.js router for navigation.
 import { useRouter } from 'next/navigation';
 // UI components from ShadCN.
@@ -40,6 +40,92 @@ function SubmitButton({ pending }: { pending: boolean }) {
 }
 
 /**
+ * A component for a 6-digit PIN input, with individual boxes.
+ * Handles focus shifting, backspacing, and pasting.
+ */
+const PinInput = ({
+  value,
+  onChange,
+}: {
+  value: string[];
+  onChange: (value: string[]) => void;
+}) => {
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  const handleInputChange = (
+    e: ChangeEvent<HTMLInputElement>,
+    index: number
+  ) => {
+    const { value: inputValue } = e.target;
+    // Allow digits only
+    const sanitizedValue = inputValue.replace(/\D/g, '');
+
+    if (sanitizedValue.length > 1) {
+      handlePaste(sanitizedValue);
+      return;
+    }
+    
+    const newPin = [...value];
+    newPin[index] = sanitizedValue;
+    onChange(newPin);
+
+    // Move to next input if a character is entered
+    if (sanitizedValue && index < 5) {
+      inputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === 'Backspace' && value[index] === '' && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (pastedValue: string) => {
+    const sanitizedValue = pastedValue.replace(/\D/g, '').slice(0, 6);
+    const newPin = [...value]; // start with current value
+    for (let i = 0; i < sanitizedValue.length; i++) {
+        newPin[i] = sanitizedValue[i];
+    }
+    onChange(newPin);
+
+    const focusIndex = Math.min(sanitizedValue.length, 5);
+    inputRefs.current[focusIndex]?.focus();
+  };
+
+  const handleWrapperPaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const pastedText = e.clipboardData.getData('text');
+      handlePaste(pastedText);
+  }
+
+  return (
+    <div className="flex justify-between items-center gap-2" onPaste={handleWrapperPaste}>
+      {Array(6)
+        .fill('')
+        .map((_, index) => (
+          <React.Fragment key={index}>
+            <Input
+              ref={(el) => (inputRefs.current[index] = el)}
+              id={`code-${index}`}
+              type="tel"
+              inputMode="numeric"
+              maxLength={1}
+              value={value[index]}
+              onChange={(e) => handleInputChange(e, index)}
+              onKeyDown={(e) => handleKeyDown(e, index)}
+              className="w-12 h-14 text-center text-xl font-mono"
+              autoComplete="one-time-code"
+            />
+            {index === 2 && <div className="text-muted-foreground font-semibold">-</div>}
+          </React.Fragment>
+        ))}
+    </div>
+  );
+};
+
+
+/**
  * The main component for the phone verification form.
  * @returns {JSX.Element} The rendered verification form.
  */
@@ -48,7 +134,7 @@ export default function VerifyPhoneForm() {
   const router = useRouter();
   const { toast } = useToast();
   // State for the verification code input and loading status.
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(Array(6).fill(''));
   const [loading, setLoading] = useState(false);
 
   /**
@@ -59,9 +145,11 @@ export default function VerifyPhoneForm() {
     e.preventDefault();
     setLoading(true);
 
+    const pinString = code.join('');
+
     // This is a developer bypass to skip OTP verification with a "master code".
     // This provides a second entry point to the bypass flow for testing.
-    if (code === '000000') {
+    if (pinString === '000000') {
       toast({
         title: 'Dev Bypass Activated',
         description: 'Skipping phone verification.',
@@ -86,7 +174,7 @@ export default function VerifyPhoneForm() {
       }
       
       // Use the confirmationResult object to confirm the user's entered code.
-      const result = await window.confirmationResult.confirm(code);
+      const result = await window.confirmationResult.confirm(pinString);
       
       toast({
         title: 'Success!',
@@ -122,21 +210,8 @@ export default function VerifyPhoneForm() {
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
       <form onSubmit={handleVerifyCode} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="code">Verification Code</Label>
-          <Input 
-            id="code" 
-            name="code" 
-            type="tel" // Use "tel" to encourage numeric keyboard on mobile devices.
-            className="bg-input h-14 text-center text-2xl tracking-[1em] placeholder:text-muted-foreground" 
-            placeholder="------"
-            maxLength={6}
-            value={code}
-            // Ensure only digits can be entered.
-            onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-            required
-            inputMode="numeric"
-            autoComplete="one-time-code" // Helps with browser autofill.
-          />
+          <Label htmlFor="code-0">Verification Code</Label>
+          <PinInput value={code} onChange={setCode} />
         </div>
         
         <SubmitButton pending={loading} />
