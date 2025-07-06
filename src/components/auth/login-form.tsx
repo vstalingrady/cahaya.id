@@ -1,17 +1,21 @@
+
 'use client';
 
 import { useState } from 'react';
-import { signInWithEmailAndPassword, GoogleAuthProvider, OAuthProvider, signInWithPopup, User } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
+import { signInWithEmailAndPassword, GoogleAuthProvider, OAuthProvider, signInWithPopup, User, getAdditionalUserInfo } from 'firebase/auth';
 import { Lock, Mail, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '../ui/label';
 import { auth, db } from '@/lib/firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { FaGoogle, FaApple } from 'react-icons/fa';
 import { Separator } from '../ui/separator';
+import { completeUserProfile } from '@/lib/actions';
 
 export default function LoginForm() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -124,6 +128,7 @@ export default function LoginForm() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+      const additionalInfo = getAdditionalUserInfo(result);
 
       // Log the successful login event to Firestore
       await setDoc(doc(db, "users", user.uid, "login_history", new Date().toISOString()), {
@@ -132,22 +137,26 @@ export default function LoginForm() {
         userAgent: "Client-side social login (browser)",
       }, { merge: true });
 
-      // If user logs in with social for the first time, their document might not exist. Create it.
-      const userDocRef = doc(db, "users", user.uid);
-      const userDoc = await getDoc(userDocRef);
-      if (!userDoc.exists()) {
-        console.log(`User document for ${user.uid} not found via social login. Creating it.`);
-        await setDoc(userDocRef, {
-            uid: user.uid,
-            fullName: user.displayName || "New User",
-            email: user.email,
-            phone: user.phoneNumber, // Often null with social providers
-            createdAt: new Date(),
-        });
+      // If it's a new user, they need to go through the onboarding flow.
+      if (additionalInfo?.isNewUser) {
+        console.log(`New user ${user.uid} signed up with social provider. Creating profile and redirecting to security setup.`);
+        
+        // Create their full profile in Firestore and seed their data
+        await completeUserProfile(
+            user.uid,
+            user.displayName || "New Social User",
+            user.email || 'no-email@example.com', // Should always have email from Google/Apple
+            user.phoneNumber || ''
+        );
+        
+        // Manually redirect to the PIN setup page, the next step in onboarding
+        router.push('/setup-security');
+      } else {
+        // For existing users, the AuthProvider will handle the redirect to /dashboard.
+        // We just need to let the component re-render so the AuthProvider's effect hook can run.
+        console.log('Existing user signed in with social provider. AuthProvider will handle redirect.');
       }
 
-      console.log('Social login successful:', user.uid);
-      // AuthProvider will handle redirect
     } catch (error: any) {
       console.error('Social login error:', error);
       let errorMessage = 'An unexpected error occurred with social login.';
