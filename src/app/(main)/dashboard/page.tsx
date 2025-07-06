@@ -21,6 +21,7 @@ import {
   AlertDialogTitle 
 } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/components/auth/auth-provider';
 
@@ -34,6 +35,7 @@ export default function DashboardPage() {
     const [showPinDialog, setShowPinDialog] = useState(false);
     const [pin, setPin] = useState('');
     const [pinError, setPinError] = useState<string | null>(null);
+    const [isVerifyingPin, setIsVerifyingPin] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -62,6 +64,7 @@ export default function DashboardPage() {
     const handleConfirmPin = async () => {
         if (pin.length < 6 || !user) return;
         setPinError(null);
+        setIsVerifyingPin(true);
 
         try {
             const { success } = await verifySecurityPin(user.uid, pin);
@@ -77,6 +80,8 @@ export default function DashboardPage() {
         } catch (error) {
             console.error("Error verifying PIN:", error);
             setPinError("An error occurred. Please try again later.");
+        } finally {
+            setIsVerifyingPin(false);
         }
     };
 
@@ -125,12 +130,12 @@ export default function DashboardPage() {
                 </div>
                 <AlertDialogFooter>
                     <AlertDialogCancel onClick={() => setPin('')}>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
+                    <Button
                         onClick={handleConfirmPin}
-                        disabled={pin.length < 6}
+                        disabled={pin.length < 6 || isVerifyingPin}
                     >
-                        Reveal Balances
-                    </AlertDialogAction>
+                        {isVerifyingPin ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Reveal Balances'}
+                    </Button>
                 </AlertDialogFooter>
             </AlertDialogContent>
         </AlertDialog>
