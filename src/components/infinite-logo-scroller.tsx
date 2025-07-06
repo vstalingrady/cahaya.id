@@ -51,17 +51,30 @@ export default function InfiniteLogoScroller({
     </div>
   ));
 
+  const getAnimationDelay = () => {
+    if (direction !== 'reverse') return '0s';
+    switch (speed) {
+      case 'fast':
+        return '-10s';
+      case 'slow':
+        return '-40s';
+      default:
+        return '-20s';
+    }
+  };
+
   return (
     <div
       className={cn("scroller w-full overflow-hidden", className)}
     >
       <div
-        className="scroller-inner flex flex-nowrap gap-4 py-1"
+        className="scroller-inner"
         data-direction={direction}
         style={
           {
             "--animation-duration":
               speed === "fast" ? "20s" : speed === "slow" ? "80s" : "40s",
+            "animationDelay": getAnimationDelay(),
           } as React.CSSProperties
         }
       >
@@ -71,10 +84,11 @@ export default function InfiniteLogoScroller({
       
       <style jsx>{`
         .scroller-inner {
-          animation-name: scroll;
-          animation-duration: var(--animation-duration);
-          animation-timing-function: linear;
-          animation-iteration-count: infinite;
+          display: flex;
+          gap: 1rem; /* 1rem = gap-4 */
+          padding-top: 0.25rem; /* py-1 */
+          padding-bottom: 0.25rem; /* py-1 */
+          animation: scroll var(--animation-duration) linear infinite;
         }
 
         .scroller-inner[data-direction="reverse"] {
@@ -82,8 +96,10 @@ export default function InfiniteLogoScroller({
         }
 
         @keyframes scroll {
-          from { transform: translateX(0%); }
-          to { transform: translateX(-50%); }
+          to {
+            /* We need to account for the gap between the last original and first cloned item */
+            transform: translateX(calc(-50% - 0.5rem));
+          }
         }
       `}</style>
     </div>
