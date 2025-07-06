@@ -8,6 +8,8 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { setSecurityPin } from '@/lib/actions';
+import { auth } from '@/lib/firebase';
 
 /**
  * A controlled component for a 6-digit PIN input that masks characters as you type.
@@ -124,7 +126,7 @@ export default function SetupSecurityForm() {
   const [confirmPin, setConfirmPin] = useState(Array(6).fill(''));
   const [confirmPinFocusedIndex, setConfirmPinFocusedIndex] = useState(0);
 
-  const handleSetPin = () => {
+  const handleSetPin = async () => {
     const pinString = pin.join('');
     const confirmPinString = confirmPin.join('');
 
@@ -150,14 +152,35 @@ export default function SetupSecurityForm() {
     }
     
     setLoading(true);
-    setTimeout(() => {
+
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+        toast({
+            variant: 'destructive',
+            title: 'Authentication Error',
+            description: 'User session not found. Please try logging in again.',
+        });
+        setLoading(false);
+        router.push('/login');
+        return;
+    }
+
+    try {
+        await setSecurityPin(currentUser.uid, pinString);
         toast({
           title: 'Security Set Up!',
           description: `Your Clarity PIN has been configured.`,
         });
         router.push('/link-account');
+    } catch (error: any) {
+        toast({
+            variant: 'destructive',
+            title: 'Error setting PIN',
+            description: error.message || 'Could not save your PIN.',
+        });
+    } finally {
         setLoading(false);
-    }, 1000);
+    }
   };
   
   const isSubmitDisabled = pin.join('').length < 6 || confirmPin.join('').length < 6 || loading;

@@ -110,6 +110,46 @@ export async function completeUserProfile(uid: string, fullName: string, email: 
   }
 }
 
+export async function setSecurityPin(uid: string, pin: string) {
+  if (!uid || !pin) {
+    throw new Error("User ID and PIN are required.");
+  }
+  if (pin.length !== 6) {
+    throw new Error("PIN must be 6 characters.");
+  }
+  try {
+    const userDocRef = doc(db, "users", uid);
+    // In a real app, this should be hashed before storing!
+    await updateDoc(userDocRef, { securityPin: pin }); 
+  } catch (error) {
+    console.error("Error setting security PIN:", error);
+    throw new Error("Could not set security PIN.");
+  }
+}
+
+export async function verifySecurityPin(uid: string, pin: string): Promise<{ success: boolean }> {
+    if (!uid || !pin) {
+        return { success: false };
+    }
+    try {
+        const userDocRef = doc(db, "users", uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+            const userData = userDoc.data();
+            // In a real app, you would fetch the hash and compare.
+            if (userData.securityPin === pin) {
+                return { success: true };
+            }
+        }
+        return { success: false };
+    } catch (error) {
+        console.error("Error verifying security PIN:", error);
+        return { success: false };
+    }
+}
+
+
 // Define the form schema
 const LoginSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),

@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { getDashboardData } from '@/lib/actions';
+import { getDashboardData, verifySecurityPin } from '@/lib/actions';
 import { type Account, type Transaction } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
 import AccountCard from '@/components/dashboard/account-card';
@@ -33,6 +33,7 @@ export default function DashboardPage() {
     const [isPrivate, setIsPrivate] = useState(true);
     const [showPinDialog, setShowPinDialog] = useState(false);
     const [pin, setPin] = useState('');
+    const [pinError, setPinError] = useState<string | null>(null);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -58,15 +59,25 @@ export default function DashboardPage() {
         fetchData();
     }, [user, toast]);
 
-    const handleConfirmPin = () => {
-        // In a real app, this would perform a secure check against a hashed PIN.
-        // For this prototype, we'll just accept any 6-character PIN to reveal the balance.
-        if (pin.length < 6) return;
+    const handleConfirmPin = async () => {
+        if (pin.length < 6 || !user) return;
+        setPinError(null);
 
-        setIsPrivate(false);
-        setShowPinDialog(false);
-        setPin('');
-        toast({ title: "Privacy Mode Off", description: "Balances are now visible." });
+        try {
+            const { success } = await verifySecurityPin(user.uid, pin);
+            if (success) {
+                setIsPrivate(false);
+                setShowPinDialog(false);
+                setPin('');
+                toast({ title: "Privacy Mode Off", description: "Balances are now visible." });
+            } else {
+                setPinError("Invalid PIN. Please try again.");
+                setPin(''); // Clear the pin input for another attempt
+            }
+        } catch (error) {
+            console.error("Error verifying PIN:", error);
+            setPinError("An error occurred. Please try again later.");
+        }
     };
 
     const { totalAssets, totalLiabilities, netWorth, accountGroups } = useMemo(() => {
@@ -93,7 +104,7 @@ export default function DashboardPage() {
 
     return (
         <>
-        <AlertDialog open={showPinDialog} onOpenChange={(isOpen) => { setShowPinDialog(isOpen); if(!isOpen) { setPin(''); }}}>
+        <AlertDialog open={showPinDialog} onOpenChange={(isOpen) => { setShowPinDialog(isOpen); if(!isOpen) { setPin(''); setPinError(null); }}}>
             <AlertDialogContent className="bg-popover text-popover-foreground border-border">
                 <AlertDialogHeader>
                     <AlertDialogTitle>Enter PIN to Show Balances</AlertDialogTitle>
@@ -110,9 +121,10 @@ export default function DashboardPage() {
                         onChange={(e) => setPin(e.target.value)}
                         className="bg-input border-border h-14 text-center text-xl tracking-[0.5em] placeholder:text-muted-foreground"
                     />
+                    {pinError && <p className="text-sm text-destructive text-center">{pinError}</p>}
                 </div>
                 <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel onClick={() => setPin('')}>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                         onClick={handleConfirmPin}
                         disabled={pin.length < 6}
