@@ -67,14 +67,15 @@ export default function DashboardPage() {
         setIsVerifyingPin(true);
 
         try {
-            const { success } = await verifySecurityPin(user.uid, pin);
-            if (success) {
+            const result = await verifySecurityPin(user.uid, pin);
+            if (result.success) {
                 setIsPrivate(false);
                 setShowPinDialog(false);
                 setPin('');
                 toast({ title: "Privacy Mode Off", description: "Balances are now visible." });
             } else {
-                setPinError("Invalid PIN. Please try again.");
+                const errorMessage = result.reason ? `${result.reason}. Please try again.` : "Invalid PIN. Please try again.";
+                setPinError(errorMessage);
                 setPin(''); // Clear the pin input for another attempt
             }
         } catch (error) {
@@ -254,3 +255,4 @@ export default function DashboardPage() {
         </>
     );
 }
+
