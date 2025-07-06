@@ -122,6 +122,14 @@ export default {
           '0%, 100%': { filter: 'drop-shadow(0 0 5px hsl(var(--gemini-start) / 0.5))' },
           '50%': { filter: 'drop-shadow(0 0 12px hsl(var(--gemini-start) / 0.8))' }
         },
+        'scroll-left': {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-50%)' },
+        },
+        'scroll-right': {
+          from: { transform: 'translateX(-50%)' },
+          to: { transform: 'translateX(0)' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -134,6 +142,8 @@ export default {
         'slow-pulse': 'slow-pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'text-shine': 'text-shine 3s linear infinite',
         'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
+        'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
+        'scroll-right': 'scroll-right var(--animation-duration) linear infinite',
       },
     },
   },

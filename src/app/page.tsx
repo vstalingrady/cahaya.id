@@ -93,22 +93,22 @@ const slides = [
               We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
             </p>
            </div>
-           <InfiniteLogoScroller 
+            <InfiniteLogoScroller 
               institutions={financialInstitutions.slice(0, 10)} 
-              direction="reverse" 
+              direction="forward" 
               speed="slow" 
               className="mb-4"
             />
             <InfiniteLogoScroller 
               institutions={financialInstitutions.slice(10, 20)} 
-              direction="forward" 
+              direction="reverse" 
               speed="normal" 
               className="mb-4"
             />
             <InfiniteLogoScroller 
               institutions={financialInstitutions.slice(20, 30)} 
-              direction="reverse" 
-              speed="slow" 
+              direction="forward" 
+              speed="fast" 
             />
         </div>
       )
