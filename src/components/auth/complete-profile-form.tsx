@@ -257,22 +257,16 @@ export default function CompleteProfileForm() {
       let finalPhoneNumber = currentUser?.phoneNumber || 'dev-bypass';
 
       if (isBypassMode && !currentUser) {
-        console.log('[Clarity Debug] Bypass mode: Signing in with new social account.');
         const result = await signInWithPopup(auth, provider);
         finalUser = result.user;
       } else {
         if (!currentUser) {
             throw new Error("No authenticated user found to link the account to.");
         }
-        console.log('[Clarity Debug] Normal mode: Linking social account to existing user.');
         const result = await linkWithPopup(currentUser, provider);
         finalUser = result.user;
       }
       
-      console.log('[Clarity Debug] User object after popup:', finalUser);
-      await finalUser.reload();
-      console.log('[Clarity Debug] User object after reload():', finalUser);
-
       const fullNameFromProvider = finalUser.displayName || '';
       const emailFromProvider = finalUser.email;
       const photoURLFromProvider = finalUser.photoURL;
@@ -285,10 +279,9 @@ export default function CompleteProfileForm() {
         displayName: fullNameFromProvider, 
         photoURL: photoURLFromProvider 
       };
-      console.log('[Clarity Debug] Preparing to call updateProfile with payload:', updatePayload);
-      await updateProfile(finalUser, updatePayload);
-      console.log('[Clarity Debug] updateProfile call completed.');
 
+      await updateProfile(finalUser, updatePayload);
+      
       // Save the complete profile to Firestore.
       await completeUserProfile(finalUser.uid, fullNameFromProvider, emailFromProvider, finalPhoneNumber);
       
