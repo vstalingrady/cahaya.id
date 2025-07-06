@@ -21,7 +21,7 @@ import {
   vaults as seedVaults,
   favoriteTransactions as seedFavoriteTransactions,
 } from './data-seed';
-
+import { encrypt, decrypt } from './crypto';
 import { isWithinInterval, format } from 'date-fns';
 import { z } from 'zod';
 import { revalidatePath } from "next/cache";
@@ -61,7 +61,7 @@ async function seedInitialDataForUser(uid: string) {
 
     // Seed Vaults
     seedVaults.forEach(vault => {
-        const vaultDocRef = doc(db, 'users', uid, 'vaults', vault.id);
+        const vaultDocRef = doc(db, 'users',uid, 'vaults', vault.id);
         batch.set(vaultDocRef, vault);
     });
 
@@ -99,7 +99,7 @@ export async function completeUserProfile(uid: string, fullName: string, email: 
       });
       await seedInitialDataForUser(uid);
     } else {
-      console.log(`User ${uid} already. Skipping data seeding.`);
+      console.log(`User ${uid} already exists. Skipping data seeding.`);
     }
   } catch (error: any) {
     console.error("Error creating user document in Firestore:", error);
@@ -120,8 +120,9 @@ export async function setSecurityPin(uid: string, pin: string) {
   }
   try {
     const userDocRef = doc(db, "users", uid);
-    // In a real app, this should be hashed before storing!
-    await setDoc(userDocRef, { securityPin: trimmedPin }, { merge: true });
+    const encryptedPinData = encrypt(trimmedPin);
+    await setDoc(userDocRef, { securityPinData: encryptedPinData }, { merge: true });
+    console.log(`Successfully set and encrypted PIN for user ${uid}`);
   } catch (error) {
     console.error("Error setting security PIN:", error);
     throw new Error("Could not set security PIN.");
@@ -129,50 +130,52 @@ export async function setSecurityPin(uid: string, pin: string) {
 }
 
 export async function verifySecurityPin(uid: string, pin: string): Promise<{ success: boolean, reason?: string }> {
-  // 1. PREPARE & VALIDATE INPUT
   console.log(`Verifying PIN for user: ${uid}`);
   if (!uid || !pin) {
     console.log("Verification failed: Missing UID or PIN.");
-    return { success: false, reason: "Missing information" };
+    return { success: false, reason: "Missing information. Please try again." };
   }
 
   const sanitizedPin = pin.trim();
   if (sanitizedPin.length !== 6) {
-    console.log("Verification failed: PIN length is not 6.");
     return { success: false, reason: "PIN must be 6 characters." };
   }
 
   try {
-    // 2. ACCESS THE DATABASE
     const userDocRef = doc(db, "users", uid);
-
-    // 3. FETCH & COMPARE
     const userDoc = await getDoc(userDocRef);
 
     if (userDoc.exists()) {
       const storedData = userDoc.data();
-      const correctPin = storedData.securityPin;
+      const storedPinData = storedData.securityPinData;
 
-      if (!correctPin) {
-        console.log(`Verification failed: No PIN stored for user ${uid}.`);
-        return { success: false, reason: "No PIN has been set up for this account." };
+      if (!storedPinData || !storedPinData.iv || !storedPinData.encrypted) {
+        console.log(`Verification failed: No encrypted PIN data found for user ${uid}.`);
+        return { success: false, reason: "No PIN has been set up for this account. Please try again." };
       }
-
-      // *** THE CORE CHECK ***
-      if (sanitizedPin === correctPin) {
+      
+      let decryptedPin;
+      try {
+        decryptedPin = decrypt(storedPinData);
+      } catch (e) {
+          console.error("PIN Decryption failed for user:", uid, e);
+          return { success: false, reason: "Failed to verify PIN due to a security error."};
+      }
+      
+      if (sanitizedPin === decryptedPin) {
         console.log(`Verification successful for user ${uid}.`);
         return { success: true };
       } else {
         console.log(`Verification failed: PIN mismatch for user ${uid}.`);
-        return { success: false, reason: "Invalid PIN" };
+        return { success: false, reason: "Invalid PIN. Please try again." };
       }
     } else {
       console.log(`Verification failed: User document not found for UID ${uid}.`);
-      return { success: false, reason: "User not found" };
+      return { success: false, reason: "User account not found." };
     }
   } catch (databaseError) {
     console.error("Failed to check PIN due to database issue:", databaseError);
-    return { success: false, reason: "Database error" };
+    return { success: false, reason: "A database error occurred. Please try again later." };
   }
 }
 
@@ -559,4 +562,3 @@ export async function getLoginHistory(userId: string) {
   const history = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   return history;
 }
-
