@@ -6,7 +6,6 @@ import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
 import { getStorage } from "firebase/storage";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -52,33 +51,10 @@ let storage;
 try {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
     
-    // Initialize App Check immediately after app initialization, and before other services.
-    if (typeof window !== 'undefined') {
-        // In development, the debug token is printed to the console.
-        // You must add this token to the Firebase Console to bypass App Check.
-        if (process.env.NODE_ENV === 'development') {
-            console.log("Firebase App Check: Debug mode enabled. If you're seeing security errors, find the 'App Check debug token' logged below and add it to your Firebase project settings under App Check > Apps > Manage debug tokens.");
-            (window as any).FIREBASE_APPCHECK_DEBUG_TOKEN = true;
-        }
-
-        const recaptchaSiteKey = process.env.NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY;
-        if (recaptchaSiteKey) {
-            initializeAppCheck(app, {
-                provider: new ReCaptchaV3Provider(recaptchaSiteKey),
-                isTokenAutoRefreshEnabled: true
-            });
-            console.log("Firebase App Check initialized successfully.");
-        } else {
-            console.warn("Firebase App Check not initialized. The 'NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY' is missing from your environment variables.");
-        }
-        
-        // Now initialize other services
-        if (firebaseConfig.measurementId) {
-            analytics = getAnalytics(app);
-        }
+    if (typeof window !== 'undefined' && firebaseConfig.measurementId) {
+        analytics = getAnalytics(app);
     }
     
-    // Initialize other Firebase services AFTER App Check
     auth = getAuth(app);
     db = getFirestore(app);
     storage = getStorage(app);
