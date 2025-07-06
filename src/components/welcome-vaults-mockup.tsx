@@ -1,4 +1,5 @@
 
+
 /**
  * @file src/components/welcome-vaults-mockup.tsx
  * @fileoverview A sophisticated, animated mockup demonstrating the savings vaults feature.
@@ -128,20 +129,17 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, fundingSources: ['bca1', 'gopay1']})), 600));
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, destinationAccount: 'BCA Main Account'})), 900));
 
-                                // Step 4.4: Imperatively scroll the form down to reveal the next section.
-                                // This is more reliable than using a separate useEffect, as it's timed precisely within the animation sequence.
+                                // Step 4.4: Simulate enabling the auto-saving feature.
+                                timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSaveEnabled: true})), 1200));
+
+                                // Step 4.5: Scroll the form down to reveal the new auto-saving controls.
                                 timeouts.push(setTimeout(() => {
                                     const scroller = formScrollRef.current;
-                                    // We check if the scroller exists before trying to scroll it.
                                     if (scroller) {
-                                        // Use smooth behavior for a nice scrolling animation.
                                         scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' });
                                     }
-                                }, 1100)); // Timed to happen just before the next section appears.
-                                
-                                // Step 4.5: Simulate enabling the auto-saving feature, which reveals the next set of controls.
-                                timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSaveEnabled: true})), 1200));
-                                
+                                }, 1300)); // Timed to happen just after the section appears.
+
                                 // Step 4.6: Simulate setting auto-save details.
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSaveFrequency: 'weekly'})), 1500));
                                 timeouts.push(setTimeout(() => type('250000', (t) => setFormState(p => ({...p, autoSaveAmount: t}))), 1800));
