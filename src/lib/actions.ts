@@ -115,7 +115,16 @@ const LoginSchema = z.object({
   password: z.string().min(1, { message: "Password is required." }),
 });
 
-export async function login(prevState: any, formData: FormData) {
+type LoginState = {
+  message: string | null;
+  errors?: {
+    email?: string[];
+    password?: string[];
+  };
+  success?: boolean;
+}
+
+export async function login(prevState: LoginState, formData: FormData): Promise<LoginState> {
   const validatedFields = LoginSchema.safeParse(Object.fromEntries(formData.entries()));
 
   if (!validatedFields.success) {
@@ -153,8 +162,8 @@ export async function login(prevState: any, formData: FormData) {
     return { message: 'An unknown error occurred. Please try again.' };
   }
 
-  revalidatePath('/dashboard');
-  redirect('/dashboard');
+  revalidatePath('/', 'layout');
+  return { success: true, message: null };
 }
 
 export async function exchangePublicToken(publicToken: string | null) {
