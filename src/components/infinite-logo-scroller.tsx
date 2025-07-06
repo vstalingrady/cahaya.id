@@ -53,10 +53,10 @@ export default function InfiniteLogoScroller({
 
   return (
     <div
-      className={cn("scroller w-full overflow-hidden -mx-6 sm:-mx-8 md:-mx-12 lg:-mx-16", className)}
+      className={cn("scroller w-full overflow-hidden", className)}
     >
       <div
-        className="scroller-inner flex flex-nowrap gap-4 py-1 px-6 sm:px-8 md:px-12 lg:px-16"
+        className="scroller-inner flex flex-nowrap gap-4 py-1"
         data-direction={direction}
         style={
           {
@@ -65,42 +65,25 @@ export default function InfiniteLogoScroller({
           } as React.CSSProperties
         }
       >
-        {direction === 'reverse' ? (
-          <>
-            {clonedLogos}
-            {originalLogos}
-          </>
-        ) : (
-          <>
-            {originalLogos}
-            {clonedLogos}
-          </>
-        )}
+        {originalLogos}
+        {clonedLogos}
       </div>
       
       <style jsx>{`
         .scroller-inner {
+          animation-name: scroll;
           animation-duration: var(--animation-duration);
           animation-timing-function: linear;
           animation-iteration-count: infinite;
         }
 
-        .scroller-inner[data-direction="forward"] {
-          animation-name: scroll-left;
-        }
-
         .scroller-inner[data-direction="reverse"] {
-          animation-name: scroll-right;
+          animation-direction: reverse;
         }
 
-        @keyframes scroll-left {
+        @keyframes scroll {
           from { transform: translateX(0%); }
           to { transform: translateX(-50%); }
-        }
-
-        @keyframes scroll-right {
-          from { transform: translateX(-50%); }
-          to { transform: translateX(0%); }
         }
       `}</style>
     </div>
