@@ -13,16 +13,17 @@ import { doc, setDoc } from 'firebase/firestore';
 import { FaGoogle, FaApple } from 'react-icons/fa';
 import { Separator } from '../ui/separator';
 import { completeUserProfile } from '@/lib/actions';
+import { useToast } from '@/hooks/use-toast';
 
 export default function LoginForm() {
   const router = useRouter();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -38,7 +39,6 @@ export default function LoginForm() {
         [name]: ''
       }));
     }
-    setMessage('');
   };
 
   const validateForm = () => {
@@ -66,7 +66,6 @@ export default function LoginForm() {
     if (!validateForm()) return;
     
     setIsLoading(true);
-    setMessage('');
     
     try {
       console.log('Attempting login with:', formData.email);
@@ -88,8 +87,11 @@ export default function LoginForm() {
       
       console.log('Login successful:', userCredential.user.uid);
       
-      // The AuthProvider will handle the redirect automatically upon successful login.
-      // No need to set a success message, as the user will be navigated away.
+      toast({
+        title: 'Login Successful!',
+        description: `Welcome back, ${user.displayName || 'User'}!`,
+      });
+      router.push('/dashboard');
       
     } catch (error: any) {
       console.error('Login error:', error);
@@ -116,7 +118,11 @@ export default function LoginForm() {
           errorMessage = error.message || 'Failed to log in. Please try again.';
       }
       
-      setMessage(errorMessage);
+      toast({
+        variant: "destructive",
+        title: 'Login Failed',
+        description: errorMessage
+      });
     } finally {
       setIsLoading(false);
     }
@@ -124,7 +130,6 @@ export default function LoginForm() {
 
   const handleOAuthSignIn = async (provider: GoogleAuthProvider | OAuthProvider) => {
     setIsLoading(true);
-    setMessage('');
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
@@ -141,23 +146,23 @@ export default function LoginForm() {
       if (additionalInfo?.isNewUser) {
         console.log(`New user ${user.uid} signed up with social provider. Creating profile and redirecting to security setup.`);
         
-        // Create their full profile in Firestore and seed their data
         await completeUserProfile(
             user.uid,
             user.displayName || "New Social User",
-            user.email || 'no-email@example.com', // Should always have email from Google/Apple
+            user.email || 'no-email@example.com',
             user.phoneNumber || ''
         );
         
-        // Set a flag to prevent AuthProvider from redirecting to dashboard
         sessionStorage.setItem('social_auth_in_progress', 'true');
-        
-        // Manually redirect to the PIN setup page, the next step in onboarding
         router.push('/setup-security');
       } else {
-        // For existing users, the AuthProvider will handle the redirect to /dashboard.
-        // We just need to let the component re-render so the AuthProvider's effect hook can run.
-        console.log('Existing user signed in with social provider. AuthProvider will handle redirect.');
+        // For existing users, explicitly redirect to dashboard
+        console.log('Existing user signed in with social provider. Redirecting to dashboard.');
+        toast({
+          title: 'Login Successful!',
+          description: `Welcome back, ${user.displayName || 'User'}!`,
+        });
+        router.push('/dashboard');
       }
 
     } catch (error: any) {
@@ -167,8 +172,14 @@ export default function LoginForm() {
         errorMessage = 'An account already exists with the same email address but different sign-in credentials. Try signing in with the original method.';
       } else if (error.code && error.code.includes('app-check')) {
           errorMessage = 'App Check validation failed. Please ensure your debug token is configured correctly in the Firebase Console.';
+      } else if (error.code === 'auth/popup-closed-by-user') {
+          errorMessage = 'The sign-in window was closed. Please try again.';
       }
-      setMessage(errorMessage);
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: errorMessage
+      });
     } finally {
       setIsLoading(false);
     }
@@ -241,12 +252,6 @@ export default function LoginForm() {
               <span>Continue with Apple</span>
           </Button>
       </div>
-
-       {message && (
-          <p className="mt-4 text-sm text-center text-red-500">
-            {message}
-          </p>
-        )}
     </div>
   );
 }
