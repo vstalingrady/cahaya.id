@@ -151,14 +151,14 @@ const slides = [
     {
       type: 'feature',
       title: 'Get Smarter Insights with AI.',
-      description: "Unleash the power of Gemini 2.5, one of the world's most advanced AI models. It analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
+      description: "Unleash the power of Gemini, one of the world's most advanced AI models. It analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
       content: (props: { isActive: boolean }) => (
         <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
           <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
             Get Smarter Insights with AI.
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
-            Unleash the power of Gemini 2.5, one of the world's most advanced AI models. It analyzes your
+            Unleash the power of Gemini, one of the world's most advanced AI models. It analyzes your
             spending to give you a Financial Health Score, find hidden saving
             opportunities, and create a personalized action plan.
           </p>
@@ -219,6 +219,12 @@ const slides = [
                 Create Free Account <ArrowRight className="ml-2" />
               </Link>
             </Button>
+             <p className="text-sm text-muted-foreground pt-4">
+                Already have an account?{' '}
+                <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">
+                  Log In
+                </Link>
+            </p>
           </div>
         </div>
       )
