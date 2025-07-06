@@ -120,6 +120,7 @@ const PinInput = ({
                   onChange={(e) => handleInputChange(e, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   onFocus={() => onFocusChange(index)}
+                  onBlur={() => onFocusChange(-1)}
                   className="w-12 h-14 text-center text-xl font-mono"
                   autoComplete="one-time-code"
                 />
