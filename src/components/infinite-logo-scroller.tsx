@@ -35,17 +35,21 @@ export default function InfiniteLogoScroller({
     </div>
   ));
 
+  const getDuration = () => {
+    switch (speed) {
+      case 'fast': return '20s';
+      case 'slow': return '80s';
+      default: return '40s';
+    }
+  };
+
   return (
-    <div className={cn("w-full overflow-hidden relative", className)}>
+    <div
+      className={cn("w-full overflow-hidden relative", className)}
+    >
       <div
-        className="scroller-inner"
-        data-direction={direction}
-        style={
-          {
-            "--animation-duration":
-              speed === "fast" ? "20s" : speed === "slow" ? "80s" : "40s",
-          } as React.CSSProperties
-        }
+        className={cn("scroller-inner", direction === 'forward' ? 'move-left' : 'move-right')}
+        style={{ '--animation-duration': getDuration() } as React.CSSProperties}
       >
         {allLogos}
       </div>
@@ -58,20 +62,24 @@ export default function InfiniteLogoScroller({
           gap: 1rem;
           padding: 0.25rem 0;
           width: max-content;
-          animation: scroll var(--animation-duration) linear infinite;
+        }
+        
+        .move-left {
+          animation: scrollLeft var(--animation-duration) linear infinite;
         }
 
-        .scroller-inner[data-direction="reverse"] {
-          animation-direction: reverse;
+        .move-right {
+          animation: scrollRight var(--animation-duration) linear infinite;
         }
 
-        @keyframes scroll {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
+        @keyframes scrollLeft {
+          from { transform: translateX(0); }
+          to { transform: translateX(calc(-50% - 0.5rem)); }
+        }
+
+        @keyframes scrollRight {
+          from { transform: translateX(calc(-50% - 0.5rem)); }
+          to { transform: translateX(0); }
         }
       `}</style>
     </div>
