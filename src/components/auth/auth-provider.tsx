@@ -2,7 +2,7 @@
 'use client';
 
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { auth } from '@/lib/firebase';
 import { Loader2 } from 'lucide-react';
@@ -21,14 +21,17 @@ export function useAuth() {
   return context;
 }
 
+// Define routes that do not require authentication
+const PUBLIC_ROUTES = ['/login', '/signup', '/verify-phone', '/complete-profile', '/setup-security', '/terms-of-service', '/'];
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
 
-  // This effect will run once on mount, and it's only job is to
-  // listen to Firebase auth state and update our local state.
   useEffect(() => {
+    // This listener is the single source of truth for the user's auth state.
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
@@ -38,25 +41,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => unsubscribe();
   }, []);
 
-  // This effect is responsible for the redirection logic.
-  // It will run whenever the loading or user state changes.
   useEffect(() => {
-    // We don't want to redirect while we're still checking for a user.
+    // Don't perform any redirects until the initial auth check is complete.
     if (loading) {
       return;
     }
 
-    // If loading is complete and we still have no user, redirect to login.
-    if (!user) {
+    const isProtectedRoute = !PUBLIC_ROUTES.includes(pathname);
+
+    // If the user is not logged in and is trying to access a protected route,
+    // redirect them to the login page.
+    if (!user && isProtectedRoute) {
       router.replace('/login');
     }
-  }, [user, loading, router]);
+    
+    // If the user IS logged in and trying to access a public-only route (like login),
+    // redirect them to the dashboard.
+    if (user && PUBLIC_ROUTES.includes(pathname) && pathname !== '/') {
+        router.replace('/dashboard');
+    }
+  }, [user, loading, router, pathname]);
 
-
-  // If we are still loading, or if there's no user (which means a redirect
-  // is in progress), show a loading spinner. This prevents the "flash" of
-  // content before the redirect happens.
-  if (loading || !user) {
+  // While the initial auth state is being determined, show a full-screen loader.
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
@@ -64,11 +71,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  // If we've made it this far, it means loading is false AND we have a user.
-  // It's now safe to render the protected content.
+  // If the user is authenticated, provide the user context and render the children.
+  if (user) {
+    return (
+      <AuthContext.Provider value={{ user }}>
+        {children}
+      </AuthContext.Provider>
+    );
+  }
+
+  // If the user is not authenticated, but they are on a public route,
+  // render the children without the user context.
+  if (!user && PUBLIC_ROUTES.includes(pathname)) {
+    return <>{children}</>;
+  }
+
+  // If none of the above conditions are met (e.g., a protected route is being accessed
+  // by a logged-out user and the redirect is in progress), show a loader.
   return (
-    <AuthContext.Provider value={{ user }}>
-      {children}
-    </AuthContext.Provider>
+    <div className="flex items-center justify-center min-h-screen bg-background">
+      <Loader2 className="w-10 h-10 text-primary animate-spin" />
+    </div>
   );
 }
