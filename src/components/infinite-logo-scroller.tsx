@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -66,6 +67,7 @@ export default function InfiniteLogoScroller({
   return (
     <div
       className={cn("w-full overflow-hidden relative", className)}
+      data-scroller-mask
     >
       <div
         className="scroller-inner"
@@ -81,11 +83,29 @@ export default function InfiniteLogoScroller({
         {originalLogos}
         {clonedLogos}
       </div>
-      
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background to-transparent z-10" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background to-transparent z-10" />
 
       <style jsx>{`
+        [data-scroller-mask]::before,
+        [data-scroller-mask]::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          width: 25%;
+          z-index: 2;
+          pointer-events: none;
+        }
+
+        [data-scroller-mask]::before {
+          left: 0;
+          background: linear-gradient(to right, hsl(var(--background)), transparent);
+        }
+
+        [data-scroller-mask]::after {
+          right: 0;
+          background: linear-gradient(to left, hsl(var(--background)), transparent);
+        }
+      
         .scroller-inner {
           display: flex;
           gap: 1rem; /* 1rem = gap-4 */
