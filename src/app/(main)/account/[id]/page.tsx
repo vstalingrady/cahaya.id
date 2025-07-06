@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { type Account, type Transaction } from '@/lib/data';
-import { getAccountDetails } from '@/lib/actions';
+import { getAccountDetails, getDashboardData } from '@/lib/actions';
 import { useAuth } from '@/components/auth/auth-provider';
 import TransactionCalendar from '@/components/profile/transaction-calendar';
 import TotalBalance from '@/components/dashboard/total-balance';
@@ -43,6 +43,7 @@ export default function AccountDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [account, setAccount] = useState<Account | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [allAccounts, setAllAccounts] = useState<Account[]>([]);
 
   const [isUnlinkConfirmOpen, setIsUnlinkConfirmOpen] = useState(false);
   const [pin, setPin] = useState('');
@@ -53,9 +54,13 @@ export default function AccountDetailPage() {
     const fetchData = async () => {
         setIsLoading(true);
         try {
-            const { account: fetchedAccount, transactions: fetchedTransactions } = await getAccountDetails(user.uid, accountId);
+            const [{ account: fetchedAccount, transactions: fetchedTransactions }, { accounts: allFetchedAccounts }] = await Promise.all([
+                getAccountDetails(user.uid, accountId),
+                getDashboardData(user.uid)
+            ]);
             setAccount(fetchedAccount);
             setTransactions(fetchedTransactions);
+            setAllAccounts(allFetchedAccounts);
         } catch (error) {
             console.error("Failed to fetch account details:", error);
             toast({
@@ -190,7 +195,7 @@ export default function AccountDetailPage() {
          <div className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground font-serif">Transaction History</h2>
           {transactions.length > 0 ? (
-            <TransactionCalendar transactions={transactions} currentBalance={account.balance} />
+            <TransactionCalendar transactions={transactions} accounts={allAccounts} currentBalance={account.balance} />
           ) : (
             <div className="bg-card p-6 rounded-xl text-center text-muted-foreground border border-border">
                 No transactions for this account yet.

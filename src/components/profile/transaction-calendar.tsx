@@ -3,7 +3,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Calendar } from '@/components/ui/calendar';
-import { accounts, type Transaction } from '@/lib/data';
+import { type Account, type Transaction } from '@/lib/data';
 import { format, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
@@ -14,7 +14,7 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     minimumFractionDigits: 0,
 }).format(amount);
 
-const getAccountLogo = (accountId: string) => {
+const getAccountLogo = (accountId: string, accounts: Account[]) => {
     const account = accounts.find(a => a.id === accountId);
     if (!account) return <div className="w-10 h-10 rounded-lg bg-gray-500 flex-shrink-0"></div>;
     const name = account.name.toLowerCase();
@@ -25,7 +25,7 @@ const getAccountLogo = (accountId: string) => {
 }
 
 
-export default function TransactionCalendar({ transactions, currentBalance }: { transactions: Transaction[], currentBalance: number }) {
+export default function TransactionCalendar({ transactions, accounts, currentBalance }: { transactions: Transaction[], accounts: Account[], currentBalance: number }) {
     const latestTransactionDate = useMemo(() => 
         transactions.length > 0 
             ? new Date(Math.max(...transactions.map(t => new Date(t.date).getTime())))
@@ -146,7 +146,7 @@ export default function TransactionCalendar({ transactions, currentBalance }: { 
                             {transactionsOnSelectedDate.map(t => (
                                 <div key={t.id} className="bg-secondary p-3 rounded-lg flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        {getAccountLogo(t.accountId)}
+                                        {getAccountLogo(t.accountId, accounts)}
                                         <div>
                                             <p className="font-semibold text-card-foreground">{t.description}</p>
                                             <p className="text-xs text-muted-foreground">{format(new Date(t.date), 'p')}</p>

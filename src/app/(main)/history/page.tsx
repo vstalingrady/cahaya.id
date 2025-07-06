@@ -70,7 +70,7 @@ export default function HistoryPage() {
               <Loader2 className="w-10 h-10 text-primary animate-spin" />
             </div>
          ) : (
-            <TransactionCalendar transactions={transactions} currentBalance={currentNetWorth} />
+            <TransactionCalendar transactions={transactions} accounts={accounts} currentBalance={currentNetWorth} />
          )}
       </div>
 
