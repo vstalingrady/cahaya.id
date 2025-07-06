@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster"
-import { Plus_Jakarta_Sans, DM_Serif_Display } from 'next/font/google';
+import { Plus_Jakarta_Sans, Domine } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
@@ -15,7 +15,7 @@ const jakartaSans = Plus_Jakarta_Sans({
   weight: ['400', '500', '600', '700', '800'],
   variable: '--font-sans' 
 });
-const dmSerifDisplay = DM_Serif_Display({
+const domine = Domine({
   subsets: ['latin'],
   weight: '400',
   variable: '--font-serif',
@@ -33,7 +33,7 @@ export default function RootLayout({
         className={cn(
           'antialiased min-h-screen font-sans bg-background',
           jakartaSans.variable,
-          dmSerifDisplay.variable
+          domine.variable
         )}
       >
         <ThemeProvider
