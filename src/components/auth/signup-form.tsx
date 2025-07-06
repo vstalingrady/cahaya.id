@@ -45,12 +45,11 @@ function SubmitButton({ pending }: { pending: boolean }) {
   );
 }
 
-// Extend the global Window interface to include Firebase Auth objects.
-// This is a common pattern to manage the reCAPTCHA verifier instance across re-renders in React.
+// Extend the global Window interface to include the confirmationResult for Firebase Auth.
+// This allows passing the result to the next page in the verification flow.
 declare global {
   interface Window {
     confirmationResult: ConfirmationResult;
-    recaptchaVerifier: RecaptchaVerifier;
   }
 }
 
@@ -66,56 +65,53 @@ export default function SignupForm() {
   const [phone, setPhone] = useState('+62 ');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
-  // A ref for the reCAPTCHA container DOM element.
+  // Refs for the reCAPTCHA container and the verifier instance.
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
 
   /**
    * This effect initializes the invisible reCAPTCHA verifier when the component mounts.
+   * Using a ref for the verifier ensures it persists across re-renders without causing issues
+   * with React's Strict Mode in development.
    */
   useEffect(() => {
     const auth = getAuth(app);
     const container = recaptchaContainerRef.current;
-    if (!container) return;
-
-    // Prevent re-initialization if a verifier already exists
-    if (window.recaptchaVerifier) {
-      setIsRecaptchaReady(true);
-      return;
-    }
+    // Only run if the container is available and the verifier hasn't been created yet.
+    if (!container || recaptchaVerifierRef.current) return;
 
     try {
       const verifier = new RecaptchaVerifier(auth, container, {
         'size': 'invisible',
         'callback': (response) => {
           console.log('reCAPTCHA challenge solved by user.');
-          setIsRecaptchaReady(true);
         },
         'expired-callback': () => {
           setError('reCAPTCHA verification expired. Please try sending the code again.');
-          setIsRecaptchaReady(false);
+          // Clear the old verifier so a new one can be made.
+          recaptchaVerifierRef.current?.clear();
+          recaptchaVerifierRef.current = null;
         }
       });
-
-      window.recaptchaVerifier = verifier;
+      recaptchaVerifierRef.current = verifier;
       
-      // Render the verifier. After it renders, we can consider it "ready"
-      // for the user to click the button. A challenge will only appear if needed.
-      verifier.render().then(() => {
-          console.log("reCAPTCHA has successfully rendered.");
-          setIsRecaptchaReady(true);
-      }).catch((renderError) => {
+      // Render the verifier.
+      verifier.render().catch((renderError) => {
           console.error("reCAPTCHA render error:", renderError);
           setError("Could not initialize security check. Please refresh the page.");
-          setIsRecaptchaReady(false);
       });
       
     } catch (e) {
       console.error("Error setting up reCAPTCHA:", e);
       setError("Failed to initialize security check.");
     }
-
+    
+    // Cleanup function to clear the verifier when the component unmounts.
+    return () => {
+        recaptchaVerifierRef.current?.clear();
+        recaptchaVerifierRef.current = null;
+    };
   }, []);
 
   /**
@@ -124,7 +120,6 @@ export default function SignupForm() {
    * @returns {string} The formatted phone number (e.g., "+6281234567890").
    */
   const formatPhoneNumberForFirebase = (phoneNumber: string): string => {
-    // Remove all non-digit characters and prepend a '+'
     return `+${phoneNumber.replace(/\D/g, '')}`;
   };
 
@@ -136,25 +131,17 @@ export default function SignupForm() {
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     
-    // Prevent the user from deleting the "+62 " prefix.
     if (!value.startsWith('+62 ')) {
       setPhone('+62 ');
       return;
     }
     
-    // Extract only the numeric digits after the prefix.
     const rawNumbers = value.substring(4).replace(/\D/g, '');
-    
-    // Limit the number of digits to a standard Indonesian phone number length.
     const trimmedNumbers = rawNumbers.slice(0, 12);
-
-    // Group the numbers into chunks for formatting (e.g., 812-3456-7890).
     const chunks = [];
     if (trimmedNumbers.length > 0) chunks.push(trimmedNumbers.slice(0, 3));
     if (trimmedNumbers.length > 3) chunks.push(trimmedNumbers.slice(3, 7));
     if (trimmedNumbers.length > 7) chunks.push(trimmedNumbers.slice(7));
-
-    // Update the state with the formatted number.
     setPhone(`+62 ${chunks.join('-')}`);
   };
 
@@ -168,9 +155,8 @@ export default function SignupForm() {
     setError(null);
 
     const formattedPhone = formatPhoneNumberForFirebase(phone);
-    const verifier = window.recaptchaVerifier;
+    const verifier = recaptchaVerifierRef.current;
     
-    // Ensure the reCAPTCHA verifier is ready.
     if (!verifier) {
       setError("reCAPTCHA verifier not ready. Please wait a moment and try again.");
       setLoading(false);
@@ -180,12 +166,10 @@ export default function SignupForm() {
     try {
       const auth = getAuth(app);
       
-      // Call Firebase to send the SMS verification code.
       const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, verifier);
       // Store the result on the window object to be used on the verification page.
-      window.confirmationResult = confirmationResult;
+      (window as any).confirmationResult = confirmationResult;
       
-      // Redirect to the verification page, passing the phone number for display.
       router.push(`/verify-phone?phone=${encodeURIComponent(phone)}`);
     } catch (err: any) {
       console.error("Error sending code:", err);
@@ -199,7 +183,10 @@ export default function SignupForm() {
         errorMessage = "An internal error occurred. Please ensure Phone Sign-In is enabled in your Firebase project and that your App Check configuration is correct.";
       }
       setError(errorMessage);
-
+      
+      // Reset the verifier on error to allow for a retry.
+      verifier.clear();
+      recaptchaVerifierRef.current = null;
     } finally {
       setLoading(false);
     }
@@ -225,9 +212,8 @@ export default function SignupForm() {
           </div>
         </div>
         
-        <SubmitButton pending={loading || !isRecaptchaReady} />
+        <SubmitButton pending={loading} />
         
-        {/* Display any errors that occur. */}
         {error && (
           <p className="mt-4 text-sm text-red-500 text-center whitespace-pre-line">{error}</p>
         )}
