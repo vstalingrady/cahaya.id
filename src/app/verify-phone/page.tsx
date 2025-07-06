@@ -21,7 +21,7 @@ function VerifyPhonePageContent() {
                       <p className="font-semibold text-white text-xl mt-1">{phone || 'your phone'}</p>
                     </div>
                 </div>
-                <VerifyPhoneForm />
+                <VerifyPhoneForm phone={phone} />
             </div>
         </div>
     );

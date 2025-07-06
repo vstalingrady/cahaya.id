@@ -2,13 +2,13 @@
  * @file src/components/auth/verify-phone-form.tsx
  * @fileoverview A form component for users to enter the 6-digit OTP (One-Time Password)
  * sent to their phone to verify their identity. It includes a developer bypass
- * using a "master code" for easier testing.
+ * using a "master code" for easier testing and a functional "Resend" button.
  */
 
 'use client';
 
 // React hooks for state management.
-import React, { useState, useRef, ChangeEvent, KeyboardEvent } from 'react';
+import React, { useState, useRef, ChangeEvent, KeyboardEvent, useEffect } from 'react';
 // Next.js router for navigation.
 import { useRouter } from 'next/navigation';
 // UI components from ShadCN.
@@ -19,6 +19,9 @@ import { Label } from '@/components/ui/label';
 import { Loader2 } from 'lucide-react';
 // Custom hook for displaying toast notifications.
 import { useToast } from '@/hooks/use-toast';
+// Firebase imports for phone auth and reCAPTCHA
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
+import { app } from '@/lib/firebase';
 
 /**
  * A submit button component that shows a loading spinner when a request is pending.
@@ -124,21 +127,49 @@ const PinInput = ({
   );
 };
 
+// Extend the global Window interface to include the confirmationResult for Firebase Auth.
+declare global {
+  interface Window {
+    confirmationResult: ConfirmationResult;
+  }
+}
 
 /**
  * The main component for the phone verification form.
- * @returns {JSX.Element} The rendered verification form.
  */
-export default function VerifyPhoneForm() {
-  // Hooks for routing and showing notifications.
+export default function VerifyPhoneForm({ phone }: { phone: string | null }) {
   const router = useRouter();
   const { toast } = useToast();
-  // State for the verification code input and loading status.
   const [code, setCode] = useState(Array(6).fill(''));
   const [loading, setLoading] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendCooldown, setResendCooldown] = useState(30);
+  const [isResending, setIsResending] = useState(false);
 
-  React.useEffect(() => {
+  // Refs and state for the reCAPTCHA verifier needed for resending.
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+
+  // Initialize reCAPTCHA on mount for the resend functionality.
+  useEffect(() => {
+    const auth = getAuth(app);
+    if (!recaptchaContainerRef.current || recaptchaVerifierRef.current) return;
+
+    try {
+        const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+            'size': 'invisible',
+            'callback': () => { console.log('reCAPTCHA solved for resend.'); }
+        });
+        recaptchaVerifierRef.current = verifier;
+        verifier.render().catch(console.error);
+        return () => { verifier.clear(); };
+    } catch (e) {
+        console.error("Error creating reCAPTCHA verifier for resend", e);
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not initialize resend security.' });
+    }
+  }, [toast]);
+  
+  // Cooldown timer effect
+  useEffect(() => {
     let timer: NodeJS.Timeout;
     if (resendCooldown > 0) {
       timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
@@ -146,10 +177,12 @@ export default function VerifyPhoneForm() {
     return () => clearTimeout(timer);
   }, [resendCooldown]);
 
+  const formatPhoneNumberForFirebase = (phoneNumber: string): string => {
+    return `+${phoneNumber.replace(/\D/g, '')}`;
+  };
 
   /**
    * Handles the form submission to verify the entered OTP code.
-   * @param {React.FormEvent} e - The form submission event.
    */
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -158,21 +191,17 @@ export default function VerifyPhoneForm() {
     const pinString = code.join('');
 
     // This is a developer bypass to skip OTP verification with a "master code".
-    // This provides a second entry point to the bypass flow for testing.
     if (pinString === '000000') {
       toast({
         title: 'Dev Bypass Activated',
         description: 'Skipping phone verification.',
       });
-      // Set a flag in session storage to be checked on the next page.
       sessionStorage.setItem('devBypass', 'true');
       router.push('/complete-profile');
       return;
     }
 
     try {
-      // The `window.confirmationResult` is set on the previous page after successfully
-      // calling `signInWithPhoneNumber`. If it's not present, the session is invalid.
       if (!window.confirmationResult) {
         toast({
           variant: 'destructive',
@@ -183,7 +212,6 @@ export default function VerifyPhoneForm() {
         return;
       }
       
-      // Use the confirmationResult object to confirm the user's entered code.
       const result = await window.confirmationResult.confirm(pinString);
       
       toast({
@@ -193,12 +221,10 @@ export default function VerifyPhoneForm() {
 
       console.log("Phone verification successful, user:", result.user);
 
-      // On success, navigate to the profile completion page.
       router.push('/complete-profile');
 
     } catch (err: any) {
       console.error("Error verifying code:", err);
-      // Handle common Firebase errors with user-friendly messages.
       let description = 'Failed to verify code. Please try again.';
       if (err.code === 'auth/invalid-verification-code') {
         description = 'The code you entered is invalid. Please try again.';
@@ -216,16 +242,38 @@ export default function VerifyPhoneForm() {
     }
   };
 
-  const handleResendCode = () => {
-    // In a real app, this would re-trigger the signInWithPhoneNumber flow.
-    // For this prototype, we'll just show a toast and start a cooldown.
-    if (resendCooldown > 0) return;
+  const handleResendCode = async () => {
+    if (resendCooldown > 0 || isResending) return;
+    if (!phone) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Phone number not found.' });
+        return;
+    }
 
-    toast({
-      title: "Code Resent",
-      description: "A new verification code has been sent to your phone.",
-    });
-    setResendCooldown(30); // 30-second cooldown
+    setIsResending(true);
+    const verifier = recaptchaVerifierRef.current;
+    if (!verifier) {
+        toast({ variant: 'destructive', title: 'Error', description: 'Security verifier not ready.' });
+        setIsResending(false);
+        return;
+    }
+
+    try {
+        const auth = getAuth(app);
+        const formattedPhone = formatPhoneNumberForFirebase(phone);
+        const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, verifier);
+        window.confirmationResult = confirmationResult; // Update the global confirmationResult
+
+        toast({
+          title: "Code Resent",
+          description: "A new verification code has been sent.",
+        });
+        setResendCooldown(60); // Reset cooldown to 60 seconds
+    } catch (error: any) {
+        console.error("Error resending code:", error);
+        toast({ variant: 'destructive', title: 'Resend Failed', description: 'Could not send a new code. Please try again later.' });
+    } finally {
+        setIsResending(false);
+    }
   };
 
   return (
@@ -245,13 +293,15 @@ export default function VerifyPhoneForm() {
               type="button"
               variant="link"
               onClick={handleResendCode}
-              disabled={resendCooldown > 0}
+              disabled={resendCooldown > 0 || isResending}
               className="font-semibold text-primary/80 hover:text-primary p-0 h-auto disabled:no-underline disabled:text-muted-foreground disabled:cursor-not-allowed"
             >
-              {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend'}
+              {isResending ? 'Sending...' : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend'}
             </Button>
           </p>
       </div>
+      {/* This div is the container for the invisible reCAPTCHA widget for resending. */}
+      <div ref={recaptchaContainerRef} />
     </div>
   );
 }
