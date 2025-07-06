@@ -46,7 +46,7 @@ import { FaGoogle, FaApple } from 'react-icons/fa';
 import { cn } from '@/lib/utils';
 
 /**
- * A submit button component that shows a loading spinner when a request is pending.
+ * A submit button component that shows a loading spinner when a request is in progress.
  * @param {object} props - Component props.
  * @param {boolean} props.pending - Whether the form submission is in progress.
  * @returns {JSX.Element} The rendered button.
@@ -275,6 +275,12 @@ export default function CompleteProfileForm() {
       if (!emailFromProvider) {
           throw new Error("Could not retrieve email from provider. Please try a different method.");
       }
+      
+      // THIS IS THE FIX: Explicitly save displayName and photoURL to the Firebase Auth profile.
+      await updateProfile(finalUser, { 
+        displayName: fullNameFromProvider, 
+        photoURL: finalUser.photoURL 
+      });
 
       // Save the complete profile to Firestore.
       await completeUserProfile(finalUser.uid, fullNameFromProvider, emailFromProvider, finalPhoneNumber);
