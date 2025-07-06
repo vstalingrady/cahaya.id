@@ -1,4 +1,3 @@
-
 /**
  * @file src/components/auth/signup-form.tsx
  * @fileoverview The form component for the first step of user registration,
@@ -68,40 +67,52 @@ export default function SignupForm() {
   const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
   // A ref to hold the Firebase reCAPTCHA verifier instance.
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+  // A ref for the reCAPTCHA container DOM element.
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+
 
   /**
    * This effect initializes the invisible reCAPTCHA verifier when the component mounts.
    */
   useEffect(() => {
     const auth = getAuth(app);
-    // Prevents re-creating the verifier on re-renders
-    if (recaptchaVerifierRef.current) return;
+    // Only run if the container div has rendered and the verifier isn't already set up.
+    if (!recaptchaContainerRef.current || recaptchaVerifierRef.current) return;
 
-    const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-        'callback': () => {
-            console.log('reCAPTCHA challenge successfully solved.');
-        },
-        'expired-callback': () => {
-            setError('reCAPTCHA verification expired. Please try sending the code again.');
-        }
-    });
+    try {
+      const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+          'size': 'invisible',
+          'callback': () => {
+              console.log('reCAPTCHA challenge successfully solved.');
+          },
+          'expired-callback': () => {
+              setError('reCAPTCHA verification expired. Please try sending the code again.');
+              setIsRecaptchaReady(false);
+          }
+      });
+      
+      // Store the verifier instance in a ref to access it in the submit handler.
+      recaptchaVerifierRef.current = verifier;
+      
+      // Explicitly render the verifier and wait for it to be ready.
+      verifier.render().then(() => {
+          setIsRecaptchaReady(true);
+      }).catch((renderError) => {
+          console.error("reCAPTCHA render error:", renderError);
+          setError("Could not initialize security check. Please refresh the page.");
+          setIsRecaptchaReady(false);
+      });
+      
+      // Cleanup function to clear the reCAPTCHA instance when the component unmounts.
+      return () => {
+        verifier.clear();
+      };
+    } catch(e) {
+      console.error("Error creating reCAPTCHA verifier", e);
+      setError("Failed to initialize security verifier. Please check your Firebase configuration.");
+    }
 
-    // Store the verifier instance in a ref to access it in the submit handler.
-    recaptchaVerifierRef.current = verifier;
-    
-    // Explicitly render the verifier and wait for it to be ready.
-    verifier.render().then(() => {
-        setIsRecaptchaReady(true);
-    }).catch((renderError) => {
-        console.error("reCAPTCHA render error:", renderError);
-        setError("Could not initialize security check. Please refresh the page.");
-    });
-    
-    // Cleanup function to clear the reCAPTCHA instance when the component unmounts.
-    return () => {
-      verifier.clear();
-    };
+  // The empty dependency array ensures this effect runs only once after the initial render.
   }, []);
 
   /**
@@ -239,7 +250,7 @@ export default function SignupForm() {
         )}
       </form>
       {/* This div is the container for the invisible reCAPTCHA widget. */}
-      <div id="recaptcha-container" />
+      <div ref={recaptchaContainerRef} />
     </div>
   );
 }
