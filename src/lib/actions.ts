@@ -123,8 +123,12 @@ export async function setSecurityPin(uid: string, pin: string) {
     const encryptedPinData = await encrypt(trimmedPin);
     await setDoc(userDocRef, { securityPinData: encryptedPinData }, { merge: true });
     console.log(`Successfully set and encrypted PIN for user ${uid}`);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error setting security PIN:", error);
+    // Provide a more specific error message for the most likely cause.
+    if (error.message && error.message.includes('ENCRYPTION_KEY')) {
+        throw new Error("PIN setup failed: The server's ENCRYPTION_KEY is missing or invalid. Please ensure it is set correctly in your .env file and is 32 characters long.");
+    }
     throw new Error("Could not set security PIN.");
   }
 }
@@ -157,8 +161,11 @@ export async function verifySecurityPin(uid: string, pin: string): Promise<{ suc
       let decryptedPin;
       try {
         decryptedPin = await decrypt(storedPinData);
-      } catch (e) {
+      } catch (e: any) {
           console.error("PIN Decryption failed for user:", uid, e);
+          if (e.message && e.message.includes('ENCRYPTION_KEY')) {
+              return { success: false, reason: "PIN verification failed: The server's ENCRYPTION_KEY is missing or has changed." };
+          }
           return { success: false, reason: "Failed to verify PIN due to a security error."};
       }
       
