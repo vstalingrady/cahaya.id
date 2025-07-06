@@ -65,6 +65,7 @@ export default function SignupForm() {
   const [phone, setPhone] = useState('+62 ');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
   // A ref to hold the Firebase reCAPTCHA verifier instance.
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
@@ -89,8 +90,10 @@ export default function SignupForm() {
     // Store the verifier instance in a ref to access it in the submit handler.
     recaptchaVerifierRef.current = verifier;
     
-    // Explicitly render the verifier to ensure it's ready on submit.
-    verifier.render().catch((renderError) => {
+    // Explicitly render the verifier and wait for it to be ready.
+    verifier.render().then(() => {
+        setIsRecaptchaReady(true);
+    }).catch((renderError) => {
         console.error("reCAPTCHA render error:", renderError);
         setError("Could not initialize security check. Please refresh the page.");
     });
@@ -228,7 +231,7 @@ export default function SignupForm() {
           </div>
         </div>
         
-        <SubmitButton pending={loading} />
+        <SubmitButton pending={loading || !isRecaptchaReady} />
         
         {/* Display any errors that occur. */}
         {error && (
