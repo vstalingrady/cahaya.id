@@ -1,3 +1,4 @@
+
 /**
  * @file src/components/auth/signup-form.tsx
  * @fileoverview The form component for the first step of user registration,
