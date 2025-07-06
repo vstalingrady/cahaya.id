@@ -82,6 +82,8 @@ export default function InfiniteLogoScroller({
         {originalLogos}
         {clonedLogos}
       </div>
+      
+      {/* Theme-aware fade gradients on the sides */}
       <div className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background to-transparent pointer-events-none z-10"></div>
       <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background to-transparent pointer-events-none z-10"></div>
 
@@ -93,6 +95,7 @@ export default function InfiniteLogoScroller({
           padding-top: 0.25rem; /* py-1 */
           padding-bottom: 0.25rem; /* py-1 */
           animation: scroll var(--animation-duration) linear infinite;
+          width: max-content;
         }
 
         .scroller-inner[data-direction="reverse"] {
@@ -100,8 +103,11 @@ export default function InfiniteLogoScroller({
         }
 
         @keyframes scroll {
+          from {
+            transform: translateX(0);
+          }
           to {
-            /* We need to account for the gap between the last original and first cloned item */
+            /* Move by exactly half the width (original logos + gap) */
             transform: translateX(calc(-50% - 0.5rem));
           }
         }
