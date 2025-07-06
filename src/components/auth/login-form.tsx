@@ -1,19 +1,37 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword, GoogleAuthProvider, OAuthProvider, signInWithPopup, User, getAdditionalUserInfo } from 'firebase/auth';
+import { 
+  signInWithEmailAndPassword, 
+  GoogleAuthProvider, 
+  OAuthProvider, 
+  signInWithPopup, 
+  User, 
+  getAdditionalUserInfo,
+  getAuth,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  signOut
+} from 'firebase/auth';
 import { Lock, Mail, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '../ui/label';
-import { auth, db } from '@/lib/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { app, auth, db } from '@/lib/firebase';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { FaGoogle, FaApple } from 'react-icons/fa';
 import { Separator } from '../ui/separator';
 import { completeUserProfile } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
+
+// Extend the global Window interface to include Firebase Auth objects.
+declare global {
+  interface Window {
+    confirmationResult: any; // Using `any` for simplicity with Firebase's complex types
+  }
+}
 
 export default function LoginForm() {
   const router = useRouter();
@@ -24,6 +42,19 @@ export default function LoginForm() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [verifier, setVerifier] = useState<RecaptchaVerifier | null>(null);
+
+  useEffect(() => {
+    const authInstance = getAuth(app);
+    // Initialize reCAPTCHA verifier once on component mount
+    if (!verifier) {
+      const recaptchaVerifier = new RecaptchaVerifier(authInstance, 'login-recaptcha-container', {
+        'size': 'invisible',
+      });
+      setVerifier(recaptchaVerifier);
+    }
+  }, [verifier]);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -60,69 +91,76 @@ export default function LoginForm() {
     return Object.keys(newErrors).length === 0;
   };
 
+  /**
+   * Triggers the phone verification process for a logged-in user.
+   */
+  const triggerPhoneVerification = async (user: User) => {
+    if (!verifier) {
+      throw new Error("reCAPTCHA verifier not initialized.");
+    }
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists() || !userDoc.data()?.phone) {
+        toast({ variant: "destructive", title: 'Verification Failed', description: 'Your account has no phone number on file for verification.' });
+        await signOut(auth); // Log them out so they can try again
+        throw new Error('No phone number found for user.');
+    }
+
+    const phoneNumber = userDoc.data()!.phone;
+    const authInstance = getAuth(app);
+
+    const confirmationResult = await signInWithPhoneNumber(authInstance, phoneNumber, verifier);
+    window.confirmationResult = confirmationResult;
+
+    router.push(`/verify-phone?phone=${encodeURIComponent(phoneNumber)}&next=/dashboard`);
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
-    
     setIsLoading(true);
     
     try {
-      console.log('Attempting login with:', formData.email);
-      
       const userCredential = await signInWithEmailAndPassword(
         auth, 
         formData.email, 
         formData.password
       );
-
-      const user = userCredential.user;
-
-      // Log the successful login event to Firestore
-      await setDoc(doc(db, "users", user.uid, "login_history", new Date().toISOString()), {
-        timestamp: new Date(),
-        ipAddress: "Client-side login",
-        userAgent: "Client-side login (browser)",
-      });
       
-      console.log('Login successful:', userCredential.user.uid);
-      
-      toast({
-        title: 'Login Successful!',
-        description: `Welcome back, ${user.displayName || 'User'}!`,
-      });
-      router.push('/dashboard');
+      await triggerPhoneVerification(userCredential.user);
       
     } catch (error: any) {
       console.error('Login error:', error);
-      
-      let errorMessage = 'An unexpected error occurred.';
-      
-      switch (error.code) {
-        case 'auth/user-not-found':
-        case 'auth/invalid-email':
-        case 'auth/wrong-password':
-        case 'auth/invalid-credential':
-          errorMessage = 'Invalid email or password.';
-          break;
-        case 'auth/user-disabled':
-          errorMessage = 'This account has been disabled.';
-          break;
-        case 'auth/too-many-requests':
-          errorMessage = 'Too many failed login attempts. Please try again later.';
-          break;
-        case 'auth/network-request-failed':
-          errorMessage = 'Network error. Please check your internet connection.';
-          break;
-        default:
-          errorMessage = error.message || 'Failed to log in. Please try again.';
+      if (error.message === 'No phone number found for user.') {
+          // The specific error is already shown via toast, so just stop loading.
+      } else {
+        let errorMessage = 'An unexpected error occurred.';
+        switch (error.code) {
+            case 'auth/user-not-found':
+            case 'auth/invalid-email':
+            case 'auth/wrong-password':
+            case 'auth/invalid-credential':
+            errorMessage = 'Invalid email or password.';
+            break;
+            case 'auth/user-disabled':
+            errorMessage = 'This account has been disabled.';
+            break;
+            case 'auth/too-many-requests':
+            errorMessage = 'Too many failed login attempts. Please try again later.';
+            break;
+            case 'auth/network-request-failed':
+            errorMessage = 'Network error. Please check your internet connection.';
+            break;
+            default:
+            errorMessage = error.message || 'Failed to log in. Please try again.';
+        }
+        toast({
+            variant: "destructive",
+            title: 'Login Failed',
+            description: errorMessage
+        });
       }
-      
-      toast({
-        variant: "destructive",
-        title: 'Login Failed',
-        description: errorMessage
-      });
     } finally {
       setIsLoading(false);
     }
@@ -135,51 +173,39 @@ export default function LoginForm() {
       const user = result.user;
       const additionalInfo = getAdditionalUserInfo(result);
 
-      // Log the successful login event to Firestore
-      await setDoc(doc(db, "users", user.uid, "login_history", new Date().toISOString()), {
-        timestamp: new Date(),
-        ipAddress: "Client-side social login",
-        userAgent: "Client-side social login (browser)",
-      }, { merge: true });
-
-      // If it's a new user, they need to go through the onboarding flow.
       if (additionalInfo?.isNewUser) {
-        console.log(`New user ${user.uid} signed up with social provider. Creating profile and redirecting to security setup.`);
-        
         await completeUserProfile(
             user.uid,
             user.displayName || "New Social User",
             user.email || 'no-email@example.com',
             user.phoneNumber || ''
         );
-        
         sessionStorage.setItem('social_auth_in_progress', 'true');
         router.push('/setup-security');
       } else {
-        // For existing users, explicitly redirect to dashboard
-        console.log('Existing user signed in with social provider. Redirecting to dashboard.');
-        toast({
-          title: 'Login Successful!',
-          description: `Welcome back, ${user.displayName || 'User'}!`,
-        });
-        router.push('/dashboard');
+        // For existing users, start the 2FA phone verification flow
+        await triggerPhoneVerification(user);
       }
 
     } catch (error: any) {
       console.error('Social login error:', error);
-      let errorMessage = 'An unexpected error occurred with social login.';
-      if (error.code === 'auth/account-exists-with-different-credential') {
-        errorMessage = 'An account already exists with the same email address but different sign-in credentials. Try signing in with the original method.';
-      } else if (error.code && error.code.includes('app-check')) {
-          errorMessage = 'App Check validation failed. Please ensure your debug token is configured correctly in the Firebase Console.';
-      } else if (error.code === 'auth/popup-closed-by-user') {
-          errorMessage = 'The sign-in window was closed. Please try again.';
+      if (error.message === 'No phone number found for user.') {
+        // Already handled by toast in trigger function
+      } else {
+        let errorMessage = 'An unexpected error occurred with social login.';
+        if (error.code === 'auth/account-exists-with-different-credential') {
+            errorMessage = 'An account already exists with the same email address but different sign-in credentials. Try signing in with the original method.';
+        } else if (error.code && error.code.includes('app-check')) {
+            errorMessage = 'App Check validation failed. Please ensure your debug token is configured correctly in the Firebase Console.';
+        } else if (error.code === 'auth/popup-closed-by-user') {
+            errorMessage = 'The sign-in window was closed. Please try again.';
+        }
+        toast({
+            variant: 'destructive',
+            title: 'Login Failed',
+            description: errorMessage
+        });
       }
-      toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: errorMessage
-      });
     } finally {
       setIsLoading(false);
     }
@@ -252,6 +278,7 @@ export default function LoginForm() {
               <span>Continue with Apple</span>
           </Button>
       </div>
+      <div id="login-recaptcha-container"></div>
     </div>
   );
 }

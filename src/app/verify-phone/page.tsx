@@ -1,3 +1,4 @@
+
 'use client';
 
 import VerifyPhoneForm from '@/components/auth/verify-phone-form';
@@ -9,6 +10,7 @@ import { Loader2 } from 'lucide-react';
 function VerifyPhonePageContent() {
     const searchParams = useSearchParams();
     const phone = searchParams.get('phone');
+    const next = searchParams.get('next');
     
     return (
         <div className="w-full max-w-md mx-auto bg-background text-white p-6 flex flex-col justify-center min-h-screen relative overflow-hidden">
@@ -21,7 +23,7 @@ function VerifyPhonePageContent() {
                       <p className="font-semibold text-white text-xl mt-1">{phone || 'your phone'}</p>
                     </div>
                 </div>
-                <VerifyPhoneForm phone={phone} />
+                <VerifyPhoneForm phone={phone} next={next} />
             </div>
         </div>
     );

@@ -22,7 +22,8 @@ import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 // Firebase imports for phone auth and reCAPTCHA
 import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
-import { app } from '@/lib/firebase';
+import { app, auth, db } from '@/lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 /**
  * A submit button component that shows a loading spinner when a request is pending.
@@ -138,7 +139,7 @@ declare global {
 /**
  * The main component for the phone verification form.
  */
-export default function VerifyPhoneForm({ phone }: { phone: string | null }) {
+export default function VerifyPhoneForm({ phone, next }: { phone: string | null, next: string | null }) {
   const router = useRouter();
   const { toast } = useToast();
   const [code, setCode] = useState(Array(6).fill(''));
@@ -189,7 +190,7 @@ export default function VerifyPhoneForm({ phone }: { phone: string | null }) {
         description: 'Skipping phone verification.',
       });
       sessionStorage.setItem('devBypass', 'true');
-      router.push('/complete-profile');
+      router.push(next || '/complete-profile');
       return;
     }
 
@@ -205,15 +206,29 @@ export default function VerifyPhoneForm({ phone }: { phone: string | null }) {
       }
       
       const result = await window.confirmationResult.confirm(pinString);
-      
-      toast({
-        title: 'Success!',
-        description: 'Your phone number has been verified.',
-      });
+      const user = result.user;
 
-      console.log("Phone verification successful, user:", result.user);
-
-      router.push('/complete-profile');
+      if (next === '/dashboard') {
+         // This is a 2FA login, so log the event
+        await setDoc(doc(db, "users", user.uid, "login_history", new Date().toISOString()), {
+            timestamp: new Date(),
+            ipAddress: "Client-side 2FA",
+            userAgent: "Client-side 2FA (browser)",
+        });
+        toast({
+            title: 'Login Successful!',
+            description: `Welcome back, ${user.displayName || 'User'}!`,
+        });
+        router.push('/dashboard');
+      } else {
+        // This is part of the initial signup flow
+        toast({
+            title: 'Success!',
+            description: 'Your phone number has been verified.',
+        });
+        console.log("Phone verification successful, user:", user);
+        router.push('/complete-profile');
+      }
 
     } catch (err: any) {
       console.error("Error verifying code:", err);
