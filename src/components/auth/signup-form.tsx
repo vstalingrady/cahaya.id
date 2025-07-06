@@ -202,11 +202,8 @@ export default function SignupForm() {
         setError('Invalid phone number format. Please check your number.');
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many requests. Please try again later.');
-      } else if (err.code === 'auth/operation-not-allowed' || (err.message && err.message.includes('auth/error-code'))) {
-        setError("App security check failed. Please ensure Phone Sign-In is enabled in Firebase Auth, and that your App Check debug token is registered in the Firebase Console.");
-      }
-      else if (err.code && err.message.includes('app-check')) {
-         setError('App Check validation failed. Please check the browser console logs for the debug token and add it to the Firebase Console.');
+      } else if (err.code === 'auth/operation-not-allowed' || (err.message && (err.message.includes('auth/error-code') || err.message.includes('app-check')))) {
+        setError("App security check failed. This often means Phone Sign-In isn't enabled in your Firebase project or App Check is misconfigured. Check the browser console for a debug token to add to your Firebase project settings.");
       } else {
         setError(err.message || 'Failed to send verification code. Please try again.');
       }
