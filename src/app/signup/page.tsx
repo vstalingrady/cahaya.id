@@ -27,13 +27,16 @@ export default function SignupPage() {
       <div className="relative z-10">
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4 text-primary font-serif">Create your Account</h1>
-          <p className="text-muted-foreground text-lg font-light">Let's start by verifying your phone number.</p>
+          <p className="text-muted-foreground text-lg font-light">We'll send you an SMS with a verification code to get started.</p>
         </div>
         <SignupForm />
-        <div className="text-center mt-6 space-y-3">
-             <Button variant="link" className="text-xs text-muted-foreground" onClick={handleBypass}>
-              Developer Bypass
-            </Button>
+        <div className="text-center mt-6">
+             <p className="text-sm text-muted-foreground">
+                Already have an account?{' '}
+                <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">
+                  Log In
+                </Link>
+            </p>
         </div>
       </div>
     </div>

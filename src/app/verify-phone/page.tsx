@@ -17,7 +17,7 @@ function VerifyPhonePageContent() {
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-bold mb-4 text-primary font-serif">Enter Your Code</h1>
                     <div className="text-muted-foreground text-lg font-light">
-                      <p>We sent a 6-digit code to</p>
+                      <p>We sent a 6-digit SMS code to</p>
                       <p className="font-semibold text-white text-xl mt-1">{phone || 'your phone'}</p>
                     </div>
                 </div>
