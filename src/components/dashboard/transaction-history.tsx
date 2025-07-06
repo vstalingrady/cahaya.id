@@ -7,7 +7,7 @@
  */
 
 // Import types for data structures. Note: We only import TYPES here, not data.
-import { type Transaction, type Account } from "@/lib/data";
+import { type Transaction, type Account, financialInstitutions } from "@/lib/data";
 // Import UI components from ShadCN.
 import { Badge } from "@/components/ui/badge";
 import { Button } from "../ui/button";
@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { format } from 'date-fns';
 import { Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 /**
  * A utility function to format a number into Indonesian Rupiah currency format.
@@ -29,26 +30,35 @@ const formatCurrency = (amount: number): string => new Intl.NumberFormat('id-ID'
 }).format(amount);
 
 /**
- * A helper function to determine which account logo to display based on the account name.
- * It searches the provided accounts array for a matching ID.
+ * A helper function to determine which account logo to display based on the account's institution.
+ * It searches the provided accounts array for a matching ID and then finds the institution logo.
  * @param {string} accountId - The ID of the account for the transaction.
  * @param {Account[]} accounts - The full list of the user's accounts.
  * @returns {JSX.Element} A div styled to look like an account logo.
  */
 const getAccountLogo = (accountId: string, accounts: Account[]): JSX.Element => {
-    // Find the account in the list that matches the transaction's accountId.
     const account = accounts.find(a => a.id === accountId);
-    // If no account is found (which shouldn't happen in normal operation), return a generic grey box.
-    if (!account) return <div className="w-8 h-8 rounded-lg bg-gray-500"></div>;
+    if (!account) return <div className="w-8 h-8 rounded-lg bg-gray-500 flex-shrink-0"></div>;
     
-    // Check the account name for keywords to return a specific colored logo.
-    const name = account.name.toLowerCase();
-    if (name.includes('bca')) return <div className="w-8 h-8 text-xs bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold">BCA</div>;
-    if (name.includes('gopay')) return <div className="w-8 h-8 text-xs bg-sky-500 text-white rounded-lg flex items-center justify-center font-bold">GP</div>;
-    if (name.includes('ovo')) return <div className="w-8 h-8 text-xs bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold">OVO</div>;
+    const institution = financialInstitutions.find(inst => inst.slug === account.institutionSlug);
+
+    if (institution?.logoUrl) {
+        return (
+            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center p-1 shadow-sm flex-shrink-0">
+                <Image
+                    src={institution.logoUrl}
+                    alt={`${account.name} logo`}
+                    width={28}
+                    height={28}
+                    className="object-contain h-full w-full"
+                    data-ai-hint={`${institution.name} logo`}
+                />
+            </div>
+        );
+    }
     
-    // Return a default grey logo if no keywords match.
-    return <div className="w-8 h-8 rounded-lg bg-gray-500"></div>;
+    const initials = account.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    return <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-xs font-bold flex-shrink-0">{initials}</div>;
 }
 
 /**

@@ -3,10 +3,11 @@
 
 import React, { useState, useMemo } from 'react';
 import { Calendar } from '@/components/ui/calendar';
-import { type Account, type Transaction } from '@/lib/data';
+import { type Account, type Transaction, financialInstitutions } from '@/lib/data';
 import { format, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '../ui/scroll-area';
+import Image from 'next/image';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
     style: 'currency',
@@ -17,11 +18,26 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
 const getAccountLogo = (accountId: string, accounts: Account[]) => {
     const account = accounts.find(a => a.id === accountId);
     if (!account) return <div className="w-10 h-10 rounded-lg bg-gray-500 flex-shrink-0"></div>;
-    const name = account.name.toLowerCase();
-    if (name.includes('bca')) return <div className="w-10 h-10 text-xs bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold flex-shrink-0">BCA</div>;
-    if (name.includes('gopay')) return <div className="w-10 h-10 text-xs bg-sky-500 text-white rounded-lg flex items-center justify-center font-bold flex-shrink-0">GP</div>;
-    if (name.includes('ovo')) return <div className="w-10 h-10 text-xs bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold flex-shrink-0">OVO</div>;
-    return <div className="w-10 h-10 rounded-lg bg-gray-500 flex-shrink-0"></div>;
+    
+    const institution = financialInstitutions.find(inst => inst.slug === account.institutionSlug);
+
+    if (institution?.logoUrl) {
+        return (
+            <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center p-1.5 shadow-sm flex-shrink-0">
+                <Image
+                    src={institution.logoUrl}
+                    alt={`${account.name} logo`}
+                    width={36}
+                    height={36}
+                    className="object-contain h-full w-full"
+                    data-ai-hint={`${institution.name} logo`}
+                />
+            </div>
+        );
+    }
+    
+    const initials = account.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    return <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center text-sm font-bold flex-shrink-0">{initials}</div>;
 }
 
 
