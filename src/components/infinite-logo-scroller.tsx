@@ -19,69 +19,41 @@ export default function InfiniteLogoScroller({
   className,
 }: InfiniteLogoScrollerProps) {
   // Create two copies of the logos for seamless looping
-  const allLogos = [...institutions, ...institutions].map((inst, index) => (
-    <div
-      key={`logo-${inst.id}-${index}`}
-      className="flex-shrink-0 w-24 h-24 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 border border-border shadow-md transition-all duration-300 hover:shadow-primary/20 hover:bg-white hover:scale-105"
-    >
-      <Image
-        src={inst.logoUrl}
-        alt={inst.name}
-        width={80}
-        height={80}
-        className="object-contain w-full h-full"
-        data-ai-hint={`${inst.name} logo`}
-      />
-    </div>
-  ));
-
-  const getDuration = () => {
-    switch (speed) {
-      case 'fast': return '20s';
-      case 'slow': return '80s';
-      default: return '40s';
-    }
-  };
+  const allLogos = React.useMemo(() => 
+    [...institutions, ...institutions].map((inst, index) => (
+      <div
+        key={`logo-${inst.id}-${index}`}
+        className="flex-shrink-0 w-24 h-24 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 border border-border shadow-md transition-all duration-300 hover:shadow-primary/20 hover:bg-white hover:scale-105"
+      >
+        <Image
+          src={inst.logoUrl}
+          alt={inst.name}
+          width={80}
+          height={80}
+          className="object-contain w-full h-full"
+          data-ai-hint={`${inst.name} logo`}
+        />
+      </div>
+    )), [institutions]);
 
   return (
-    <div
-      className={cn("w-full overflow-hidden relative", className)}
-    >
+    <div className={cn("w-full overflow-hidden relative", className)}>
       <div
-        className={cn("scroller-inner", direction === 'forward' ? 'move-left' : 'move-right')}
-        style={{ '--animation-duration': getDuration() } as React.CSSProperties}
+        className={cn(
+            "flex w-max gap-4 py-1",
+            direction === 'forward' ? 'animate-scroll-left' : 'animate-scroll-right'
+        )}
+        style={
+          {
+            "--animation-duration":
+              speed === "fast" ? "30s" : speed === "slow" ? "90s" : "60s",
+          } as React.CSSProperties
+        }
       >
         {allLogos}
       </div>
       <div className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background to-transparent pointer-events-none z-10"></div>
       <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background to-transparent pointer-events-none z-10"></div>
-
-      <style jsx>{`
-        .scroller-inner {
-          display: flex;
-          gap: 1rem;
-          padding: 0.25rem 0;
-          width: max-content;
-        }
-        
-        .move-left {
-          animation: scrollLeft var(--animation-duration) linear infinite;
-        }
-
-        .move-right {
-          animation: scrollRight var(--animation-duration) linear infinite;
-        }
-
-        @keyframes scrollLeft {
-          from { transform: translateX(0); }
-          to { transform: translateX(calc(-50% - 0.5rem)); }
-        }
-
-        @keyframes scrollRight {
-          from { transform: translateX(calc(-50% - 0.5rem)); }
-          to { transform: translateX(0); }
-        }
-      `}</style>
     </div>
   );
 }

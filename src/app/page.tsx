@@ -18,9 +18,8 @@ import Link from 'next/link';
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react';
 // Import standard UI components from ShadCN.
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 // Import icons from the lucide-react library.
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 // Import a utility function for conditional class names.
 import { cn } from '@/lib/utils';
 // Import the app's logo component.
@@ -28,14 +27,12 @@ import CuanLogo from '@/components/icons/cuanlogo';
 // Import the custom mockup components used in the feature slides.
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
 import { financialInstitutions } from '@/lib/data';
-import Image from 'next/image';
 import InfiniteLogoScroller from '@/components/infinite-logo-scroller';
 import WelcomePaymentMockup from '@/components/welcome-payment-mockup';
 import WelcomeInsightsMockup from '@/components/welcome-insights-mockup';
 import WelcomeVaultsMockup from '@/components/welcome-vaults-mockup';
 import WelcomeSecurityMockup from '@/components/welcome-security-mockup';
 import WelcomeBudgetsMockup from '@/components/welcome-budgets-mockup';
-import GeminiLogo from '@/components/icons/GeminiLogo';
 
 /**
  * An array of slide objects that define the content for the onboarding carousel.
