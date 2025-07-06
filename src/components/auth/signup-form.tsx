@@ -45,11 +45,12 @@ function SubmitButton({ pending }: { pending: boolean }) {
   );
 }
 
-// Extend the global Window interface to include the confirmationResult for Firebase Auth.
-// This is necessary to store the result of signInWithPhoneNumber and access it on the next page.
+// Extend the global Window interface to include Firebase Auth objects.
+// This is a common pattern to manage the reCAPTCHA verifier instance across re-renders in React.
 declare global {
   interface Window {
     confirmationResult: ConfirmationResult;
+    recaptchaVerifier: RecaptchaVerifier;
   }
 }
 
@@ -66,38 +67,36 @@ export default function SignupForm() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
-  // A ref to hold the Firebase reCAPTCHA verifier instance.
-  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
   // A ref for the reCAPTCHA container DOM element.
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
 
 
   /**
    * This effect initializes the invisible reCAPTCHA verifier when the component mounts.
-   * This implementation is robust against React Strict Mode's double-invoking of effects.
    */
   useEffect(() => {
     const auth = getAuth(app);
     const container = recaptchaContainerRef.current;
     if (!container) return;
 
-    // Create a new verifier instance on each mount.
+    // Use a local variable for the verifier to ensure correct cleanup.
     const verifier = new RecaptchaVerifier(auth, container, {
         'size': 'invisible',
-        'callback': () => console.log('reCAPTCHA challenge successfully solved.'),
+        'callback': () => {
+          console.log('reCAPTCHA challenge successfully solved.');
+          setIsRecaptchaReady(true);
+        },
         'expired-callback': () => {
             setError('reCAPTCHA verification expired. Please try sending the code again.');
             setIsRecaptchaReady(false);
         }
     });
     
-    // Store the verifier instance in a ref to access it in the submit handler.
-    recaptchaVerifierRef.current = verifier;
+    // Attach the verifier to the window object to make it accessible in the submit handler
+    // and persist it across React's strict mode re-renders in development.
+    window.recaptchaVerifier = verifier;
     
-    // Explicitly render the verifier and wait for it to be ready.
-    verifier.render().then(() => {
-        setIsRecaptchaReady(true);
-    }).catch((renderError) => {
+    verifier.render().catch((renderError) => {
         console.error("reCAPTCHA render error:", renderError);
         setError("Could not initialize security check. Please refresh the page.");
         setIsRecaptchaReady(false);
@@ -106,7 +105,6 @@ export default function SignupForm() {
     // Cleanup function to clear the reCAPTCHA instance when the component unmounts.
     return () => {
       verifier.clear();
-      recaptchaVerifierRef.current = null;
     };
   }, []);
 
@@ -160,7 +158,7 @@ export default function SignupForm() {
     setError(null);
 
     const formattedPhone = formatPhoneNumberForFirebase(phone);
-    const verifier = recaptchaVerifierRef.current;
+    const verifier = window.recaptchaVerifier;
     
     // Ensure the reCAPTCHA verifier is ready.
     if (!verifier) {
