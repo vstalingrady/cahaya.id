@@ -53,10 +53,10 @@ export default function InfiniteLogoScroller({
 
   return (
     <div
-      className={cn("scroller w-full overflow-hidden", className)}
+      className={cn("scroller w-full overflow-hidden -mx-6 sm:-mx-8 md:-mx-12 lg:-mx-16", className)}
     >
       <div
-        className="scroller-inner flex flex-nowrap gap-4 py-1"
+        className="scroller-inner flex flex-nowrap gap-4 py-1 px-6 sm:px-8 md:px-12 lg:px-16"
         data-direction={direction}
         style={
           {
