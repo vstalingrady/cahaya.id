@@ -21,49 +21,42 @@ export function useAuth() {
   return context;
 }
 
-// This enum helps manage the possible states of authentication.
-type AuthStatus = 'loading' | 'authenticated' | 'unauthenticated';
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // We manage the user and the auth status in a single state object
-  // to prevent race conditions between separate state updates.
-  const [authState, setAuthState] = useState<{ status: AuthStatus; user: User | null }>({
-    status: 'loading',
-    user: null,
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  // This effect subscribes to Firebase's auth state changes.
-  // It's the single source of truth for whether a user is logged in.
+  // This effect will run once on mount, and it's only job is to
+  // listen to Firebase auth state and update our local state.
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // If Firebase returns a user object, we are authenticated.
-        setAuthState({ status: 'authenticated', user });
-      } else {
-        // If Firebase returns null, the user is not logged in.
-        setAuthState({ status: 'unauthenticated', user: null });
-      }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setLoading(false);
     });
 
-    // Cleanup the subscription on component unmount.
+    // Cleanup subscription on unmount
     return () => unsubscribe();
   }, []);
 
-  // This effect handles the redirection logic.
-  // It runs whenever the authentication status changes.
+  // This effect is responsible for the redirection logic.
+  // It will run whenever the loading or user state changes.
   useEffect(() => {
-    // If the status is 'unauthenticated', it's safe to redirect to the login page.
-    if (authState.status === 'unauthenticated') {
+    // We don't want to redirect while we're still checking for a user.
+    if (loading) {
+      return;
+    }
+
+    // If loading is complete and we still have no user, redirect to login.
+    if (!user) {
       router.replace('/login');
     }
-  }, [authState.status, router]);
+  }, [user, loading, router]);
 
-  // --- Render Logic ---
 
-  // 1. While the status is 'loading', we show a full-screen loader.
-  // This is the default state until Firebase confirms the user's session.
-  if (authState.status === 'loading') {
+  // If we are still loading, or if there's no user (which means a redirect
+  // is in progress), show a loading spinner. This prevents the "flash" of
+  // content before the redirect happens.
+  if (loading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
@@ -71,22 +64,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  // 2. If the status is 'authenticated', we have a valid user.
-  // We can safely render the children components (the protected parts of the app).
-  if (authState.status === 'authenticated' && authState.user) {
-    return (
-      <AuthContext.Provider value={{ user: authState.user }}>
-        {children}
-      </AuthContext.Provider>
-    );
-  }
-
-  // 3. If the status is 'unauthenticated', the useEffect above will trigger a redirect.
-  // We render a loader here to prevent a "flash" of an empty screen or the login page
-  // before the redirect is fully processed by the browser.
+  // If we've made it this far, it means loading is false AND we have a user.
+  // It's now safe to render the protected content.
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <Loader2 className="w-10 h-10 text-primary animate-spin" />
-    </div>
+    <AuthContext.Provider value={{ user }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
