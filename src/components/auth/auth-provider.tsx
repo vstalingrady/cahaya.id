@@ -4,7 +4,8 @@
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 
 interface AuthContextType {
@@ -86,8 +87,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser && !currentUser.displayName) {
+        // If user is logged in but has no display name, try to fetch it from Firestore
+        // to handle cases where the auth profile is stale.
+        const userDocRef = doc(db, "users", currentUser.uid);
+        const userDoc = await getDoc(userDocRef);
+        
+        if (userDoc.exists() && userDoc.data().fullName) {
+          // Manually enrich the user object with data from Firestore for immediate UI updates.
+          const enrichedUser = {
+            ...currentUser,
+            displayName: userDoc.data().fullName,
+            photoURL: currentUser.photoURL || userDoc.data().photoURL || null,
+          } as User;
+          setUser(enrichedUser);
+        } else {
+          setUser(currentUser);
+        }
+      } else {
+        setUser(currentUser);
+      }
       setLoading(false);
     });
     return () => unsubscribe();
