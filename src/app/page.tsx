@@ -1,3 +1,4 @@
+
 /**
  * @file src/app/page.tsx
  * @fileoverview This is the main welcome and onboarding page for the CuanFlex application.
@@ -157,9 +158,9 @@ const slides = [
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
             Unleash the power of{' '}
-            <span className="flashy-gemini-text inline-flex items-center gap-1.5">
-              <GeminiLogo size="1.2em" />
-              <span>Gemini 2.5</span>
+            <span className="whitespace-nowrap">
+              <GeminiLogo size="1.2em" className="inline-block align-middle" />
+              <span className="flashy-gemini-text inline-block align-middle"> Gemini 2.5</span>
             </span>
             , one of the world's most advanced AI models. It analyzes your
             spending to give you a Financial Health Score, find hidden saving
