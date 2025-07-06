@@ -117,26 +117,47 @@ export default function CompleteProfileForm() {
    * can access this page.
    */
   useEffect(() => {
-    // Check session storage for the developer bypass flag.
     const bypassFlag = sessionStorage.getItem('devBypass') === 'true';
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      // Normal flow: User is authenticated and has a phone number.
-      if (currentUser && currentUser.phoneNumber) {
-        setLoading(false);
-        toast({
-            title: "Phone Verified!",
-            description: "Please complete your profile to continue.",
-        });
-      // Bypass flow: The flag is set, so we don't need a phone-authed user.
+      if (currentUser) {
+        // If the user's profile is already complete (they have a name and email),
+        // redirect them to the next step so they don't get stuck.
+        if (currentUser.displayName && currentUser.email) {
+          console.log("User profile is already complete. Redirecting to security setup.");
+          router.replace('/setup-security');
+          return;
+        }
+
+        // If user is authenticated via phone, they can complete their profile.
+        if (currentUser.phoneNumber) {
+          setLoading(false);
+          toast({
+              title: "Phone Verified!",
+              description: "Please complete your profile to continue.",
+          });
+        } 
+        // A non-phone-authed user can only be here in bypass mode.
+        else if (!bypassFlag) {
+          toast({
+            variant: 'destructive',
+            title: 'Verification Needed',
+            description: 'Please start the sign up process over.',
+          });
+          router.replace('/signup');
+        } else {
+            // This is the bypass case
+            setLoading(false);
+        }
       } else if (bypassFlag) {
+        // This is the bypass case for a new user not yet in auth state.
         setLoading(false);
-      // Invalid state: User is not authenticated and not in bypass mode. Redirect.
       } else {
+        // If there's no user and no bypass flag, they must sign up.
         toast({
           variant: 'destructive',
-          title: 'Verification Needed',
-          description: 'Please start the sign up process over.',
+          title: 'Authentication Required',
+          description: 'Please start by signing up.',
         });
         router.replace('/signup');
       }
@@ -181,8 +202,8 @@ export default function CompleteProfileForm() {
       const currentUser = auth.currentUser;
       let finalPhoneNumber = currentUser?.phoneNumber || 'dev-bypass';
 
-      if (isBypassMode) {
-        // If in bypass mode, create a new user from scratch.
+      if (isBypassMode && !currentUser) {
+        // If in bypass mode and no user exists, create a new user from scratch.
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         finalUser = userCredential.user;
       } else {
@@ -247,8 +268,8 @@ export default function CompleteProfileForm() {
       const currentUser = auth.currentUser;
       let finalPhoneNumber = currentUser?.phoneNumber || 'dev-bypass';
 
-      if (isBypassMode) {
-        // If in bypass mode, sign in directly with the popup.
+      if (isBypassMode && !currentUser) {
+        // If in bypass mode and no user, sign in directly with the popup.
         const result = await signInWithPopup(auth, provider);
         finalUser = result.user;
       } else {
