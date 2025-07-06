@@ -33,19 +33,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     // Cleanup the subscription when the component unmounts
-    return unsubscribe;
+    return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    // This effect runs after the initial render and whenever the loading or user state changes.
-    // It's the correct place to handle side-effects like redirection.
+    // This effect handles the redirection side-effect.
+    // It runs after the component renders and whenever its dependencies change.
     if (!loading && !user) {
       router.replace('/login');
     }
   }, [loading, user, router]);
 
-  // While Firebase is initializing, show a loader.
-  if (loading) {
+  // If the initial auth check is happening, OR if the check is done and there's no user
+  // (which means a redirect is about to happen), we show a full-screen loader.
+  // This is the key to preventing any "flicker" of content.
+  if (loading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
@@ -53,16 +55,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  // If there's a user, the app is ready to be rendered.
-  if (user) {
-    return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>;
-  }
-
-  // If there's no user and we're not loading, it means the redirect effect is about to run.
-  // Show a loader to prevent any content flash while redirecting.
+  // Only when loading is false AND we have a user, we render the children.
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background">
-      <Loader2 className="w-10 h-10 text-primary animate-spin" />
-    </div>
+    <AuthContext.Provider value={{ user }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
