@@ -31,12 +31,6 @@ export default function SignupPage() {
         </div>
         <SignupForm />
         <div className="text-center mt-6 space-y-3">
-            <p className="text-sm text-muted-foreground">
-                Already have an account?{' '}
-                <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">
-                  Log In
-                </Link>
-            </p>
              <Button variant="link" className="text-xs text-muted-foreground" onClick={handleBypass}>
               Developer Bypass
             </Button>
