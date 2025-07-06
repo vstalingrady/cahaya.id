@@ -1,3 +1,4 @@
+
 /**
  * @file src/components/auth/verify-phone-form.tsx
  * @fileoverview A form component for users to enter the 6-digit OTP (One-Time Password)
@@ -265,12 +266,20 @@ export default function VerifyPhoneForm({ phone }: { phone: string | null }) {
 
         toast({
           title: "Code Resent",
-          description: "A new verification code has been sent.",
+          description: "A new SMS verification code has been sent.",
         });
         setResendCooldown(60); // Reset cooldown to 60 seconds
     } catch (error: any) {
         console.error("Error resending code:", error);
-        toast({ variant: 'destructive', title: 'Resend Failed', description: 'Could not send a new code. Please try again later.' });
+        let description = 'Could not send a new code. Please try again later.';
+
+        if (error.code === 'auth/too-many-requests') {
+            description = 'Too many requests have been sent. Please try again later.';
+        } else if (error.code === 'auth/internal-error' || error.code === 'auth/operation-not-allowed') {
+            description = "A Firebase configuration error occurred. Please check your project settings in the Firebase Console.";
+        }
+        
+        toast({ variant: 'destructive', title: 'Resend Failed', description });
     } finally {
         setIsResending(false);
     }

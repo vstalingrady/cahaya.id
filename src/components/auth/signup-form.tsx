@@ -188,16 +188,14 @@ export default function SignupForm() {
     } catch (err: any) {
       console.error("Error sending code:", err);
       
-      // Handle common Firebase authentication errors with user-friendly messages.
       let errorMessage = 'Failed to send verification code. Please try again.';
+
       if (err.code === 'auth/invalid-phone-number') {
         errorMessage = 'Invalid phone number format. Please check your number.';
       } else if (err.code === 'auth/too-many-requests') {
         errorMessage = 'Too many requests. Please try again later.';
-      } else if (err.code === 'auth/operation-not-allowed' || err.code === 'auth/error-code:-39' || (err.message && (err.message.includes('auth/error-code') || err.message.includes('app-check')))) {
-        errorMessage = "App security check failed. This often means Phone Sign-In isn't enabled in your Firebase project or App Check is misconfigured. Check the browser console for a debug token to add to your Firebase project settings.";
-      } else if (err.code === 'auth/internal-error') {
-        errorMessage = "An internal Firebase error occurred. This is often caused by a project configuration issue. Please go to the Firebase Console and ensure that the 'Phone' sign-in provider is enabled under the Authentication > Sign-in method tab.";
+      } else if (err.code === 'auth/internal-error' || err.code === 'auth/operation-not-allowed' || (err.message && err.message.includes('app-check'))) {
+        errorMessage = "A Firebase configuration error occurred (auth/internal-error). This is often not a code issue, but a setup issue in your Firebase project. Please check the following in your Firebase Console:\n\n1. Authentication > Sign-in method: Ensure the 'Phone' provider is enabled.\n2. App Check: If App Check is enabled, ensure your app is registered and you have added a reCAPTCHA v3 site key. For local testing, you may need to generate a debug token from your browser's console and add it to the App Check settings.";
       }
       setError(errorMessage);
 
@@ -230,7 +228,7 @@ export default function SignupForm() {
         
         {/* Display any errors that occur. */}
         {error && (
-          <p className="mt-4 text-sm text-red-500 text-center">{error}</p>
+          <p className="mt-4 text-sm text-red-500 text-center whitespace-pre-line">{error}</p>
         )}
       </form>
       {/* This div is the container for the invisible reCAPTCHA widget. */}
