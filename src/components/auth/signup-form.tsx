@@ -69,19 +69,35 @@ export default function SignupForm() {
 
   /**
    * This effect initializes the invisible reCAPTCHA verifier when the component mounts.
-   * By rendering the container div in the JSX, we ensure it exists before this effect runs.
    */
   useEffect(() => {
     const auth = getAuth(app);
-    if (!recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible',
-            'callback': () => console.log('reCAPTCHA challenge solved.'),
-            'expired-callback': () => {
-                setError('reCAPTCHA expired. Please try again.');
-            }
-        });
-    }
+    // Prevents re-creating the verifier on re-renders
+    if (recaptchaVerifierRef.current) return;
+
+    const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': () => {
+            console.log('reCAPTCHA challenge successfully solved.');
+        },
+        'expired-callback': () => {
+            setError('reCAPTCHA verification expired. Please try sending the code again.');
+        }
+    });
+
+    // Store the verifier instance in a ref to access it in the submit handler.
+    recaptchaVerifierRef.current = verifier;
+    
+    // Explicitly render the verifier to ensure it's ready on submit.
+    verifier.render().catch((renderError) => {
+        console.error("reCAPTCHA render error:", renderError);
+        setError("Could not initialize security check. Please refresh the page.");
+    });
+    
+    // Cleanup function to clear the reCAPTCHA instance when the component unmounts.
+    return () => {
+      verifier.clear();
+    };
   }, []);
 
   /**
@@ -179,15 +195,16 @@ export default function SignupForm() {
       console.error("Error sending code:", err);
       
       // Handle common Firebase authentication errors with user-friendly messages.
+      let errorMessage = 'Failed to send verification code. Please try again.';
       if (err.code === 'auth/invalid-phone-number') {
-        setError('Invalid phone number format. Please check your number.');
+        errorMessage = 'Invalid phone number format. Please check your number.';
       } else if (err.code === 'auth/too-many-requests') {
-        setError('Too many requests. Please try again later.');
-      } else if (err.code === 'auth/operation-not-allowed' || (err.message && (err.message.includes('auth/error-code') || err.message.includes('app-check')))) {
-        setError("App security check failed. This often means Phone Sign-In isn't enabled in your Firebase project or App Check is misconfigured. Check the browser console for a debug token to add to your Firebase project settings.");
-      } else {
-        setError(err.message || 'Failed to send verification code. Please try again.');
+        errorMessage = 'Too many requests. Please try again later.';
+      } else if (err.code === 'auth/operation-not-allowed' || err.code === 'auth/error-code:-39' || (err.message && (err.message.includes('auth/error-code') || err.message.includes('app-check')))) {
+        errorMessage = "App security check failed. This often means Phone Sign-In isn't enabled in your Firebase project or App Check is misconfigured. Check the browser console for a debug token to add to your Firebase project settings.";
       }
+      setError(errorMessage);
+
     } finally {
       setLoading(false);
     }
