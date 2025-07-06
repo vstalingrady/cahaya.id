@@ -123,12 +123,12 @@ export default {
           '50%': { filter: 'drop-shadow(0 0 12px hsl(var(--gemini-start) / 0.8))' }
         },
         'scroll-left': {
-          'from': { 'transform': 'translateX(0)' },
-          'to': { 'transform': 'translateX(calc(-50% - 0.5rem))' },
+          'from': { transform: 'translateX(0)' },
+          'to': { transform: 'translateX(calc(-50% - 0.5rem))' },
         },
         'scroll-right': {
-          'from': { 'transform': 'translateX(calc(-50% - 0.5rem))' },
-          'to': { 'transform': 'translateX(0)' },
+          'from': { transform: 'translateX(calc(-50% - 0.5rem))' },
+          'to': { transform: 'translateX(0)' },
         },
       },
       animation: {

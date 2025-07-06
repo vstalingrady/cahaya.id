@@ -18,42 +18,40 @@ export default function InfiniteLogoScroller({
   direction = 'forward',
   className,
 }: InfiniteLogoScrollerProps) {
-  // Create two copies of the logos for seamless looping
-  const allLogos = React.useMemo(() => 
-    [...institutions, ...institutions].map((inst, index) => (
-      <div
-        key={`logo-${inst.id}-${index}`}
-        className="flex-shrink-0 w-24 h-24 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 border border-border shadow-md transition-all duration-300 hover:shadow-primary/20 hover:bg-white hover:scale-105"
-      >
-        <Image
-          src={inst.logoUrl}
-          alt={inst.name}
-          width={80}
-          height={80}
-          className="object-contain w-full h-full"
-          data-ai-hint={`${inst.name} logo`}
-        />
-      </div>
-    )), [institutions]);
+
+  // Create a duplicated array for seamless infinite scroll
+  const allLogos = React.useMemo(() => [...institutions, ...institutions], [institutions]);
 
   return (
-    <div className={cn("w-full overflow-hidden relative", className)}>
+    <div
+      className={cn("w-full overflow-hidden relative", className)}
+    >
       <div
         className={cn(
-            "flex w-max gap-4 py-1",
-            direction === 'forward' ? 'animate-scroll-left' : 'animate-scroll-right'
+          "flex min-w-max shrink-0 items-center justify-around gap-4",
+          // Note: Tailwind animations don't support 'reverse', so we use a different animation for right scroll
+          direction === 'forward' ? 'animate-scroll-left' : 'animate-scroll-right'
         )}
-        style={
-          {
-            "--animation-duration":
-              speed === "fast" ? "30s" : speed === "slow" ? "90s" : "60s",
-          } as React.CSSProperties
-        }
+        style={{ '--animation-duration': speed === 'fast' ? '20s' : speed === 'slow' ? '80s' : '40s' } as React.CSSProperties}
       >
-        {allLogos}
+        {allLogos.map((inst, index) => (
+          <div
+            key={`${inst.id}-${index}`}
+            className="flex-shrink-0 w-24 h-24 bg-card/80 backdrop-blur-sm rounded-2xl flex items-center justify-center p-4 border border-border shadow-md"
+          >
+            <Image
+              src={inst.logoUrl}
+              alt={inst.name}
+              width={80}
+              height={80}
+              className="object-contain w-full h-full"
+              data-ai-hint={`${inst.name} logo`}
+            />
+          </div>
+        ))}
       </div>
-      <div className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background to-transparent pointer-events-none z-10"></div>
-      <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background to-transparent pointer-events-none z-10"></div>
+       <div className="absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background to-transparent pointer-events-none z-10"></div>
+       <div className="absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background to-transparent pointer-events-none z-10"></div>
     </div>
   );
 }
