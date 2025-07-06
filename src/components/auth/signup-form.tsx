@@ -126,25 +126,6 @@ export default function SignupForm() {
   };
 
   /**
-   * This effect implements a developer bypass to skip phone verification for testing.
-   * If the user enters the specific bypass phone number, it redirects them.
-   */
-  useEffect(() => {
-    const formattedPhone = formatPhoneNumberForFirebase(phone);
-    if (formattedPhone === '+62000000000000') {
-        toast({
-            title: 'Dev Account Bypass',
-            description: 'Skipping phone verification step.',
-        });
-        // Set a flag in session storage to be checked on the next page.
-        sessionStorage.setItem('devBypass', 'true');
-        router.push('/complete-profile');
-    }
-  // We only want this to run when the phone number changes.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phone]);
-
-  /**
    * Handles changes to the phone number input field, formatting the input
    * with dashes for better readability while maintaining the country code.
    * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event.
