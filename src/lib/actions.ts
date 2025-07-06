@@ -111,8 +111,8 @@ export async function completeUserProfile(uid: string, fullName: string, email: 
 }
 
 const LoginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
+  email: z.string().email({ message: "Please enter a valid email address." }),
+  password: z.string().min(1, { message: "Password is required." }),
 });
 
 export async function login(prevState: any, formData: FormData) {
