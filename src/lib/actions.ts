@@ -120,6 +120,7 @@ export async function login(prevState: any, formData: FormData) {
 
   if (!validatedFields.success) {
     return {
+      success: false,
       message: 'Invalid form data.',
       errors: validatedFields.error.flatten().fieldErrors,
     };
@@ -142,18 +143,18 @@ export async function login(prevState: any, formData: FormData) {
 
   } catch (err: any) {
     if (err.code === 'permission-denied' || (err.message && err.message.includes('Cloud Firestore API has not been used'))) {
-      return { message: "Login failed: The Firestore database isn't enabled for this project. Please enable it in the Firebase console." };
+      return { success: false, message: "Login failed: The Firestore database isn't enabled for this project. Please enable it in the Firebase console." };
     }
     if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-      return { message: 'Invalid email or password.' };
+      return { success: false, message: 'Invalid email or password.' };
     } else if (err.code && err.code.includes('app-check')) {
       console.error("App Check validation failed during login.");
-      return { message: 'App Check validation failed. Ensure your debug token is configured correctly.' };
+      return { success: false, message: 'App Check validation failed. Ensure your debug token is configured correctly.' };
     }
-    return { message: 'An unknown error occurred. Please try again.' };
+    return { success: false, message: 'An unknown error occurred. Please try again.' };
   }
 
-  redirect('/dashboard');
+  return { success: true, message: null, errors: {} };
 }
 
 export async function exchangePublicToken(publicToken: string | null) {
@@ -493,3 +494,5 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
 export async function linkAccount(prevState: any, formData: FormData) {
   redirect('/dashboard?new_account=true');
 }
+
+    

@@ -1,7 +1,9 @@
+
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
+import { useRouter } from 'next/navigation';
 import { Lock, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,8 +24,15 @@ function SubmitButton() {
 }
 
 export default function LoginForm() {
-  const initialState = { message: null, errors: {} };
+  const router = useRouter();
+  const initialState = { message: null, errors: {}, success: false };
   const [state, dispatch] = useActionState(login, initialState);
+
+  useEffect(() => {
+    if (state.success) {
+      router.push('/dashboard');
+    }
+  }, [state.success, router]);
 
   return (
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
@@ -54,3 +63,5 @@ export default function LoginForm() {
     </div>
   );
 }
+
+    
