@@ -307,6 +307,15 @@ export default function CompleteProfileForm() {
   const handleGoogleSignIn = () => handleOAuthSignIn(new GoogleAuthProvider());
   const handleAppleSignIn = () => handleOAuthSignIn(new OAuthProvider('apple.com'));
 
+  const handleDevAutofill = () => {
+    setFullName('Dev User');
+    setEmail('dev@test.com');
+    setPassword('Password123!');
+    toast({
+      title: 'Dev Autofill',
+      description: 'Form has been filled with test data.',
+    });
+  };
 
   if (loading) {
     return (
@@ -408,6 +417,13 @@ export default function CompleteProfileForm() {
           <p className="mt-4 text-sm text-red-500 text-center">{error}</p>
         )}
       </form>
+      {process.env.NODE_ENV === 'development' && (
+        <div className="text-center mt-4">
+          <Button variant="link" onClick={handleDevAutofill} className="text-xs text-muted-foreground hover:text-accent">
+            Dev: Autofill Form
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
