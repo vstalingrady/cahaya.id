@@ -10,7 +10,7 @@
 'use client';
 
 // React hooks for state and side-effects.
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 // Next.js router for navigation.
 import { useRouter } from 'next/navigation';
 // UI components from ShadCN.
@@ -50,7 +50,6 @@ function SubmitButton({ pending }: { pending: boolean }) {
 declare global {
   interface Window {
     confirmationResult: ConfirmationResult;
-    recaptchaVerifier: RecaptchaVerifier;
   }
 }
 
@@ -66,6 +65,32 @@ export default function SignupForm() {
   const [phone, setPhone] = useState('+62 ');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [verifier, setVerifier] = useState<RecaptchaVerifier | null>(null);
+
+  useEffect(() => {
+    const auth = getAuth(app);
+    // Ensure this runs only on the client
+    if (typeof window !== 'undefined' && !verifier) {
+      const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response: any) => {
+          console.log('reCAPTCHA solved.');
+        },
+        'expired-callback': () => {
+          toast({
+            variant: 'destructive',
+            title: 'reCAPTCHA Expired',
+            description: 'Please try sending the code again.',
+          });
+        },
+      });
+      setVerifier(recaptchaVerifier);
+
+      // We don't need a cleanup function here because the verifier is meant to persist
+      // for the component's lifecycle. Re-creating it can cause issues.
+    }
+  }, [toast, verifier]);
+
 
   /**
    * Formats a phone number string into the E.164 format required by Firebase.
@@ -108,22 +133,16 @@ export default function SignupForm() {
     setLoading(true);
     setError(null);
     
+    if (!verifier) {
+      setError("reCAPTCHA not ready. Please wait a moment and try again.");
+      setLoading(false);
+      return;
+    }
+
     const auth = getAuth(app);
     const formattedPhone = formatPhoneNumberForFirebase(phone);
     
     try {
-      // Create the verifier on demand, attached to a specific DOM element.
-      // It's safer to create a new one each time to avoid state issues.
-      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-        'callback': (response) => {
-          console.log('reCAPTCHA solved.');
-        },
-        'expired-callback': () => {
-          setError('reCAPTCHA verification expired. Please try sending the code again.');
-        }
-      });
-
       const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, verifier);
       // Store the result on the window object to be used on the verification page.
       window.confirmationResult = confirmationResult;

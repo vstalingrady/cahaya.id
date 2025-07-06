@@ -145,6 +145,8 @@ export default function VerifyPhoneForm({ phone }: { phone: string | null }) {
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(30);
   const [isResending, setIsResending] = useState(false);
+  const [resendVerifier, setResendVerifier] = useState<RecaptchaVerifier | null>(null);
+
   
   // Cooldown timer effect
   useEffect(() => {
@@ -154,6 +156,18 @@ export default function VerifyPhoneForm({ phone }: { phone: string | null }) {
     }
     return () => clearTimeout(timer);
   }, [resendCooldown]);
+  
+  // Verifier setup effect
+  useEffect(() => {
+    const auth = getAuth(app);
+    if (typeof window !== 'undefined' && !resendVerifier) {
+      const verifier = new RecaptchaVerifier(auth, 'resend-recaptcha-container', {
+        'size': 'invisible'
+      });
+      setResendVerifier(verifier);
+    }
+  }, [resendVerifier]);
+
 
   const formatPhoneNumberForFirebase = (phoneNumber: string): string => {
     return `+${phoneNumber.replace(/\D/g, '')}`;
@@ -226,17 +240,17 @@ export default function VerifyPhoneForm({ phone }: { phone: string | null }) {
         toast({ variant: 'destructive', title: 'Error', description: 'Phone number not found.' });
         return;
     }
+    if (!resendVerifier) {
+      toast({ variant: 'destructive', title: 'Error', description: 'reCAPTCHA not ready. Please try again in a moment.' });
+      return;
+    }
 
     setIsResending(true);
     
     try {
         const auth = getAuth(app);
         const formattedPhone = formatPhoneNumberForFirebase(phone);
-        // Create a new verifier on demand for the resend action.
-        const verifier = new RecaptchaVerifier(auth, 'resend-recaptcha-container', {
-          'size': 'invisible'
-        });
-        const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, verifier);
+        const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, resendVerifier);
         window.confirmationResult = confirmationResult; // Update the global confirmationResult
 
         toast({
