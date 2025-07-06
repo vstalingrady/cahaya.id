@@ -21,8 +21,8 @@ export function useAuth() {
   return context;
 }
 
-const UNAUTHENTICATED_ROUTES = ['/login', '/signup', '/verify-phone', '/'];
-const ONBOARDING_ROUTES = ['/complete-profile', '/setup-security', '/terms-of-service', '/link-account'];
+const UNAUTHENTICATED_ROUTES = ['/login', '/signup', '/'];
+const ONBOARDING_ROUTES = ['/verify-phone', '/complete-profile', '/setup-security', '/terms-of-service', '/link-account'];
 
 /**
  * A new internal component that handles all redirection logic based on auth state.
