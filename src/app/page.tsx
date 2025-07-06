@@ -159,7 +159,7 @@ const slides = [
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-8">
             Unleash the power of{' '}
-            <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex items-center gap-1.5 align-middle">
               <GeminiLogo size="1.2em" />
               <span className="flashy-gemini-text">Gemini 2.5</span>
             </span>
