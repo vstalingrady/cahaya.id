@@ -1,3 +1,4 @@
+
 /**
  * @file src/components/auth/signup-form.tsx
  * @fileoverview The form component for the first step of user registration,
@@ -181,14 +182,11 @@ export default function SignupForm() {
     try {
       const auth = getAuth(app);
       
-      console.log("Attempting to send code to:", formattedPhone);
-      
       // Call Firebase to send the SMS verification code.
       const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, verifier);
       // Store the result on the window object to be used on the verification page.
       window.confirmationResult = confirmationResult;
       
-      console.log("Code sent successfully");
       // Redirect to the verification page, passing the phone number for display.
       router.push(`/verify-phone?phone=${encodeURIComponent(phone)}`);
     } catch (err: any) {
