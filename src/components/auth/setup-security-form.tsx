@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useState, useRef, ChangeEvent, KeyboardEvent } from 'react';
+import React, { useState, useRef, ChangeEvent, KeyboardEvent, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -17,75 +18,96 @@ const PinInput = ({
   onChange: (value: string[]) => void;
   idPrefix: string;
 }) => {
+  const [focusedIndex, setFocusedIndex] = useState(0);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  useEffect(() => {
+    // Automatically focus the first input on component mount
+    if (inputRefs.current[0]) {
+      inputRefs.current[0].focus();
+    }
+  }, []);
+
+  const handlePaste = (pastedValue: string, startIndex: number) => {
+    const sanitizedValue = pastedValue.replace(/[^a-zA-Z0-9]/g, '');
+    const newPin = [...value];
+    
+    for (let i = 0; i < sanitizedValue.length && startIndex + i < 6; i++) {
+        newPin[startIndex + i] = sanitizedValue.charAt(i);
+    }
+    onChange(newPin);
+
+    const newFocusIndex = Math.min(startIndex + sanitizedValue.length, 5);
+    inputRefs.current[newFocusIndex]?.focus();
+  };
+
+  const handleWrapperPaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const pastedText = e.clipboardData.getData('text');
+      handlePaste(pastedText, focusedIndex);
+  }
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement>,
     index: number
   ) => {
     const { value: inputValue } = e.target;
-    // Allow alphanumeric characters only
-    const sanitizedValue = inputValue.replace(/[^a-zA-Z0-9]/g, '');
+    // Get the character(s) the user actually entered, removing any existing mask character.
+    const cleanValue = inputValue.replace('●', '');
 
-    if (sanitizedValue.length > 1) {
-      handlePaste(sanitizedValue);
-      return;
+    if (cleanValue.length > 1) {
+        handlePaste(cleanValue, index);
+        return;
     }
     
+    const sanitizedValue = cleanValue.replace(/[^a-zA-Z0-9]/g, '');
     const newPin = [...value];
     newPin[index] = sanitizedValue;
     onChange(newPin);
 
-    // Move to next input if a character is entered
+    // Move focus to next input if a character is entered
     if (sanitizedValue && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
+    // Move focus backward on backspace if the current input is empty
     if (e.key === 'Backspace' && value[index] === '' && index > 0) {
       inputRefs.current[index - 1]?.focus();
     }
   };
-
-  const handlePaste = (pastedValue: string) => {
-    const sanitizedValue = pastedValue.replace(/[^a-zA-Z0-9]/g, '').slice(0, 6);
-    const newPin = [...value]; // start with current value
-    for (let i = 0; i < sanitizedValue.length; i++) {
-        newPin[i] = sanitizedValue[i];
-    }
-    onChange(newPin);
-
-    const focusIndex = Math.min(sanitizedValue.length, 5);
-    inputRefs.current[focusIndex]?.focus();
+  
+  const handleFocus = (index: number) => {
+    setFocusedIndex(index);
   };
-
-  const handleWrapperPaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      const pastedText = e.clipboardData.getData('text');
-      handlePaste(pastedText);
-  }
 
   return (
     <div className="flex justify-between items-center gap-2" onPaste={handleWrapperPaste}>
       {Array(6)
         .fill('')
-        .map((_, index) => (
-          <React.Fragment key={index}>
-            <Input
-              ref={(el) => (inputRefs.current[index] = el)}
-              id={`${idPrefix}-${index}`}
-              type="text"
-              inputMode="text"
-              maxLength={1}
-              value={value[index]}
-              onChange={(e) => handleInputChange(e, index)}
-              onKeyDown={(e) => handleKeyDown(e, index)}
-              className="w-12 h-14 text-center text-xl font-mono"
-              autoComplete="one-time-code"
-            />
-          </React.Fragment>
-        ))}
+        .map((_, index) => {
+            // Display the actual character if focused, or a mask if filled but not focused.
+            const displayValue = focusedIndex === index ? value[index] : (value[index] ? '●' : '');
+
+            return (
+              <React.Fragment key={index}>
+                <Input
+                  ref={(el) => (inputRefs.current[index] = el)}
+                  id={`${idPrefix}-${index}`}
+                  type="text" // Use text to control the displayed character
+                  inputMode="text"
+                  maxLength={7} // Allow pasting 6 chars + existing mask char
+                  value={displayValue}
+                  onChange={(e) => handleInputChange(e, index)}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  onFocus={() => handleFocus(index)}
+                  className="w-12 h-14 text-center text-xl font-mono"
+                  autoComplete="one-time-code"
+                />
+              </React.Fragment>
+            )
+        })}
     </div>
   );
 };
