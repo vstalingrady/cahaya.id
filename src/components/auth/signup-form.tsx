@@ -79,33 +79,43 @@ export default function SignupForm() {
     const container = recaptchaContainerRef.current;
     if (!container) return;
 
-    // Use a local variable for the verifier to ensure correct cleanup.
-    const verifier = new RecaptchaVerifier(auth, container, {
+    // Prevent re-initialization if a verifier already exists
+    if (window.recaptchaVerifier) {
+      setIsRecaptchaReady(true);
+      return;
+    }
+
+    try {
+      const verifier = new RecaptchaVerifier(auth, container, {
         'size': 'invisible',
-        'callback': () => {
-          console.log('reCAPTCHA challenge successfully solved.');
+        'callback': (response) => {
+          console.log('reCAPTCHA challenge solved by user.');
           setIsRecaptchaReady(true);
         },
         'expired-callback': () => {
-            setError('reCAPTCHA verification expired. Please try sending the code again.');
-            setIsRecaptchaReady(false);
+          setError('reCAPTCHA verification expired. Please try sending the code again.');
+          setIsRecaptchaReady(false);
         }
-    });
-    
-    // Attach the verifier to the window object to make it accessible in the submit handler
-    // and persist it across React's strict mode re-renders in development.
-    window.recaptchaVerifier = verifier;
-    
-    verifier.render().catch((renderError) => {
-        console.error("reCAPTCHA render error:", renderError);
-        setError("Could not initialize security check. Please refresh the page.");
-        setIsRecaptchaReady(false);
-    });
-    
-    // Cleanup function to clear the reCAPTCHA instance when the component unmounts.
-    return () => {
-      verifier.clear();
-    };
+      });
+
+      window.recaptchaVerifier = verifier;
+      
+      // Render the verifier. After it renders, we can consider it "ready"
+      // for the user to click the button. A challenge will only appear if needed.
+      verifier.render().then(() => {
+          console.log("reCAPTCHA has successfully rendered.");
+          setIsRecaptchaReady(true);
+      }).catch((renderError) => {
+          console.error("reCAPTCHA render error:", renderError);
+          setError("Could not initialize security check. Please refresh the page.");
+          setIsRecaptchaReady(false);
+      });
+      
+    } catch (e) {
+      console.error("Error setting up reCAPTCHA:", e);
+      setError("Failed to initialize security check.");
+    }
+
   }, []);
 
   /**
