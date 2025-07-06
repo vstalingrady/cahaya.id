@@ -100,10 +100,8 @@ function PasswordRequirements({ password }: { password: string }) {
 export default function CompleteProfileForm() {
   const router = useRouter();
   const { toast } = useToast();
-  // State for the authenticated user, loading status, and bypass mode.
-  const [user, setUser] = useState<User | null>(null);
+  // State for loading status and bypass mode.
   const [loading, setLoading] = useState(true);
-  const [isBypassMode, setIsBypassMode] = useState(false);
   
   // State for form inputs and visibility toggles.
   const [fullName, setFullName] = useState('');
@@ -121,12 +119,10 @@ export default function CompleteProfileForm() {
   useEffect(() => {
     // Check session storage for the developer bypass flag.
     const bypassFlag = sessionStorage.getItem('devBypass') === 'true';
-    setIsBypassMode(bypassFlag);
 
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       // Normal flow: User is authenticated and has a phone number.
       if (currentUser && currentUser.phoneNumber) {
-        setUser(currentUser);
         setLoading(false);
         toast({
             title: "Phone Verified!",
@@ -181,22 +177,22 @@ export default function CompleteProfileForm() {
     setIsSubmitting(true);
     try {
       let finalUser: User;
-      let finalPhoneNumber = 'dev-bypass'; // Default phone for bypass users
+      const isBypassMode = sessionStorage.getItem('devBypass') === 'true';
+      const currentUser = auth.currentUser;
+      let finalPhoneNumber = currentUser?.phoneNumber || 'dev-bypass';
 
-      // This is the core of the bypass logic.
       if (isBypassMode) {
         // If in bypass mode, create a new user from scratch.
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         finalUser = userCredential.user;
       } else {
         // Otherwise, link the new credentials to the existing phone-authed user.
-        if (!user) {
+        if (!currentUser) {
           throw new Error("No authenticated user found. Please sign up again.");
         }
         const credential = EmailAuthProvider.credential(email, password);
-        await linkWithCredential(user, credential);
-        finalUser = user;
-        finalPhoneNumber = user.phoneNumber!;
+        await linkWithCredential(currentUser, credential);
+        finalUser = currentUser;
       }
       
       // Update the user's display name in Firebase Authentication.
@@ -247,17 +243,20 @@ export default function CompleteProfileForm() {
     setError(null);
     try {
       let finalUser: User;
-      let finalPhoneNumber = user?.phoneNumber || 'dev-bypass';
+      const isBypassMode = sessionStorage.getItem('devBypass') === 'true';
+      const currentUser = auth.currentUser;
+      let finalPhoneNumber = currentUser?.phoneNumber || 'dev-bypass';
 
-      // Bypass logic for OAuth providers.
       if (isBypassMode) {
         // If in bypass mode, sign in directly with the popup.
         const result = await signInWithPopup(auth, provider);
         finalUser = result.user;
       } else {
         // Otherwise, link the popup to the existing phone-authed user.
-        if (!user) throw new Error("No authenticated user found.");
-        const result = await linkWithPopup(user, provider);
+        if (!currentUser) {
+            throw new Error("No authenticated user found to link the account to.");
+        }
+        const result = await linkWithPopup(currentUser, provider);
         finalUser = result.user;
       }
       
