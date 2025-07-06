@@ -26,35 +26,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      // This listener fires when the component mounts and whenever the auth state changes.
-      // It provides the current user object, or null if logged out.
-      setUser(currentUser);
-      setLoading(false); // Mark the initial check as complete.
+    // onAuthStateChanged returns an unsubscribe function that we can call on cleanup.
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      // This callback will fire once on initial load, and then
+      // again whenever the user's auth state changes.
+      setUser(user);
+      setLoading(false);
     });
 
-    // Cleanup the listener when the component unmounts.
-    return () => unsubscribe();
-  }, []); // The empty dependency array ensures this effect runs only once on mount.
+    // Cleanup the subscription when the component unmounts
+    return unsubscribe;
+  }, []);
 
-
-  useEffect(() => {
-    // This separate effect handles redirection logic.
-    // It runs whenever `loading` or `user` state changes.
-    
-    // Don't do anything if we are still waiting for the initial auth check.
-    if (loading) {
-      return;
-    }
-
-    // If the check is complete and there is no user, redirect to the login page.
-    if (!user) {
-      router.push('/login');
-    }
-  }, [user, loading, router]);
-
-
-  // While the initial check is running, show a loading spinner.
+  // If we are still waiting for the initial auth state from Firebase, show a loader.
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -62,14 +46,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       </div>
     );
   }
-  
-  // If the check is complete and we have a user, render the protected parts of the app.
+
+  // If the initial check is complete and we have a valid user, render the app.
   if (user) {
     return <AuthContext.Provider value={{ user }}>{children}</AuthContext.Provider>;
   }
 
-  // If the check is complete and there's no user, the redirect is in progress.
-  // Show a loader to prevent a flash of content before the redirect happens.
+  // If the check is complete and there's no user, redirect to login.
+  // We use router.replace() to prevent the user from being able to click "back" to the protected page.
+  router.replace('/login');
+  
+  // Return a loader while the redirect is in progress.
   return (
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Loader2 className="w-10 h-10 text-primary animate-spin" />
