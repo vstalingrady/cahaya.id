@@ -149,6 +149,9 @@ export default function LoginForm() {
             user.phoneNumber || ''
         );
         
+        // Set a flag to prevent AuthProvider from redirecting to dashboard
+        sessionStorage.setItem('social_auth_in_progress', 'true');
+        
         // Manually redirect to the PIN setup page, the next step in onboarding
         router.push('/setup-security');
       } else {

@@ -78,11 +78,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // If the user IS logged in...
     else {
       // And they are on a page meant for unauthenticated users (like login/signup), redirect them to the dashboard.
-      if (isUnauthenticatedRoute && pathname !== '/') {
+      // EXCEPTION: Do not redirect if they are in the middle of a social auth sign-up flow.
+      const socialAuthInProgress = sessionStorage.getItem('social_auth_in_progress');
+      
+      if (isUnauthenticatedRoute && pathname !== '/' && !socialAuthInProgress) {
         console.log('Redirecting to dashboard - user already authenticated.');
         hasRedirected.current = true;
         router.replace('/dashboard');
         return;
+      }
+      
+      // If we are on an onboarding route, we can clear the flag.
+      // This means the user has successfully navigated away from the login page.
+      if (socialAuthInProgress && isOnboardingRoute) {
+        sessionStorage.removeItem('social_auth_in_progress');
       }
     }
   }, [user, loading, pathname, router]);
