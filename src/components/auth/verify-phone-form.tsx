@@ -145,29 +145,6 @@ export default function VerifyPhoneForm({ phone }: { phone: string | null }) {
   const [loading, setLoading] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(30);
   const [isResending, setIsResending] = useState(false);
-
-  // Refs and state for the reCAPTCHA verifier needed for resending.
-  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
-  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
-
-  // Initialize reCAPTCHA on mount for the resend functionality.
-  useEffect(() => {
-    const auth = getAuth(app);
-    if (!recaptchaContainerRef.current || recaptchaVerifierRef.current) return;
-
-    try {
-        const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-            'size': 'invisible',
-            'callback': () => { console.log('reCAPTCHA solved for resend.'); }
-        });
-        recaptchaVerifierRef.current = verifier;
-        verifier.render().catch(console.error);
-        return () => { verifier.clear(); };
-    } catch (e) {
-        console.error("Error creating reCAPTCHA verifier for resend", e);
-        toast({ variant: 'destructive', title: 'Error', description: 'Could not initialize resend security.' });
-    }
-  }, [toast]);
   
   // Cooldown timer effect
   useEffect(() => {
@@ -251,16 +228,14 @@ export default function VerifyPhoneForm({ phone }: { phone: string | null }) {
     }
 
     setIsResending(true);
-    const verifier = recaptchaVerifierRef.current;
-    if (!verifier) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Security verifier not ready.' });
-        setIsResending(false);
-        return;
-    }
-
+    
     try {
         const auth = getAuth(app);
         const formattedPhone = formatPhoneNumberForFirebase(phone);
+        // Create a new verifier on demand for the resend action.
+        const verifier = new RecaptchaVerifier(auth, 'resend-recaptcha-container', {
+          'size': 'invisible'
+        });
         const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, verifier);
         window.confirmationResult = confirmationResult; // Update the global confirmationResult
 
@@ -310,7 +285,7 @@ export default function VerifyPhoneForm({ phone }: { phone: string | null }) {
           </p>
       </div>
       {/* This div is the container for the invisible reCAPTCHA widget for resending. */}
-      <div ref={recaptchaContainerRef} />
+      <div id="resend-recaptcha-container"></div>
     </div>
   );
 }
