@@ -62,7 +62,7 @@ const slides = [
     {
       type: 'feature_showcase',
       title: 'Connect Everything. See Everything.',
-      description: 'BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.',
+      description: "Stop juggling apps. Connect everything from BCA and GoPay to your investments, and see your entire financial world on a single, unified dashboard. Get a real-time view of your true net worth, instantly.",
       // The content is a function to pass the `isActive` prop, allowing for animations.
       content: (props: { isActive: boolean }) => (
         <div className="flex flex-col items-center justify-center text-center w-full max-w-lg mx-auto py-12">
@@ -70,7 +70,7 @@ const slides = [
             Connect Everything. See Everything.
           </h2>
           <p className="text-base leading-relaxed text-muted-foreground mb-6">
-            BCA, GoPay, OVO, Bibit—all your accounts, in one stunning dashboard. Finally understand your true net worth in real-time.
+            Stop juggling apps. Connect everything from BCA and GoPay to your investments, and see your entire financial world on a single, unified dashboard. Get a real-time view of your true net worth, instantly.
           </p>
           <WelcomeDashboardMockup isActive={props.isActive} />
         </div>
