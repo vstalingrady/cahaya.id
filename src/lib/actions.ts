@@ -110,36 +110,44 @@ export async function completeUserProfile(uid: string, fullName: string, email: 
   }
 }
 
+// Define the form schema
 const LoginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(1, { message: "Password is required." }),
+  email: z.string().email('Please enter a valid email address.'),
+  password: z.string().min(6, 'Password must be at least 6 characters long.'),
 });
 
-type LoginState = {
-  message: string | null;
+export type LoginState = {
   errors?: {
     email?: string[];
     password?: string[];
   };
+  message?: string;
   success?: boolean;
-}
+};
 
 export async function login(prevState: LoginState, formData: FormData): Promise<LoginState> {
-  const validatedFields = LoginSchema.safeParse(Object.fromEntries(formData.entries()));
+  // Validate form fields
+  const validatedFields = LoginSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  });
 
+  // If form validation fails, return errors early
   if (!validatedFields.success) {
     return {
-      message: 'Invalid form data.',
       errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing or invalid fields. Failed to log in.',
     };
   }
 
   const { email, password } = validatedFields.data;
 
   try {
+    // Attempt to sign in with Firebase
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
+    // Log the successful login event to Firestore
     const ip = headers().get('x-forwarded-for') ?? 'Unknown';
     const userAgent = headers().get('user-agent') ?? 'Unknown';
 
@@ -148,24 +156,54 @@ export async function login(prevState: LoginState, formData: FormData): Promise<
       ipAddress: ip,
       userAgent: userAgent,
     });
+    
+    console.log('Login successful:', userCredential.user.uid);
+    
+    // Return success state - don't redirect here, let AuthProvider handle it
+    return {
+      success: true,
+      message: 'Login successful!',
+    };
+    
+  } catch (error: any) {
+    console.error('Login error:', error);
+    
+    // Handle specific Firebase auth errors
+    let errorMessage = 'An unexpected error occurred.';
+    
+    switch (error.code) {
+      case 'auth/user-not-found':
+        errorMessage = 'No account found with this email address.';
+        break;
+      case 'auth/wrong-password':
+        errorMessage = 'Incorrect password.';
+        break;
+      case 'auth/invalid-email':
+        errorMessage = 'Invalid email address.';
+        break;
+      case 'auth/user-disabled':
+        errorMessage = 'This account has been disabled.';
+        break;
+      case 'auth/too-many-requests':
+        errorMessage = 'Too many failed login attempts. Please try again later.';
+        break;
+      case 'auth/network-request-failed':
+        errorMessage = 'Network error. Please check your internet connection.';
+        break;
+      case 'auth/invalid-credential':
+        errorMessage = 'Invalid email or password.';
+        break;
+      default:
+        errorMessage = error.message || 'Failed to log in. Please try again.';
+    }
 
-  } catch (err: any) {
-    if (err.code === 'permission-denied' || (err.message && err.message.includes('Cloud Firestore API has not been used'))) {
-      return { message: "Login failed: The Firestore database isn't enabled for this project. Please enable it in the Firebase console." };
-    }
-    if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-      return { message: 'Invalid email or password.' };
-    } else if (err.code && err.code.includes('app-check')) {
-      console.error("App Check validation failed during login.");
-      return { message: 'App Check validation failed. Ensure your debug token is configured correctly.' };
-    }
-    return { message: 'An unknown error occurred. Please try again.' };
+    return {
+      message: errorMessage,
+      success: false,
+    };
   }
-
-  // The redirect is now handled by the AuthProvider after the auth state changes.
-  // We just need to signal success to the form.
-  return { success: true, message: null };
 }
+
 
 export async function exchangePublicToken(publicToken: string | null) {
   if (!publicToken) {
