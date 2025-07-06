@@ -136,6 +136,16 @@ export default function VerifyPhoneForm() {
   // State for the verification code input and loading status.
   const [code, setCode] = useState(Array(6).fill(''));
   const [loading, setLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  React.useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (resendCooldown > 0) {
+      timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
 
   /**
    * Handles the form submission to verify the entered OTP code.
@@ -206,6 +216,18 @@ export default function VerifyPhoneForm() {
     }
   };
 
+  const handleResendCode = () => {
+    // In a real app, this would re-trigger the signInWithPhoneNumber flow.
+    // For this prototype, we'll just show a toast and start a cooldown.
+    if (resendCooldown > 0) return;
+
+    toast({
+      title: "Code Resent",
+      description: "A new verification code has been sent to your phone.",
+    });
+    setResendCooldown(30); // 30-second cooldown
+  };
+
   return (
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
       <form onSubmit={handleVerifyCode} className="space-y-6">
@@ -216,6 +238,20 @@ export default function VerifyPhoneForm() {
         
         <SubmitButton pending={loading} />
       </form>
+       <div className="text-center mt-6">
+          <p className="text-sm text-muted-foreground">
+            Didn't get a code?{' '}
+            <Button
+              type="button"
+              variant="link"
+              onClick={handleResendCode}
+              disabled={resendCooldown > 0}
+              className="font-semibold text-primary/80 hover:text-primary p-0 h-auto disabled:no-underline disabled:text-muted-foreground disabled:cursor-not-allowed"
+            >
+              {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend'}
+            </Button>
+          </p>
+      </div>
     </div>
   );
 }
