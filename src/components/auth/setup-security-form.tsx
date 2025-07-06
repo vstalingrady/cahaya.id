@@ -171,7 +171,7 @@ export default function SetupSecurityForm() {
           title: 'Security Set Up!',
           description: `Your Clarity PIN has been configured.`,
         });
-        router.push('/link-account');
+        router.push('/dashboard');
     } catch (error: any) {
         toast({
             variant: 'destructive',
