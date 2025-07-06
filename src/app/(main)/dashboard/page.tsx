@@ -155,7 +155,7 @@ export default function DashboardPage() {
                      </button>
                   </div>
                   <Link href="/profile">
-                    <Image src={user.photoURL || "https://placehold.co/128x128.png"} width={44} height={44} alt="User Avatar" className="w-11 h-11 bg-primary rounded-full shadow-lg border-2 border-border/50 cursor-pointer" data-ai-hint="person avatar" />
+                    <Image src={user?.photoURL || "https://placehold.co/128x128.png"} width={44} height={44} alt="User Avatar" className="w-11 h-11 bg-primary rounded-full shadow-lg border-2 border-border/50 cursor-pointer" data-ai-hint="person avatar" />
                   </Link>
                 </div>
             </header>
@@ -255,4 +255,3 @@ export default function DashboardPage() {
         </>
     );
 }
-
