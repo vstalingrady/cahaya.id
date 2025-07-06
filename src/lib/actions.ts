@@ -120,7 +120,7 @@ export async function setSecurityPin(uid: string, pin: string) {
   }
   try {
     const userDocRef = doc(db, "users", uid);
-    const encryptedPinData = encrypt(trimmedPin);
+    const encryptedPinData = await encrypt(trimmedPin);
     await setDoc(userDocRef, { securityPinData: encryptedPinData }, { merge: true });
     console.log(`Successfully set and encrypted PIN for user ${uid}`);
   } catch (error) {
@@ -156,7 +156,7 @@ export async function verifySecurityPin(uid: string, pin: string): Promise<{ suc
       
       let decryptedPin;
       try {
-        decryptedPin = decrypt(storedPinData);
+        decryptedPin = await decrypt(storedPinData);
       } catch (e) {
           console.error("PIN Decryption failed for user:", uid, e);
           return { success: false, reason: "Failed to verify PIN due to a security error."};

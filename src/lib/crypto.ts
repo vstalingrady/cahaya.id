@@ -27,7 +27,7 @@ function getKey() {
  * @param text The string to encrypt.
  * @returns An object containing the initialization vector (iv) and the encrypted data, both as hex strings.
  */
-export function encrypt(text: string): { iv: string; encrypted: string } {
+export async function encrypt(text: string): Promise<{ iv: string; encrypted: string }> {
     const key = getKey();
     const iv = crypto.randomBytes(16); // Generate a random initialization vector
     const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
@@ -49,7 +49,7 @@ export function encrypt(text: string): { iv: string; encrypted: string } {
  * @param data An object containing the hex-encoded iv and encrypted data.
  * @returns The original decrypted string.
  */
-export function decrypt(data: { iv: string; encrypted: string }): string {
+export async function decrypt(data: { iv: string; encrypted: string }): Promise<string> {
     const key = getKey();
     const iv = Buffer.from(data.iv, 'hex');
     const encryptedTextAndTag = Buffer.from(data.encrypted, 'hex');
