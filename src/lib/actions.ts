@@ -120,7 +120,9 @@ export async function setSecurityPin(uid: string, pin: string) {
   try {
     const userDocRef = doc(db, "users", uid);
     // In a real app, this should be hashed before storing!
-    await updateDoc(userDocRef, { securityPin: pin }); 
+    // Using setDoc with merge: true is more robust. It creates the doc if it doesn't exist,
+    // or updates the field if it does, preventing a potential race condition.
+    await setDoc(userDocRef, { securityPin: pin }, { merge: true });
   } catch (error) {
     console.error("Error setting security PIN:", error);
     throw new Error("Could not set security PIN.");
@@ -150,107 +152,20 @@ export async function verifySecurityPin(uid: string, pin: string): Promise<{ suc
 }
 
 
-// Define the form schema
-const LoginSchema = z.object({
-  email: z.string().email('Please enter a valid email address.'),
-  password: z.string().min(6, 'Password must be at least 6 characters long.'),
-});
-
-export type LoginState = {
-  errors?: {
-    email?: string[];
-    password?: string[];
-  };
-  message?: string;
-  success?: boolean;
-};
-
-export async function login(prevState: LoginState, formData: FormData): Promise<LoginState> {
-  // Validate form fields
-  const validatedFields = LoginSchema.safeParse({
-    email: formData.get('email'),
-    password: formData.get('password'),
-  });
-
-  // If form validation fails, return errors early
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing or invalid fields. Failed to log in.',
-    };
-  }
-
-  const { email, password } = validatedFields.data;
-
-  try {
-    // Attempt to sign in with Firebase
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-
-    // Log the successful login event to Firestore
-    const ip = headers().get('x-forwarded-for') ?? 'Unknown';
-    const userAgent = headers().get('user-agent') ?? 'Unknown';
-
-    await setDoc(doc(db, "users", user.uid, "login_history", new Date().toISOString()), {
-      timestamp: new Date(),
-      ipAddress: ip,
-      userAgent: userAgent,
-    });
-    
-    console.log('Login successful:', userCredential.user.uid);
-    
-    // Return success state - don't redirect here, let AuthProvider handle it
-    return {
-      success: true,
-      message: 'Login successful!',
-    };
-    
-  } catch (error: any) {
-    console.error('Login error:', error);
-    
-    // Handle specific Firebase auth errors
-    let errorMessage = 'An unexpected error occurred.';
-    
-    switch (error.code) {
-      case 'auth/user-not-found':
-        errorMessage = 'No account found with this email address.';
-        break;
-      case 'auth/wrong-password':
-        errorMessage = 'Incorrect password.';
-        break;
-      case 'auth/invalid-email':
-        errorMessage = 'Invalid email address.';
-        break;
-      case 'auth/user-disabled':
-        errorMessage = 'This account has been disabled.';
-        break;
-      case 'auth/too-many-requests':
-        errorMessage = 'Too many failed login attempts. Please try again later.';
-        break;
-      case 'auth/network-request-failed':
-        errorMessage = 'Network error. Please check your internet connection.';
-        break;
-      case 'auth/invalid-credential':
-        errorMessage = 'Invalid email or password.';
-        break;
-      default:
-        errorMessage = error.message || 'Failed to log in. Please try again.';
-    }
-
-    return {
-      message: errorMessage,
-      success: false,
-    };
-  }
-}
-
-
+/**
+ * Exchanges a public token from a third-party service (like a bank connection API)
+ * for a secure access token. This is part of a simulated OAuth-like flow.
+ * @param {string} publicToken - The temporary public token to be exchanged.
+ * @returns {Promise<{accessToken?: string, error?: string}>} An object with either the access token or an error message.
+ */
 export async function exchangePublicToken(publicToken: string | null) {
   if (!publicToken) {
     return { error: 'Invalid public token provided.' };
   }
 
   try {
+    // In a real app, you'd make a POST request to the third-party API here.
+    // For this prototype, we use our mock database.
     const tokenInfo = mockApiDb.exchangePublicToken(publicToken);
     if (tokenInfo.error) {
       return { error: 'The public token is invalid or expired.' };
@@ -262,6 +177,11 @@ export async function exchangePublicToken(publicToken: string | null) {
   }
 }
 
+/**
+ * Updates a user's profile information in both Firebase Authentication and Firestore.
+ * @param {string} uid - The user's unique ID.
+ * @param {object} data - An object containing the profile fields to update (displayName, email, phone, photoURL).
+ */
 export async function updateUserProfile(
   uid: string,
   data: { displayName?: string; email?: string; phone?: string; photoURL?: string }
@@ -270,6 +190,7 @@ export async function updateUserProfile(
     throw new Error("User is not authenticated.");
   }
 
+  // Ensure the user performing the action is the one being updated.
   const currentUser = auth.currentUser;
   if (!currentUser || currentUser.uid !== uid) {
     throw new Error("Authentication mismatch.");
@@ -278,7 +199,7 @@ export async function updateUserProfile(
   try {
     const { displayName, email, phone, photoURL } = data;
 
-    // Prepare data for Firebase Auth update (only displayName and photoURL can be updated here)
+    // Prepare data for Firebase Auth update (only displayName and photoURL can be updated this way).
     const authUpdateData: { displayName?: string; photoURL?: string } = {};
     if (displayName !== undefined) authUpdateData.displayName = displayName;
     if (photoURL !== undefined) authUpdateData.photoURL = photoURL;
@@ -287,7 +208,7 @@ export async function updateUserProfile(
       await updateProfile(currentUser, authUpdateData);
     }
 
-    // Prepare data for Firestore update
+    // Prepare data for Firestore update (all other fields).
     const firestoreUpdateData: { [key: string]: string } = {};
     if (displayName !== undefined) firestoreUpdateData.fullName = displayName;
     if (email !== undefined) firestoreUpdateData.email = email;
@@ -299,7 +220,7 @@ export async function updateUserProfile(
       await updateDoc(userDocRef, firestoreUpdateData);
     }
 
-    // Revalidate the path to ensure the UI updates with new data
+    // Revalidate the path to ensure the UI updates with the new data immediately.
     revalidatePath('/profile');
   } catch (error) {
     console.error("Error updating user profile:", error);
@@ -310,6 +231,11 @@ export async function updateUserProfile(
 
 // ---- Data Fetching Actions ----
 
+/**
+ * Fetches core dashboard data (accounts and all transactions) for a given user.
+ * @param {string} userId - The user's unique ID.
+ * @returns {Promise<{accounts: Account[], transactions: Transaction[]}>} The user's accounts and transactions.
+ */
 export async function getDashboardData(
   userId: string
 ): Promise<{ accounts: Account[]; transactions: Transaction[] }> {
@@ -340,6 +266,12 @@ export async function getDashboardData(
   }
 }
 
+/**
+ * Fetches details for a single account and its associated transactions.
+ * @param {string} userId - The user's unique ID.
+ * @param {string} accountId - The ID of the account to fetch.
+ * @returns {Promise<{account: Account | null, transactions: Transaction[]}>} The account and its transactions.
+ */
 export async function getAccountDetails(userId: string, accountId: string): Promise<{ account: Account | null, transactions: Transaction[] }> {
     if (!userId || !accountId) return { account: null, transactions: [] };
     try {
@@ -350,6 +282,7 @@ export async function getAccountDetails(userId: string, accountId: string): Prom
         
         const account = accountDoc.data() as Account;
 
+        // Query for transactions specifically matching the accountId.
         const transactionsCol = collection(db, 'users', userId, 'transactions');
         const q = query(transactionsCol, where('accountId', '==', accountId));
         const transactionsSnapshot = await getDocs(q);
@@ -479,6 +412,7 @@ export async function getSavingSuggestions(transactions: Transaction[]): Promise
          };
     }
     
+    // Estimate income from the largest single deposit in the period.
     const monthlyIncome = transactions
         .filter(t => t.amount > 0)
         .reduce((max, t) => t.amount > max ? t.amount : max, 0);
@@ -571,14 +505,64 @@ export async function getAiChatResponse(
   }
 }
 
+/**
+ * A utility function to format a number into Indonesian Rupiah currency format.
+ * @param {number} value - The numeric value to format.
+ * @returns {string} The formatted currency string (e.g., "Rp 50.000").
+ */
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
   style: 'currency',
   currency: 'IDR',
   minimumFractionDigits: 0,
 }).format(value);
 
-// This action is no longer needed as linking is handled by the mock API flow.
-// It's kept here to avoid breaking changes if it was referenced, but it's now a no-op.
+// ---- Legacy/Mock Actions ----
+
+const LoginSchema = z.object({
+  email: z.string().email('Please enter a valid email address.'),
+  password: z.string().min(6, 'Password must be at least 6 characters long.'),
+});
+
 export async function linkAccount(prevState: any, formData: FormData) {
+  // This is a no-op because the linking flow is now handled by the mock API pages.
+  // The redirect will happen from the /mock-ayo-connect page.
+  // This action can be removed if the form is updated to no longer use it.
+  console.log("linkAccount action called, but it's a no-op. Redirecting from client-side after mock flow.");
   redirect('/dashboard?new_account=true');
+}
+
+export async function getLoginHistory(userId: string) {
+  if (!userId) return [];
+  const historyCol = collection(db, 'users', userId, 'login_history');
+  const q = query(historyCol, orderBy('timestamp', 'desc'), limit(10));
+  const querySnapshot = await getDocs(q);
+  const history = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  return history;
+}
+
+// Kept for reference, but login is now handled client-side in the form component.
+export async function login(prevState: any, formData: FormData) {
+  const validatedFields = LoginSchema.safeParse(
+    Object.fromEntries(formData.entries())
+  );
+
+  if (!validatedFields.success) {
+    return {
+      errors: validatedFields.error.flatten().fieldErrors,
+      message: 'Missing Fields. Failed to Login.',
+    };
+  }
+
+  const { email, password } = validatedFields.data;
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error: any) {
+    if (error.code === 'auth/invalid-credential') {
+        return { message: 'Invalid email or password.' };
+    }
+    return { message: 'Something went wrong.' };
+  }
+
+  return redirect('/dashboard');
 }
