@@ -74,46 +74,40 @@ export default function SignupForm() {
 
   /**
    * This effect initializes the invisible reCAPTCHA verifier when the component mounts.
+   * This implementation is robust against React Strict Mode's double-invoking of effects.
    */
   useEffect(() => {
     const auth = getAuth(app);
-    // Only run if the container div has rendered and the verifier isn't already set up.
-    if (!recaptchaContainerRef.current || recaptchaVerifierRef.current) return;
+    const container = recaptchaContainerRef.current;
+    if (!container) return;
 
-    try {
-      const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-          'size': 'invisible',
-          'callback': () => {
-              console.log('reCAPTCHA challenge successfully solved.');
-          },
-          'expired-callback': () => {
-              setError('reCAPTCHA verification expired. Please try sending the code again.');
-              setIsRecaptchaReady(false);
-          }
-      });
-      
-      // Store the verifier instance in a ref to access it in the submit handler.
-      recaptchaVerifierRef.current = verifier;
-      
-      // Explicitly render the verifier and wait for it to be ready.
-      verifier.render().then(() => {
-          setIsRecaptchaReady(true);
-      }).catch((renderError) => {
-          console.error("reCAPTCHA render error:", renderError);
-          setError("Could not initialize security check. Please refresh the page.");
-          setIsRecaptchaReady(false);
-      });
-      
-      // Cleanup function to clear the reCAPTCHA instance when the component unmounts.
-      return () => {
-        verifier.clear();
-      };
-    } catch(e) {
-      console.error("Error creating reCAPTCHA verifier", e);
-      setError("Failed to initialize security verifier. Please check your Firebase configuration.");
-    }
-
-  // The empty dependency array ensures this effect runs only once after the initial render.
+    // Create a new verifier instance on each mount.
+    const verifier = new RecaptchaVerifier(auth, container, {
+        'size': 'invisible',
+        'callback': () => console.log('reCAPTCHA challenge successfully solved.'),
+        'expired-callback': () => {
+            setError('reCAPTCHA verification expired. Please try sending the code again.');
+            setIsRecaptchaReady(false);
+        }
+    });
+    
+    // Store the verifier instance in a ref to access it in the submit handler.
+    recaptchaVerifierRef.current = verifier;
+    
+    // Explicitly render the verifier and wait for it to be ready.
+    verifier.render().then(() => {
+        setIsRecaptchaReady(true);
+    }).catch((renderError) => {
+        console.error("reCAPTCHA render error:", renderError);
+        setError("Could not initialize security check. Please refresh the page.");
+        setIsRecaptchaReady(false);
+    });
+    
+    // Cleanup function to clear the reCAPTCHA instance when the component unmounts.
+    return () => {
+      verifier.clear();
+      recaptchaVerifierRef.current = null;
+    };
   }, []);
 
   /**
@@ -187,15 +181,14 @@ export default function SignupForm() {
       router.push(`/verify-phone?phone=${encodeURIComponent(phone)}`);
     } catch (err: any) {
       console.error("Error sending code:", err);
-      
       let errorMessage = 'Failed to send verification code. Please try again.';
 
       if (err.code === 'auth/invalid-phone-number') {
         errorMessage = 'Invalid phone number format. Please check your number.';
       } else if (err.code === 'auth/too-many-requests') {
         errorMessage = 'Too many requests. Please try again later.';
-      } else if (err.code === 'auth/internal-error' || err.code === 'auth/operation-not-allowed' || (err.message && err.message.includes('app-check'))) {
-        errorMessage = "A Firebase configuration error occurred (auth/internal-error). This is often not a code issue, but a setup issue in your Firebase project. Please check the following in your Firebase Console:\n\n1. Authentication > Sign-in method: Ensure the 'Phone' provider is enabled.\n2. App Check: If App Check is enabled, ensure your app is registered and you have added a reCAPTCHA v3 site key. For local testing, you may need to generate a debug token from your browser's console and add it to the App Check settings.";
+      } else if (err.code === 'auth/internal-error') {
+        errorMessage = "An internal error occurred. Please ensure Phone Sign-In is enabled in your Firebase project and that your App Check configuration is correct.";
       }
       setError(errorMessage);
 
