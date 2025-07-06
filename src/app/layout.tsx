@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster"
-import { PT_Sans, DM_Serif_Display } from 'next/font/google';
+import { Plus_Jakarta_Sans, DM_Serif_Display } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
@@ -10,7 +10,11 @@ export const metadata: Metadata = {
   description: 'Welcome to CuanFlex. The secure way to manage your finances.',
 };
 
-const ptSans = PT_Sans({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-sans' });
+const jakartaSans = Plus_Jakarta_Sans({ 
+  subsets: ['latin'], 
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-sans' 
+});
 const dmSerifDisplay = DM_Serif_Display({
   subsets: ['latin'],
   weight: '400',
@@ -28,7 +32,7 @@ export default function RootLayout({
       <body
         className={cn(
           'antialiased min-h-screen font-sans bg-background',
-          ptSans.variable,
+          jakartaSans.variable,
           dmSerifDisplay.variable
         )}
       >
