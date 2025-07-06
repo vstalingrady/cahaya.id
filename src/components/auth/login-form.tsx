@@ -13,7 +13,8 @@ import {
   getAuth,
   RecaptchaVerifier,
   signInWithPhoneNumber,
-  signOut
+  signOut,
+  updateProfile
 } from 'firebase/auth';
 import { Lock, Mail, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -174,6 +175,13 @@ export default function LoginForm() {
       const additionalInfo = getAdditionalUserInfo(result);
 
       if (additionalInfo?.isNewUser) {
+        // Explicitly persist the profile info from the social provider to Firebase Auth.
+        // This is the critical fix.
+        await updateProfile(user, {
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+        });
+
         await completeUserProfile(
             user.uid,
             user.displayName || "New Social User",
