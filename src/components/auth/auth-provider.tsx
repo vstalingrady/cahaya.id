@@ -91,24 +91,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         // Ensure user data (accounts, etc.) exists before proceeding.
-        // This handles cases where signup was interrupted.
         await ensureUserData(currentUser.uid);
 
-        let finalUser = currentUser;
-        // This part handles enriching the user object with displayName if it's stale.
-        if (!currentUser.displayName) {
-          const userDocRef = doc(db, "users", currentUser.uid);
-          const userDoc = await getDoc(userDocRef);
-          
-          if (userDoc.exists() && userDoc.data().fullName) {
-            finalUser = {
-              ...currentUser,
-              displayName: userDoc.data().fullName,
-              photoURL: currentUser.photoURL || userDoc.data().photoURL || null,
-            } as User;
-          }
+        // Always fetch the full user profile from Firestore to get the most up-to-date info
+        const userDocRef = doc(db, "users", currentUser.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const firestoreData = userDoc.data();
+          // Create the final user object, prioritizing Firestore data for display name and photo
+          const finalUser: User = {
+            ...currentUser,
+            displayName: firestoreData.fullName || currentUser.displayName,
+            photoURL: firestoreData.photoURL || currentUser.photoURL,
+          };
+          setUser(finalUser);
+        } else {
+          // Fallback to currentUser if Firestore doc is somehow missing
+          setUser(currentUser);
         }
-        setUser(finalUser);
       } else {
         setUser(null);
       }
