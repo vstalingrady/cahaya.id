@@ -27,8 +27,8 @@ import { z } from 'zod';
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth, db } from './firebase';
-import { signInWithEmailAndPassword, updateProfile } from "firebase/auth";
-import { doc, setDoc, getDoc, deleteDoc, collection, writeBatch, getDocs, addDoc, query, where, updateDoc } from "firebase/firestore";
+import { updateProfile } from "firebase/auth";
+import { doc, setDoc, getDoc, deleteDoc, collection, writeBatch, getDocs, addDoc, query, where, updateDoc, orderBy, limit } from "firebase/firestore";
 import { headers } from 'next/headers';
 import { db as mockApiDb } from './mock-api-db';
 import { type MockAccount, type MockTransaction } from './mock-api-db';
@@ -114,15 +114,14 @@ export async function setSecurityPin(uid: string, pin: string) {
   if (!uid || !pin) {
     throw new Error("User ID and PIN are required.");
   }
-  if (pin.length !== 6) {
+  const trimmedPin = pin.trim();
+  if (trimmedPin.length !== 6) {
     throw new Error("PIN must be 6 characters.");
   }
   try {
     const userDocRef = doc(db, "users", uid);
     // In a real app, this should be hashed before storing!
-    // Using setDoc with merge: true is more robust. It creates the doc if it doesn't exist,
-    // or updates the field if it does, preventing a potential race condition.
-    await setDoc(userDocRef, { securityPin: pin }, { merge: true });
+    await setDoc(userDocRef, { securityPin: trimmedPin }, { merge: true });
   } catch (error) {
     console.error("Error setting security PIN:", error);
     throw new Error("Could not set security PIN.");
@@ -133,14 +132,14 @@ export async function verifySecurityPin(uid: string, pin: string): Promise<{ suc
     if (!uid || !pin) {
         return { success: false };
     }
+    const trimmedPin = pin.trim();
     try {
         const userDocRef = doc(db, "users", uid);
         const userDoc = await getDoc(userDocRef);
 
         if (userDoc.exists()) {
             const userData = userDoc.data();
-            // In a real app, you would fetch the hash and compare.
-            if (userData.securityPin === pin) {
+            if (userData && userData.securityPin === trimmedPin) {
                 return { success: true };
             }
         }
@@ -518,11 +517,6 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
 
 // ---- Legacy/Mock Actions ----
 
-const LoginSchema = z.object({
-  email: z.string().email('Please enter a valid email address.'),
-  password: z.string().min(6, 'Password must be at least 6 characters long.'),
-});
-
 export async function linkAccount(prevState: any, formData: FormData) {
   // This is a no-op because the linking flow is now handled by the mock API pages.
   // The redirect will happen from the /mock-ayo-connect page.
@@ -538,31 +532,4 @@ export async function getLoginHistory(userId: string) {
   const querySnapshot = await getDocs(q);
   const history = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   return history;
-}
-
-// Kept for reference, but login is now handled client-side in the form component.
-export async function login(prevState: any, formData: FormData) {
-  const validatedFields = LoginSchema.safeParse(
-    Object.fromEntries(formData.entries())
-  );
-
-  if (!validatedFields.success) {
-    return {
-      errors: validatedFields.error.flatten().fieldErrors,
-      message: 'Missing Fields. Failed to Login.',
-    };
-  }
-
-  const { email, password } = validatedFields.data;
-
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (error: any) {
-    if (error.code === 'auth/invalid-credential') {
-        return { message: 'Invalid email or password.' };
-    }
-    return { message: 'Something went wrong.' };
-  }
-
-  return redirect('/dashboard');
 }
