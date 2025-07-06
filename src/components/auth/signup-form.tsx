@@ -69,38 +69,19 @@ export default function SignupForm() {
 
   /**
    * This effect initializes the invisible reCAPTCHA verifier when the component mounts.
-   * It creates a container element for the reCAPTCHA widget and attaches it to the body.
+   * By rendering the container div in the JSX, we ensure it exists before this effect runs.
    */
   useEffect(() => {
     const auth = getAuth(app);
-    let verifier: RecaptchaVerifier;
-
-    // Use a timeout to ensure the container is rendered before initializing reCAPTCHA.
-    const timeoutId = setTimeout(() => {
-      if (!recaptchaVerifierRef.current) {
-        // Create a container for reCAPTCHA if it doesn't exist.
-        const recaptchaContainer = document.createElement('div');
-        recaptchaContainer.id = 'recaptcha-container';
-        document.body.appendChild(recaptchaContainer);
-
-        // Initialize the verifier.
-        verifier = new RecaptchaVerifier(auth, recaptchaContainer, {
-          size: 'invisible',
-          callback: () => console.log('reCAPTCHA challenge solved.'),
-          'expired-callback': () => setError('reCAPTCHA expired. Please try again.'),
+    if (!recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'invisible',
+            'callback': () => console.log('reCAPTCHA challenge solved.'),
+            'expired-callback': () => {
+                setError('reCAPTCHA expired. Please try again.');
+            }
         });
-        recaptchaVerifierRef.current = verifier;
-      }
-    }, 100);
-
-    // Cleanup function to run when the component unmounts.
-    return () => {
-      clearTimeout(timeoutId);
-      const container = document.getElementById('recaptcha-container');
-      if (container) {
-          container.remove();
-      }
-    };
+    }
   }, []);
 
   /**
@@ -239,6 +220,8 @@ export default function SignupForm() {
           <p className="mt-4 text-sm text-red-500 text-center">{error}</p>
         )}
       </form>
+      {/* This div is the container for the invisible reCAPTCHA widget. */}
+      <div id="recaptcha-container" />
     </div>
   );
 }
