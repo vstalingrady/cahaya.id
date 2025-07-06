@@ -90,26 +90,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        // Ensure user data (accounts, etc.) exists before proceeding.
+        // Force a refresh of the user's profile from Firebase's backend.
+        // This is crucial for ensuring displayName and photoURL are up-to-date after login.
+        await currentUser.reload();
+
+        // Ensure backend data (accounts, transactions, etc.) is seeded if it's a new user.
         await ensureUserData(currentUser.uid);
-
-        // Always fetch the full user profile from Firestore to get the most up-to-date info
-        const userDocRef = doc(db, "users", currentUser.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists()) {
-          const firestoreData = userDoc.data();
-          // Create the final user object, prioritizing Firestore data for display name and photo
-          const finalUser: User = {
-            ...currentUser,
-            displayName: firestoreData.fullName || currentUser.displayName,
-            photoURL: firestoreData.photoURL || currentUser.photoURL,
-          };
-          setUser(finalUser);
-        } else {
-          // Fallback to currentUser if Firestore doc is somehow missing
-          setUser(currentUser);
-        }
+        
+        // Set the user state with the genuine, refreshed currentUser object.
+        setUser(currentUser);
       } else {
         setUser(null);
       }
