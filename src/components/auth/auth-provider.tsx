@@ -21,8 +21,13 @@ export function useAuth() {
   return context;
 }
 
-// Define routes that do not require authentication
-const PUBLIC_ROUTES = ['/login', '/signup', '/verify-phone', '/complete-profile', '/setup-security', '/terms-of-service', '/'];
+// Routes that can be accessed without authentication.
+const UNAUTHENTICATED_ROUTES = ['/login', '/signup', '/verify-phone', '/'];
+
+// Routes that are part of the initial user setup.
+// An authenticated user MUST be able to access these without being redirected to the dashboard.
+const ONBOARDING_ROUTES = ['/complete-profile', '/setup-security', '/terms-of-service', '/link-account'];
+
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -51,23 +56,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Handle redirects after auth state is determined
   useEffect(() => {
     if (loading || hasRedirected.current) return;
-
-    const isProtectedRoute = !PUBLIC_ROUTES.includes(pathname);
     
-    // Redirect unauthenticated users from protected routes
-    if (!user && isProtectedRoute) {
-      console.log('Redirecting to login - user not authenticated');
-      hasRedirected.current = true;
-      router.replace('/login');
+    // Allow linking flow pages to be accessed directly without auth protection
+    if (pathname.startsWith('/link-account/callback') || pathname.startsWith('/mock-ayo-connect')) {
       return;
     }
-    
-    // Redirect authenticated users from auth pages (but not from home page)
-    if (user && PUBLIC_ROUTES.includes(pathname) && pathname !== '/') {
-      console.log('Redirecting to dashboard - user already authenticated');
-      hasRedirected.current = true;
-      router.replace('/dashboard');
-      return;
+
+    const isUnauthenticatedRoute = UNAUTHENTICATED_ROUTES.includes(pathname) || UNAUTHENTICATED_ROUTES.some(p => p !== '/' && pathname.startsWith(p));
+    const isOnboardingRoute = ONBOARDING_ROUTES.includes(pathname) || ONBOARDING_ROUTES.some(p => p !== '/' && pathname.startsWith(p));
+
+    // If the user is NOT logged in...
+    if (!user) {
+      // And they are trying to access a page that isn't the welcome page or an auth page, redirect them to login.
+      if (!isUnauthenticatedRoute && !isOnboardingRoute) {
+        console.log('Redirecting to login - user not authenticated for a protected route.');
+        hasRedirected.current = true;
+        router.replace('/login');
+        return;
+      }
+    } 
+    // If the user IS logged in...
+    else {
+      // And they are on a page meant for unauthenticated users (like login/signup), redirect them to the dashboard.
+      if (isUnauthenticatedRoute && pathname !== '/') {
+        console.log('Redirecting to dashboard - user already authenticated.');
+        hasRedirected.current = true;
+        router.replace('/dashboard');
+        return;
+      }
     }
   }, [user, loading, pathname, router]);
 
