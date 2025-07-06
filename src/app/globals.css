@@ -141,12 +141,6 @@
     }
   }
 
-  /* Infinite Scroller */
-  .scroller {
-    -webkit-mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
-    mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
-  }
-  
   @keyframes blink {
     50% { opacity: 0; }
   }
