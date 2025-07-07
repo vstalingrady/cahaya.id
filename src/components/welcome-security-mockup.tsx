@@ -47,7 +47,7 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
                 
                 {/* 3. The lock icon, centered on top with a contrasting color */}
                  <Lock
-                    className="absolute w-20 h-20 text-primary-foreground animate-slow-pulse"
+                    className="absolute w-20 h-20 text-white animate-slow-pulse"
                     strokeWidth={1.5}
                  />
             </div>
