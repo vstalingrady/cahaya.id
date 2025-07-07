@@ -212,8 +212,8 @@ export default function VerifyPhoneForm({ phone, next }: { phone: string | null,
          // This is a 2FA login, so log the event
         await setDoc(doc(db, "users", user.uid, "login_history", new Date().toISOString()), {
             timestamp: new Date(),
-            ipAddress: "Client-side 2FA",
-            userAgent: "Client-side 2FA (browser)",
+            ipAddress: "Client-side Login",
+            userAgent: "Client-side Login (browser)",
         });
         toast({
             title: 'Login Successful!',

@@ -14,9 +14,10 @@ import {
   RecaptchaVerifier,
   signInWithPhoneNumber,
   signOut,
-  updateProfile
+  updateProfile,
+  type ConfirmationResult
 } from 'firebase/auth';
-import { Lock, Mail, Loader2 } from 'lucide-react';
+import { Lock, Mail, Loader2, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '../ui/label';
@@ -30,17 +31,19 @@ import { useToast } from '@/hooks/use-toast';
 // Extend the global Window interface to include Firebase Auth objects.
 declare global {
   interface Window {
-    confirmationResult: any; // Using `any` for simplicity with Firebase's complex types
+    confirmationResult: ConfirmationResult;
   }
 }
 
 export default function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
+  const [loginMode, setLoginMode] = useState<'email' | 'phone'>('email');
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const [phone, setPhone] = useState('+62 ');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
   const [verifier, setVerifier] = useState<RecaptchaVerifier | null>(null);
@@ -73,7 +76,28 @@ export default function LoginForm() {
     }
   };
 
-  const validateForm = () => {
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    
+    if (!value.startsWith('+62 ')) {
+      setPhone('+62 ');
+      return;
+    }
+    
+    const rawNumbers = value.substring(4).replace(/\D/g, '');
+    const trimmedNumbers = rawNumbers.slice(0, 12);
+    const chunks = [];
+    if (trimmedNumbers.length > 0) chunks.push(trimmedNumbers.slice(0, 3));
+    if (trimmedNumbers.length > 3) chunks.push(trimmedNumbers.slice(3, 7));
+    if (trimmedNumbers.length > 7) chunks.push(trimmedNumbers.slice(7));
+    setPhone(`+62 ${chunks.join('-')}`);
+  };
+
+  const formatPhoneNumberForFirebase = (phoneNumber: string): string => {
+    return `+${phoneNumber.replace(/\D/g, '')}`;
+  };
+
+  const validateEmailForm = () => {
     const newErrors: Record<string, string> = {};
     
     if (!formData.email) {
@@ -92,10 +116,7 @@ export default function LoginForm() {
     return Object.keys(newErrors).length === 0;
   };
 
-  /**
-   * Triggers the phone verification process for a logged-in user.
-   */
-  const triggerPhoneVerification = async (user: User) => {
+  const trigger2FA = async (user: User) => {
     if (!verifier) {
       throw new Error("reCAPTCHA verifier not initialized.");
     }
@@ -117,9 +138,9 @@ export default function LoginForm() {
     router.push(`/verify-phone?phone=${encodeURIComponent(phoneNumber)}&next=/dashboard`);
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    if (!validateEmailForm()) return;
     setIsLoading(true);
     
     try {
@@ -129,7 +150,7 @@ export default function LoginForm() {
         formData.password
       );
       
-      await triggerPhoneVerification(userCredential.user);
+      await trigger2FA(userCredential.user);
       
     } catch (error: any) {
       console.error('Login error:', error);
@@ -167,6 +188,42 @@ export default function LoginForm() {
     }
   };
 
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setErrors({});
+    
+    if (!verifier) {
+      setErrors({ phone: "reCAPTCHA not ready. Please wait a moment and try again."});
+      setIsLoading(false);
+      return;
+    }
+
+    const authInstance = getAuth(app);
+    const formattedPhone = formatPhoneNumberForFirebase(phone);
+    
+    try {
+      const confirmationResult = await signInWithPhoneNumber(authInstance, formattedPhone, verifier);
+      window.confirmationResult = confirmationResult;
+      
+      router.push(`/verify-phone?phone=${encodeURIComponent(phone)}&next=/dashboard`);
+    } catch (err: any) {
+      console.error("Error sending code:", err);
+      let errorMessage = 'Failed to send verification code. Please try again.';
+
+      if (err.code === 'auth/invalid-phone-number') {
+        errorMessage = 'Invalid phone number format. Please check your number.';
+      } else if (err.code === 'auth/too-many-requests') {
+        errorMessage = 'Too many requests. Please try again later.';
+      } else if (err.code === 'auth/internal-error') {
+        errorMessage = "An internal error occurred. Please ensure Phone Sign-In is enabled in your Firebase project and that your App Check configuration is correct.";
+      }
+      setErrors({ phone: errorMessage });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleOAuthSignIn = async (provider: GoogleAuthProvider | OAuthProvider) => {
     setIsLoading(true);
     try {
@@ -175,8 +232,6 @@ export default function LoginForm() {
       const additionalInfo = getAdditionalUserInfo(result);
 
       if (additionalInfo?.isNewUser) {
-        // Explicitly persist the profile info from the social provider to Firebase Auth.
-        // This is the critical fix.
         await updateProfile(user, {
             displayName: user.displayName,
             photoURL: user.photoURL,
@@ -191,8 +246,7 @@ export default function LoginForm() {
         sessionStorage.setItem('social_auth_in_progress', 'true');
         router.push('/setup-security');
       } else {
-        // For existing users, start the 2FA phone verification flow
-        await triggerPhoneVerification(user);
+        await trigger2FA(user);
       }
 
     } catch (error: any) {
@@ -224,51 +278,87 @@ export default function LoginForm() {
 
   return (
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="space-y-2">
-          <Label htmlFor="email">Email</Label>
-          <div className="relative">
-            <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input 
-              id="email" 
-              name="email" 
-              type="email" 
-              value={formData.email}
-              onChange={handleInputChange}
-              className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" 
-              placeholder="Email"
-              disabled={isLoading}
-            />
+      {loginMode === 'email' ? (
+        <form onSubmit={handleEmailSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <div className="relative">
+              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input 
+                id="email" 
+                name="email" 
+                type="email" 
+                value={formData.email}
+                onChange={handleInputChange}
+                className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" 
+                placeholder="Email"
+                disabled={isLoading}
+              />
+            </div>
+            {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
           </div>
-          {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="password">Password</Label>
-          <div className="relative">
-            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input 
-              id="password" 
-              name="password" 
-              type="password" 
-              value={formData.password}
-              onChange={handleInputChange}
-              className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" 
-              placeholder="Password"
-              disabled={isLoading}
-            />
+          
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input 
+                id="password" 
+                name="password" 
+                type="password" 
+                value={formData.password}
+                onChange={handleInputChange}
+                className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" 
+                placeholder="Password"
+                disabled={isLoading}
+              />
+            </div>
+            {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
           </div>
-          {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
-        </div>
-        
-        <Button 
-          type="submit" 
-          disabled={isLoading}
-          className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
-        >
-          {isLoading ? <Loader2 className="animate-spin"/> : 'Log In'}
-        </Button>
-      </form>
+          
+          <Button 
+            type="submit" 
+            disabled={isLoading}
+            className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
+          >
+            {isLoading ? <Loader2 className="animate-spin"/> : 'Log In'}
+          </Button>
+          <Button variant="link" className="w-full text-sm" onClick={() => setLoginMode('phone')}>
+            Log in with phone number instead
+          </Button>
+        </form>
+      ) : (
+        <form onSubmit={handlePhoneSubmit} className="space-y-6">
+            <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <div className="relative">
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Input 
+                        id="phone" 
+                        name="phone" 
+                        type="tel" 
+                        className="bg-input h-14 text-lg pl-12"
+                        placeholder="+62 000-0000-00000"
+                        value={phone}
+                        onChange={handlePhoneChange}
+                        disabled={isLoading}
+                        required
+                    />
+                </div>
+                {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
+            </div>
+            <Button 
+                type="submit" 
+                disabled={isLoading}
+                className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
+            >
+                {isLoading ? <Loader2 className="animate-spin"/> : 'Send Code'}
+            </Button>
+             <Button variant="link" className="w-full text-sm" onClick={() => setLoginMode('email')}>
+                Log in with email instead
+            </Button>
+        </form>
+      )}
 
       <div className="relative flex items-center justify-center text-sm my-6">
           <Separator className="flex-1 bg-border" />
