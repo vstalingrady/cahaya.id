@@ -21,7 +21,7 @@ const HexScramble = ({ isActive, lines = 8 }: { isActive: boolean; lines?: numbe
             return;
         }
 
-        const generateHexString = () => Array(32).fill(0).map(() => Math.floor(Math.random() * 16).toString(16).toUpperCase()).join('');
+        const generateHexString = () => Array(24).fill(0).map(() => Math.floor(Math.random() * 16).toString(16).toUpperCase()).join('');
 
         const intervalId = setInterval(() => {
             setHexStrings(Array.from({ length: lines }, generateHexString));
@@ -33,7 +33,7 @@ const HexScramble = ({ isActive, lines = 8 }: { isActive: boolean; lines?: numbe
     }, [isActive, lines]);
 
     return (
-        <div className="font-mono text-xs text-primary/50 leading-normal select-none text-center break-all">
+        <div className="font-mono text-sm text-primary/70 leading-relaxed select-none text-center break-all">
             {hexStrings.map((hex, i) => (
                 <p key={i}>{hex}</p>
             ))}
@@ -60,22 +60,22 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
 
     return (
         <div className={cn(
-            "relative w-full max-w-sm h-full rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-6 backdrop-blur-sm overflow-hidden flex flex-col justify-between items-center",
+            "relative w-full max-w-sm h-full rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-6 backdrop-blur-sm overflow-hidden flex flex-col justify-center items-center",
             className
         )}>
 
-            <div className="relative w-full h-64 flex items-center justify-center mt-8">
+            <div className="relative w-full h-72 flex items-center justify-center">
                 {/* Hex scramble in the background, slightly blurred for depth */}
-                <div className="absolute inset-0 flex items-center justify-center overflow-hidden blur-[1.5px] opacity-70">
-                    <HexScramble isActive={isActive} lines={6} />
+                <div className="absolute inset-0 flex items-center justify-center overflow-hidden blur-[1px] opacity-80">
+                    <HexScramble isActive={isActive} lines={8} />
                 </div>
 
                 {/* Shield and lock icon on top */}
-                <div className="relative z-10">
+                <div className="relative z-10 flex items-center justify-center">
                     <ShieldCheck className="w-48 h-48 text-primary/10" />
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center animate-slow-pulse">
-                            <Lock className="w-16 h-16 text-white" />
+                        <div className="w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center animate-slow-pulse">
+                            <Lock className="w-12 h-12 text-white" />
                         </div>
                     </div>
                 </div>
