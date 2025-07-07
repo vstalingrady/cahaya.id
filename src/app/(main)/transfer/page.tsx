@@ -1,4 +1,5 @@
 
+
 /**
  * @file src/app/(main)/transfer/page.tsx
  * @fileoverview This is the main "Pay & Transfer" page. It serves as a central hub for
@@ -247,13 +248,13 @@ export default function TransferPage() {
     <>
       {/* Dialog for adding a new favorite */}
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="bg-popover border-border">
-          <DialogHeader>
+        <DialogContent className="bg-popover border-border flex flex-col max-h-[90vh]">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle>Create a New Favorite</DialogTitle>
             <DialogDescription>This creates a reusable template for quick payments.</DialogDescription>
           </DialogHeader>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onAddFavorite)} className="space-y-4 py-4">
+            <form onSubmit={form.handleSubmit(onAddFavorite)} id="add-favorite-form" className="flex-1 overflow-y-auto -mx-6 px-6 py-4 custom-scrollbar space-y-4">
               <FormField control={form.control} name="name" render={({ field }) => (
                 <FormItem><FormLabel>Favorite Name</FormLabel><FormControl><Input placeholder="e.g. Monthly Rent" {...field} maxLength={25} /></FormControl><FormMessage /></FormItem>
               )}/>
@@ -291,12 +292,12 @@ export default function TransferPage() {
                     <FormMessage />
                 </FormItem>
               )}/>
-              <DialogFooter className="pt-4">
-                <Button type="button" variant="ghost" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
-                <Button type="submit">Add Favorite</Button>
-              </DialogFooter>
             </form>
           </Form>
+          <DialogFooter className="pt-4 flex-shrink-0">
+            <Button type="button" variant="ghost" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
+            <Button type="submit" form="add-favorite-form">Add Favorite</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
