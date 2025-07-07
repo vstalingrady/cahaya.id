@@ -115,9 +115,9 @@ export default {
             transform: 'scale(1)',
             boxShadow: '0 0 5px hsl(var(--primary) / 0.2)',
           },
-          '50%': {
-            transform: 'scale(1.05)',
-            boxShadow: '0 0 20px hsl(var(--primary) / 0.5)',
+          '40%, 60%': {
+            transform: 'scale(1.04)',
+            boxShadow: '0 0 18px hsl(var(--primary) / 0.4)',
           },
         },
         'text-shine': {
@@ -152,7 +152,7 @@ export default {
         'logo-blink-glow': 'logo-blink-glow 5s ease-in-out infinite',
         'slow-pulse': 'slow-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'slower-pulse': 'slow-pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'breathing-glow': 'breathing-glow 3s ease-in-out infinite',
+        'breathing-glow': 'breathing-glow 4s ease-in-out infinite',
         'text-shine': 'text-shine 3s linear infinite',
         'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
