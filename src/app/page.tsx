@@ -1,328 +1,187 @@
-
-
-/**
- * @file src/app/page.tsx
- * @fileoverview This is the main welcome and onboarding page for the CuanFlex application.
- * It features a full-screen, scrollable carousel that introduces users to the
- * app's key features before they sign up. This component is client-side rendered
- * due to its interactive nature.
- */
-
 'use client';
 
-// Import necessary React hooks for state and side effects.
 import React, { useState, useEffect, useCallback } from 'react';
-// Import Next.js Link component for client-side navigation.
 import Link from 'next/link';
-// Import the core hook from the Embla Carousel library to power the carousel.
-import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react';
-// Import standard UI components from ShadCN.
 import { Button } from '@/components/ui/button';
-// Import icons from the lucide-react library.
-import { ArrowRight } from 'lucide-react';
-// Import a utility function for conditional class names.
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  type CarouselApi,
+} from '@/components/ui/carousel';
 import { cn } from '@/lib/utils';
-// Import the app's logo component.
+import NoiseOverlay from '@/components/noise-overlay';
 import CuanLogo from '@/components/icons/cuanlogo';
-// Import the custom mockup components used in the feature slides.
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
-import { financialInstitutions } from '@/lib/data';
-import InfiniteLogoScroller from '@/components/infinite-logo-scroller';
 import WelcomePaymentMockup from '@/components/welcome-payment-mockup';
 import WelcomeInsightsMockup from '@/components/welcome-insights-mockup';
 import WelcomeVaultsMockup from '@/components/welcome-vaults-mockup';
 import WelcomeSecurityMockup from '@/components/welcome-security-mockup';
 import WelcomeBudgetsMockup from '@/components/welcome-budgets-mockup';
+import InfiniteLogoScroller from '@/components/infinite-logo-scroller';
 
-/**
- * An array of slide objects that define the content for the onboarding carousel.
- * Each object contains metadata about the slide and its content, which can be
- * a static JSX element or a function that returns JSX (useful for passing props like `isActive`).
- */
+// --- SVG Logo Components for Scroller ---
+const PermataBankLogo = () => (
+  <svg height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M18 0C8.059 0 0 8.059 0 18C0 27.941 8.059 36 18 36C27.941 36 36 27.941 36 18C36 8.059 27.941 0 18 0ZM18.9 25.2H14.4V10.8H21.6C24.48 10.8 26.1 12.24 26.1 14.85C26.1 16.56 25.29 17.82 23.76 18.54L27 25.2H22.95L19.98 19.8H18.9V25.2Z" fill="#1A9483"/><path d="M18.9 18H21.06C22.5 18 23.4 17.19 23.4 15.75C23.4 14.22 22.5 13.5 21.06 13.5H18.9V18Z" fill="white"/></svg>
+);
+const BankDanamonLogo = () => (
+  <svg height="36" viewBox="0 0 50 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 36V0H50V36H0Z" fill="#00A79D"/><path d="M25 28C32.1797 28 38 22.1797 38 15C38 7.8203 32.1797 2 25 2C17.8203 2 12 7.8203 12 15C12 22.1797 17.8203 28 25 28Z" fill="white"/><path d="M25 28C17.8203 28 12 22.1797 12 15C12 7.8203 17.8203 2 25 2V28Z" fill="#F36F21"/></svg>
+);
+const GopayLogo = () => (
+  <svg height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="18" fill="#00AED5"/><path d="M24.832 16.5L18 21.05L11.168 16.5V15.5L18 10.95L24.832 15.5V16.5Z" fill="#0083A3"/><path d="M18.463 20.627L24.832 16.5V15.5L18.463 11.373V20.627Z" fill="white"/></svg>
+);
+const DbsLogo = () => (
+  <svg height="36" viewBox="0 0 40 38" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 0L0 9.5V12.35L20 2.85L40 12.35V9.5L20 0Z" fill="#D82D2D"/><path d="M20 12.825L0 22.325V25.175L20 15.675L40 25.175V22.325L20 12.825Z" fill="#D82D2D"/><path d="M20 25.65L0 35.15V38L20 28.5L40 38V35.15L20 25.65Z" fill="#D82D2D"/></svg>
+);
+const ShopeePayLogo = () => (
+    <svg height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 36C27.9411 36 36 27.9411 36 18C36 8.05887 27.9411 0 18 0C8.05887 0 0 8.05887 0 18C0 27.9411 8.05887 36 18 36Z" fill="#EE4D2D"/><path d="M22.043 12.035C21.439 11.459 20.363 11.303 19.343 11.591C19.319 11.519 9.923 14.639 12.635 22.823C12.683 22.967 12.755 23.087 12.827 23.231C12.827 23.231 12.851 23.255 12.851 23.279C14.123 21.023 16.547 21.107 17.699 21.923C18.827 22.715 18.707 24.347 17.627 25.115C16.547 25.883 15.115 25.739 14.123 24.779C14.075 24.731 13.523 24.179 13.931 23.699L13.523 24.179C13.523 24.179 13.499 24.227 13.475 24.227C12.455 21.995 14.939 14.735 19.463 12.719C20.387 13.919 21.215 15.395 21.431 17.027C22.679 16.283 23.591 14.951 23.591 13.547C23.567 12.923 23.015 12.179 22.043 12.035Z" fill="white"/></svg>
+);
+const LinkAjaLogo = () => (
+    <svg height="30" viewBox="0 0 110 30" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M24.8 29.2H4.4L14.6 0H35L24.8 29.2Z" fill="#EF232A"/><path d="M51.6 15.8C51.6 23.6 45.4 29.2 38.2 29.2H24.8L35 0H44.8C48.8 0 51.6 3.6 51.6 7.6C51.6 10.4 50 13 47.6 14.4C50 15.6 51.6 17.6 51.6 15.8ZM42.8 19.8C43.8 19.8 44.6 19 44.6 18V13.2C44.6 12.2 43.8 11.4 42.8 11.4H38.2L35.6 19.8H42.8ZM42.6 8.6C43.6 8.6 44.4 7.8 44.4 6.8V4.2C44.4 3.2 43.6 2.4 42.6 2.4H39.6L37.8 8.6H42.6Z" fill="#EF232A"/><text x="55" y="24" fontFamily="Arial, Helvetica, sans-serif" fontSize="28" fontWeight="bold" fill="#181818">LinkAja</text></svg>
+);
+const XLAxiataLogo = () => (
+    <svg height="36" viewBox="0 0 114 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M0 36L18 0H30L12 36H0Z" fill="#00AEEF"/><path d="M21 36L39 0H51L33 36H21Z" fill="#592C88"/><text x="55" y="28" fontFamily="Arial, Helvetica, sans-serif" fontSize="28" fontWeight="bold" fill="#181818">axiata</text></svg>
+);
+const SmartfrenLogo = () => (
+  <svg height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 36C27.9411 36 36 27.9411 36 18C36 8.05887 27.9411 0 18 0C8.05887 0 0 8.05887 0 18C0 27.9411 8.05887 36 18 36Z" fill="#ED1C24"/><path d="M17.8926 25.166C15.8236 25.166 14.2486 24.491 13.1686 23.141C12.0886 21.791 11.5486 19.9535 11.5486 17.6285C11.5486 15.3035 12.0886 13.466 13.1686 12.116C14.2486 10.766 15.8236 10.091 17.8926 10.091C19.9616 10.091 21.5366 10.766 22.6166 12.116C23.6966 13.466 24.2366 15.3035 24.2366 17.6285C24.2366 19.9535 23.6966 21.791 22.6166 23.141C21.5366 24.491 19.9616 25.166 17.8926 25.166ZM17.8926 22.5635C19.2016 22.5635 20.0616 21.6035 20.4716 19.6835H15.3136C15.7236 21.6035 16.5836 22.5635 17.8926 22.5635ZM20.4716 15.4885C20.0616 13.5685 19.2016 12.6085 17.8926 12.6085C16.5836 12.6085 15.7236 13.5685 15.3136 15.4885H20.4716Z" fill="white"/></svg>
+);
+const PlnLogo = () => (
+    <svg height="36" viewBox="0 0 28 36" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M16.498 0L0 19.333H11.01L6.608 36L28 13.333H16.498V0Z" fill="#0093DD"/></svg>
+);
+
+
 const slides = [
-    // Slide 1: Hero section with the main value proposition.
-    {
-      type: 'hero',
-      title: 'All your money,\nin one place.',
-      description: 'Welcome to CuanFlex. The secure, unified way to manage your entire financial life from a single, beautiful app.',
-      content: (
-        <div className="text-center relative z-10">
-          <CuanLogo className="w-48 h-auto mx-auto mb-6 animate-logo-blink-glow" />
-          <h1 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-tr from-primary to-accent bg-clip-text text-transparent leading-tight font-serif whitespace-pre-line drop-shadow-[0_0_5px_hsl(var(--primary)/0.3)]">
-            All your money,{'\n'}in one place.
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-lg mx-auto my-6 font-light">
-            Welcome to CuanFlex. The secure, unified way to manage your entire financial life from a single, beautiful app.
-          </p>
-        </div>
-      )
-    },
-    // Slide 2: Feature showcase for the unified dashboard.
-    {
-      type: 'feature_showcase',
-      title: 'Connect Everything. See Everything.',
-      description: "Stop juggling apps. Connect everything from BCA and GoPay to your investments, and see your entire financial world on a single, unified dashboard. Get a real-time view of your true net worth, instantly.",
-      // The content is a function to pass the `isActive` prop, allowing for animations.
-      content: (props: { isActive: boolean }) => (
-        <div className="flex flex-col items-center justify-center text-center w-full max-w-lg mx-auto py-12">
-          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
-            Connect Everything. See Everything.
-          </h2>
-          <p className="text-base leading-relaxed text-muted-foreground mb-6">
-            Stop juggling apps. Connect everything from BCA and GoPay to your investments, and see your entire financial world on a single, unified dashboard. Get a real-time view of your true net worth, instantly.
-          </p>
-          <WelcomeDashboardMockup isActive={props.isActive} />
-        </div>
-      )
-    },
-    // Slide 3: A "logo wall" to show the breadth of supported institutions.
-    {
-      type: 'logo_wall',
-      title: 'Broad Compatibility',
-      description: 'We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.',
-      content: (
-        <div className="w-full text-center py-12">
-           <div className="max-w-xl mx-auto px-4">
-            <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
-              Broad Compatibility
-            </h2>
-            <p className="text-base leading-relaxed text-muted-foreground mb-8">
-              We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
-            </p>
-           </div>
-            <InfiniteLogoScroller 
-              institutions={financialInstitutions.slice(0, 10)} 
-              direction="forward" 
-              speed="slow" 
-              className="mb-4"
-            />
-            <InfiniteLogoScroller 
-              institutions={financialInstitutions.slice(10, 20)} 
-              direction="reverse" 
-              speed="normal" 
-              className="mb-4"
-            />
-            <InfiniteLogoScroller 
-              institutions={financialInstitutions.slice(20, 30)} 
-              direction="forward" 
-              speed="fast" 
-            />
-        </div>
-      )
-    },
-    // Slide 4: Feature showcase for payments.
-    {
-      type: 'feature',
-      title: 'Pay Any Bill, From Any Source.',
-      description: 'Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.',
-      content: (props: { isActive: boolean }) => (
-        <div className="flex flex-col items-center justify-center text-center w-full max-w-lg mx-auto">
-          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
-            Pay Any Bill, From Any Source.
-          </h2>
-          <p className="text-base leading-relaxed text-muted-foreground mb-8">
-            Settle your PLN, BPJS, or credit card bills in seconds. Choose which account to pay from on the fly. No more juggling apps or checking balances.
-          </p>
-          <WelcomePaymentMockup isActive={props.isActive} />
-        </div>
-      )
-    },
-    // Slide 5: Feature showcase for budgeting.
-    {
-      type: 'feature',
-      title: 'Track Spending with Smart Budgets.',
-      description: "Take control of your spending. Create custom budgets for any category and see at a glance how you're tracking towards your goals.",
-      content: (props: { isActive: boolean }) => (
-        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
-          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
-            Track Spending with Smart Budgets.
-          </h2>
-          <p className="text-base leading-relaxed text-muted-foreground mb-8">
-             Take control of your spending. Create custom budgets for any category and see at a glance how you're tracking towards your goals.
-          </p>
-          <WelcomeBudgetsMockup isActive={props.isActive} />
-        </div>
-      )
-    },
-    // Slide 6: Feature showcase for AI insights.
-    {
-      type: 'feature',
-      title: 'Get Smarter Insights with AI.',
-      description: "Unleash the power of Gemini, one of the world's most advanced AI models. It analyzes your spending to give you a Financial Health Score, find hidden saving opportunities, and create a personalized action plan.",
-      content: (props: { isActive: boolean }) => (
-        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
-          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
-            Get Smarter Insights with AI.
-          </h2>
-          <p className="text-base leading-relaxed text-muted-foreground mb-8">
-            Unleash the power of <span className="flashy-gemini-text">Gemini</span>, one of the world's most advanced AI models. It analyzes your
-            spending to give you a Financial Health Score, find hidden saving
-            opportunities, and create a personalized action plan.
-          </p>
-          <WelcomeInsightsMockup isActive={props.isActive} />
-        </div>
-      )
-    },
-    // Slide 7: Feature showcase for savings vaults.
-    {
-      type: 'feature',
-      title: 'Save Smarter with CuanFlex Vaults.',
-      description: 'Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.',
-      content: (props: { isActive: boolean }) => (
-        <div className="flex flex-col items-center justify-center text-center max-w-lg mx-auto">
-          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
-            Save Smarter with CuanFlex Vaults.
-          </h2>
-          <p className="text-base leading-relaxed text-muted-foreground mb-8">
-            Create savings goals and fund them from any of your connected accounts. Ring-fence money for a holiday or a new gadget without touching your main spending balance.
-          </p>
-          <WelcomeVaultsMockup isActive={props.isActive} />
-        </div>
-      )
-    },
-    // Slide 8: Feature showcase for security.
-    {
-      type: 'feature_showcase',
-      title: 'Your Security is Our Priority.',
-      description: "We use bank-level security, end-to-end encryption, and give you full control over your data. Your trust is our most important asset.",
-      content: (
-        <div className="flex flex-col items-center justify-center text-center w-full max-w-lg mx-auto py-12">
-          <h2 className="text-2xl lg:text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-serif">
-            Your Security is Our Priority.
-          </h2>
-          <p className="text-base leading-relaxed text-muted-foreground mb-6">
-            We use bank-level security, end-to-end encryption, and give you full control over your data. Your trust is our most important asset.
-          </p>
-          <WelcomeSecurityMockup />
-        </div>
-      )
-    },
-    // Slide 9: Final Call-to-Action (CTA) slide.
-    {
-      type: 'cta',
-      title: 'Ready to take control?',
-      description: "Join CuanFlex today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.",
-      content: (
-        <div className="text-center relative z-10">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-tr from-primary to-accent bg-clip-text text-transparent leading-tight font-serif drop-shadow-[0_0_8px_hsl(var(--primary)/0.5)]">
-            Ready to take control?
-          </h2>
-          <p className="text-base text-muted-foreground max-w-lg mx-auto my-6 font-light">
-            Join CuanFlex today and experience a smarter way to manage your money. It's free, secure, and takes minutes to get started.
-          </p>
-          <div className="space-y-4">
-            <Button asChild className="w-64 h-14 text-lg animate-slow-pulse">
-              <Link href="/signup">
-                Create Free Account <ArrowRight className="ml-2" />
-              </Link>
-            </Button>
-             <p className="text-sm text-muted-foreground pt-4">
-                Already have an account?{' '}
-                <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">
-                  Log In
-                </Link>
-            </p>
-          </div>
-        </div>
-      )
-    }
-  ];
+  { 
+    component: WelcomeDashboardMockup, 
+    title: "All Your Money in One Place", 
+    description: "Get a crystal-clear overview of your entire financial world. Link all your bank accounts and e-wallets for a single, unified view." 
+  },
+  { 
+    component: WelcomePaymentMockup, 
+    title: "Pay Bills & Transfer with Ease", 
+    description: "Settle all your monthly bills, top up e-wallets, and transfer funds to any account in Indonesia from one central hub."
+  },
+  { 
+    component: "CompatibilityCarousel", 
+    title: "Broad Compatibility", 
+    description: "We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon."
+  },
+  { 
+    component: WelcomeBudgetsMockup, 
+    title: "Smart Budgeting", 
+    description: "Take control of your spending. Set monthly or one-time budgets for specific categories and track your progress in real-time."
+  },
+  { 
+    component: WelcomeVaultsMockup, 
+    title: "Save Smarter with Vaults", 
+    description: "Create goal-based savings accounts. Automate your savings with recurring transfers and round-ups to reach your dreams faster."
+  },
+  { 
+    component: WelcomeInsightsMockup, 
+    title: "AI-Powered Financial Insights", 
+    description: "Let our AI analyze your habits to find personalized saving opportunities and create an actionable financial plan just for you." 
+  },
+  { 
+    component: WelcomeSecurityMockup, 
+    title: "Bank-Grade Security", 
+    description: "Your data is protected with 256-bit AES encryption and biometric authentication, using APIs from OJK-licensed partners."
+  }
+];
 
-/**
- * The main component for the welcome page.
- * It manages the state and rendering of the onboarding carousel.
- */
+const partnersRow1 = [
+    { name: 'Permata Bank', logo: <PermataBankLogo /> }, { name: 'Bank Danamon', logo: <BankDanamonLogo /> }, { name: 'gopay', logo: <GopayLogo /> }, { name: 'DBS Indonesia', logo: <DbsLogo /> }, { name: 'PLN', logo: <PlnLogo /> },
+];
+const partnersRow2 = [
+    { name: 'DBS Indonesia', logo: <DbsLogo /> }, { name: 'ShopeePay', logo: <ShopeePayLogo /> }, { name: 'LinkAja', logo: <LinkAjaLogo /> }, { name: 'XL Axiata', logo: <XLAxiataLogo /> }, { name: 'gopay', logo: <GopayLogo /> },
+];
+const partnersRow3 = [
+    { name: 'XL Axiata', logo: <XLAxiataLogo /> }, { name: 'Smartfren', logo: <SmartfrenLogo /> }, { name: 'PLN', logo: <PlnLogo /> }, { name: 'Bank Danamon', logo: <BankDanamonLogo /> }, { name: 'ShopeePay', logo: <ShopeePayLogo /> },
+];
+
+
 export default function WelcomePage() {
-  // Initialize the Embla Carousel. `emblaRef` is attached to the carousel container.
-  // `emblaApi` is the imperative API to control the carousel.
-  // We disable looping so the user progresses linearly through the onboarding.
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
 
-  // State to keep track of the currently selected slide index.
-  const [currentSlide, setCurrentSlide] = useState(0);
-
-  /**
-   * A memoized callback function that updates the `currentSlide` state
-   * whenever the user scrolls to a new slide in the carousel.
-   * This is wrapped in `useCallback` for performance, preventing re-creation on every render.
-   */
-  const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
-    // Ensure the API is available before using it.
-    if (!emblaApi) return;
-    // Get the selected slide index from the API and update our state.
-    setCurrentSlide(emblaApi.selectedScrollSnap());
-  }, []);
-
-  /**
-   * A side effect hook that runs after the component mounts.
-   * It subscribes to the Embla Carousel's 'select' and 'reInit' events.
-   * This ensures our `onSelect` callback is fired whenever the slide changes.
-   * The cleanup function (`return () => ...`) unsubscribes from the events
-   * when the component unmounts to prevent memory leaks.
-   */
   useEffect(() => {
-    // Ensure the API is available before subscribing.
-    if (!emblaApi) return;
-    // Run the `onSelect` callback initially to set the first slide.
-    onSelect(emblaApi);
-    // Subscribe to events.
-    emblaApi.on('select', onSelect);
-    emblaApi.on('reInit', onSelect);
-    // Cleanup function to run on unmount.
-    return () => {
-      emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', onSelect);
-    };
-  }, [emblaApi, onSelect]);
+    if (!api) return;
 
-  // The main render output for the component.
+    const handleSelect = () => {
+      setCurrent(api.selectedScrollSnap());
+    };
+    
+    api.on("select", handleSelect);
+
+    return () => {
+      api.off("select", handleSelect);
+    };
+  }, [api]);
+
+  const scrollTo = useCallback((index: number) => {
+    api?.scrollTo(index);
+  }, [api]);
+
   return (
-    // The main container, occupying the full screen with a relative position
-    // to contain the absolutely positioned dot indicators.
-    <div className="w-full h-screen bg-background text-foreground overflow-hidden relative has-hero-glow">
-      
-      {/* The Embla Carousel container. `emblaRef` is attached here. */}
-      <div className="overflow-hidden h-full" ref={emblaRef}>
-        {/* This inner container holds all the slides and moves horizontally. */}
-        <div className="flex h-full">
-            {/* Map over the `slides` array to render each slide dynamically. */}
-            {slides.map((slide, index) => (
-                // Each slide container. `flex-[0_0_100%]` makes each slide take up the full viewport width.
-                <div key={index} className="flex-[0_0_100%] min-w-0 relative">
-                    {/* This div centers the content and makes it scrollable on smaller screens. */}
-                    <div className="h-full overflow-y-auto flex items-center justify-center p-6 custom-scrollbar">
-                        <div className={cn(
-                            // This wrapper controls the fade-in animation for each slide.
-                            // The animation only runs if the slide's index matches the current active slide.
-                            index === currentSlide ? 'animate-fade-in-up' : 'opacity-0'
-                        )}>
-                            {/* Render the slide's content. If it's a function, call it with props.
-                                This allows passing the `isActive` state to the slide content for more complex animations. */}
-                            {typeof slide.content === 'function' ? slide.content({ isActive: index === currentSlide }) : slide.content}
+    <div className="w-full min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        <NoiseOverlay />
+        <div className="absolute inset-x-0 top-0 h-[50vh] bg-gradient-to-b from-background to-transparent z-10 pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-[50vh] bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
+
+        <div className="text-center mb-8 mt-24 relative z-20 max-w-2xl mx-auto">
+            <CuanLogo className="w-48 h-auto mx-auto mb-6 animate-logo-blink-glow" />
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 font-serif transition-all duration-500">
+                {slides[current].title}
+            </h1>
+            <p className="text-lg text-muted-foreground transition-all duration-500 max-w-xl mx-auto">
+                {slides[current].description}
+            </p>
+        </div>
+        
+        <Carousel setApi={setApi} className="w-full max-w-6xl relative z-20">
+            <CarouselContent>
+                {slides.map((slide, index) => {
+                  const SlideComponent = slide.component;
+                  return (
+                    <CarouselItem key={index}>
+                        <div className="p-1 flex items-center justify-center">
+                            {typeof SlideComponent === 'string' ? (
+                                <div className="space-y-4 py-8">
+                                    <InfiniteLogoScroller institutions={partnersRow1} />
+                                    <InfiniteLogoScroller institutions={partnersRow2} direction="reverse" />
+                                    <InfiniteLogoScroller institutions={partnersRow3} />
+                                </div>
+                            ) : (
+                                <SlideComponent isActive={index === current} />
+                            )}
                         </div>
-                    </div>
-                </div>
+                    </CarouselItem>
+                  )
+                })}
+            </CarouselContent>
+        </Carousel>
+
+        <div className="flex justify-center gap-2 mt-4 relative z-20">
+            {slides.map((_, index) => (
+                <button
+                    key={index}
+                    onClick={() => scrollTo(index)}
+                    className={cn(
+                        "w-2 h-2 rounded-full transition-all duration-300",
+                        current === index ? "bg-primary w-6" : "bg-muted hover:bg-muted-foreground/50"
+                    )}
+                    aria-label={`Go to slide ${index + 1}`}
+                />
             ))}
         </div>
-      </div>
-
-      {/* This container holds the carousel navigation dots. It's positioned absolutely at the bottom. */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center justify-center gap-4">
-        <div className="flex gap-2">
-          {/* Map over the slides array again to create a navigation dot for each slide. */}
-          {slides.map((_, index) => (
-            <button 
-              key={index} 
-              // When a dot is clicked, use the Embla API to scroll to the corresponding slide.
-              onClick={() => emblaApi?.scrollTo(index)}
-              // Apply conditional styling: the active dot is wider and has the primary color.
-              className={cn(`w-2 h-2 rounded-full transition-all duration-300`,
-                index === currentSlide ? "bg-primary w-6" : "bg-muted hover:bg-muted-foreground/50"
-              )}
-            />
-          ))}
+        
+        <div className="mt-12 mb-16 relative z-20">
+            <Button asChild size="lg" className="rounded-full px-8 py-6 text-lg font-bold shadow-lg shadow-primary/20 transition-transform transform hover:scale-105">
+                <Link href="/signup">Get Started for Free</Link>
+            </Button>
+            <p className="text-sm text-muted-foreground mt-4">
+                Already have an account? <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">Log In</Link>
+            </p>
         </div>
-      </div>
     </div>
   );
 }
