@@ -1,3 +1,4 @@
+
 'use client';
 
 import { cn } from "@/lib/utils";
@@ -10,7 +11,6 @@ const securityFeatures = [
     "OJK Licensed Partner API",
     "Your Privacy is Our Priority",
 ];
-
 
 export default function WelcomeSecurityMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
     const [featureIndex, setFeatureIndex] = useState(0);
@@ -35,19 +35,19 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
                 "relative flex items-center justify-center w-72 h-72 transition-opacity duration-1000",
                 isActive ? 'opacity-100' : 'opacity-0'
             )}>
-                {/* 1. The circular glow, animated */}
-                <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl animate-slow-pulse"></div>
+                {/* 1. The circular glow, animated to scale with the shield */}
+                <div className="absolute inset-0 bg-primary/20 rounded-full blur-2xl animate-slow-pulse"></div>
 
-                {/* 2. The main shield icon */}
+                {/* 2. The main shield icon, now solid */}
                 <Shield
-                    className="w-48 h-48 text-primary/40"
+                    className="w-48 h-48 text-primary animate-slow-pulse"
                     strokeWidth={1.5}
-                    fill="hsl(var(--primary)/0.1)"
+                    fill="hsl(var(--primary))"
                  />
                 
-                {/* 3. The lock icon, centered on top */}
+                {/* 3. The lock icon, centered on top with a contrasting color */}
                  <Lock
-                    className="absolute w-20 h-20 text-primary/50"
+                    className="absolute w-20 h-20 text-primary-foreground animate-slow-pulse"
                     strokeWidth={1.5}
                  />
             </div>
