@@ -163,10 +163,10 @@ export default function WelcomePage() {
             </section>
             
             {/* Slide 8: Sign Up */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pb-6 gap-4 overflow-y-auto custom-scrollbar">
                 <div className="text-center space-y-6 animate-fade-in-up max-w-sm">
-                    <h2 className="text-3xl font-bold font-serif text-foreground">Ready to take control?</h2>
-                    <p className="text-muted-foreground text-sm mt-4 mb-6">
+                    <h2 className="text-2xl font-bold font-serif text-foreground">Ready to take control?</h2>
+                    <p className="text-muted-foreground text-sm">
                         We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
                     </p>
                     <div className="space-y-4">
