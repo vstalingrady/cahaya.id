@@ -111,11 +111,11 @@ export default {
           '50%': { transform: 'scale(1.05)' },
         },
         'breathing-glow': {
-          '0%, 100%': {
+          '0%, 50%, 100%': {
             transform: 'scale(1)',
             boxShadow: '0 0 5px hsl(var(--primary) / 0.2)',
           },
-          '40%, 60%': {
+          '25%': {
             transform: 'scale(1.04)',
             boxShadow: '0 0 18px hsl(var(--primary) / 0.4)',
           },
