@@ -3,6 +3,7 @@
 
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
+import GlowingShield from "@/components/icons/GlowingShield";
 
 const securityFeatures = [
     "256-bit AES Encryption",
@@ -30,48 +31,13 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             "relative w-full max-w-sm h-[400px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col justify-center items-center text-center gap-4",
             className
         )}>
-            {/* The main animated graphic using a custom inline SVG */}
+            {/* The main animated graphic using the new custom SVG component */}
             <div className={cn(
                 "relative flex items-center justify-center w-48 h-48",
                 isActive ? 'opacity-100' : 'opacity-0',
                 "transition-opacity duration-1000"
             )}>
-                 <svg
-                    viewBox="0 0 24 24"
-                    className="w-full h-full"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <defs>
-                        {/* This SVG filter creates the glow effect */}
-                        <filter id="shield-glow-filter" x="-50%" y="-50%" width="200%" height="200%">
-                             <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur" />
-                        </filter>
-                    </defs>
-
-                    {/* Layer 1: The Glow. This path is blurred by the filter. */}
-                    <path
-                        d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                        className="text-primary animate-glow-fade"
-                        fill="currentColor"
-                        filter="url(#shield-glow-filter)"
-                    />
-                    
-                    {/* Layer 2: The sharp, breathing Shield & Lock on top */}
-                    <g className="animate-slow-pulse">
-                        <path
-                            d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
-                            fill="hsl(var(--primary))"
-                        />
-                        <path
-                            d="M14 10.5v-1a2 2 0 0 0-4 0v1 M9 11.5h6v4a1 1 0 0 1-1 1H10a1 1 0 0 1-1-1v-4z"
-                            stroke="hsl(var(--background))"
-                            strokeWidth="1.2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            fill="none"
-                        />
-                    </g>
-                </svg>
+                <GlowingShield className="w-full h-full animate-slow-pulse" />
             </div>
 
             {/* The text ticker animation */}

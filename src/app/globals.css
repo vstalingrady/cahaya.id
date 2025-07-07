@@ -126,21 +126,6 @@
      background-color: hsl(var(--primary-foreground));
   }
 
-  .animate-slow-pulse {
-    animation: slow-pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-
-  @keyframes slow-pulse {
-    0%, 100% {
-      transform: scale(1);
-      box-shadow: 0 0 20px -10px hsl(var(--primary) / 0.3);
-    }
-    50% {
-      transform: scale(1.05);
-      box-shadow: 0 0 40px 5px hsl(var(--primary) / 0.7);
-    }
-  }
-
   @keyframes blink {
     50% { opacity: 0; }
   }
