@@ -2,16 +2,17 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import { ClipboardList, Plus, Edit, Tag, Banknote, Check } from "lucide-react";
+import { ClipboardList, Plus, Edit, Tag, Banknote, Check, CalendarIcon } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect, useRef } from "react";
+import { format } from "date-fns";
 
 const initialBudgets = [
-    { id: 'food', name: 'Monthly Food & Drink', category: 'Food & Drink', current: 5500000, target: 5000000, icon: ClipboardList, progress: 110, color: 'destructive' },
-    { id: 'shopping', name: 'Monthly Shopping', category: 'Shopping', current: 2700000, target: 3000000, icon: ClipboardList, progress: 90, color: 'yellow-500' },
-    { id: 'transport', name: 'Monthly Transport', category: 'Transportation', current: 1125000, target: 1500000, icon: ClipboardList, progress: 75, color: 'primary' },
+    { id: 'food', name: 'Monthly Food & Drink', category: 'Food & Drink', current: 5500000, target: 5000000, progress: 110, color: 'destructive', startDate: '2024-07-01', endDate: '2024-07-31' },
+    { id: 'shopping', name: 'Monthly Shopping', category: 'Shopping', current: 2700000, target: 3000000, progress: 90, color: 'yellow-500', startDate: '2024-07-01', endDate: '2024-07-31' },
+    { id: 'transport', name: 'Monthly Transport', category: 'Transportation', current: 1125000, target: 1500000, progress: 75, color: 'primary', startDate: '2024-07-01', endDate: '2024-07-31' },
 ];
 
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
@@ -20,20 +21,26 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
     minimumFractionDigits: 0,
 }).format(value);
 
+const formatDateRange = (startDate: string, endDate: string) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    return `${format(start, 'd MMM')} - ${format(end, 'd MMM yyyy')}`;
+}
+
 type DisplayBudget = typeof initialBudgets[0] & { isNew?: boolean };
 type AnimationPhase = 'idle' | 'showing_list' | 'button_active' | 'show_form' | 'fill_form' | 'create_budget' | 'show_new_budget' | 'resetting';
 
 export default function WelcomeBudgetsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
     const [displayBudgets, setDisplayBudgets] = useState<DisplayBudget[]>(initialBudgets);
     const [animationPhase, setAnimationPhase] = useState<AnimationPhase>('idle');
-    const [formState, setFormState] = useState({ name: '', category: '', amount: '' });
+    const [formState, setFormState] = useState({ name: '', category: '', amount: '', startDate: '', endDate: '' });
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!isActive) {
             setAnimationPhase('idle');
             setDisplayBudgets(initialBudgets);
-            setFormState({ name: '', category: '', amount: '' });
+            setFormState({ name: '', category: '', amount: '', startDate: '', endDate: '' });
             if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
             return;
         }
@@ -64,9 +71,16 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                         type("Travel", t => setFormState(p => ({ ...p, category: t })), () => {
                             timeouts.push(setTimeout(() => {
                                 type("20000000", t => setFormState(p => ({ ...p, amount: t })), () => {
-                                    timeouts.push(setTimeout(() => setAnimationPhase('create_budget'), 500));
                                     timeouts.push(setTimeout(() => {
-                                        const newBudget: DisplayBudget = { id: 'new', name: 'Japan Trip', category: 'Travel', current: 0, target: 20000000, icon: ClipboardList, progress: 0, color: 'primary', isNew: true };
+                                        setFormState(p => ({...p, startDate: "Aug 01, 2024"}));
+                                    }, 300));
+                                    timeouts.push(setTimeout(() => {
+                                        setFormState(p => ({...p, endDate: "Aug 31, 2024"}));
+                                    }, 600));
+
+                                    timeouts.push(setTimeout(() => setAnimationPhase('create_budget'), 1100));
+                                    timeouts.push(setTimeout(() => {
+                                        const newBudget: DisplayBudget = { id: 'new', name: 'Japan Trip', category: 'Travel', current: 0, target: 20000000, progress: 0, color: 'primary', isNew: true, startDate: '2024-08-01', endDate: '2024-08-31' };
                                         setDisplayBudgets(prev => [...prev, newBudget]);
                                         setAnimationPhase('show_new_budget');
                                         timeouts.push(setTimeout(() => {
@@ -77,11 +91,11 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                                         timeouts.push(setTimeout(() => setAnimationPhase('resetting'), 3000));
                                         timeouts.push(setTimeout(() => {
                                             setDisplayBudgets(initialBudgets);
-                                            setFormState({ name: '', category: '', amount: '' });
+                                            setFormState({ name: '', category: '', amount: '', startDate: '', endDate: '' });
                                             if(scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
                                             sequence();
                                         }, 3500));
-                                    }, 800));
+                                    }, 1600));
                                 });
                             }, 500));
                         });
@@ -98,7 +112,7 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
 
     return (
         <div className={cn(
-            "relative w-full max-w-sm h-full rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
+            "relative w-full max-w-sm h-[450px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
             className
         )}>
              <div className="absolute inset-0 p-4 flex flex-col gap-4 transition-all duration-300"
@@ -114,16 +128,19 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                             budget.isNew ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0',
                             animationPhase === 'resetting' && 'opacity-0'
                          )} ref={el => { if (el && budget.isNew) { setTimeout(() => el.classList.remove('opacity-0', 'translate-y-4'), 50); }}}>
-                            <div className="flex items-center gap-3 mb-2">
-                                <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                                    <budget.icon className="w-4 h-4 text-primary" />
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-foreground font-medium text-sm">{budget.name}</p>
-                                    <p className="text-xs text-muted-foreground">{formatCurrency(budget.current)} / {formatCurrency(budget.target)}</p>
+                            <div className="flex items-start justify-between mb-2">
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-foreground font-medium text-sm truncate">{budget.name}</p>
+                                    <p className="text-xs text-muted-foreground font-medium">{budget.category} &bull; <span className="text-primary/80">{formatDateRange(budget.startDate, budget.endDate)}</span></p>
                                 </div>
                             </div>
-                            <Progress value={budget.progress} className={`h-2 [&>div]:bg-${budget.color}`} />
+                            <Progress value={budget.progress} className={cn("h-2", `[&>div]:bg-${budget.color}`)} />
+                            <div className="flex justify-between text-xs mt-1.5">
+                                <p className="text-muted-foreground font-medium">{formatCurrency(budget.current)} <span className="text-muted-foreground/70">of {formatCurrency(budget.target)}</span></p>
+                                <p className={`font-semibold ${budget.target - budget.current < 0 ? 'text-destructive' : 'text-primary'}`}>
+                                    {formatCurrency(Math.abs(budget.target - budget.current))} {budget.target - budget.current < 0 ? 'over' : 'left'}
+                                </p>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -152,6 +169,16 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                     <div className="relative">
                         <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input value={formState.amount ? formatCurrency(Number(formState.amount)) : ''} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="Amount" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="relative">
+                            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input value={formState.startDate} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="Start Date" />
+                        </div>
+                         <div className="relative">
+                            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input value={formState.endDate} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="End Date" />
+                        </div>
                     </div>
                 </div>
                 <Button className={cn("w-full h-12 text-base mt-auto flex-shrink-0 transition-colors duration-200", animationPhase === 'create_budget' ? 'bg-accent text-accent-foreground' : 'bg-primary text-primary-foreground')}>
