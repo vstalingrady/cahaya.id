@@ -183,9 +183,9 @@
     flex-wrap: nowrap;
     gap: 1.5rem;
   }
-
-  .scroller-track:hover {
-      animation-play-state: paused;
+  
+  .scroller-track[data-paused='true'] {
+    animation-play-state: paused;
   }
 
   .logo-card {
@@ -200,12 +200,14 @@
     border-radius: 1rem;
     box-shadow: 0 4px 15px hsla(var(--primary) / 0.07);
     flex-shrink: 0;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
   }
   
-  .logo-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px hsla(var(--primary) / 0.1);
+  .logo-card[data-active='true'] {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 8px 25px hsl(var(--primary) / 0.3);
+    border-color: hsl(var(--primary));
   }
 
   .logo-card span {

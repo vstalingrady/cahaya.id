@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface InfiniteLogoScrollerProps {
@@ -17,6 +17,8 @@ const InfiniteLogoScroller: React.FC<InfiniteLogoScrollerProps> = ({
   className,
 }) => {
   const scrollerRef = React.useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   React.useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -24,6 +26,16 @@ const InfiniteLogoScroller: React.FC<InfiniteLogoScrollerProps> = ({
     }
     scrollerRef.current?.setAttribute('data-animated', 'true');
   }, []);
+
+  const handleClick = (index: number) => {
+    if (isPaused && activeIndex === index) {
+      setIsPaused(false);
+      setActiveIndex(null);
+    } else {
+      setIsPaused(true);
+      setActiveIndex(index);
+    }
+  };
 
   const speedMap = {
     slow: '60s',
@@ -40,18 +52,25 @@ const InfiniteLogoScroller: React.FC<InfiniteLogoScrollerProps> = ({
         } as React.CSSProperties
       }
     >
-      <div 
-        ref={scrollerRef} 
+      <div
+        ref={scrollerRef}
+        data-paused={isPaused}
         className={cn(
-            "scroller-track",
-            direction === 'forward' ? 'animate-scroll-left' : 'animate-scroll-right'
+          'scroller-track',
+          direction === 'forward' ? 'animate-scroll-left' : 'animate-scroll-right'
         )}
       >
         {[...institutions, ...institutions].map((institution, index) => (
-          <div key={`${institution.name}-${index}`} className="logo-card">
+          <button
+            key={`${institution.name}-${index}`}
+            className="logo-card"
+            data-active={isPaused && activeIndex === index}
+            onClick={() => handleClick(index)}
+            aria-label={`Pause on ${institution.name}`}
+          >
             {institution.logo}
             <span>{institution.name}</span>
-          </div>
+          </button>
         ))}
       </div>
     </div>
