@@ -1,3 +1,4 @@
+
 'use client';
 
 import { cn } from "@/lib/utils";
@@ -32,7 +33,7 @@ const HexScramble = ({ isActive, lines = 8 }: { isActive: boolean; lines?: numbe
     }, [isActive, lines]);
 
     return (
-        <div className="font-mono text-[10px] text-primary/50 leading-relaxed select-none text-center">
+        <div className="font-mono text-xs text-primary/50 leading-normal select-none text-center break-all">
             {hexStrings.map((hex, i) => (
                 <p key={i}>{hex}</p>
             ))}
@@ -66,14 +67,16 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             <div className="relative w-full h-64 flex items-center justify-center mt-8">
                 {/* Hex scramble in the background, slightly blurred for depth */}
                 <div className="absolute inset-0 flex items-center justify-center overflow-hidden blur-[1.5px] opacity-70">
-                    <HexScramble isActive={isActive} lines={8} />
+                    <HexScramble isActive={isActive} lines={6} />
                 </div>
 
                 {/* Shield and lock icon on top */}
-                <div className="relative z-10 flex items-center justify-center">
+                <div className="relative z-10">
                     <ShieldCheck className="w-48 h-48 text-primary/10" />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center animate-slow-pulse">
-                        <Lock className="w-16 h-16 text-white" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center animate-slow-pulse">
+                            <Lock className="w-16 h-16 text-white" />
+                        </div>
                     </div>
                 </div>
             </div>
