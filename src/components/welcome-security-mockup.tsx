@@ -21,7 +21,7 @@ const HexScramble = ({ isActive, lines = 4 }: { isActive: boolean; lines?: numbe
             return;
         }
 
-        const generateHexString = () => Array(32).fill(0).map(() => Math.floor(Math.random() * 16).toString(16).toUpperCase()).join('');
+        const generateHexString = () => Array(24).fill(0).map(() => Math.floor(Math.random() * 16).toString(16).toUpperCase()).join('');
 
         const intervalId = setInterval(() => {
             setHexStrings(Array.from({ length: lines }, generateHexString));
@@ -34,9 +34,9 @@ const HexScramble = ({ isActive, lines = 4 }: { isActive: boolean; lines?: numbe
     }, [isActive, lines]);
 
     return (
-        <div className="text-primary/80 text-base leading-relaxed text-center">
+        <div className="text-primary/80 text-base leading-relaxed text-center font-mono">
             {hexStrings.map((hex, i) => (
-                <p key={i} className="select-none font-mono break-all">{hex}</p>
+                <p key={i} className="select-none break-all">{hex}</p>
             ))}
         </div>
     );
