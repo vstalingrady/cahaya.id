@@ -158,7 +158,7 @@ export default function WelcomePage() {
                     <p className="text-muted-foreground text-sm">Your data is encrypted and protected with the highest security standards. Your privacy is our priority.</p>
                 </div>
                 <div className="w-full px-4">
-                    <WelcomeSecurityMockup isActive={selectedIndex === 6} />
+                    <WelcomeSecurityMockup isActive={selectedIndex === 6} className="h-[500px]" />
                 </div>
             </section>
             
