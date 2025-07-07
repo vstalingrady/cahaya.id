@@ -98,7 +98,7 @@ export const financialInstitutions: FinancialInstitution[] = [
   { id: 'bca', slug: 'bca', name: 'BCA', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia_logo.svg', type: 'bank' },
   { id: 'mandiri', slug: 'mandiri', name: 'Mandiri', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/ad/Bank_Mandiri_logo.svg', type: 'bank' },
   { id: 'bri', slug: 'bri', name: 'BRI', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/68/BANK_BRI_logo.svg', type: 'bank' },
-  { id: 'bni', slug: 'bni', name: 'BNI', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/5/55/BNI_logo.svg', type: 'bank' },
+  { id: 'bni', slug: 'bni', name: 'BNI', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/B/BA/Logo_BNI.svg/200px-Logo_BNI.svg.png', type: 'bank' },
   { id: 'cimb', slug: 'cimb', name: 'CIMB Niaga', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/4b/CIMB_Niaga_logo.svg', type: 'bank' },
   { id: 'permata', slug: 'permata', name: 'Permata Bank', logoUrl: 'https://upload.wikimedia.org/wikipedia/id/thumb/a/a0/PermataBank_logo.svg/2560px-PermataBank_logo.svg.png', type: 'bank' },
   { id: 'danamon', slug: 'danamon', name: 'Bank Danamon', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Danamon_logo.svg/2560px-Danamon_logo.svg.png', type: 'bank' },
