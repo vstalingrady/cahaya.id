@@ -1,4 +1,3 @@
-
 /**
  * @file src/components/dashboard/transaction-history.tsx
  * @fileoverview This component renders a list of transactions. It takes both transactions
@@ -103,7 +102,7 @@ export default function TransactionHistory({ transactions, accounts }: { transac
                         {/* Get the logo for the transaction's account */}
                         {getAccountLogo(t.accountId, accounts)}
                         <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-white truncate">{t.description}</p>
+                            <p className="font-semibold text-foreground truncate">{t.description}</p>
                             <p className="text-xs text-muted-foreground">
                                 {/* Format the date and display the category */}
                                 {format(new Date(t.date), 'dd MMM yyyy')} &bull; <Badge variant="secondary" className="bg-secondary text-muted-foreground border-none">{t.category}</Badge>

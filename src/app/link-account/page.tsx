@@ -37,7 +37,7 @@ export default function LinkAccountPage() {
   }, []); // Runs once on mount
 
   return (
-    <div className="w-full max-w-md mx-auto bg-background text-white p-6 min-h-screen relative overflow-hidden flex flex-col">
+    <div className="w-full max-w-md mx-auto bg-background text-foreground p-6 min-h-screen relative overflow-hidden flex flex-col">
        <div className="absolute inset-0 -z-10 h-full w-full bg-background">
         <div className="absolute -top-1/2 left-0 right-0 h-full bg-[radial-gradient(ellipse_50%_50%_at_50%_0%,hsl(var(--primary)/0.15),transparent_70%)]"></div>
       </div>
@@ -67,7 +67,7 @@ export default function LinkAccountPage() {
                     <div className="flex items-center relative z-10">
                       <Image src={item.logoUrl} alt={`${item.name} logo`} width={48} height={48} className="rounded-xl mr-4" />
                       <div className="text-left">
-                        <div className="font-semibold text-lg text-white">{item.name}</div>
+                        <div className="font-semibold text-lg text-foreground">{item.name}</div>
                       </div>
                     </div>
                     <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors relative z-10" />

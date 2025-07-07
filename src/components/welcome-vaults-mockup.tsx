@@ -1,5 +1,3 @@
-
-
 /**
  * @file src/components/welcome-vaults-mockup.tsx
  * @fileoverview A sophisticated, animated mockup demonstrating the savings vaults feature.
@@ -46,7 +44,7 @@ type AnimationPhase = 'idle' | 'scrolling' | 'button_active' | 'show_form' | 'fi
 
 /**
  * @component WelcomeVaultsMockup
- * @description A fully animated, self-contained component that demonstrates the "Vaults" feature for the welcome page.
+ * @description A fully animated, self-contained component that demonstrates the "Cahaya Vaults" feature for the welcome page.
  * @param {object} props - The component props.
  * @param {string} [props.className] - Optional CSS classes to apply to the root element.
  * @param {boolean} [props.isActive] - A prop passed from the parent carousel to indicate if this slide is currently visible. The animation sequence depends on this.
@@ -325,7 +323,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                             )} ref={el => { if (el && vault.isNew) { setTimeout(() => el.classList.remove('opacity-0', 'translate-y-4'), 50); }}}>
                                 <div className="flex items-start justify-between mb-3"><div className="flex items-start gap-3">
                                     <div className="text-2xl mt-1">{icons[vault.icon] || '💰'}</div>
-                                    <div><p className="font-semibold text-lg text-foreground">{vault.name}</p><p className="text-sm"><span className="text-foreground font-semibold">{formatCurrency(vault.animatedAmount ?? vault.currentAmount)}</span><span className="font-normal text-muted-foreground"> of {formatCurrency(vault.targetAmount)}</span></p>
+                                    <div><p className="font-semibold text-lg text-card-foreground">{vault.name}</p><p className="text-sm"><span className="text-card-foreground font-semibold">{formatCurrency(vault.animatedAmount ?? vault.currentAmount)}</span><span className="font-normal text-muted-foreground"> of {formatCurrency(vault.targetAmount)}</span></p>
                                     </div></div>
                                     <Trash2 className="w-4 h-4 text-muted-foreground" />
                                 </div>
@@ -346,7 +344,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                         </div>
                                     )}
                                 </div>
-                                {vault.isShared && (<div className="flex -space-x-3 rtl:space-x-reverse items-center"><div className="w-8 h-8 rounded-full bg-muted border-2 border-card" /><div className="w-8 h-8 rounded-full bg-muted border-2 border-card" /><div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-white bg-primary border-2 border-card rounded-full">+2</div></div>)}
+                                {vault.isShared && (<div className="flex -space-x-3 rtl:space-x-reverse items-center"><div className="w-8 h-8 rounded-full bg-muted border-2 border-card" /><div className="w-8 h-8 rounded-full bg-muted border-2 border-card" /><div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-primary-foreground bg-primary border-2 border-card rounded-full">+2</div></div>)}
                                 </div>
                             </div>
                         )

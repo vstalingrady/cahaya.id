@@ -4,7 +4,7 @@ import NoiseOverlay from '@/components/noise-overlay';
 
 export default function LoginPage() {
   return (
-    <div className="w-full max-w-md mx-auto bg-background text-white p-6 flex flex-col justify-center min-h-screen relative overflow-hidden">
+    <div className="w-full max-w-md mx-auto bg-background text-foreground p-6 flex flex-col justify-center min-h-screen relative overflow-hidden">
       <NoiseOverlay />
         
       <div className="relative z-10">

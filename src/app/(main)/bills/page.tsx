@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -156,7 +155,7 @@ export default function BillsPage() {
         {billers.map((biller) => (
           <button key={biller.name} className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg shadow-primary/10 group">
             <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg">
-                <biller.icon className="w-6 h-6 text-white" />
+                <biller.icon className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
               <p className="font-semibold text-lg text-card-foreground">{biller.name}</p>

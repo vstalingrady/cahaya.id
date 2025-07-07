@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState, useEffect } from "react";
@@ -199,7 +198,7 @@ export default function VaultsPage() {
                                             <Image key={member.id} className="w-8 h-8 rounded-full bg-muted border-2 border-card" src={member.avatarUrl} alt={member.name} width={32} height={32} data-ai-hint="person avatar"/>
                                         ))}
                                         {vault.members.length > 2 && (
-                                            <div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-white bg-primary border-2 border-card rounded-full">
+                                            <div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-primary-foreground bg-primary border-2 border-card rounded-full">
                                                 +{vault.members.length - 2}
                                             </div>
                                         )}

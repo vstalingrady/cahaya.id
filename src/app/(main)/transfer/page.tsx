@@ -311,10 +311,10 @@ export default function TransferPage() {
                             "relative group w-full h-full bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-transform duration-300 ease-out",
                              index === selectedIndex ? 'scale-100 opacity-100 shadow-primary/20' : 'scale-90 opacity-60'
                            )}>
-                               <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                               <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
                                  <X className="w-4 h-4" />
                                </Button>
-                               <div className="bg-gradient-to-br from-primary to-accent w-12 h-12 rounded-xl shadow-lg text-white flex items-center justify-center flex-shrink-0">
+                               <div className="bg-gradient-to-br from-primary to-accent w-12 h-12 rounded-xl shadow-lg text-primary-foreground flex items-center justify-center flex-shrink-0">
                                  <Icon className="w-6 h-6" />
                                </div>
                                <div className="min-w-0 flex-1 flex flex-col justify-end overflow-hidden">
@@ -356,7 +356,7 @@ export default function TransferPage() {
                   className="w-full text-left bg-card p-5 rounded-2xl flex items-center gap-5 hover:bg-secondary transition-all duration-300 border border-border shadow-lg group"
                 >
                   <div className="bg-gradient-to-br from-primary to-accent p-3 rounded-xl shadow-lg">
-                      <action.icon className="w-6 h-6 text-white" />
+                      <action.icon className="w-6 h-6 text-primary-foreground" />
                   </div>
                   <div>
                     <p className="font-semibold text-lg text-card-foreground">{action.name}</p>
