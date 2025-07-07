@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { cn } from "@/lib/utils";
 import { Sparkles, Loader2, Check, Info, Send } from "lucide-react";
 import { Button } from '@/components/ui/button';
+import GeminiLogo from '@/components/icons/GeminiLogo';
 
 const ScoreCircle = ({ score, isActive }: { score: number, isActive: boolean }) => {
     const circumference = 2 * Math.PI * 20; // radius is 20
@@ -45,9 +46,12 @@ const ScoreCircle = ({ score, isActive }: { score: number, isActive: boolean }) 
 
 export default function WelcomeInsightsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
   const [animationState, setAnimationState] = useState<'initial' | 'loading' | 'finished'>('initial');
-  const [showChat, setShowChat] = useState(false);
-  const [typedMessage, setTypedMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  const [showUserPrompt, setShowUserPrompt] = useState(false);
+  const [typedUserMessage, setTypedUserMessage] = useState('');
+  const [isUserTyping, setIsUserTyping] = useState(false);
+  const [showAiTyping, setShowAiTyping] = useState(false);
+  const [showAiResponse, setShowAiResponse] = useState(false);
+  const [typedAiResponse, setTypedAiResponse] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Main animation cycle controller
@@ -55,20 +59,23 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
     let timeouts: NodeJS.Timeout[] = [];
   
     const cycleAnimation = () => {
-      // Reset all sub-states
+      // Hard reset for all states
       setAnimationState('initial');
-      setShowChat(false);
-      setTypedMessage('');
-      setIsTyping(false);
+      setShowUserPrompt(false);
+      setTypedUserMessage('');
+      setIsUserTyping(false);
+      setShowAiTyping(false);
+      setShowAiResponse(false);
+      setTypedAiResponse('');
 
       timeouts.push(setTimeout(() => {
         setAnimationState('loading');
         timeouts.push(setTimeout(() => {
           setAnimationState('finished');
           // Wait for results to show before starting chat animation
-          timeouts.push(setTimeout(() => setShowChat(true), 2500));
+          timeouts.push(setTimeout(() => setShowUserPrompt(true), 2500));
           // Reset the whole cycle after a while
-          timeouts.push(setTimeout(cycleAnimation, 12000)); // Total cycle time
+          timeouts.push(setTimeout(cycleAnimation, 18000)); // Total cycle time
         }, 1500)); // Loading duration
       }, 3000)); // Initial button view duration
     };
@@ -78,9 +85,12 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
     } else {
       // Hard reset if component becomes inactive
       setAnimationState('initial');
-      setShowChat(false);
-      setTypedMessage('');
-      setIsTyping(false);
+      setShowUserPrompt(false);
+      setTypedUserMessage('');
+      setIsUserTyping(false);
+      setShowAiTyping(false);
+      setShowAiResponse(false);
+      setTypedAiResponse('');
     }
   
     return () => {
@@ -102,24 +112,49 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
     }
   }, [animationState]);
   
-  // Typing animation for chat
+  // Typing animation for user prompt
   useEffect(() => {
-    if (showChat) {
-      setIsTyping(true);
+    if (showUserPrompt) {
+      setIsUserTyping(true);
       const fullMessage = "How can I invest in an index fund?";
       let index = 0;
       const intervalId = setInterval(() => {
-        setTypedMessage(fullMessage.slice(0, index + 1));
+        setTypedUserMessage(fullMessage.slice(0, index + 1));
         index++;
         if (index >= fullMessage.length) {
           clearInterval(intervalId);
-          setIsTyping(false);
+          setIsUserTyping(false);
+          // Trigger AI typing indicator after user is done
+          setTimeout(() => {
+              setShowAiTyping(true);
+              setTimeout(() => {
+                  setShowAiTyping(false);
+                  setShowAiResponse(true);
+              }, 1500); // AI "thinks" for 1.5s
+          }, 500);
         }
       }, 60); // Typing speed
       
       return () => clearInterval(intervalId);
     }
-  }, [showChat]);
+  }, [showUserPrompt]);
+
+  // Typing animation for AI response
+  useEffect(() => {
+    if (showAiResponse) {
+      const fullMessage = "Great question! You can start with a low-cost index fund ETF like 'BBCA' through a stockbroker app. It's a simple way to diversify.";
+      let index = 0;
+      const intervalId = setInterval(() => {
+        setTypedAiResponse(fullMessage.slice(0, index + 1));
+        index++;
+        if (index >= fullMessage.length) {
+          clearInterval(intervalId);
+        }
+      }, 40); // AI types a bit faster
+      
+      return () => clearInterval(intervalId);
+    }
+  }, [showAiResponse]);
 
 
   return (
@@ -132,7 +167,10 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
             "absolute inset-0 flex flex-col items-center justify-center text-center p-6 transition-all duration-500",
             animationState === 'initial' ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
         )}>
-            <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
+            <div className="flex items-center justify-center gap-2 mb-2">
+                <GeminiLogo size={24} />
+                <p className="flashy-gemini-text text-lg">Powered by Gemini</p>
+            </div>
             <h3 className="text-xl font-bold font-serif text-foreground">Your Personal Financial Analyst</h3>
             <p className="text-muted-foreground mt-2 mb-6">Let our AI analyze your spending patterns to uncover personalized insights and saving opportunities.</p>
             <Button size="lg" className="bg-primary hover:bg-primary/90 rounded-xl font-semibold text-lg shadow-lg h-auto animate-slow-pulse">
@@ -191,15 +229,33 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
                 </div>
             </div>
             
-            {/* Chat input area */}
-            <div className={cn("mt-auto pt-3 border-t border-border/50 transition-opacity duration-500", showChat ? 'opacity-100' : 'opacity-0')}>
-                <div className="relative h-11 rounded-xl border border-input bg-input/50 px-4 py-2 text-sm text-left flex items-center justify-between">
-                    <p className="text-foreground">
-                        {typedMessage}
-                        {isTyping && <span className="cursor-blink">|</span>}
-                    </p>
-                    <Send className="w-5 h-5 text-primary"/>
+            {/* Chat interaction area */}
+            <div className={cn("mt-auto pt-3 border-t border-border/50 transition-opacity duration-500 space-y-2", showUserPrompt ? 'opacity-100' : 'opacity-0')}>
+                {/* User Prompt */}
+                <div className="flex justify-end">
+                    <div className="bg-primary text-primary-foreground rounded-lg px-3 py-2 text-sm max-w-[80%]">
+                        {typedUserMessage}
+                        {isUserTyping && <span className="cursor-blink">|</span>}
+                    </div>
                 </div>
+
+                {/* AI Typing Indicator */}
+                {showAiTyping && (
+                    <div className="flex justify-start">
+                         <div className="bg-secondary text-foreground rounded-lg px-3 py-2 text-sm">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                         </div>
+                    </div>
+                )}
+                
+                {/* AI Response */}
+                {showAiResponse && (
+                     <div className="flex justify-start">
+                         <div className="bg-secondary text-foreground rounded-lg px-3 py-2 text-sm max-w-[80%] whitespace-pre-wrap">
+                           {typedAiResponse}
+                         </div>
+                    </div>
+                )}
             </div>
         </div>
     </div>
