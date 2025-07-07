@@ -27,6 +27,7 @@ export type Account = {
   balance: number;
   accountNumber: string;
   holdings?: CryptoHolding[];
+  isPinned?: boolean;
 };
 
 export type Transaction = {

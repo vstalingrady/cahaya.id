@@ -8,7 +8,7 @@ import { type Account, type Transaction } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
 import AccountCard from '@/components/dashboard/account-card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Landmark, Coins, Eye, EyeOff, Loader2, Wallet, Briefcase } from 'lucide-react';
+import { Landmark, Coins, Eye, EyeOff, Loader2, Wallet, Briefcase, Pin as PinIcon } from 'lucide-react';
 import Image from 'next/image';
 import { 
   AlertDialog, 
@@ -86,7 +86,7 @@ export default function DashboardPage() {
         }
     };
 
-    const { totalAssets, totalLiabilities, netWorth, accountGroups } = useMemo(() => {
+    const { totalAssets, totalLiabilities, netWorth, pinnedAccounts, accountGroups } = useMemo(() => {
         const totalAssets = accountList
             .filter(acc => acc.type !== 'loan')
             .reduce((sum, acc) => sum + acc.balance, 0);
@@ -96,15 +96,18 @@ export default function DashboardPage() {
             .reduce((sum, acc) => sum + acc.balance, 0);
             
         const netWorth = totalAssets - totalLiabilities;
+        
+        const pinnedAccounts = accountList.filter(a => a.isPinned);
+        const unpinnedAccounts = accountList.filter(a => !a.isPinned);
 
         const accountGroups = {
-            bank: accountList.filter(a => a.type === 'bank'),
-            ewallet: accountList.filter(a => a.type === 'e-wallet'),
-            investment: accountList.filter(a => a.type === 'investment'),
-            loan: accountList.filter(a => a.type === 'loan'),
+            bank: unpinnedAccounts.filter(a => a.type === 'bank'),
+            ewallet: unpinnedAccounts.filter(a => a.type === 'e-wallet'),
+            investment: unpinnedAccounts.filter(a => a.type === 'investment'),
+            loan: unpinnedAccounts.filter(a => a.type === 'loan'),
         };
 
-        return { totalAssets, totalLiabilities, netWorth, accountGroups };
+        return { totalAssets, totalLiabilities, netWorth, pinnedAccounts, accountGroups };
     }, [accountList]);
 
 
@@ -167,6 +170,22 @@ export default function DashboardPage() {
             ) : (
             <div className="space-y-8 pt-4">
                 <TotalBalance title="Total Net Worth" amount={netWorth} transactions={transactionList} showHistoryLink={true} isPrivate={isPrivate} />
+
+                {pinnedAccounts.length > 0 && (
+                    <div>
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-xl font-semibold text-foreground font-serif flex items-center gap-2">
+                                <PinIcon className="w-5 h-5 text-primary" />
+                                Pinned
+                            </h2>
+                        </div>
+                        <div className="space-y-2">
+                            {pinnedAccounts.map(account => (
+                                <AccountCard key={account.id} account={account} isPrivate={isPrivate} />
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 <div>
                     <div className="flex justify-between items-center mb-4">

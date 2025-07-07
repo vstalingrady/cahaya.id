@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Landmark, Briefcase, Wallet, Coins } from 'lucide-react';
+import { Landmark, Briefcase, Wallet, Coins, Pin } from 'lucide-react';
 import { cn } from "@/lib/utils"
 import { accounts as mockAccounts, transactions as mockTransactions } from '@/lib/data-seed';
 import { type Account } from '@/lib/data';
@@ -85,11 +85,11 @@ export default function WelcomeDashboardMockup({ className, isActive }: { classN
 
             scrollTimeout = setTimeout(() => {
                 scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
-                scrollTimeout = setTimeout(animateScroll, 4000); 
-            }, 4000);
+                scrollTimeout = setTimeout(animateScroll, 8000); // Slower scroll back up
+            }, 8000); // Slower scroll down
         };
 
-        const startTimeout = setTimeout(animateScroll, 1500);
+        const startTimeout = setTimeout(animateScroll, 2500); // Longer initial delay
 
         return () => {
             clearTimeout(startTimeout);
@@ -98,7 +98,7 @@ export default function WelcomeDashboardMockup({ className, isActive }: { classN
     }, [isActive]);
 
 
-    const { totalAssets, totalLiabilities, netWorth, accountGroups } = useMemo(() => {
+    const { totalAssets, totalLiabilities, netWorth, pinnedAccount, accountGroups } = useMemo(() => {
         const totalAssets = mockAccounts
             .filter(acc => acc.type !== 'loan')
             .reduce((sum, acc) => sum + acc.balance, 0);
@@ -109,14 +109,17 @@ export default function WelcomeDashboardMockup({ className, isActive }: { classN
             
         const netWorth = totalAssets - totalLiabilities;
 
+        const pinnedAccount = mockAccounts.find(a => a.isPinned);
+        const unpinnedAccounts = mockAccounts.filter(a => !a.isPinned);
+
         const accountGroups = {
-            bank: mockAccounts.filter(a => a.type === 'bank'),
-            ewallet: mockAccounts.filter(a => a.type === 'e-wallet'),
-            investment: mockAccounts.filter(a => a.type === 'investment'),
-            loan: mockAccounts.filter(a => a.type === 'loan'),
+            bank: unpinnedAccounts.filter(a => a.type === 'bank'),
+            ewallet: unpinnedAccounts.filter(a => a.type === 'e-wallet'),
+            investment: unpinnedAccounts.filter(a => a.type === 'investment'),
+            loan: unpinnedAccounts.filter(a => a.type === 'loan'),
         };
 
-        return { totalAssets, totalLiabilities, netWorth, accountGroups };
+        return { totalAssets, totalLiabilities, netWorth, pinnedAccount, accountGroups };
     }, []);
 
   return (
@@ -129,7 +132,28 @@ export default function WelcomeDashboardMockup({ className, isActive }: { classN
                 {/* Total Balance Card */}
                 <TotalBalance title="Total Net Worth" amount={netWorth} transactions={mockTransactions} showHistoryLink={false} isActive={isActive} />
                 
-                {/* Accounts Section */}
+                 {/* Pinned Account Section */}
+                {pinnedAccount && (
+                    <div className="space-y-2">
+                        <div className="bg-card p-4 rounded-xl border-none shadow-md">
+                            <div className='flex items-center gap-3 text-foreground font-semibold text-sm'>
+                                <Pin className='w-4 h-4 text-primary' />
+                                <span>Pinned</span>
+                            </div>
+                            <div className="pt-2 space-y-2">
+                                <MockAccountCard 
+                                    key={pinnedAccount.id}
+                                    icon={getAccountIcon(pinnedAccount.institutionSlug)}
+                                    name={pinnedAccount.name}
+                                    displayNumber={formatDisplayNumber(pinnedAccount)}
+                                    balance={formatCurrency(pinnedAccount.balance)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Unpinned Accounts Section */}
                 <div className="space-y-2">
                     {accountGroups.bank.length > 0 && (
                         <div className="bg-card p-4 rounded-xl border-none shadow-md">

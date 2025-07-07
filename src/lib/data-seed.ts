@@ -19,6 +19,7 @@ export const accounts: Account[] = [
     type: 'bank',
     balance: 85200501,
     accountNumber: '479988776623',
+    isPinned: true,
   },
   {
     id: 'mandiri1',

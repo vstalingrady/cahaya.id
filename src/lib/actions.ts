@@ -358,6 +358,28 @@ export async function getAccountDetails(userId: string, accountId: string): Prom
     }
 }
 
+/**
+ * Toggles the pinned status of a user's account.
+ * @param {string} userId - The user's unique ID.
+ * @param {string} accountId - The ID of the account to pin/unpin.
+ * @param {boolean} isPinned - The new pinned status.
+ */
+export async function togglePinAccount(userId: string, accountId: string, isPinned: boolean) {
+  if (!userId || !accountId) {
+    throw new Error("User ID and Account ID are required.");
+  }
+
+  try {
+    const accountDocRef = doc(db, 'users', userId, 'accounts', accountId);
+    await updateDoc(accountDocRef, { isPinned });
+    revalidatePath('/dashboard'); // Revalidate the dashboard to show the change
+    return { success: true };
+  } catch (error) {
+    console.error("Error toggling account pin status:", error);
+    return { success: false, error: "Could not update account." };
+  }
+}
+
 // ---- Budget Actions ----
 
 export async function getBudgets(userId: string): Promise<Budget[]> {

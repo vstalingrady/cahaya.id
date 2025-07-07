@@ -1,9 +1,16 @@
 
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { type Account, financialInstitutions } from "@/lib/data";
-import React from 'react';
+import React, { useTransition } from 'react';
 import { cn } from '@/lib/utils';
+import { Pin, PinOff } from 'lucide-react';
+import { togglePinAccount } from '@/lib/actions';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '../auth/auth-provider';
+import { Button } from '../ui/button';
 
 const getAccountLogo = (account: Account) => {
     const institution = financialInstitutions.find(inst => inst.slug === account.institutionSlug);
@@ -55,6 +62,29 @@ const formatDisplayNumber = (account: Account): string => {
 };
 
 export default function AccountCard({ account, isPrivate }: AccountCardProps) {
+  const [isPending, startTransition] = useTransition();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  const handlePinToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!user) {
+      toast({ variant: 'destructive', title: 'Error', description: 'You must be logged in to perform this action.' });
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await togglePinAccount(user.uid, account.id, !account.isPinned);
+      if (result.success) {
+        toast({ title: account.isPinned ? 'Account Unpinned' : 'Account Pinned' });
+      } else {
+        toast({ variant: 'destructive', title: 'Error', description: result.error ?? 'Could not update pin status.' });
+      }
+    });
+  };
+
   const formattedAmount = new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
@@ -85,21 +115,40 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
     </>
   );
 
-  const baseClasses = "bg-background p-3 rounded-2xl flex justify-between items-center gap-4 border border-border shadow-lg";
+  const baseClasses = "bg-background p-3 rounded-2xl flex justify-between items-center gap-4 border border-border shadow-lg group relative";
 
-  const isClickable = account.type === 'bank' || account.type === 'investment';
+  const pinButton = (
+     <Button
+      variant="ghost"
+      size="icon"
+      onClick={handlePinToggle}
+      className="absolute top-1 right-1 w-8 h-8 rounded-full opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity bg-background/50 hover:bg-secondary z-20"
+      disabled={isPending}
+    >
+      {account.isPinned ? (
+        <PinOff className="w-4 h-4 text-primary" />
+      ) : (
+        <Pin className="w-4 h-4 text-muted-foreground" />
+      )}
+    </Button>
+  );
+
+
+  const isClickable = account.type === 'bank' || account.type === 'investment' || account.type === 'loan';
 
   if (!isClickable) {
     return (
       <div className={baseClasses}>
           {cardContent}
+          {pinButton}
       </div>
     );
   }
 
   return (
-     <Link href={`/account/${account.id}`} className={`${baseClasses} hover:bg-secondary transition-colors duration-300 group`}>
+     <Link href={`/account/${account.id}`} className={`${baseClasses} hover:bg-secondary transition-colors duration-300`}>
        {cardContent}
+       {pinButton}
     </Link>
   );
 }
