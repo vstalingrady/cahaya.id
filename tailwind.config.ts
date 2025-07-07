@@ -152,7 +152,7 @@ export default {
         'logo-blink-glow': 'logo-blink-glow 5s ease-in-out infinite',
         'slow-pulse': 'slow-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'slower-pulse': 'slow-pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'breathing-glow': 'breathing-glow 8s ease-in-out infinite',
+        'breathing-glow': 'breathing-glow 3s ease-in-out infinite',
         'text-shine': 'text-shine 3s linear infinite',
         'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',

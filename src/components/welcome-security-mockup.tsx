@@ -9,8 +9,8 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
     const [featureIndex, setFeatureIndex] = useState(0);
 
     const securityFeatures = [
-        "Bank-Grade Encryption",
         "Biometric Authentication",
+        "Bank-Grade Encryption",
         "Secure Data Handling",
         "OJK Licensed Partner API"
     ];
@@ -36,19 +36,19 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             
             <div className="relative z-10 flex flex-col items-center justify-center flex-1">
                  <div className="relative w-48 h-48 animate-slow-pulse flex items-center justify-center">
-                    <Shield className="absolute w-full h-full text-primary drop-shadow-[0_0_10px_hsl(var(--primary)/0.7)]" fill="currentColor" fillOpacity={0.1} strokeWidth={1.5} />
+                    <Shield className="absolute w-full h-full text-primary drop-shadow-[0_0_10px_hsl(var(--primary)/0.7)]" fill="hsl(var(--primary))" fillOpacity={0.1} strokeWidth={1.5} />
                     <div className="absolute w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">
                         <Lock className="w-12 h-12 text-accent" strokeWidth={2} />
                     </div>
                 </div>
             </div>
 
-            <div className="relative h-6 w-full overflow-hidden mt-auto flex-shrink-0">
+            <div className="relative h-8 w-full overflow-hidden mt-auto flex-shrink-0">
                  {securityFeatures.map((feature, index) => (
                     <p 
                         key={feature}
                         className={cn(
-                            "absolute w-full text-center font-medium text-sm transition-all duration-500",
+                            "absolute w-full text-center font-medium text-base transition-all duration-500",
                             index === featureIndex ? 'opacity-100 translate-y-0 text-foreground' : 'opacity-0 -translate-y-5 text-muted-foreground',
                             index > featureIndex && 'translate-y-5'
                         )}
