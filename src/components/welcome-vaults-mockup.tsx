@@ -127,9 +127,14 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, fundingSources: ['bca1', 'gopay1']})), 600));
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, destinationAccount: 'BCA Main Account'})), 900));
 
-                                // Step 4.4: Simulate enabling the auto-saving feature and then scroll.
+                                // Step 4.4: Simulate enabling the auto-saving feature.
                                 timeouts.push(setTimeout(() => {
                                     setFormState(p => ({...p, autoSaveEnabled: true}));
+                                }, 1200));
+
+                                // Step 4.5: Simulate setting frequency, THEN scroll down.
+                                timeouts.push(setTimeout(() => {
+                                    setFormState(p => ({...p, autoSaveFrequency: 'weekly'}));
                                     // Scroll right after setting state. Use another timeout to let the DOM update.
                                     timeouts.push(setTimeout(() => {
                                         if (formScrollRef.current) {
@@ -137,10 +142,9 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                             scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' });
                                         }
                                     }, 100));
-                                }, 1200));
+                                }, 1500));
 
-                                // Step 4.5: Simulate setting auto-save details.
-                                timeouts.push(setTimeout(() => setFormState(p => ({...p, autoSaveFrequency: 'weekly'})), 1500));
+                                // Step 4.6: Continue filling the rest of the form.
                                 timeouts.push(setTimeout(() => type('250000', (t) => setFormState(p => ({...p, autoSaveAmount: t}))), 1800));
                                 timeouts.push(setTimeout(() => setFormState(p => ({...p, roundUpEnabled: true})), 2300));
 
