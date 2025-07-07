@@ -74,11 +74,11 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
         timeouts.push(setTimeout(() => {
           setAnimationState('finished');
           // Wait for results to show before starting chat animation
-          timeouts.push(setTimeout(() => setShowUserPrompt(true), 1500));
+          timeouts.push(setTimeout(() => setShowUserPrompt(true), 1000));
           // Reset the whole cycle after a while
-          timeouts.push(setTimeout(cycleAnimation, 12000)); // Total cycle time
-        }, 1000)); // Loading duration
-      }, 2000)); // Initial button view duration
+          timeouts.push(setTimeout(cycleAnimation, 10000)); // Total cycle time
+        }, 800)); // Loading duration
+      }, 1500)); // Initial button view duration
     };
   
     if (isActive) {
@@ -117,28 +117,30 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
               setTimeout(() => {
                   setShowAiTyping(false);
                   setShowAiResponse(true);
-              }, 1000); // AI "thinks" for 1s
+              }, 800); // AI "thinks"
           }, 500);
         }
-      }, 50); // Faster typing speed
+      }, 40); // Faster user typing speed
       
       return () => clearInterval(intervalId);
     }
   }, [showUserPrompt]);
 
-  // Typing animation for AI response
+  // Typing animation for AI response (word by word)
   useEffect(() => {
     if (showAiResponse) {
       const fullMessage = "Great question, Budi! You can start with a low-cost index fund ETF like 'BBCA' through a stockbroker app. It's a simple way to diversify.";
-      let index = 0;
+      const words = fullMessage.split(' ');
+      let wordIndex = 0;
       const intervalId = setInterval(() => {
-        setTypedAiResponse(fullMessage.slice(0, index + 1));
-        index++;
-        if (index >= fullMessage.length) {
-          clearInterval(intervalId);
+        if (wordIndex < words.length) {
+            setTypedAiResponse(words.slice(0, wordIndex + 1).join(' '));
+            wordIndex++;
+        } else {
+            clearInterval(intervalId);
         }
-      }, 20); // AI types even faster
-      
+      }, 80); // Speed for word-by-word typing
+
       return () => clearInterval(intervalId);
     }
   }, [showAiResponse]);
