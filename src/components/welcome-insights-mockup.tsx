@@ -73,11 +73,11 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
         timeouts.push(setTimeout(() => {
           setAnimationState('finished');
           // Wait for results to show before starting chat animation
-          timeouts.push(setTimeout(() => setShowUserPrompt(true), 2500));
+          timeouts.push(setTimeout(() => setShowUserPrompt(true), 1500));
           // Reset the whole cycle after a while
-          timeouts.push(setTimeout(cycleAnimation, 18000)); // Total cycle time
-        }, 1500)); // Loading duration
-      }, 3000)); // Initial button view duration
+          timeouts.push(setTimeout(cycleAnimation, 14000)); // Total cycle time
+        }, 1000)); // Loading duration
+      }, 2000)); // Initial button view duration
     };
   
     if (isActive) {
@@ -107,7 +107,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
                 scroller.scrollTo({ top: 0, behavior: 'auto' });
                 setTimeout(() => scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' }), 100);
             }
-        }, 1500);
+        }, 500);
         return () => clearTimeout(scrollTimeout);
     }
   }, [animationState]);
@@ -130,10 +130,10 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
               setTimeout(() => {
                   setShowAiTyping(false);
                   setShowAiResponse(true);
-              }, 1500); // AI "thinks" for 1.5s
+              }, 1000); // AI "thinks" for 1s
           }, 500);
         }
-      }, 60); // Typing speed
+      }, 50); // Faster typing speed
       
       return () => clearInterval(intervalId);
     }
@@ -150,7 +150,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
         if (index >= fullMessage.length) {
           clearInterval(intervalId);
         }
-      }, 40); // AI types a bit faster
+      }, 30); // AI types even faster
       
       return () => clearInterval(intervalId);
     }
