@@ -1,9 +1,8 @@
-
 'use client';
 
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
-import GlowingShield from "@/components/icons/GlowingShield";
+import { Shield, Lock } from "lucide-react";
 
 const securityFeatures = [
     "256-bit AES Encryption",
@@ -31,13 +30,28 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             "relative w-full max-w-sm h-[400px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col justify-center items-center text-center gap-4",
             className
         )}>
-            {/* The main animated graphic using the new custom SVG component */}
             <div className={cn(
                 "relative flex items-center justify-center w-48 h-48",
                 isActive ? 'opacity-100' : 'opacity-0',
                 "transition-opacity duration-1000"
             )}>
-                <GlowingShield className="w-full h-full animate-slow-pulse" />
+                {/* Glow Layer: A blurred, animated shield in the back */}
+                <Shield
+                    className="absolute w-full h-full text-primary blur-lg animate-slow-pulse opacity-60"
+                    fill="currentColor"
+                />
+                
+                {/* Main Icon Layer: A sharp, animated shield in the front */}
+                <div className="relative animate-slow-pulse">
+                    <Shield
+                        className="w-full h-full text-primary"
+                        fill="currentColor"
+                    />
+                    <Lock
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[45%] h-[45%] text-background"
+                        strokeWidth={1.5}
+                    />
+                </div>
             </div>
 
             {/* The text ticker animation */}
