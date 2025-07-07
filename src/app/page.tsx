@@ -163,27 +163,40 @@ export default function WelcomePage() {
             </section>
             
             {/* Slide 8: Sign Up */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center space-y-6 animate-fade-in-up max-w-sm">
-                    <h2 className="text-2xl font-bold font-serif text-foreground">Ready to take control?</h2>
-                    <p className="text-muted-foreground text-sm">
-                        We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
-                    </p>
-                    <div className="space-y-4">
-                        <InfiniteLogoScroller institutions={partnersRow1} speed="normal" direction="forward" />
-                        <InfiniteLogoScroller institutions={partnersRow2} speed="slow" direction="reverse" />
-                        <InfiniteLogoScroller institutions={partnersRow3} speed="fast" direction="forward" />
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col px-6 pb-6 overflow-y-auto custom-scrollbar">
+                 <div className="flex-1 flex flex-col justify-center">
+                    <div className="text-center space-y-6 animate-fade-in-up max-w-sm mx-auto">
+                        <div className="min-h-36 flex flex-col items-center justify-end"> 
+                            <h2 className="text-2xl font-bold font-serif text-foreground">Ready to take control?</h2>
+                            <p className="text-muted-foreground text-sm mt-2">
+                                We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            <InfiniteLogoScroller institutions={partnersRow1} speed="normal" direction="forward" />
+                            <InfiniteLogoScroller institutions={partnersRow2} speed="slow" direction="reverse" />
+                            <InfiniteLogoScroller institutions={partnersRow3} speed="fast" direction="forward" />
+                        </div>
+                        
+                        <div className="pt-6 space-y-4">
+                            <Button size="lg" className="h-14 text-lg w-full" asChild>
+                                <Link href="/signup">
+                                Get Started for Free <ArrowRight className="ml-2" />
+                                </Link>
+                            </Button>
+                            <p className="text-sm text-muted-foreground">
+                                Already have an account?{' '}
+                                <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">
+                                  Log In
+                                </Link>
+                            </p>
+                        </div>
                     </div>
-                    <div className="pt-6">
-                        <Button size="lg" className="h-14 text-lg" asChild>
-                            <Link href="/signup">
-                            Get Started for Free <ArrowRight className="ml-2" />
-                            </Link>
-                        </Button>
-                    </div>
-                    <div className="text-center text-muted-foreground text-xs pt-4">
-                        <p>&copy; {new Date().getFullYear()} Cahaya. All Rights Reserved.</p>
-                    </div>
+                </div>
+                
+                <div className="flex-shrink-0 text-center text-muted-foreground text-xs pt-4">
+                    <p>&copy; {new Date().getFullYear()} Cahaya. All Rights Reserved.</p>
                 </div>
             </section>
 
