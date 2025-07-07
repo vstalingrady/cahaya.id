@@ -2,7 +2,7 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import { ClipboardList, Car, ShoppingCart, Plus, Edit, Tag, Banknote, Check } from "lucide-react";
+import { ClipboardList, Plus, Edit, Tag, Banknote, Check } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,8 @@ import { useState, useEffect, useRef } from "react";
 
 const initialBudgets = [
     { id: 'food', name: 'Monthly Food & Drink', category: 'Food & Drink', current: 5500000, target: 5000000, icon: ClipboardList, progress: 110, color: 'destructive' },
-    { id: 'shopping', name: 'Monthly Shopping', category: 'Shopping', current: 2700000, target: 3000000, icon: ShoppingCart, progress: 90, color: 'yellow-500' },
-    { id: 'transport', name: 'Monthly Transport', category: 'Transportation', current: 1125000, target: 1500000, icon: Car, progress: 75, color: 'primary' },
+    { id: 'shopping', name: 'Monthly Shopping', category: 'Shopping', current: 2700000, target: 3000000, icon: ClipboardList, progress: 90, color: 'yellow-500' },
+    { id: 'transport', name: 'Monthly Transport', category: 'Transportation', current: 1125000, target: 1500000, icon: ClipboardList, progress: 75, color: 'primary' },
 ];
 
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
@@ -66,7 +66,7 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                                 type("20000000", t => setFormState(p => ({ ...p, amount: t })), () => {
                                     timeouts.push(setTimeout(() => setAnimationPhase('create_budget'), 500));
                                     timeouts.push(setTimeout(() => {
-                                        const newBudget: DisplayBudget = { id: 'new', name: 'Japan Trip', category: 'Travel', current: 0, target: 20000000, icon: Car, progress: 0, color: 'primary', isNew: true };
+                                        const newBudget: DisplayBudget = { id: 'new', name: 'Japan Trip', category: 'Travel', current: 0, target: 20000000, icon: ClipboardList, progress: 0, color: 'primary', isNew: true };
                                         setDisplayBudgets(prev => [...prev, newBudget]);
                                         setAnimationPhase('show_new_budget');
                                         timeouts.push(setTimeout(() => {
@@ -98,7 +98,7 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
 
     return (
         <div className={cn(
-            "relative w-full max-w-sm h-[450px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
+            "relative w-full max-w-sm h-full rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
             className
         )}>
              <div className="absolute inset-0 p-4 flex flex-col gap-4 transition-all duration-300"
