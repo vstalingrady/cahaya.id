@@ -1,4 +1,3 @@
-
 'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -110,7 +109,7 @@ export default function WelcomePage() {
                     <p className="text-muted-foreground text-sm">Pay bills, transfer funds, and top-up e-wallets seamlessly from any of your accounts, all from one central hub.</p>
                 </div>
                 <div className="w-full px-4">
-                    <WelcomePaymentMockup isActive={selectedIndex === 2} />
+                    <WelcomePaymentMockup isActive={selectedIndex === 2} className="h-[500px]" />
                 </div>
             </section>
 

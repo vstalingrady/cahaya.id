@@ -21,7 +21,7 @@ const sources = [
   { name: 'GoPay', logoUrl: gopay?.logoUrl || '', balance: 'Balance: Rp 1.0M' },
 ];
 
-export default function WelcomePaymentMockup({ isActive }: { isActive?: boolean }) {
+export default function WelcomePaymentMockup({ isActive, className }: { isActive?: boolean; className?: string }) {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
@@ -42,7 +42,10 @@ export default function WelcomePaymentMockup({ isActive }: { isActive?: boolean 
   const isSuccess = step === 3;
 
   return (
-    <div className="w-full max-w-sm h-80 bg-card/50 rounded-2xl p-6 border border-border flex flex-col justify-between overflow-hidden relative shadow-lg shadow-primary/10">
+    <div className={cn(
+        "w-full max-w-sm bg-card/50 rounded-2xl p-6 border border-border flex flex-col justify-between overflow-hidden relative shadow-lg shadow-primary/10",
+        className
+    )}>
       {/* Background Glows */}
       <div className={cn("absolute -top-1/4 -left-1/4 w-1/2 h-1/2 bg-primary/20 rounded-full blur-3xl transition-opacity duration-1000", isBillSelected ? 'opacity-100' : 'opacity-0')} />
       <div className={cn("absolute -bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-accent/20 rounded-full blur-3xl transition-opacity duration-1000", isSourceSelected ? 'opacity-100' : 'opacity-0')} />
