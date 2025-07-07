@@ -98,7 +98,7 @@ export default function WelcomePage() {
                     <p className="text-muted-foreground text-sm">See your complete financial picture in one glance. Track balances across all your linked accounts in real-time.</p>
                 </div>
                 <div className="w-full px-4">
-                    <WelcomeDashboardMockup isActive={selectedIndex === 1} className="h-[400px]" />
+                    <WelcomeDashboardMockup isActive={selectedIndex === 1} className="h-[500px]" />
                 </div>
             </section>
 

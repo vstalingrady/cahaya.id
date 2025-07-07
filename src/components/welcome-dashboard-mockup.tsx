@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { accounts as mockAccounts, transactions as mockTransactions } from '@/lib/data-seed';
 import { type Account } from '@/lib/data';
 import TotalBalance from '@/components/dashboard/total-balance';
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef } from 'react';
 import Image from 'next/image';
 
 const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
@@ -61,13 +61,43 @@ const getAccountIcon = (slug: string) => {
         ovo: 'https://upload.wikimedia.org/wikipedia/commons/e/eb/Logo_ovo_purple.svg',
         bibit: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/Bibit.id_logo.svg',
         pintu: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Pintu_logo.svg/2560px-Pintu_logo.svg.png',
-        kredivo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Kredivo_logo.svg/2560px-Kredivo_logo.svg.png'
+        kredivo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Kredivo_logo.svg/2560px-Kredivo_logo.svg.png',
+        mandiri: 'https://upload.wikimedia.org/wikipedia/commons/a/ad/Bank_Mandiri_logo.svg',
+        bni: 'https://upload.wikimedia.org/wikipedia/commons/thumb/B/BA/Logo_BNI.svg/200px-Logo_BNI.svg.png'
     };
     return <Image src={icons[slug] || ''} alt={slug} width={32} height={32} className="object-contain" />;
 }
 
 
 export default function WelcomeDashboardMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const scrollEl = scrollRef.current;
+        if (!isActive || !scrollEl) {
+            return;
+        }
+
+        let scrollTimeout: NodeJS.Timeout;
+        
+        const animateScroll = () => {
+            scrollEl.scrollTo({ top: scrollEl.scrollHeight, behavior: 'smooth' });
+
+            scrollTimeout = setTimeout(() => {
+                scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
+                scrollTimeout = setTimeout(animateScroll, 4000); 
+            }, 4000);
+        };
+
+        const startTimeout = setTimeout(animateScroll, 1500);
+
+        return () => {
+            clearTimeout(startTimeout);
+            clearTimeout(scrollTimeout);
+        };
+    }, [isActive]);
+
+
     const { totalAssets, totalLiabilities, netWorth, accountGroups } = useMemo(() => {
         const totalAssets = mockAccounts
             .filter(acc => acc.type !== 'loan')
@@ -91,50 +121,116 @@ export default function WelcomeDashboardMockup({ className, isActive }: { classN
 
   return (
     <div className={cn(
-        "relative w-full max-w-sm h-[400px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-0 backdrop-blur-sm overflow-hidden",
+        "relative w-full max-w-sm h-full rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-0 backdrop-blur-sm overflow-hidden",
         className
     )}>
        <div className="h-full w-full p-2 bg-background">
-          <div className="h-full space-y-3 rounded-xl bg-background/50 overflow-y-auto custom-scrollbar">
+          <div ref={scrollRef} className="h-full space-y-3 rounded-xl bg-background/50 overflow-y-auto custom-scrollbar">
                 {/* Total Balance Card */}
                 <TotalBalance title="Total Net Worth" amount={netWorth} transactions={mockTransactions} showHistoryLink={false} isActive={isActive} />
                 
                 {/* Accounts Section */}
                 <div className="space-y-2">
-                    <div className="bg-card p-4 rounded-xl border-none shadow-md">
-                        <div className='flex items-center gap-3 text-foreground font-semibold text-sm'>
-                            <Landmark className='w-4 h-4' />
-                            <span>Banks</span>
+                    {accountGroups.bank.length > 0 && (
+                        <div className="bg-card p-4 rounded-xl border-none shadow-md">
+                            <div className='flex items-center gap-3 text-foreground font-semibold text-sm'>
+                                <Landmark className='w-4 h-4' />
+                                <span>Banks</span>
+                            </div>
+                            <div className="pt-2 space-y-2">
+                                {accountGroups.bank.map(account => (
+                                    <MockAccountCard 
+                                        key={account.id}
+                                        icon={getAccountIcon(account.institutionSlug)}
+                                        name={account.name}
+                                        displayNumber={formatDisplayNumber(account)}
+                                        balance={formatCurrency(account.balance)}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                        <div className="pt-2 space-y-2">
-                            {accountGroups.bank.map(account => (
-                                <MockAccountCard 
-                                    key={account.id}
-                                    icon={getAccountIcon(account.institutionSlug)}
-                                    name={account.name}
-                                    displayNumber={formatDisplayNumber(account)}
-                                    balance={formatCurrency(account.balance)}
-                                />
-                            ))}
+                    )}
+                    {accountGroups.ewallet.length > 0 && (
+                        <div className="bg-card p-4 rounded-xl border-none shadow-md">
+                            <div className='flex items-center gap-3 text-foreground font-semibold text-sm'>
+                                <Wallet className='w-4 h-4' />
+                                <span>E-Money</span>
+                            </div>
+                            <div className="pt-2 space-y-2">
+                                {accountGroups.ewallet.map(account => (
+                                    <MockAccountCard 
+                                        key={account.id}
+                                        icon={getAccountIcon(account.institutionSlug)}
+                                        name={account.name}
+                                        displayNumber={formatDisplayNumber(account)}
+                                        balance={formatCurrency(account.balance)}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                    <div className="bg-card p-4 rounded-xl border-none shadow-md">
-                        <div className='flex items-center gap-3 text-foreground font-semibold text-sm'>
-                            <Wallet className='w-4 h-4' />
-                            <span>E-Money</span>
+                    )}
+
+                    {accountGroups.investment.length > 0 && (
+                        <div className="bg-card p-4 rounded-xl border-none shadow-md">
+                            <div className='flex items-center gap-3 text-foreground font-semibold text-sm'>
+                                <Briefcase className='w-4 h-4' />
+                                <span>Investments</span>
+                            </div>
+                            <div className="pt-2 space-y-2">
+                                {accountGroups.investment.map(account => (
+                                    <MockAccountCard 
+                                        key={account.id}
+                                        icon={getAccountIcon(account.institutionSlug)}
+                                        name={account.name}
+                                        displayNumber={formatDisplayNumber(account)}
+                                        balance={formatCurrency(account.balance)}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                        <div className="pt-2 space-y-2">
-                            {accountGroups.ewallet.map(account => (
-                                <MockAccountCard 
-                                    key={account.id}
-                                    icon={getAccountIcon(account.institutionSlug)}
-                                    name={account.name}
-                                    displayNumber={formatDisplayNumber(account)}
-                                    balance={formatCurrency(account.balance)}
-                                />
-                            ))}
+                    )}
+                    
+                    {accountGroups.loan.length > 0 && (
+                        <div className="bg-card p-4 rounded-xl border-none shadow-md">
+                           <div className='flex items-center gap-3 text-foreground font-semibold text-sm'>
+                                <Coins className='w-4 h-4' />
+                                <span>Loans</span>
+                            </div>
+                            <div className="pt-2 space-y-2">
+                                {accountGroups.loan.map(account => (
+                                    <MockAccountCard 
+                                        key={account.id}
+                                        icon={getAccountIcon(account.institutionSlug)}
+                                        name={account.name}
+                                        displayNumber={formatDisplayNumber(account)}
+                                        balance={formatCurrency(account.balance)}
+                                        isLoan={true}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    )}
+
+                    {/* Duplicate bank section for scrolling effect */}
+                     {accountGroups.bank.length > 0 && (
+                        <div className="bg-card p-4 rounded-xl border-none shadow-md">
+                            <div className='flex items-center gap-3 text-foreground font-semibold text-sm'>
+                                <Landmark className='w-4 h-4' />
+                                <span>More Banks</span>
+                            </div>
+                            <div className="pt-2 space-y-2">
+                                {accountGroups.bank.slice().reverse().map(account => (
+                                    <MockAccountCard 
+                                        key={`${account.id}-dup`}
+                                        icon={getAccountIcon(account.institutionSlug)}
+                                        name={account.name}
+                                        displayNumber={formatDisplayNumber(account)}
+                                        balance={formatCurrency(account.balance)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
