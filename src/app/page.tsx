@@ -180,7 +180,7 @@ export default function WelcomePage() {
                         </div>
                         
                         <div className="pt-6 space-y-4">
-                            <Button size="lg" className="h-14 text-lg w-full animate-slower-pulse" asChild>
+                            <Button size="lg" className="h-14 text-lg w-full animate-breathing-glow" asChild>
                                 <Link href="/signup">
                                 Get Started for Free <ArrowRight className="ml-2" />
                                 </Link>
