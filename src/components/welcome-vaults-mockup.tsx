@@ -1,7 +1,8 @@
+
 /**
  * @file src/components/welcome-vaults-mockup.tsx
  * @fileoverview A sophisticated, animated mockup demonstrating the savings vaults feature.
- * It simulates a user scrolling through their vaults, creating a new one,
+ * It simulates a user scrolling through their vaults, creating a new one with detailed options,
  * and seeing it added to their list, all within a single, looping animation.
  * It is designed to be visually engaging for the onboarding/welcome page.
  */
