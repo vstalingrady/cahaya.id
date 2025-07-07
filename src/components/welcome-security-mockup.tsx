@@ -36,7 +36,7 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             
             <div className="relative z-10 flex flex-col items-center justify-center flex-1">
                  <div className="relative w-48 h-48 animate-slow-pulse flex items-center justify-center">
-                    <Shield className="absolute w-full h-full text-primary" fill="currentColor" fillOpacity={0.1} strokeWidth={1.5} />
+                    <Shield className="absolute w-full h-full text-primary drop-shadow-[0_0_10px_hsl(var(--primary)/0.7)]" fill="currentColor" fillOpacity={0.1} strokeWidth={1.5} />
                     <div className="absolute w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">
                         <Lock className="w-12 h-12 text-accent" strokeWidth={2} />
                     </div>
