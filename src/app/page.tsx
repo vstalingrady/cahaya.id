@@ -1,3 +1,4 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -158,7 +159,7 @@ export default function WelcomePage() {
                     <div className="space-y-4">
                         <InfiniteLogoScroller institutions={partnersRow1} speed="normal" direction="forward" />
                         <InfiniteLogoScroller institutions={partnersRow2} speed="slow" direction="reverse" />
-                        <InfiniteLogoScroller institutions={partnersRow3} speed="fast" direction="reverse" />
+                        <InfiniteLogoScroller institutions={partnersRow3} speed="fast" direction="forward" />
                     </div>
                     <div className="pt-6">
                         <Button size="lg" className="h-14 text-lg" asChild>
