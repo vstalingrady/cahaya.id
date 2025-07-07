@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -75,7 +76,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
           // Wait for results to show before starting chat animation
           timeouts.push(setTimeout(() => setShowUserPrompt(true), 1500));
           // Reset the whole cycle after a while
-          timeouts.push(setTimeout(cycleAnimation, 14000)); // Total cycle time
+          timeouts.push(setTimeout(cycleAnimation, 12000)); // Total cycle time
         }, 1000)); // Loading duration
       }, 2000)); // Initial button view duration
     };
@@ -97,20 +98,6 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
       timeouts.forEach(clearTimeout);
     };
   }, [isActive]);
-
-  // Scroll effect for results
-  useEffect(() => {
-    if (animationState === 'finished' && scrollRef.current) {
-        const scroller = scrollRef.current;
-        const scrollTimeout = setTimeout(() => {
-            if(scroller) {
-                scroller.scrollTo({ top: 0, behavior: 'auto' });
-                setTimeout(() => scroller.scrollTo({ top: scroller.scrollHeight, behavior: 'smooth' }), 100);
-            }
-        }, 500);
-        return () => clearTimeout(scrollTimeout);
-    }
-  }, [animationState]);
   
   // Typing animation for user prompt
   useEffect(() => {
@@ -142,7 +129,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
   // Typing animation for AI response
   useEffect(() => {
     if (showAiResponse) {
-      const fullMessage = "Great question! You can start with a low-cost index fund ETF like 'BBCA' through a stockbroker app. It's a simple way to diversify.";
+      const fullMessage = "Great question, Budi! You can start with a low-cost index fund ETF like 'BBCA' through a stockbroker app. It's a simple way to diversify.";
       let index = 0;
       const intervalId = setInterval(() => {
         setTypedAiResponse(fullMessage.slice(0, index + 1));
@@ -150,11 +137,21 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
         if (index >= fullMessage.length) {
           clearInterval(intervalId);
         }
-      }, 30); // AI types even faster
+      }, 20); // AI types even faster
       
       return () => clearInterval(intervalId);
     }
   }, [showAiResponse]);
+
+  // Scroll to bottom when chat updates
+  useEffect(() => {
+    if (scrollRef.current && (showUserPrompt || showAiResponse)) {
+        scrollRef.current.scrollTo({
+            top: scrollRef.current.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
+  }, [typedUserMessage, typedAiResponse, showUserPrompt, showAiResponse]);
 
 
   return (
@@ -172,7 +169,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
                 <p className="flashy-gemini-text text-lg">Powered by Gemini</p>
             </div>
             <h3 className="text-xl font-bold font-serif text-foreground">Your Personal Financial Analyst</h3>
-            <p className="text-muted-foreground mt-2 mb-6">Let our AI analyze your spending patterns to uncover personalized insights and saving opportunities.</p>
+            <p className="text-muted-foreground mt-2 mb-6">Let Gemini build your personalized financial plan, find saving opportunities, and answer your toughest money questions.</p>
             <Button size="lg" className="bg-primary hover:bg-primary/90 rounded-xl font-semibold text-lg shadow-lg h-auto animate-slow-pulse">
                 <Sparkles className="w-5 h-5 mr-2" />
                 <span>Generate My Financial Plan</span>
@@ -192,7 +189,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
             "w-full h-full flex flex-col gap-4 transition-opacity duration-500",
             animationState === 'finished' ? 'opacity-100' : 'opacity-0 pointer-events-none'
         )}>
-            {/* Scrollable results area */}
+            {/* Scrollable container for results and chat */}
             <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto custom-scrollbar pr-2 -mr-3">
                 <div className="text-center p-4 bg-secondary/50 rounded-lg border border-border/50">
                     <p className="text-sm font-semibold uppercase tracking-widest text-primary">Your Spender Personality</p>
@@ -227,35 +224,35 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
                         </li>
                     </ul>
                 </div>
-            </div>
-            
-            {/* Chat interaction area */}
-            <div className={cn("mt-auto pt-3 border-t border-border/50 transition-opacity duration-500 space-y-2", showUserPrompt ? 'opacity-100' : 'opacity-0')}>
-                {/* User Prompt */}
-                <div className="flex justify-end">
-                    <div className="bg-primary text-primary-foreground rounded-lg px-3 py-2 text-sm max-w-[80%]">
-                        {typedUserMessage}
-                        {isUserTyping && <span className="cursor-blink">|</span>}
-                    </div>
-                </div>
-
-                {/* AI Typing Indicator */}
-                {showAiTyping && (
-                    <div className="flex justify-start">
-                         <div className="bg-secondary text-foreground rounded-lg px-3 py-2 text-sm">
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                         </div>
-                    </div>
-                )}
                 
-                {/* AI Response */}
-                {showAiResponse && (
-                     <div className="flex justify-start">
-                         <div className="bg-secondary text-foreground rounded-lg px-3 py-2 text-sm max-w-[80%] whitespace-pre-wrap">
-                           {typedAiResponse}
-                         </div>
+                {/* Chat interaction area (now inside scrollable div) */}
+                <div className={cn("pt-4 border-t border-border/50 transition-opacity duration-500 space-y-2", showUserPrompt ? 'opacity-100' : 'opacity-0')}>
+                    {/* User Prompt */}
+                    <div className="flex justify-end">
+                        <div className="bg-primary text-primary-foreground rounded-lg px-3 py-2 text-sm max-w-[80%]">
+                            {typedUserMessage}
+                            {isUserTyping && <span className="cursor-blink">|</span>}
+                        </div>
                     </div>
-                )}
+
+                    {/* AI Typing Indicator */}
+                    {showAiTyping && (
+                        <div className="flex justify-start">
+                             <div className="bg-secondary text-foreground rounded-lg px-3 py-2 text-sm">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                             </div>
+                        </div>
+                    )}
+                    
+                    {/* AI Response */}
+                    {showAiResponse && (
+                         <div className="flex justify-start">
+                             <div className="bg-secondary text-foreground rounded-lg px-3 py-2 text-sm max-w-[80%] whitespace-pre-wrap">
+                               {typedAiResponse}
+                             </div>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     </div>
