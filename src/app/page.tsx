@@ -1,4 +1,3 @@
-
 'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -59,13 +58,13 @@ export default function WelcomePage() {
     .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" /> }));
 
   return (
-    <div className="w-full max-w-md mx-auto min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden">
       <NoiseOverlay opacity={0.02} />
       <div className="absolute inset-0 -z-10 h-full w-full bg-background has-hero-glow"></div>
       
       {/* Header */}
       <header className="w-full p-4 z-10">
-        <div className="w-full flex justify-between items-center">
+        <div className="w-full max-w-md mx-auto flex justify-between items-center">
           <CuanLogo className="w-32 h-auto" />
           <div className="flex items-center gap-2">
             <Button variant="ghost" asChild>
@@ -80,7 +79,7 @@ export default function WelcomePage() {
       
       {/* Main Hero Section */}
       <main className="flex-1 flex items-center justify-center pt-12 pb-12">
-        <div className="w-full px-4 grid grid-cols-1 gap-8 items-center">
+        <div className="w-full max-w-md mx-auto px-4 grid grid-cols-1 gap-8 items-center">
           {/* Text Content */}
           <div className="text-center space-y-6 animate-fade-in-up">
             <h1 className="text-4xl font-bold font-serif leading-tight">
@@ -121,7 +120,7 @@ export default function WelcomePage() {
 
       {/* Feature Selector Section */}
        <section className="py-12 bg-background/50 backdrop-blur-sm">
-         <div className="w-full px-4 grid grid-cols-1 gap-4">
+         <div className="w-full max-w-md mx-auto px-4 grid grid-cols-1 gap-4">
             {featureSlides.map((slide, index) => (
               <button
                 key={slide.id}
@@ -138,7 +137,7 @@ export default function WelcomePage() {
 
       {/* Compatibility Section */}
        <section className="py-24 bg-card/20">
-        <div className="w-full px-4 text-center">
+        <div className="w-full max-w-md mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold font-serif">Broad Compatibility</h2>
           <p className="text-muted-foreground mt-4 mb-12 max-w-2xl mx-auto">
             We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
@@ -152,7 +151,7 @@ export default function WelcomePage() {
 
       {/* Footer */}
       <footer className="py-8 bg-background">
-          <div className="w-full px-4 text-center text-muted-foreground">
+          <div className="w-full max-w-md mx-auto px-4 text-center text-muted-foreground">
             <p>&copy; {new Date().getFullYear()} CuanFlex. All Rights Reserved.</p>
           </div>
       </footer>
