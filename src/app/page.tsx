@@ -70,7 +70,7 @@ export default function WelcomePage() {
           <div className="h-full flex">
             
             {/* Slide 1: Hero */}
-            <section className="h-full w-full flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center space-y-4 animate-fade-in-up max-w-sm">
                     <h1 className="text-3xl text-foreground font-bold font-serif leading-tight">
                         All Your Money, <br />
@@ -85,7 +85,7 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 2: Dashboard */}
-            <section className="h-full w-full flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center max-w-sm">
                     <BarChart2 className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Unified Dashboard</h2>
@@ -97,7 +97,7 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 3: Payments */}
-            <section className="h-full w-full flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center max-w-sm">
                     <Zap className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Effortless Payments</h2>
@@ -109,7 +109,7 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 4: Insights */}
-            <section className="h-full w-full flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center max-w-sm">
                     <Sparkles className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">AI-Powered Insights</h2>
@@ -121,7 +121,7 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 5: Vaults */}
-            <section className="h-full w-full flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center max-w-sm">
                     <PiggyBank className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Automated Savings</h2>
@@ -133,7 +133,7 @@ export default function WelcomePage() {
             </section>
             
             {/* Slide 6: Sign Up */}
-            <section className="h-full w-full flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center space-y-6 animate-fade-in-up max-w-sm">
                     <h2 className="text-3xl font-bold font-serif text-foreground">Ready to take control?</h2>
                     <p className="text-muted-foreground text-sm mt-4 mb-6">
@@ -159,7 +159,7 @@ export default function WelcomePage() {
           </div>
         </div>
 
-        {/* New Dot Indicator */}
+        {/* Dot Indicator */}
         <div className="flex justify-center items-center gap-2 py-4">
             {Array.from({ length: numSlides }).map((_, index) => (
                 <button
