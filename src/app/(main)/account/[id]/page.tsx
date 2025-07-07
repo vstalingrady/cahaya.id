@@ -7,7 +7,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { type Account, type Transaction } from '@/lib/data';
-import { getAccountDetails, getDashboardData } from '@/lib/actions';
+import { getAccountDetails, getDashboardData, verifySecurityPin, deleteAccount } from '@/lib/actions';
 import { useAuth } from '@/components/auth/auth-provider';
 import TransactionCalendar from '@/components/profile/transaction-calendar';
 import TotalBalance from '@/components/dashboard/total-balance';
@@ -47,6 +47,7 @@ export default function AccountDetailPage() {
 
   const [isUnlinkConfirmOpen, setIsUnlinkConfirmOpen] = useState(false);
   const [pin, setPin] = useState('');
+  const [isUnlinking, setIsUnlinking] = useState(false);
 
   useEffect(() => {
     if (!user || !accountId) return;
@@ -76,20 +77,47 @@ export default function AccountDetailPage() {
     fetchData();
   }, [user, accountId, toast]);
   
-  const handleConfirmUnlink = () => {
-    if (pin.length < 6) return;
+  const handleConfirmUnlink = async () => {
+    if (pin.length < 6 || !user || !account) return;
 
-    // In a real app, this would be an async server action to delete the account link.
-    // For this prototype, we'll just simulate it.
-    toast({
-        title: "Account Unlinked",
-        description: `The "${account?.name}" account has been unlinked.`,
-    });
+    setIsUnlinking(true);
 
-    setIsUnlinkConfirmOpen(false);
-    setPin('');
-    
-    router.push('/dashboard');
+    try {
+      // First, verify the user's PIN for security
+      const pinResult = await verifySecurityPin(user.uid, pin);
+      if (!pinResult.success) {
+        toast({
+          variant: 'destructive',
+          title: "Invalid PIN",
+          description: pinResult.reason || "The PIN you entered is incorrect.",
+        });
+        setPin(''); // Clear PIN input for retry
+        setIsUnlinking(false);
+        return;
+      }
+      
+      // If PIN is correct, proceed to delete the account
+      const result = await deleteAccount(user.uid, account.id);
+
+      if (result.success) {
+          toast({
+              title: "Account Unlinked",
+              description: `The "${account.name}" account has been successfully unlinked.`,
+          });
+          setIsUnlinkConfirmOpen(false);
+          setPin('');
+          router.push('/dashboard');
+      } else {
+          throw new Error(result.error || 'An unknown error occurred during deletion.');
+      }
+    } catch (error: any) {
+        toast({
+            variant: 'destructive',
+            title: 'Unlinking Failed',
+            description: error.message || 'Could not unlink the account.',
+        });
+        setIsUnlinking(false);
+    }
   };
   
   if (isLoading) {
@@ -125,7 +153,7 @@ export default function AccountDetailPage() {
             <AlertDialogHeader>
             <AlertDialogTitle>Unlink "{account.name}"?</AlertDialogTitle>
             <AlertDialogDescription>
-                This action cannot be undone. To continue, please enter your 6-character Cahaya PIN.
+                This action will permanently delete this account and its transaction history. To continue, please enter your 6-character Cahaya PIN.
             </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="py-4">
@@ -142,10 +170,10 @@ export default function AccountDetailPage() {
             <AlertDialogCancel onClick={() => setPin('')}>Cancel</AlertDialogCancel>
             <AlertDialogAction
                 onClick={handleConfirmUnlink}
-                disabled={pin.length < 6}
+                disabled={pin.length < 6 || isUnlinking}
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-                Unlink Account
+                {isUnlinking ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Unlink Account'}
             </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>

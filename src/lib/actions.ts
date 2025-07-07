@@ -126,7 +126,7 @@ export async function completeUserProfile(uid: string, fullName: string, email: 
         phone: phone,
         createdAt: new Date(),
       });
-      await seedInitialDataForUser(uid);
+      // New users start with a clean slate, so no data seeding here.
     } else {
       console.log(`User ${uid} already exists. Skipping data seeding.`);
     }
@@ -273,7 +273,7 @@ export async function syncAccountsFromProvider(userId: string, accessToken: stri
       id: mockAcc.account_id,
       name: mockAcc.name,
       institutionSlug: mockAcc.institution_id,
-      type: mockAcc.type as 'bank' | 'e-wallet' | 'investment' | 'loan',
+      type: mockAcc.subtype === 'digital_wallet' ? 'e-wallet' : mockAcc.type === 'depository' ? 'bank' : (mockAcc.type as 'investment' | 'loan'),
       balance: mockAcc.balances.current,
       accountNumber: mockAcc.mask,
       isPinned: false, // Default for newly linked accounts
@@ -554,6 +554,47 @@ export async function removeFavorite(userId: string, favoriteId: string) {
     const favoriteDocRef = doc(db, 'users', userId, 'favorites', favoriteId);
     await deleteDoc(favoriteDocRef);
     revalidatePath('/transfer');
+}
+
+// ---- Account Actions ----
+
+/**
+ * Deletes an account and its associated transactions from Firestore.
+ * @param {string} userId - The user's unique ID.
+ * @param {string} accountId - The ID of the account to delete.
+ */
+export async function deleteAccount(userId: string, accountId: string): Promise<{ success: boolean, error?: string }> {
+    if (!userId || !accountId) {
+        return { success: false, error: 'User ID and Account ID are required.' };
+    }
+
+    try {
+        const batch = writeBatch(db);
+
+        // 1. Delete the account document
+        const accountDocRef = doc(db, 'users', userId, 'accounts', accountId);
+        batch.delete(accountDocRef);
+
+        // 2. Find and delete all transactions associated with this account
+        const transactionsCol = collection(db, 'users', userId, 'transactions');
+        const q = query(transactionsCol, where('accountId', '==', accountId));
+        const transactionsSnapshot = await getDocs(q);
+        
+        transactionsSnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+
+        await batch.commit();
+        
+        revalidatePath('/dashboard');
+        revalidatePath('/history');
+        revalidatePath(`/account/${accountId}`);
+
+        return { success: true };
+    } catch (error) {
+        console.error('Error deleting account:', error);
+        return { success: false, error: 'Could not delete the account.' };
+    }
 }
 
 // ---- AI Actions ----
