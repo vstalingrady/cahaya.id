@@ -13,6 +13,8 @@ const groupInstitutions = (institutions: FinancialInstitution[]) => {
   const grouped: { [key: string]: FinancialInstitution[] } = {
     'Major Banks': [],
     'E-Wallets': [],
+    'Investment Platforms': [],
+    'Loan & Credit': [],
   };
 
   institutions.forEach(inst => {
@@ -20,6 +22,10 @@ const groupInstitutions = (institutions: FinancialInstitution[]) => {
       grouped['Major Banks'].push(inst);
     } else if (inst.type === 'e-wallet') {
       grouped['E-Wallets'].push(inst);
+    } else if (inst.type === 'investment') {
+      grouped['Investment Platforms'].push(inst);
+    } else if (inst.type === 'loan') {
+      grouped['Loan & Credit'].push(inst);
     }
   });
 
