@@ -1,8 +1,7 @@
-
 'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, BarChart2, Zap, PiggyBank, Sparkles } from 'lucide-react';
+import { ArrowRight, BarChart2, Zap, PiggyBank, Sparkles, ClipboardList } from 'lucide-react';
 import CuanLogo from '@/components/icons/cuanlogo';
 import NoiseOverlay from '@/components/noise-overlay';
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
@@ -11,6 +10,7 @@ import InfiniteLogoScroller from '@/components/infinite-logo-scroller';
 import WelcomePaymentMockup from '@/components/welcome-payment-mockup';
 import WelcomeInsightsMockup from '@/components/welcome-insights-mockup';
 import WelcomeVaultsMockup from '@/components/welcome-vaults-mockup';
+import WelcomeBudgetsMockup from '@/components/welcome-budgets-mockup';
 import Image from 'next/image';
 import React, { useState, useEffect, useCallback } from 'react';
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react';
@@ -44,7 +44,7 @@ export default function WelcomePage() {
     .filter(f => ['gopay', 'ovo', 'dana', 'shopeepay', 'linkaja'].includes(f.slug))
     .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" data-ai-hint={`${f.name} logo`} /> }));
 
-  const numSlides = 6;
+  const numSlides = 7;
 
   return (
     <div className="relative min-h-screen w-full bg-background text-foreground overflow-hidden">
@@ -92,7 +92,7 @@ export default function WelcomePage() {
                     <p className="text-muted-foreground text-sm">See your complete financial picture in one glance. Track balances across all your linked accounts in real-time.</p>
                 </div>
                 <div className="w-full px-4">
-                    <WelcomeDashboardMockup isActive={true} className="h-[400px]" />
+                    <WelcomeDashboardMockup isActive={selectedIndex === 1} className="h-[400px]" />
                 </div>
             </section>
 
@@ -104,11 +104,23 @@ export default function WelcomePage() {
                     <p className="text-muted-foreground text-sm">Pay bills, transfer funds, and top-up e-wallets seamlessly from any of your accounts, all from one central hub.</p>
                 </div>
                 <div className="w-full px-4">
-                    <WelcomePaymentMockup isActive={true} />
+                    <WelcomePaymentMockup isActive={selectedIndex === 2} />
                 </div>
             </section>
 
-            {/* Slide 4: Insights */}
+            {/* Slide 4: Budgets */}
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
+                <div className="text-center max-w-sm">
+                    <ClipboardList className="w-8 h-8 text-primary mx-auto mb-2" />
+                    <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Smart Budgeting</h2>
+                    <p className="text-muted-foreground text-sm">Set custom budgets, track your spending against them in real-time, and get coached by our AI to stay on track.</p>
+                </div>
+                <div className="w-full px-4">
+                    <WelcomeBudgetsMockup isActive={selectedIndex === 3} className="h-[400px]" />
+                </div>
+            </section>
+
+            {/* Slide 5: Insights */}
             <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center max-w-sm">
                     <Sparkles className="w-8 h-8 text-primary mx-auto mb-2" />
@@ -116,11 +128,11 @@ export default function WelcomePage() {
                     <p className="text-muted-foreground text-sm">Let our AI analyze your spending to find personalized saving opportunities and create actionable financial plans.</p>
                 </div>
                 <div className="w-full px-4">
-                    <WelcomeInsightsMockup isActive={true} className="h-[450px]" />
+                    <WelcomeInsightsMockup isActive={selectedIndex === 4} className="h-[450px]" />
                 </div>
             </section>
 
-            {/* Slide 5: Vaults */}
+            {/* Slide 6: Vaults */}
             <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center max-w-sm">
                     <PiggyBank className="w-8 h-8 text-primary mx-auto mb-2" />
@@ -128,11 +140,11 @@ export default function WelcomePage() {
                     <p className="text-muted-foreground text-sm">Create savings vaults for your goals. Automate contributions with round-ups and scheduled transfers.</p>
                 </div>
                 <div className="w-full px-4">
-                    <WelcomeVaultsMockup isActive={true} className="h-[450px]" />
+                    <WelcomeVaultsMockup isActive={selectedIndex === 5} className="h-[450px]" />
                 </div>
             </section>
             
-            {/* Slide 6: Sign Up */}
+            {/* Slide 7: Sign Up */}
             <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center space-y-6 animate-fade-in-up max-w-sm">
                     <h2 className="text-3xl font-bold font-serif text-foreground">Ready to take control?</h2>
