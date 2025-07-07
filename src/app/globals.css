@@ -193,7 +193,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 140px;
+    width: 110px;
     height: 110px;
     background-color: hsl(var(--card));
     border: 1px solid hsl(var(--border));

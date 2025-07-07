@@ -44,6 +44,10 @@ export default function WelcomePage() {
     .filter(f => ['gopay', 'ovo', 'dana', 'shopeepay', 'linkaja'].includes(f.slug))
     .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" data-ai-hint={`${f.name} logo`} /> }));
 
+  const partnersRow3 = financialInstitutions
+    .filter(f => ['bibit', 'pintu', 'jenius', 'dbs', 'ocbc'].includes(f.slug))
+    .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" data-ai-hint={`${f.name} logo`} /> }));
+
   const numSlides = 7;
 
   return (
@@ -154,6 +158,7 @@ export default function WelcomePage() {
                     <div className="space-y-4">
                         <InfiniteLogoScroller institutions={partnersRow1} speed="normal" direction="forward" />
                         <InfiniteLogoScroller institutions={partnersRow2} speed="slow" direction="reverse" />
+                        <InfiniteLogoScroller institutions={partnersRow3} speed="fast" direction="reverse" />
                     </div>
                     <div className="pt-6">
                         <Button size="lg" className="h-14 text-lg" asChild>
