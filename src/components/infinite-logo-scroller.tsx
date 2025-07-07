@@ -68,9 +68,6 @@ export default function InfiniteLogoScroller({
           width: max-content;
         }
         
-        /* --- THE FIX IS HERE --- */
-        /* We define two separate, explicit animations for full control. */
-
         /* Animation for scrolling LEFT (forward) */
         @keyframes scroll-left {
           from {
