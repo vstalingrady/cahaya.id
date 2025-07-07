@@ -2,7 +2,7 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import { ShieldCheck } from "lucide-react";
+import { Shield, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export default function WelcomeSecurityMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
@@ -10,8 +10,8 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
 
     const securityFeatures = [
         "Bank-Grade Encryption",
+        "Biometric Authentication",
         "Secure Data Handling",
-        "Your Privacy is Our Priority",
         "OJK Licensed Partner API"
     ];
 
@@ -35,7 +35,12 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
         )}>
             
             <div className="relative z-10 flex flex-col items-center justify-center flex-1">
-                <ShieldCheck className="w-40 h-40 text-primary animate-slow-pulse" />
+                 <div className="relative w-48 h-48 animate-slow-pulse flex items-center justify-center">
+                    <Shield className="absolute w-full h-full text-primary" fill="currentColor" fillOpacity={0.1} strokeWidth={1.5} />
+                    <div className="absolute w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-lg">
+                        <Lock className="w-12 h-12 text-accent" strokeWidth={2} />
+                    </div>
+                </div>
             </div>
 
             <div className="relative h-6 w-full overflow-hidden mt-auto flex-shrink-0">
