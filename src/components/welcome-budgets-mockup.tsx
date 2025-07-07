@@ -2,17 +2,27 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import { ClipboardList, Plus, Edit, Tag, Banknote, Check, CalendarIcon } from "lucide-react";
+import { ClipboardList, Plus, Edit, Tag, Banknote, Check, CalendarIcon, Repeat, ChevronsUpDown } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
+import Image from "next/image";
+import { Switch } from "./ui/switch";
+import { accounts as seedAccounts } from "@/lib/data-seed";
+
+const getAccountIcon = (slug: string) => {
+    const iconUrl = seedAccounts.find(acc => acc.institutionSlug === slug)?.institutionSlug;
+    if (slug === 'bca') return <Image src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia_logo.svg" alt="BCA" width={16} height={16} />;
+    if (slug === 'gopay') return <Image src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" alt="GoPay" width={16} height={16} />;
+    return <Banknote className="w-4 h-4" />;
+}
 
 const initialBudgets = [
-    { id: 'food', name: 'Monthly Food & Drink', category: 'Food & Drink', current: 5500000, target: 5000000, progress: 110, color: 'destructive', startDate: '2024-07-01', endDate: '2024-07-31' },
-    { id: 'shopping', name: 'Monthly Shopping', category: 'Shopping', current: 2700000, target: 3000000, progress: 90, color: 'yellow-500', startDate: '2024-07-01', endDate: '2024-07-31' },
-    { id: 'transport', name: 'Monthly Transport', category: 'Transportation', current: 1125000, target: 1500000, progress: 75, color: 'primary', startDate: '2024-07-01', endDate: '2024-07-31' },
+    { id: 'food', name: 'Monthly Food & Drink', category: 'Food & Drink', current: 5500000, target: 5000000, progress: 110, color: 'destructive', startDate: '2024-07-01', endDate: '2024-07-31', accounts: ['bca1', 'gopay1', 'ovo1'], isRecurring: true },
+    { id: 'shopping', name: 'Monthly Shopping', category: 'Shopping', current: 2700000, target: 3000000, progress: 90, color: 'yellow-500', startDate: '2024-07-01', endDate: '2024-07-31', accounts: ['bca1'], isRecurring: true },
+    { id: 'transport', name: 'Monthly Transport', category: 'Transportation', current: 1125000, target: 1500000, progress: 75, color: 'primary', startDate: '2024-07-01', endDate: '2024-07-31', accounts: ['gopay1'], isRecurring: false },
 ];
 
 const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
@@ -33,14 +43,14 @@ type AnimationPhase = 'idle' | 'showing_list' | 'button_active' | 'show_form' | 
 export default function WelcomeBudgetsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
     const [displayBudgets, setDisplayBudgets] = useState<DisplayBudget[]>(initialBudgets);
     const [animationPhase, setAnimationPhase] = useState<AnimationPhase>('idle');
-    const [formState, setFormState] = useState({ name: '', category: '', amount: '', startDate: '', endDate: '' });
+    const [formState, setFormState] = useState({ name: '', category: '', amount: '', startDate: '', endDate: '', accounts: [] as string[], isRecurring: false });
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (!isActive) {
             setAnimationPhase('idle');
             setDisplayBudgets(initialBudgets);
-            setFormState({ name: '', category: '', amount: '', startDate: '', endDate: '' });
+            setFormState({ name: '', category: '', amount: '', startDate: '', endDate: '', accounts: [], isRecurring: false });
             if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
             return;
         }
@@ -59,7 +69,7 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
             }, 80);
             timeouts.push(interval as unknown as NodeJS.Timeout);
         };
-
+        
         const sequence = () => {
             setAnimationPhase('showing_list');
             timeouts.push(setTimeout(() => setAnimationPhase('button_active'), 1500));
@@ -71,16 +81,14 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                         type("Travel", t => setFormState(p => ({ ...p, category: t })), () => {
                             timeouts.push(setTimeout(() => {
                                 type("20000000", t => setFormState(p => ({ ...p, amount: t })), () => {
-                                    timeouts.push(setTimeout(() => {
-                                        setFormState(p => ({...p, startDate: "Aug 01, 2024"}));
-                                    }, 300));
-                                    timeouts.push(setTimeout(() => {
-                                        setFormState(p => ({...p, endDate: "Aug 31, 2024"}));
-                                    }, 600));
+                                    timeouts.push(setTimeout(() => setFormState(p => ({...p, startDate: "Aug 01, 2024"})), 300));
+                                    timeouts.push(setTimeout(() => setFormState(p => ({...p, endDate: "Aug 31, 2024"})), 600));
+                                    timeouts.push(setTimeout(() => setFormState(p => ({...p, accounts: ['BCA Main Account', 'GoPay']})), 900));
+                                    timeouts.push(setTimeout(() => setFormState(p => ({...p, isRecurring: true})), 1200));
 
-                                    timeouts.push(setTimeout(() => setAnimationPhase('create_budget'), 1100));
+                                    timeouts.push(setTimeout(() => setAnimationPhase('create_budget'), 1500));
                                     timeouts.push(setTimeout(() => {
-                                        const newBudget: DisplayBudget = { id: 'new', name: 'Japan Trip', category: 'Travel', current: 0, target: 20000000, progress: 0, color: 'primary', isNew: true, startDate: '2024-08-01', endDate: '2024-08-31' };
+                                        const newBudget: DisplayBudget = { id: 'new', name: 'Japan Trip', category: 'Travel', current: 0, target: 20000000, progress: 0, color: 'primary', isNew: true, startDate: '2024-08-01', endDate: '2024-08-31', accounts: ['bca', 'gopay'], isRecurring: true };
                                         setDisplayBudgets(prev => [...prev, newBudget]);
                                         setAnimationPhase('show_new_budget');
                                         timeouts.push(setTimeout(() => {
@@ -91,11 +99,11 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                                         timeouts.push(setTimeout(() => setAnimationPhase('resetting'), 3000));
                                         timeouts.push(setTimeout(() => {
                                             setDisplayBudgets(initialBudgets);
-                                            setFormState({ name: '', category: '', amount: '', startDate: '', endDate: '' });
+                                            setFormState({ name: '', category: '', amount: '', startDate: '', endDate: '', accounts: [], isRecurring: false });
                                             if(scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
                                             sequence();
                                         }, 3500));
-                                    }, 1600));
+                                    }, 2000));
                                 });
                             }, 500));
                         });
@@ -133,6 +141,16 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                                     <p className="text-foreground font-medium text-sm truncate">{budget.name}</p>
                                     <p className="text-xs text-muted-foreground font-medium">{budget.category} &bull; <span className="text-primary/80">{formatDateRange(budget.startDate, budget.endDate)}</span></p>
                                 </div>
+                                <div className="flex items-center gap-1">
+                                    {budget.isRecurring && <Repeat className="w-3 h-3 text-muted-foreground" />}
+                                    <div className="flex -space-x-1">
+                                        {budget.accounts.map(acc => (
+                                            <div key={acc} className="w-4 h-4 rounded-full bg-white flex items-center justify-center border border-border">
+                                                {getAccountIcon(acc)}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
                             </div>
                             <Progress value={budget.progress} className={cn("h-2", `[&>div]:bg-${budget.color}`)} />
                             <div className="flex justify-between text-xs mt-1.5">
@@ -153,11 +171,11 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                 </div>
             </div>
 
-            <div className="absolute inset-0 p-4 flex flex-col gap-3 transition-all duration-300"
+            <div className="absolute inset-0 p-4 flex flex-col gap-2.5 transition-all duration-300"
                 style={{ opacity: !showList ? 1 : 0, transform: !showList ? 'scale(1)' : 'scale(0.95)', pointerEvents: !showList ? 'auto' : 'none' }}
             >
                 <h3 className="text-xl font-bold font-serif text-center text-foreground flex-shrink-0">Create New Budget</h3>
-                 <div className="space-y-3">
+                 <div className="space-y-2">
                     <div className="relative">
                         <Edit className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input value={formState.name} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="Budget Name" />
@@ -170,7 +188,7 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                         <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input value={formState.amount ? formatCurrency(Number(formState.amount)) : ''} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="Amount" />
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2">
                         <div className="relative">
                             <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input value={formState.startDate} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="Start Date" />
@@ -179,6 +197,16 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                             <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input value={formState.endDate} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="End Date" />
                         </div>
+                    </div>
+                    <div className={cn("flex h-10 w-full items-center justify-between rounded-md border bg-input px-3 py-2 transition-colors", formState.accounts.length > 0 ? "border-primary" : "border-border")}>
+                        <span className={cn("truncate text-sm", formState.accounts.length > 0 ? "text-foreground" : "text-muted-foreground")}>
+                            {formState.accounts.length > 0 ? formState.accounts.join(', ') : "Accounts to Track"}
+                        </span>
+                        <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                    </div>
+                     <div className="flex flex-row items-center justify-between rounded-lg border border-border p-3 bg-secondary">
+                        <label className="text-sm font-medium text-foreground">Recurring monthly</label>
+                        <Switch checked={formState.isRecurring} readOnly className="scale-[0.8]" />
                     </div>
                 </div>
                 <Button className={cn("w-full h-12 text-base mt-auto flex-shrink-0 transition-colors duration-200", animationPhase === 'create_budget' ? 'bg-accent text-accent-foreground' : 'bg-primary text-primary-foreground')}>
