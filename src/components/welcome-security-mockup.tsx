@@ -34,9 +34,9 @@ const HexScramble = ({ isActive, lines = 4 }: { isActive: boolean; lines?: numbe
     }, [isActive, lines]);
 
     return (
-        <div className="font-mono text-primary/80 text-base leading-relaxed text-center">
+        <div className="text-primary/80 text-base leading-relaxed text-center">
             {hexStrings.map((hex, i) => (
-                <p key={i} className="select-none">{hex}</p>
+                <p key={i} className="select-none font-mono break-all">{hex}</p>
             ))}
         </div>
     );
