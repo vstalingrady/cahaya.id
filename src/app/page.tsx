@@ -1,4 +1,3 @@
-
 'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -75,7 +74,7 @@ export default function WelcomePage() {
           <div className="h-full flex">
             
             {/* Slide 1: Hero */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pb-6 gap-4 overflow-y-auto custom-scrollbar">
                 <div className="text-center space-y-4 animate-fade-in-up max-w-sm">
                     <h1 className="text-3xl text-foreground font-bold font-serif leading-tight">
                         All Your Money, <br />
