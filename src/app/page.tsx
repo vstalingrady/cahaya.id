@@ -75,7 +75,7 @@ export default function WelcomePage() {
           <div className="h-full flex">
             
             {/* Slide 1: Hero */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pt-10 pb-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pt-12 pb-6 gap-4">
                 <div className="text-center space-y-4 animate-fade-in-up max-w-sm">
                     <h1 className="text-3xl text-foreground font-bold font-serif leading-tight">
                         All Your Money, <br />
@@ -90,7 +90,7 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 2: Dashboard */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pt-10 pb-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4">
                 <div className="text-center max-w-sm">
                     <BarChart2 className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Unified Dashboard</h2>
@@ -102,7 +102,7 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 3: Payments */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pt-10 pb-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4">
                 <div className="text-center max-w-sm">
                     <Zap className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Effortless Payments</h2>
@@ -114,7 +114,7 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 4: Budgets */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pt-10 pb-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4">
                 <div className="text-center max-w-sm">
                     <ClipboardList className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Smart Budgeting</h2>
@@ -126,7 +126,7 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 5: Insights */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pt-10 pb-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4">
                 <div className="text-center max-w-sm">
                     <Sparkles className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">AI-Powered Insights</h2>
@@ -138,7 +138,7 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 6: Vaults */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pt-10 pb-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4">
                 <div className="text-center max-w-sm">
                     <PiggyBank className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Automated Savings</h2>
@@ -150,7 +150,7 @@ export default function WelcomePage() {
             </section>
             
             {/* Slide 7: Sign Up */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pt-10 pb-6 gap-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4">
                 <div className="text-center space-y-6 animate-fade-in-up max-w-sm">
                     <h2 className="text-3xl font-bold font-serif text-foreground">Ready to take control?</h2>
                     <p className="text-muted-foreground text-sm mt-4 mb-6">
