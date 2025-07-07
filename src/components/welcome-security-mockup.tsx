@@ -1,7 +1,8 @@
+
 'use client';
 
 import { cn } from "@/lib/utils";
-import { Shield } from "lucide-react";
+import { Shield, Lock } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const securityFeatures = [
@@ -31,27 +32,30 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             className
         )}>
             {/* The main animated graphic */}
-            <div className="relative flex items-center justify-center w-48 h-48">
-                {/* Layer 1: The Glow (blurred background icon) */}
+            <div className={cn(
+                "relative flex items-center justify-center w-48 h-48 transition-all duration-1000",
+                isActive ? 'scale-100 opacity-100' : 'scale-90 opacity-0'
+            )}>
+                {/* Layer 1: The Glow */}
                 <Shield
-                    className={cn(
-                        "absolute w-24 h-24 text-primary blur-xl transition-opacity duration-2000",
-                        isActive ? "animate-glow-fade" : "opacity-0"
-                    )}
-                    fill="currentColor"
+                    className="absolute w-40 h-40 text-primary opacity-30 blur-2xl"
                 />
-                {/* Layer 2: The Main Icon (breathing) */}
-                <Shield
-                    className="relative w-24 h-24 text-primary animate-slow-pulse"
-                    fill="currentColor"
-                />
+                
+                {/* Layer 2: The Breathing Shield & Lock */}
+                <div className="relative animate-slow-pulse">
+                    <Shield
+                        className="w-32 h-32 text-primary"
+                        fill="currentColor"
+                    />
+                    <Lock className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 text-white" />
+                </div>
             </div>
 
             {/* The text ticker animation */}
             <div className="relative h-6 w-full overflow-hidden mt-4">
                 <div 
                     className="transition-transform duration-700 ease-in-out"
-                    style={{ transform: `translateY(-${featureIndex * 1.5}rem)` }} // 1.5rem = h-6
+                    style={{ transform: `translateY(-${featureIndex * 1.5}rem)` }}
                 >
                     {securityFeatures.map((feature) => (
                         <p key={feature} className="h-6 text-foreground font-semibold flex items-center justify-center">
