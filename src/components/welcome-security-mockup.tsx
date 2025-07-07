@@ -34,7 +34,7 @@ const HexScramble = ({ isActive, count = 8 }: { isActive: boolean, count?: numbe
     }, [isActive, count]);
 
     return (
-        <div className="absolute inset-0 z-0 flex justify-around items-center overflow-hidden font-mono text-primary/20 text-[10px] [text-orientation:mixed] [writing-mode:vertical-rl] opacity-50">
+        <div className="absolute inset-0 z-0 flex justify-around items-center overflow-hidden font-mono text-primary/40 text-xs [text-orientation:mixed] [writing-mode:vertical-rl] opacity-75">
             {hexStrings.map((hex, i) => (
                 <p key={i} className="truncate select-none">{hex}{hex}</p>
             ))}
@@ -53,14 +53,14 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
 
         const timer = setInterval(() => {
             setFeatureIndex(prev => (prev + 1) % securityFeatures.length);
-        }, 2000); // Animation speed set to 2 seconds
+        }, 2000);
         
         return () => clearInterval(timer);
     }, [isActive]);
 
     return (
         <div className={cn(
-            "relative w-full max-w-sm rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col justify-around items-center text-center",
+            "relative w-full max-w-sm rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col justify-around items-center text-center h-[500px]",
             className
         )}>
             <HexScramble isActive={isActive} />
