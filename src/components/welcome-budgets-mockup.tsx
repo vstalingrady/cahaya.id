@@ -11,17 +11,28 @@ import { format } from "date-fns";
 import Image from "next/image";
 import { Switch } from "./ui/switch";
 import { accounts as seedAccounts } from "@/lib/data-seed";
+import { financialInstitutions } from "@/lib/data";
 
-const getAccountIcon = (slug: string) => {
-    const iconUrl = seedAccounts.find(acc => acc.institutionSlug === slug)?.institutionSlug;
-    if (slug === 'bca') return <Image src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia_logo.svg" alt="BCA" width={16} height={16} />;
-    if (slug === 'gopay') return <Image src="https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg" alt="GoPay" width={16} height={16} />;
+const getAccountIcon = (accountId: string) => {
+    // Find the account from the seed data using its ID
+    const account = seedAccounts.find(acc => acc.id === accountId);
+    if (!account) return <Banknote className="w-4 h-4" />;
+
+    // Use the account's institutionSlug to find the institution details
+    const institution = financialInstitutions.find(inst => inst.slug === account.institutionSlug);
+    
+    // If we find an institution and it has a logo, use it.
+    if (institution?.logoUrl) {
+        return <Image src={institution.logoUrl} alt={institution.name} width={16} height={16} className="object-contain" />;
+    }
+    
+    // Fallback icon if no logo is found
     return <Banknote className="w-4 h-4" />;
-}
+};
 
 const initialBudgets = [
-    { id: 'food', name: 'Monthly Food & Drink', category: 'Food & Drink', current: 5500000, target: 5000000, progress: 110, color: 'destructive', startDate: '2024-07-01', endDate: '2024-07-31', accounts: ['bca1', 'gopay1', 'ovo1'], isRecurring: true },
-    { id: 'shopping', name: 'Monthly Shopping', category: 'Shopping', current: 2700000, target: 3000000, progress: 90, color: 'yellow-500', startDate: '2024-07-01', endDate: '2024-07-31', accounts: ['bca1'], isRecurring: true },
+    { id: 'food', name: 'Monthly Food & Drink', category: 'Food & Drink', current: 5500000, target: 5000000, progress: 110, color: 'destructive', startDate: '2024-07-01', endDate: '2024-07-31', accounts: ['bca1', 'gopay1'], isRecurring: true },
+    { id: 'shopping', name: 'Monthly Shopping', category: 'Shopping', current: 2700000, target: 3000000, progress: 90, color: 'yellow-500', startDate: '2024-07-01', endDate: '2024-07-31', accounts: ['mandiri1', 'ovo1'], isRecurring: true },
     { id: 'transport', name: 'Monthly Transport', category: 'Transportation', current: 1125000, target: 1500000, progress: 75, color: 'primary', startDate: '2024-07-01', endDate: '2024-07-31', accounts: ['gopay1'], isRecurring: false },
 ];
 
@@ -85,10 +96,9 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                                     timeouts.push(setTimeout(() => setFormState(p => ({...p, endDate: "Aug 31, 2024"})), 600));
                                     timeouts.push(setTimeout(() => setFormState(p => ({...p, accounts: ['BCA Main Account', 'GoPay']})), 900));
                                     timeouts.push(setTimeout(() => setFormState(p => ({...p, isRecurring: true})), 1200));
-
                                     timeouts.push(setTimeout(() => setAnimationPhase('create_budget'), 1500));
                                     timeouts.push(setTimeout(() => {
-                                        const newBudget: DisplayBudget = { id: 'new', name: 'Japan Trip', category: 'Travel', current: 0, target: 20000000, progress: 0, color: 'primary', isNew: true, startDate: '2024-08-01', endDate: '2024-08-31', accounts: ['bca', 'gopay'], isRecurring: true };
+                                        const newBudget: DisplayBudget = { id: 'new', name: 'Japan Trip', category: 'Travel', current: 0, target: 20000000, progress: 0, color: 'primary', isNew: true, startDate: '2024-08-01', endDate: '2024-08-31', accounts: ['bca1', 'gopay1'], isRecurring: true };
                                         setDisplayBudgets(prev => [...prev, newBudget]);
                                         setAnimationPhase('show_new_budget');
                                         timeouts.push(setTimeout(() => {
@@ -120,7 +130,7 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
 
     return (
         <div className={cn(
-            "relative w-full max-w-sm h-[450px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
+            "relative w-full max-w-sm h-[500px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
             className
         )}>
              <div className="absolute inset-0 p-4 flex flex-col gap-4 transition-all duration-300"
