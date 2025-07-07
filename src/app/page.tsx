@@ -12,8 +12,30 @@ import WelcomePaymentMockup from '@/components/welcome-payment-mockup';
 import WelcomeInsightsMockup from '@/components/welcome-insights-mockup';
 import WelcomeVaultsMockup from '@/components/welcome-vaults-mockup';
 import Image from 'next/image';
+import React, { useState, useEffect, useCallback } from 'react';
+import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react';
+import { cn } from '@/lib/utils';
 
 export default function WelcomePage() {
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
+  const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, []);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    onSelect(emblaApi);
+    emblaApi.on('select', onSelect);
+    emblaApi.on('reInit', onSelect);
+    return () => {
+      emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
+    };
+  }, [emblaApi, onSelect]);
+
   const partnersRow1 = financialInstitutions
     .filter(f => f.type === 'bank' && ['bca', 'mandiri', 'bri', 'bni', 'cimb'].includes(f.slug))
     .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" data-ai-hint={`${f.name} logo`} /> }));
@@ -22,15 +44,14 @@ export default function WelcomePage() {
     .filter(f => ['gopay', 'ovo', 'dana', 'shopeepay', 'linkaja'].includes(f.slug))
     .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" data-ai-hint={`${f.name} logo`} /> }));
 
+  const numSlides = 6;
+
   return (
-    // This div handles the background for the whole page.
     <div className="relative min-h-screen w-full bg-background text-foreground overflow-hidden">
       <NoiseOverlay opacity={0.02} />
       <div className="absolute inset-0 -z-10 h-full w-full bg-background has-hero-glow" />
       
-      {/* This div creates the centered, mobile-width container */}
       <div className="w-full max-w-md mx-auto h-screen flex flex-col">
-        {/* Header sits inside the mobile container */}
         <header className="p-4 z-50 flex-shrink-0">
           <div className="w-full flex justify-between items-center">
             <CuanLogo className="w-32 h-auto" />
@@ -45,14 +66,13 @@ export default function WelcomePage() {
           </div>
         </header>
 
-        {/* Horizontal Scrolling Container takes up the remaining space */}
-        <div className="flex-1 overflow-hidden">
-          <div className="h-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden flex">
+        <div className="flex-1 overflow-hidden" ref={emblaRef}>
+          <div className="h-full flex">
             
             {/* Slide 1: Hero */}
-            <section className="h-full w-full flex-shrink-0 snap-center flex flex-col items-center justify-center p-6 gap-4">
+            <section className="h-full w-full flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center space-y-4 animate-fade-in-up max-w-sm">
-                    <h1 className="text-3xl font-bold font-serif leading-tight">
+                    <h1 className="text-3xl text-foreground font-bold font-serif leading-tight">
                         All Your Money, <br />
                         <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                             One Single App.
@@ -61,15 +81,14 @@ export default function WelcomePage() {
                     <p className="text-base text-muted-foreground">
                         CuanFlex securely connects to all your accounts, giving you a complete financial overview and AI-powered insights to grow your wealth.
                     </p>
-                    <p className="text-sm text-muted-foreground animate-pulse">Scroll to discover features &rarr;</p>
                 </div>
             </section>
 
             {/* Slide 2: Dashboard */}
-            <section className="h-full w-full flex-shrink-0 snap-center flex flex-col items-center justify-center p-6 gap-4">
+            <section className="h-full w-full flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center max-w-sm">
                     <BarChart2 className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <h2 className="text-2xl font-bold font-serif mb-1">Unified Dashboard</h2>
+                    <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Unified Dashboard</h2>
                     <p className="text-muted-foreground text-sm">See your complete financial picture in one glance. Track balances across all your linked accounts in real-time.</p>
                 </div>
                 <div className="w-full px-4">
@@ -78,10 +97,10 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 3: Payments */}
-            <section className="h-full w-full flex-shrink-0 snap-center flex flex-col items-center justify-center p-6 gap-4">
+            <section className="h-full w-full flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center max-w-sm">
                     <Zap className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <h2 className="text-2xl font-bold font-serif mb-1">Effortless Payments</h2>
+                    <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Effortless Payments</h2>
                     <p className="text-muted-foreground text-sm">Pay bills, transfer funds, and top-up e-wallets seamlessly from any of your accounts, all from one central hub.</p>
                 </div>
                 <div className="w-full px-4">
@@ -90,10 +109,10 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 4: Insights */}
-            <section className="h-full w-full flex-shrink-0 snap-center flex flex-col items-center justify-center p-6 gap-4">
+            <section className="h-full w-full flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center max-w-sm">
                     <Sparkles className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <h2 className="text-2xl font-bold font-serif mb-1">AI-Powered Insights</h2>
+                    <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">AI-Powered Insights</h2>
                     <p className="text-muted-foreground text-sm">Let our AI analyze your spending to find personalized saving opportunities and create actionable financial plans.</p>
                 </div>
                 <div className="w-full px-4">
@@ -102,10 +121,10 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 5: Vaults */}
-            <section className="h-full w-full flex-shrink-0 snap-center flex flex-col items-center justify-center p-6 gap-4">
+            <section className="h-full w-full flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center max-w-sm">
                     <PiggyBank className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <h2 className="text-2xl font-bold font-serif mb-1">Automated Savings</h2>
+                    <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Automated Savings</h2>
                     <p className="text-muted-foreground text-sm">Create savings vaults for your goals. Automate contributions with round-ups and scheduled transfers.</p>
                 </div>
                 <div className="w-full px-4">
@@ -114,9 +133,9 @@ export default function WelcomePage() {
             </section>
             
             {/* Slide 6: Sign Up */}
-            <section className="h-full w-full flex-shrink-0 snap-center flex flex-col items-center justify-center p-6 gap-4">
+            <section className="h-full w-full flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center p-6 gap-4">
                 <div className="text-center space-y-6 animate-fade-in-up max-w-sm">
-                    <h2 className="text-3xl font-bold font-serif">Ready to take control?</h2>
+                    <h2 className="text-3xl font-bold font-serif text-foreground">Ready to take control?</h2>
                     <p className="text-muted-foreground text-sm mt-4 mb-6">
                         We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
                     </p>
@@ -138,6 +157,21 @@ export default function WelcomePage() {
             </section>
 
           </div>
+        </div>
+
+        {/* New Dot Indicator */}
+        <div className="flex justify-center items-center gap-2 py-4">
+            {Array.from({ length: numSlides }).map((_, index) => (
+                <button
+                    key={index}
+                    onClick={() => emblaApi?.scrollTo(index)}
+                    className={cn(
+                        "transition-all duration-300 rounded-full",
+                        index === selectedIndex ? "w-6 h-2 bg-primary" : "w-2 h-2 bg-muted hover:bg-muted-foreground/50"
+                    )}
+                    aria-label={`Go to slide ${index + 1}`}
+                />
+            ))}
         </div>
       </div>
     </div>
