@@ -219,7 +219,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
             {/* Mockup Header */}
             <div className="flex-shrink-0 mb-4 pointer-events-none">
                 <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                    Clarity Vaults
+                    Cahaya Vaults
                 </h1>
             </div>
             
