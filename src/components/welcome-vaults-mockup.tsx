@@ -229,7 +229,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                  <div className={cn("absolute inset-0 flex flex-col justify-start p-2 bg-card/80 rounded-xl transition-all duration-300 overflow-hidden",
                     !showList ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
                 )}>
-                    <h3 className="text-base font-bold text-center mb-2 font-serif flex-shrink-0">Create New Vault</h3>
+                    <h3 className="text-base font-bold text-center mb-2 font-serif flex-shrink-0 text-foreground">Create New Vault</h3>
                     {/* The scrollable area for the form content */}
                     <div ref={formScrollRef} className="space-y-1.5 text-xs overflow-y-auto custom-scrollbar pr-1 flex-1">
                         {/* Form Fields: Name and Amount */}
@@ -248,7 +248,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                             <div className={cn("flex h-9 w-full items-center justify-between rounded-md border bg-input px-3 py-2 mt-1 transition-colors", formState.fundingSources.length > 0 ? "border-primary" : "border-border")}>
                                 <span className={cn(
                                     "truncate",
-                                    formState.fundingSources.length > 0 ? "text-white" : "text-muted-foreground"
+                                    formState.fundingSources.length > 0 ? "text-foreground" : "text-muted-foreground"
                                 )}>
                                     {formState.fundingSources.length > 0
                                         ? formState.fundingSources.map(id => id === 'bca1' ? 'BCA Main Account' : 'GoPay').join(', ')
@@ -262,7 +262,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                         <div>
                             <label className="text-muted-foreground font-semibold text-xs">Destination Account</label>
                             <div className={cn("flex h-9 w-full items-center justify-between rounded-md border bg-input px-3 py-2 mt-1 transition-colors", formState.destinationAccount ? "border-primary" : "border-border")}>
-                                <span className={cn(formState.destinationAccount ? "text-white" : "text-muted-foreground")}>
+                                <span className={cn(formState.destinationAccount ? "text-foreground" : "text-muted-foreground")}>
                                     {formState.destinationAccount ? formState.destinationAccount : 'Select an account'}
                                 </span>
                                 <ChevronDown className="h-4 w-4 opacity-50" />
@@ -271,7 +271,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                         
                         {/* Form Field: Auto-saving Switch */}
                         <div className="flex flex-row items-center justify-between rounded-lg border border-border p-2 bg-secondary">
-                            <label className="text-xs text-white">Enable Auto-Saving</label>
+                            <label className="text-xs text-foreground">Enable Auto-Saving</label>
                             <Switch checked={formState.autoSaveEnabled} readOnly className="scale-[0.6]" />
                         </div>
 
@@ -279,13 +279,13 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                         <div className={cn("pl-2 border-l-2 border-primary/50 space-y-1 transition-all duration-300", formState.autoSaveEnabled ? "max-h-40 opacity-100" : "max-h-0 opacity-0 pointer-events-none")}>
                             <div className="grid grid-cols-3 gap-1">
                                 <div className={cn("relative flex items-center justify-center rounded-md border-2 p-1.5 transition-colors", formState.autoSaveFrequency === 'daily' ? 'border-accent bg-accent/20' : 'border-border')}>
-                                    <label className="font-normal cursor-pointer text-xs">Daily</label>
+                                    <label className="font-normal cursor-pointer text-xs text-foreground">Daily</label>
                                 </div>
                                 <div className={cn("relative flex items-center justify-center rounded-md border-2 p-1.5 transition-colors", formState.autoSaveFrequency === 'weekly' ? 'border-accent bg-accent/20' : 'border-border')}>
-                                    <label className="font-normal cursor-pointer text-xs">Weekly</label>
+                                    <label className="font-normal cursor-pointer text-xs text-foreground">Weekly</label>
                                 </div>
                                 <div className={cn("relative flex items-center justify-center rounded-md border-2 p-1.5 transition-colors", formState.autoSaveFrequency === 'monthly' ? 'border-accent bg-accent/20' : 'border-border')}>
-                                    <label className="font-normal cursor-pointer text-xs">Monthly</label>
+                                    <label className="font-normal cursor-pointer text-xs text-foreground">Monthly</label>
                                 </div>
                             </div>
                             <div className="relative pt-0.5">
@@ -296,12 +296,12 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
 
                         {/* Form Field: Round up Switch */}
                         <div className="flex flex-row items-center justify-between rounded-lg border border-border p-2 bg-secondary">
-                            <label className="text-xs text-white">Enable Round-Ups</label>
+                            <label className="text-xs text-foreground">Enable Round-Ups</label>
                             <Switch checked={formState.roundUpEnabled} readOnly className="scale-[0.6]" />
                         </div>
                     </div>
                      {/* "Create Vault" Button */}
-                     <Button className={cn("w-full h-10 text-base mt-2 flex-shrink-0 transition-colors duration-200", animationPhase === 'create_vault' ? 'bg-accent text-white' : 'bg-primary')}>
+                     <Button className={cn("w-full h-10 text-base mt-2 flex-shrink-0 transition-colors duration-200", animationPhase === 'create_vault' ? 'bg-accent text-accent-foreground' : 'bg-primary text-primary-foreground')}>
                         {animationPhase === 'create_vault' ? <Check className="w-5 h-5"/> : 'Create Vault'}
                      </Button>
                 </div>
@@ -325,7 +325,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                             )} ref={el => { if (el && vault.isNew) { setTimeout(() => el.classList.remove('opacity-0', 'translate-y-4'), 50); }}}>
                                 <div className="flex items-start justify-between mb-3"><div className="flex items-start gap-3">
                                     <div className="text-2xl mt-1">{icons[vault.icon] || '💰'}</div>
-                                    <div><p className="font-semibold text-lg text-white">{vault.name}</p><p className="text-sm"><span className="text-white font-semibold">{formatCurrency(vault.animatedAmount ?? vault.currentAmount)}</span><span className="font-normal text-muted-foreground"> of {formatCurrency(vault.targetAmount)}</span></p>
+                                    <div><p className="font-semibold text-lg text-foreground">{vault.name}</p><p className="text-sm"><span className="text-foreground font-semibold">{formatCurrency(vault.animatedAmount ?? vault.currentAmount)}</span><span className="font-normal text-muted-foreground"> of {formatCurrency(vault.targetAmount)}</span></p>
                                     </div></div>
                                     <Trash2 className="w-4 h-4 text-muted-foreground" />
                                 </div>

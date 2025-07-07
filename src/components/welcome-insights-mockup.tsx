@@ -36,7 +36,7 @@ const ScoreCircle = ({ score, isActive }: { score: number, isActive: boolean }) 
                 />
             </svg>
             <div className={cn("absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-500", isActive ? 'opacity-100' : 'opacity-0')}>
-                <span className="text-5xl font-bold text-white">{score}</span>
+                <span className="text-5xl font-bold text-foreground">{score}</span>
                 <span className="text-sm text-muted-foreground">Score</span>
             </div>
         </div>
@@ -134,7 +134,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
             animationState === 'initial' ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
         )}>
             <Sparkles className="w-12 h-12 text-primary mx-auto mb-4" />
-            <h3 className="text-xl font-bold font-serif text-white">Your Personal Financial Analyst</h3>
+            <h3 className="text-xl font-bold font-serif text-foreground">Your Personal Financial Analyst</h3>
             <p className="text-muted-foreground mt-2 mb-6">Let our AI analyze your spending patterns to uncover personalized insights and saving opportunities.</p>
             <Button size="lg" className="bg-primary hover:bg-primary/90 rounded-xl font-semibold text-lg shadow-lg h-auto animate-slow-pulse">
                 <Sparkles className="w-5 h-5 mr-2" />
@@ -159,7 +159,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
             <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto custom-scrollbar pr-2 -mr-3">
                 <div className="text-center p-4 bg-secondary/50 rounded-lg border border-border/50">
                     <p className="text-sm font-semibold uppercase tracking-widest text-primary">Your Spender Personality</p>
-                    <h3 className="text-2xl font-bold font-serif text-white mt-1">"The Foodie Explorer"</h3>
+                    <h3 className="text-2xl font-bold font-serif text-foreground mt-1">"The Foodie Explorer"</h3>
                 </div>
                 
                 <div className="flex-1 flex flex-col items-center justify-center p-4 bg-secondary/50 rounded-lg border border-border/50 min-h-[220px]">
@@ -167,14 +167,14 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
                 </div>
 
                 <div className="space-y-3">
-                    <h3 className="font-semibold text-lg text-white font-serif">Summary:</h3>
+                    <h3 className="font-semibold text-lg text-foreground font-serif">Summary:</h3>
                     <p className="text-muted-foreground text-sm">
                         Your Financial Health Score is a solid 78! You're doing great with savings. As a "Foodie Explorer," your largest spending area is dining out, which presents a great opportunity to save without impacting your lifestyle too much.
                     </p>
                 </div>
                 
                 <div className="space-y-3">
-                    <h3 className="font-semibold text-lg text-white font-serif">Your Action Plan:</h3>
+                    <h3 className="font-semibold text-lg text-foreground font-serif">Your Action Plan:</h3>
                     <ul className="space-y-2">
                         <li className="flex items-start gap-3 bg-secondary/80 p-3 rounded-lg border border-border/50">
                             <div className="w-5 h-5 bg-primary rounded-full flex-shrink-0 mt-1 flex items-center justify-center"><Check className="w-3 h-3 text-white" /></div>
@@ -195,7 +195,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
             {/* Chat input area */}
             <div className={cn("mt-auto pt-3 border-t border-border/50 transition-opacity duration-500", showChat ? 'opacity-100' : 'opacity-0')}>
                 <div className="relative h-11 rounded-xl border border-input bg-input/50 px-4 py-2 text-sm text-left flex items-center justify-between">
-                    <p className="text-white">
+                    <p className="text-foreground">
                         {typedMessage}
                         {isTyping && <span className="cursor-blink">|</span>}
                     </p>

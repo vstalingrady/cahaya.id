@@ -38,14 +38,14 @@ const MockAccountCard = ({ icon, name, displayNumber, balance, isLoan = false }:
               {icon}
             </div>
             <div className="flex-1 min-w-0 flex flex-col items-start text-left">
-                <div className="font-semibold text-white truncate text-sm text-left">{name}</div>
+                <div className="font-semibold text-foreground truncate text-sm text-left">{name}</div>
                 {displayNumber && <div className="text-muted-foreground text-xs text-left">{displayNumber}</div>}
             </div>
         </div>
         <div className="text-right ml-2">
             <div className={cn(
                 "font-semibold text-sm",
-                isLoan ? "text-destructive" : "text-white"
+                isLoan ? "text-destructive" : "text-foreground"
             )}>
                 {balance}
             </div>
@@ -102,7 +102,7 @@ export default function WelcomeDashboardMockup({ className, isActive }: { classN
                 {/* Accounts Section */}
                 <div className="space-y-2">
                     <div className="bg-card p-4 rounded-xl border-none shadow-md">
-                        <div className='flex items-center gap-3 text-white font-semibold text-sm'>
+                        <div className='flex items-center gap-3 text-foreground font-semibold text-sm'>
                             <Landmark className='w-4 h-4' />
                             <span>Banks</span>
                         </div>
@@ -119,7 +119,7 @@ export default function WelcomeDashboardMockup({ className, isActive }: { classN
                         </div>
                     </div>
                     <div className="bg-card p-4 rounded-xl border-none shadow-md">
-                        <div className='flex items-center gap-3 text-white font-semibold text-sm'>
+                        <div className='flex items-center gap-3 text-foreground font-semibold text-sm'>
                             <Wallet className='w-4 h-4' />
                             <span>E-Money</span>
                         </div>

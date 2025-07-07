@@ -58,7 +58,7 @@ export default function WelcomePaymentMockup({ isActive }: { isActive?: boolean 
                   <Check className="w-10 h-10 text-white" />
               </div>
           </div>
-          <p className="mt-4 font-semibold text-white text-lg animate-in fade-in-0 slide-in-from-bottom-5">Payment Successful!</p>
+          <p className="mt-4 font-semibold text-foreground text-lg animate-in fade-in-0 slide-in-from-bottom-5">Payment Successful!</p>
           <p className="text-muted-foreground animate-in fade-in-0 slide-in-from-bottom-5 delay-100">PLN Bill Paid from BCA.</p>
       </div>
 
@@ -79,11 +79,11 @@ export default function WelcomePaymentMockup({ isActive }: { isActive?: boolean 
               <div className="flex items-center gap-3">
                 <Image src={biller.logoUrl} alt={biller.name} width={40} height={40} className="rounded-lg bg-white p-1" data-ai-hint={`${biller.name} logo`} />
                 <div>
-                  <p className="font-semibold text-white">{biller.name}</p>
+                  <p className="font-semibold text-foreground">{biller.name}</p>
                   <p className="text-xs text-muted-foreground">Due in 5 days</p>
                 </div>
               </div>
-              <p className="font-mono text-white font-semibold">{biller.amount}</p>
+              <p className="font-mono text-foreground font-semibold">{biller.amount}</p>
             </div>
           ))}
         </div>
@@ -102,7 +102,7 @@ export default function WelcomePaymentMockup({ isActive }: { isActive?: boolean 
               <div className="flex items-center gap-3">
                 <Image src={source.logoUrl} alt={source.name} width={40} height={40} className="rounded-lg bg-white p-1" data-ai-hint={`${source.name} logo`} />
                 <div>
-                  <p className="font-semibold text-white">{source.name}</p>
+                  <p className="font-semibold text-foreground">{source.name}</p>
                   <p className="text-xs text-muted-foreground">{source.balance}</p>
                 </div>
               </div>
