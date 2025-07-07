@@ -11,14 +11,13 @@ import { useAuth } from '@/components/auth/auth-provider';
 import { getAiChatResponse } from '@/lib/actions';
 import { type ChatMessage } from '@/ai/flows/chat-flow';
 import { cn } from '@/lib/utils';
-import CuanLogo from '@/components/icons/CuanLogo';
 
 export default function ChatPage() {
   const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'model',
-      content: "Hello! I'm Clarity, your personal AI financial assistant. How can I help you today? You can ask me about budgeting, saving, or understanding your finances.",
+      content: "Hello! I'm Cahaya, your personal AI financial assistant. How can I help you today? You can ask me about budgeting, saving, or understanding your finances.",
     },
   ]);
   const [inputValue, setInputValue] = useState('');

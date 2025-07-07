@@ -6,8 +6,8 @@ import { Plus_Jakarta_Sans, Domine } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
 
 export const metadata: Metadata = {
-  title: 'CuanFlex - All your money, in one place.',
-  description: 'Welcome to CuanFlex. The secure way to manage your finances.',
+  title: 'Cahaya - All your money, in one place.',
+  description: 'Welcome to Cahaya. The secure way to manage your finances.',
 };
 
 const jakartaSans = Plus_Jakarta_Sans({ 

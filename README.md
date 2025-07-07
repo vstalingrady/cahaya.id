@@ -1,4 +1,4 @@
-# Clarity - All Your Money, In One Place
+# Cahaya - All Your Money, In One Place
 
 This is a Next.js application designed to be a personal finance dashboard. It's built with Next.js, TypeScript, Tailwind CSS, ShadCN UI components, and Genkit for AI features.
 

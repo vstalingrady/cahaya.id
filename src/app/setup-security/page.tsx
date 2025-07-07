@@ -10,7 +10,7 @@ export default function SetupSecurityPage() {
         
       <div className="relative z-10">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-4 text-primary font-serif">Create Your Clarity PIN</h1>
+          <h1 className="text-4xl font-bold mb-4 text-primary font-serif">Create Your Cahaya PIN</h1>
           <p className="text-muted-foreground text-lg font-light">Create a 6-character PIN with numbers and letters for secure access and transaction approvals.</p>
         </div>
         <SetupSecurityForm />

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import CuanLogo from '@/components/icons/cuanlogo';
+import CahayaLogo from '@/components/icons/cuanlogo';
 
 const routes = [
   { path: '/', name: 'Welcome / Onboarding' },
@@ -22,7 +22,7 @@ export default function DevMenuPage() {
     <div className="bg-gray-900 text-white min-h-screen p-8 font-mono">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-4 mb-4">
-          <CuanLogo className="w-24 h-auto" />
+          <CahayaLogo className="w-24 h-auto" />
           <div className="w-px h-8 bg-gray-600"></div>
           <h1 className="text-2xl font-bold text-gray-300">Developer Menu</h1>
         </div>

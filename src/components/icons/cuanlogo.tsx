@@ -1,13 +1,13 @@
 import { cn } from "@/lib/utils";
 
-const CuanLogo = ({ className }: { className?: string }) => (
+const CahayaLogo = ({ className }: { className?: string }) => (
     <svg
       viewBox="0 0 140 26"
       xmlns="http://www.w3.org/2000/svg"
       className={cn(className)}
     >
       <defs>
-        <linearGradient id="cuanflex-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <linearGradient id="cahaya-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="hsl(var(--primary))" />
           <stop offset="100%" stopColor="hsl(var(--accent))" />
         </linearGradient>
@@ -18,11 +18,11 @@ const CuanLogo = ({ className }: { className?: string }) => (
         dy=".3em"
         textAnchor="middle"
         style={{ fontFamily: 'var(--font-serif)', fontSize: '24px', fontWeight: 'bold' }}
-        fill="url(#cuanflex-gradient)"
+        fill="url(#cahaya-gradient)"
       >
-        CuanFlex
+        Cahaya
       </text>
     </svg>
 );
 
-export default CuanLogo;
+export default CahayaLogo;

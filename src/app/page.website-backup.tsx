@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight, BarChart2, ShieldCheck, Zap, PiggyBank } from 'lucide-react';
 import { useState } from 'react';
-import CuanLogo from '@/components/icons/cuanlogo';
+import CahayaLogo from '@/components/icons/cuanlogo';
 import NoiseOverlay from '@/components/noise-overlay';
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
 import { financialInstitutions } from '@/lib/data';
@@ -31,7 +31,7 @@ const featureSlides = [
   },
   {
     id: 'insights',
-    icon: CuanLogo,
+    icon: CahayaLogo,
     title: 'AI-Powered Insights',
     description: 'Let our AI analyze your spending to find personalized saving opportunities and create actionable financial plans.',
     mockup: WelcomeInsightsMockup,
@@ -65,7 +65,7 @@ export default function WelcomePage() {
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 p-4 z-50 bg-background/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <CuanLogo className="w-32 h-auto" />
+          <CahayaLogo className="w-32 h-auto" />
           <div className="flex items-center gap-2">
             <Button variant="ghost" asChild>
               <Link href="/login">Log In</Link>
@@ -89,7 +89,7 @@ export default function WelcomePage() {
               </span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-lg mx-auto lg:mx-0">
-              CuanFlex securely connects to all your bank and e-wallet accounts,
+              Cahaya securely connects to all your bank and e-wallet accounts,
               giving you a complete financial overview and AI-powered insights to grow your wealth.
             </p>
             <div className="flex justify-center lg:justify-start">
@@ -152,7 +152,7 @@ export default function WelcomePage() {
       {/* Footer */}
       <footer className="py-8 bg-background">
           <div className="max-w-7xl mx-auto px-4 text-center text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} CuanFlex. All Rights Reserved.</p>
+            <p>&copy; {new Date().getFullYear()} Cahaya. All Rights Reserved.</p>
           </div>
       </footer>
     </div>

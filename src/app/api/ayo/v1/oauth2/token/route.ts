@@ -4,9 +4,9 @@ import { db } from '@/lib/mock-api-db';
 
 /**
  * This endpoint simulates the OAuth 2.0 Client Credentials Grant Flow.
- * A backend service (in this case, the Clarity app) would call this endpoint
+ * A backend service (in this case, the Cahaya app) would call this endpoint
  * with its client_id and client_secret to get an access token.
- * This token authorizes the Clarity app itself to perform actions on behalf of its users,
+ * This token authorizes the Cahaya app itself to perform actions on behalf of its users,
  * like initiating a new bank connection request.
  */
 export async function POST(request: Request) {
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
         );
     }
 
-    // Authenticate the client (our Clarity app)
+    // Authenticate the client (our Cahaya app)
     const tokenInfo = db.getAppToken(client_id, client_secret);
 
     if (!tokenInfo) {

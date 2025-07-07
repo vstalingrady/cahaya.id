@@ -264,7 +264,7 @@ export const db = {
 
   // This simulates the OAuth client credentials flow
   getAppToken: (clientId: string, clientSecret: string) => {
-    if (clientId === 'cuan_client_id' && clientSecret === 'cuan_client_secret') {
+    if (clientId === 'cahaya_client_id' && clientSecret === 'cahaya_client_secret') {
         return { access_token: `app_token_${Date.now()}`, expires_in: 3600 };
     }
     return null;

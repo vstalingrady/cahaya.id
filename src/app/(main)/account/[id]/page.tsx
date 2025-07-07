@@ -125,7 +125,7 @@ export default function AccountDetailPage() {
             <AlertDialogHeader>
             <AlertDialogTitle>Unlink "{account.name}"?</AlertDialogTitle>
             <AlertDialogDescription>
-                This action cannot be undone. To continue, please enter your 6-character Clarity PIN.
+                This action cannot be undone. To continue, please enter your 6-character Cahaya PIN.
             </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="py-4">

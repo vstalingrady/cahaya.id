@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight, BarChart2, Zap, PiggyBank, Sparkles, ClipboardList } from 'lucide-react';
-import CuanLogo from '@/components/icons/cuanlogo';
+import CahayaLogo from '@/components/icons/cuanlogo';
 import NoiseOverlay from '@/components/noise-overlay';
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
 import { financialInstitutions } from '@/lib/data';
@@ -58,7 +58,7 @@ export default function WelcomePage() {
       <div className="w-full max-w-md mx-auto h-screen flex flex-col">
         <header className="p-4 z-50 flex-shrink-0">
           <div className="w-full flex justify-between items-center">
-            <CuanLogo className="w-32 h-auto" />
+            <CahayaLogo className="w-32 h-auto" />
             <div className="flex items-center gap-2">
               <Button variant="ghost" asChild>
                 <Link href="/login">Log In</Link>
@@ -83,7 +83,7 @@ export default function WelcomePage() {
                         </span>
                     </h1>
                     <p className="text-base text-muted-foreground">
-                        CuanFlex securely connects to all your accounts, giving you a complete financial overview and AI-powered insights to grow your wealth.
+                        Cahaya securely connects to all your accounts, giving you a complete financial overview and AI-powered insights to grow your wealth.
                     </p>
                 </div>
             </section>
@@ -168,7 +168,7 @@ export default function WelcomePage() {
                         </Button>
                     </div>
                     <div className="text-center text-muted-foreground text-xs pt-4">
-                        <p>&copy; {new Date().getFullYear()} CuanFlex. All Rights Reserved.</p>
+                        <p>&copy; {new Date().getFullYear()} Cahaya. All Rights Reserved.</p>
                     </div>
                 </div>
             </section>

@@ -149,7 +149,7 @@ export default function SetupSecurityForm() {
       toast({
         variant: 'destructive',
         title: 'PIN is too short',
-        description: 'Your Clarity PIN must be 6 characters long.',
+        description: 'Your Cahaya PIN must be 6 characters long.',
       });
       return;
     }
@@ -183,7 +183,7 @@ export default function SetupSecurityForm() {
         await setSecurityPin(currentUser.uid, pinString);
         toast({
           title: 'Security Set Up!',
-          description: `Your Clarity PIN has been configured.`,
+          description: `Your Cahaya PIN has been configured.`,
         });
         router.push('/dashboard');
     } catch (error: any) {

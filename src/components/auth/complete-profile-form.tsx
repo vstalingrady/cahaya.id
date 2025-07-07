@@ -295,7 +295,7 @@ export default function CompleteProfileForm() {
       router.push('/setup-security');
 
     } catch (err: any) {
-      console.error("[Clarity Debug] Full OAuth Error Object:", err);
+      console.error("[Cahaya Debug] Full OAuth Error Object:", err);
       if (err.code === 'auth/account-exists-with-different-credential' || err.code === 'auth/credential-already-in-use') {
           setError('This social account is already linked to another user.');
       } else if (err.code && err.code.includes('app-check')) {
