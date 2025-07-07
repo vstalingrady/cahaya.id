@@ -1,3 +1,4 @@
+
 /**
  * @file src/app/(main)/transfer/page.tsx
  * @fileoverview This is the main "Pay & Transfer" page. It serves as a central hub for
@@ -25,12 +26,12 @@ import { Input } from '@/components/ui/input';
 import TransactionHistory from '@/components/dashboard/transaction-history';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 // Import server actions to interact with the Firestore database.
-import { addFavorite, getDashboardData, getFavorites, removeFavorite } from '@/lib/actions';
+import { addFavorite, getDashboardData, getFavorites, removeFavorite, getBeneficiaries } from '@/lib/actions';
 // Import data type definitions.
-import { type Account, type Transaction, type FavoriteTransaction } from '@/lib/data';
+import { type Account, type Transaction, type FavoriteTransaction, type Beneficiary } from '@/lib/data';
 // Import custom hooks for authentication and toast notifications.
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/components/auth/auth-provider';
@@ -66,6 +67,7 @@ const favoriteSchema = z.object({
   amount: z.coerce.number().min(1000, { message: 'Minimum amount is IDR 1,000.' }),
   category: z.string().min(1, { message: 'Category is required.' }),
   icon: z.string().min(1, { message: 'An icon is required.' }),
+  recipientId: z.string().optional(),
 });
 
 // A dictionary mapping icon names (strings) to their actual component types.
@@ -99,6 +101,7 @@ export default function TransferPage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [favorites, setFavorites] = useState<FavoriteTransaction[]>([]);
+  const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
 
@@ -110,13 +113,15 @@ export default function TransferPage() {
       setIsLoading(true);
       try {
         // Fetch dashboard data (accounts, transactions) and favorites in parallel for efficiency.
-        const [dashboardData, favoritesData] = await Promise.all([
+        const [dashboardData, favoritesData, beneficiariesData] = await Promise.all([
           getDashboardData(user.uid),
           getFavorites(user.uid),
+          getBeneficiaries(user.uid),
         ]);
         setAccounts(dashboardData.accounts);
         setTransactions(dashboardData.transactions);
         setFavorites(favoritesData);
+        setBeneficiaries(beneficiariesData);
       } catch (error) {
         console.error("Failed to fetch page data:", error);
         toast({ title: 'Error', description: 'Failed to load data for this page.', variant: 'destructive' });
@@ -159,7 +164,7 @@ export default function TransferPage() {
   // Initialize the form for adding a new favorite transaction.
   const form = useForm<z.infer<typeof favoriteSchema>>({
     resolver: zodResolver(favoriteSchema),
-    defaultValues: { name: '', amount: 0, category: '', icon: '' },
+    defaultValues: { name: '', amount: 0, category: '', icon: '', recipientId: 'none' },
   });
 
   /**
@@ -168,7 +173,26 @@ export default function TransferPage() {
    */
   const onAddFavorite = async (values: z.infer<typeof favoriteSchema>) => {
     if (!user) return;
-    const newFavoriteData = { ...values, amount: Number(values.amount) };
+    
+    let recipientData: { recipientId?: string, recipientBank?: string } = {};
+    if (values.recipientId && values.recipientId !== 'none') {
+        const selectedRecipient = beneficiaries.find(b => b.id === values.recipientId);
+        if (selectedRecipient) {
+            recipientData = {
+                recipientId: selectedRecipient.id,
+                recipientBank: selectedRecipient.bankName
+            };
+        }
+    }
+
+    const newFavoriteData: Omit<FavoriteTransaction, 'id'> = {
+      name: values.name,
+      amount: Number(values.amount),
+      category: values.category,
+      icon: values.icon,
+      ...recipientData
+    };
+
     try {
       // Call the server action to add the favorite to Firestore.
       const addedFavorite = await addFavorite(user.uid, newFavoriteData);
@@ -251,6 +275,22 @@ export default function TransferPage() {
                 </Select>
                 <FormMessage /></FormItem>
               )}/>
+              <FormField control={form.control} name="recipientId" render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Recipient (Optional)</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger><SelectValue placeholder="Link to a saved recipient" /></SelectTrigger></FormControl>
+                        <SelectContent>
+                            <SelectItem value="none">None (e.g., general purchase)</SelectItem>
+                            {beneficiaries.map(b => (
+                                <SelectItem key={b.id} value={b.id}>{b.name} - {b.bankName}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <FormDescription>Link this favorite to a person for quick transfers.</FormDescription>
+                    <FormMessage />
+                </FormItem>
+              )}/>
               <DialogFooter className="pt-4">
                 <Button type="button" variant="ghost" onClick={() => setIsAddDialogOpen(false)}>Cancel</Button>
                 <Button type="submit">Add Favorite</Button>
@@ -301,30 +341,39 @@ export default function TransferPage() {
                   {/* Map over favorites to render carousel items */}
                   {favorites.map((fav, index) => {
                     const Icon = availableIcons[fav.icon as IconName] || Wallet;
-                    return (
-                      <div
-                        key={fav.id}
-                        className="flex-[0_0_10rem] pl-2 min-w-0" // flex-[0_0_10rem] sets the base width of each item.
-                      >
-                         <div className="w-full h-40">
-                           <div className={cn(
-                            "relative group w-full h-full bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-transform duration-300 ease-out",
-                             index === selectedIndex ? 'scale-100 opacity-100 shadow-primary/20' : 'scale-90 opacity-60'
-                           )}>
-                               <Button onClick={() => handleRemoveFavorite(fav.id)} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                 <X className="w-4 h-4" />
-                               </Button>
-                               <div className="bg-gradient-to-br from-primary to-accent w-12 h-12 rounded-xl shadow-lg text-primary-foreground flex items-center justify-center flex-shrink-0">
-                                 <Icon className="w-6 h-6" />
-                               </div>
-                               <div className="min-w-0 flex-1 flex flex-col justify-end overflow-hidden">
-                                 <p className="font-semibold text-sm text-card-foreground truncate mb-1" title={fav.name}>{fav.name}</p>
-                                 <p className="text-xs text-muted-foreground font-mono truncate">{formatCurrency(fav.amount)}</p>
-                               </div>
-                           </div>
+                    const content = (
+                       <div className="w-full h-40">
+                         <div className={cn(
+                          "relative group w-full h-full bg-card p-4 rounded-2xl flex flex-col justify-between border border-border shadow-lg cursor-pointer transition-transform duration-300 ease-out",
+                           index === selectedIndex ? 'scale-100 opacity-100 shadow-primary/20' : 'scale-90 opacity-60'
+                         )}>
+                             <Button onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRemoveFavorite(fav.id); }} variant="ghost" size="icon" className="absolute top-1 right-1 w-7 h-7 bg-secondary/50 text-muted-foreground hover:bg-destructive/80 hover:text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                               <X className="w-4 h-4" />
+                             </Button>
+                             <div className="bg-gradient-to-br from-primary to-accent w-12 h-12 rounded-xl shadow-lg text-primary-foreground flex items-center justify-center flex-shrink-0">
+                               <Icon className="w-6 h-6" />
+                             </div>
+                             <div className="min-w-0 flex-1 flex flex-col justify-end overflow-hidden">
+                               <p className="font-semibold text-sm text-card-foreground truncate mb-1" title={fav.name}>{fav.name}</p>
+                               <p className="text-xs text-muted-foreground font-mono truncate">{formatCurrency(fav.amount)}</p>
+                             </div>
                          </div>
-                      </div>
-                    )
+                       </div>
+                    );
+
+                    return (
+                        <div key={fav.id} className="flex-[0_0_10rem] pl-2 min-w-0">
+                          {fav.recipientId ? (
+                            <Link href={`/transfer/${fav.recipientId}?amount=${fav.amount}&notes=${encodeURIComponent(fav.name)}`}>
+                              {content}
+                            </Link>
+                          ) : (
+                            <div onClick={() => toast({ title: "Quick Payment Template", description: "This favorite is not linked to a recipient."})}>
+                              {content}
+                            </div>
+                          )}
+                        </div>
+                    );
                   })}
                 </div>
               </div>

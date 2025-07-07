@@ -84,6 +84,8 @@ export type FavoriteTransaction = {
   amount: number;
   icon: string;
   category: string;
+  recipientId?: string;
+  recipientBank?: string;
 };
 
 export type FinancialInstitution = {

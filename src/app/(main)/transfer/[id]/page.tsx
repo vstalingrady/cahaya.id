@@ -4,7 +4,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { useRouter, useParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { ArrowLeft, Banknote, MessageSquare, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -47,6 +47,7 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', {
 export default function InitiateTransferPage() {
   const router = useRouter();
   const params = useParams();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const { user } = useAuth();
   
@@ -55,6 +56,15 @@ export default function InitiateTransferPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [recipient, setRecipient] = useState<Beneficiary | null>(null);
   const [userAccounts, setUserAccounts] = useState<Account[]>([]);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      fromAccountId: '',
+      amount: 0,
+      notes: '',
+    },
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -77,15 +87,18 @@ export default function InitiateTransferPage() {
     };
     fetchData();
   }, [user, recipientId, toast]);
+  
+  useEffect(() => {
+    const amountFromQuery = searchParams.get('amount');
+    const notesFromQuery = searchParams.get('notes');
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      fromAccountId: '',
-      amount: 0,
-      notes: '',
-    },
-  });
+    if (amountFromQuery) {
+        form.setValue('amount', Number(amountFromQuery));
+    }
+    if (notesFromQuery) {
+        form.setValue('notes', notesFromQuery);
+    }
+  }, [searchParams, form]);
   
   const amount = form.watch('amount');
 
