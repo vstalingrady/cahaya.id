@@ -1,8 +1,8 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ArrowRight, BarChart2, Zap, PiggyBank, Sparkles } from 'lucide-react';
-import { useState } from 'react';
 import CuanLogo from '@/components/icons/cuanlogo';
 import NoiseOverlay from '@/components/noise-overlay';
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
@@ -13,42 +13,7 @@ import WelcomeInsightsMockup from '@/components/welcome-insights-mockup';
 import WelcomeVaultsMockup from '@/components/welcome-vaults-mockup';
 import Image from 'next/image';
 
-// Define the content for each feature slide
-const featureSlides = [
-  {
-    id: 'dashboard',
-    icon: BarChart2,
-    title: 'Unified Dashboard',
-    description: 'See your complete financial picture in one glance. Track balances across all your linked accounts in real-time.',
-    mockup: WelcomeDashboardMockup,
-  },
-  {
-    id: 'payments',
-    icon: Zap,
-    title: 'Effortless Payments',
-    description: 'Pay bills, transfer funds, and top-up e-wallets seamlessly from any of your accounts, all from one central hub.',
-    mockup: WelcomePaymentMockup,
-  },
-  {
-    id: 'insights',
-    icon: Sparkles,
-    title: 'AI-Powered Insights',
-    description: 'Let our AI analyze your spending to find personalized saving opportunities and create actionable financial plans.',
-    mockup: WelcomeInsightsMockup,
-  },
-   {
-    id: 'vaults',
-    icon: PiggyBank,
-    title: 'Automated Savings',
-    description: 'Create savings vaults for your goals. Automate contributions with round-ups and scheduled transfers.',
-    mockup: WelcomeVaultsMockup,
-  },
-];
-
 export default function WelcomePage() {
-  const [activeSlide, setActiveSlide] = useState(0);
-
-  // Data for the logo scroller
   const partnersRow1 = financialInstitutions
     .filter(f => f.type === 'bank' && ['bca', 'mandiri', 'bri', 'bni', 'cimb'].includes(f.slug))
     .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" /> }));
@@ -58,13 +23,13 @@ export default function WelcomePage() {
     .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" /> }));
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden">
+    <div className="relative h-screen w-screen bg-background text-foreground overflow-hidden">
       <NoiseOverlay opacity={0.02} />
-      <div className="absolute inset-0 -z-10 h-full w-full bg-background has-hero-glow"></div>
+      <div className="absolute inset-0 -z-10 h-full w-full bg-background has-hero-glow" />
       
-      {/* Header */}
-      <header className="w-full p-4 z-10">
-        <div className="w-full max-w-md mx-auto flex justify-between items-center">
+      {/* Fixed Header */}
+      <header className="fixed top-0 left-0 right-0 p-4 z-50">
+        <div className="w-full max-w-6xl mx-auto flex justify-between items-center">
           <CuanLogo className="w-32 h-auto" />
           <div className="flex items-center gap-2">
             <Button variant="ghost" asChild>
@@ -76,85 +41,103 @@ export default function WelcomePage() {
           </div>
         </div>
       </header>
-      
-      {/* Main Hero Section */}
-      <main className="flex-1 flex items-center justify-center pt-12 pb-12">
-        <div className="w-full max-w-md mx-auto px-4 grid grid-cols-1 gap-8 items-center">
-          {/* Text Content */}
-          <div className="text-center space-y-6 animate-fade-in-up">
-            <h1 className="text-4xl font-bold font-serif leading-tight">
-              All Your Money, <br />
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                One Single App.
-              </span>
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-lg mx-auto">
-              CuanFlex securely connects to all your bank and e-wallet accounts,
-              giving you a complete financial overview and AI-powered insights to grow your wealth.
-            </p>
-            <div className="flex justify-center">
-              <Button size="lg" className="h-12 text-lg" asChild>
-                <Link href="/signup">
-                  Get Started for Free <ArrowRight className="ml-2" />
-                </Link>
-              </Button>
+
+      {/* Horizontal Scrolling Container */}
+      <div className="h-screen snap-x snap-mandatory overflow-x-auto overflow-y-hidden flex">
+        
+        {/* Slide 1: Hero */}
+        <section className="h-screen w-screen flex-shrink-0 snap-center flex items-center justify-center p-4">
+            <div className="text-center space-y-6 animate-fade-in-up max-w-2xl">
+                <h1 className="text-4xl md:text-6xl font-bold font-serif leading-tight">
+                    All Your Money, <br />
+                    <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                        One Single App.
+                    </span>
+                </h1>
+                <p className="text-lg text-muted-foreground">
+                    CuanFlex securely connects to all your accounts, giving you a complete financial overview and AI-powered insights to grow your wealth.
+                </p>
+                 <p className="text-sm text-muted-foreground animate-pulse">Scroll to discover features &rarr;</p>
             </div>
-          </div>
-          
-          {/* Animated Mockup */}
-          <div className="relative w-full h-[550px] flex items-center justify-center">
-            {featureSlides.map((slide, index) => {
-              const MockupComponent = slide.mockup;
-              return (
-                <div
-                  key={slide.id}
-                  className={`absolute w-full h-full transition-opacity duration-700 ease-in-out ${activeSlide === index ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                >
-                  <MockupComponent isActive={activeSlide === index} className="absolute inset-0 m-auto" />
+        </section>
+
+        {/* Slide 2: Dashboard */}
+        <section className="h-screen w-screen flex-shrink-0 snap-center flex items-center justify-center p-4">
+            <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="text-center md:text-left order-2 md:order-1">
+                    <BarChart2 className="w-12 h-12 text-primary mx-auto md:mx-0 mb-4" />
+                    <h2 className="text-3xl font-bold font-serif mb-4">Unified Dashboard</h2>
+                    <p className="text-muted-foreground">See your complete financial picture in one glance. Track balances across all your linked accounts in real-time.</p>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </main>
+                <div className="order-1 md:order-2">
+                    <WelcomeDashboardMockup isActive={true} />
+                </div>
+            </div>
+        </section>
 
-      {/* Feature Selector Section */}
-       <section className="py-12 bg-background/50 backdrop-blur-sm">
-         <div className="w-full max-w-md mx-auto px-4 grid grid-cols-1 gap-4">
-            {featureSlides.map((slide, index) => (
-              <button
-                key={slide.id}
-                onClick={() => setActiveSlide(index)}
-                className={`p-4 rounded-xl border-2 transition-all duration-300 text-left ${activeSlide === index ? 'border-primary bg-primary/10' : 'border-border bg-card/50 hover:bg-secondary/50'}`}
-              >
-                <slide.icon className={`w-8 h-8 mb-3 transition-colors ${activeSlide === index ? 'text-primary' : 'text-muted-foreground'}`} />
-                <h3 className="font-semibold text-lg text-foreground">{slide.title}</h3>
-                <p className="text-sm text-muted-foreground mt-1">{slide.description}</p>
-              </button>
-            ))}
-          </div>
-      </section>
+        {/* Slide 3: Payments */}
+        <section className="h-screen w-screen flex-shrink-0 snap-center flex items-center justify-center p-4">
+             <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="text-center md:text-left">
+                    <Zap className="w-12 h-12 text-primary mx-auto md:mx-0 mb-4" />
+                    <h2 className="text-3xl font-bold font-serif mb-4">Effortless Payments</h2>
+                    <p className="text-muted-foreground">Pay bills, transfer funds, and top-up e-wallets seamlessly from any of your accounts, all from one central hub.</p>
+                </div>
+                <WelcomePaymentMockup isActive={true} />
+            </div>
+        </section>
 
-      {/* Compatibility Section */}
-       <section className="py-24 bg-card/20">
-        <div className="w-full max-w-md mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold font-serif">Broad Compatibility</h2>
-          <p className="text-muted-foreground mt-4 mb-12 max-w-2xl mx-auto">
-            We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
-          </p>
-          <div className="space-y-6">
-            <InfiniteLogoScroller institutions={partnersRow1} speed="normal" direction="forward" />
-            <InfiniteLogoScroller institutions={partnersRow2} speed="slow" direction="reverse" />
-          </div>
-        </div>
-      </section>
+        {/* Slide 4: Insights */}
+        <section className="h-screen w-screen flex-shrink-0 snap-center flex items-center justify-center p-4">
+             <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="text-center md:text-left order-2 md:order-1">
+                    <Sparkles className="w-12 h-12 text-primary mx-auto md:mx-0 mb-4" />
+                    <h2 className="text-3xl font-bold font-serif mb-4">AI-Powered Insights</h2>
+                    <p className="text-muted-foreground">Let our AI analyze your spending to find personalized saving opportunities and create actionable financial plans.</p>
+                </div>
+                <div className="order-1 md:order-2">
+                    <WelcomeInsightsMockup isActive={true} />
+                </div>
+            </div>
+        </section>
 
-      {/* Footer */}
-      <footer className="py-8 bg-background">
-          <div className="w-full max-w-md mx-auto px-4 text-center text-muted-foreground">
-            <p>&copy; {new Date().getFullYear()} CuanFlex. All Rights Reserved.</p>
-          </div>
-      </footer>
+        {/* Slide 5: Vaults */}
+        <section className="h-screen w-screen flex-shrink-0 snap-center flex items-center justify-center p-4">
+            <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div className="text-center md:text-left">
+                    <PiggyBank className="w-12 h-12 text-primary mx-auto md:mx-0 mb-4" />
+                    <h2 className="text-3xl font-bold font-serif mb-4">Automated Savings</h2>
+                    <p className="text-muted-foreground">Create savings vaults for your goals. Automate contributions with round-ups and scheduled transfers.</p>
+                </div>
+                <WelcomeVaultsMockup isActive={true} />
+            </div>
+        </section>
+        
+        {/* Slide 6: Sign Up */}
+        <section className="h-screen w-screen flex-shrink-0 snap-center flex items-center justify-center p-4">
+            <div className="text-center space-y-8 animate-fade-in-up max-w-2xl">
+                 <h2 className="text-3xl md:text-5xl font-bold font-serif">Ready to take control?</h2>
+                <p className="text-muted-foreground mt-4 mb-8 max-w-xl mx-auto">
+                    We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
+                </p>
+                <div className="space-y-6">
+                    <InfiniteLogoScroller institutions={partnersRow1} speed="normal" direction="forward" />
+                    <InfiniteLogoScroller institutions={partnersRow2} speed="slow" direction="reverse" />
+                </div>
+                <div className="pt-8">
+                     <Button size="lg" className="h-14 text-lg" asChild>
+                        <Link href="/signup">
+                        Get Started for Free <ArrowRight className="ml-2" />
+                        </Link>
+                    </Button>
+                </div>
+                <div className="text-center text-muted-foreground text-sm pt-4">
+                    <p>&copy; {new Date().getFullYear()} CuanFlex. All Rights Reserved.</p>
+                </div>
+            </div>
+        </section>
+
+      </div>
     </div>
   );
 }
