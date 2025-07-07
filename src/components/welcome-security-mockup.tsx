@@ -1,4 +1,3 @@
-
 'use client';
 
 import { cn } from "@/lib/utils";
@@ -12,31 +11,30 @@ const securityFeatures = [
     "Your Privacy is Our Priority"
 ];
 
-const HexScramble = ({ isActive, lines = 4 }: { isActive: boolean; lines?: number }) => {
+const HexScramble = ({ isActive, lines = 8 }: { isActive: boolean; lines?: number }) => {
     const [hexStrings, setHexStrings] = useState<string[]>([]);
     
     useEffect(() => {
         if (!isActive) {
-            setHexStrings([]); // Clear when not active to save resources
+            setHexStrings([]);
             return;
         }
 
-        const generateHexString = () => Array(24).fill(0).map(() => Math.floor(Math.random() * 16).toString(16).toUpperCase()).join('');
+        const generateHexString = () => Array(32).fill(0).map(() => Math.floor(Math.random() * 16).toString(16).toUpperCase()).join('');
 
         const intervalId = setInterval(() => {
             setHexStrings(Array.from({ length: lines }, generateHexString));
         }, 100);
 
-        // Initial set to avoid blank screen on activation
         setHexStrings(Array.from({ length: lines }, generateHexString));
 
         return () => clearInterval(intervalId);
     }, [isActive, lines]);
 
     return (
-        <div className="text-primary/80 text-base leading-relaxed text-center font-mono">
+        <div className="font-mono text-[10px] text-primary/50 leading-relaxed select-none text-center">
             {hexStrings.map((hex, i) => (
-                <p key={i} className="select-none break-all">{hex}</p>
+                <p key={i}>{hex}</p>
             ))}
         </div>
     );
@@ -61,29 +59,31 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
 
     return (
         <div className={cn(
-            "relative w-full max-w-sm rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col justify-between items-center text-center h-[500px]",
+            "relative w-full max-w-sm h-full rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-6 backdrop-blur-sm overflow-hidden flex flex-col justify-between items-center",
             className
         )}>
 
-            <div className="relative z-10 flex flex-col items-center justify-center gap-4 mt-12">
-                <div className="relative flex items-center justify-center">
+            <div className="relative w-full h-64 flex items-center justify-center mt-8">
+                {/* Hex scramble in the background, slightly blurred for depth */}
+                <div className="absolute inset-0 flex items-center justify-center overflow-hidden blur-[1.5px] opacity-70">
+                    <HexScramble isActive={isActive} lines={8} />
+                </div>
+
+                {/* Shield and lock icon on top */}
+                <div className="relative z-10 flex items-center justify-center">
                     <ShieldCheck className="w-48 h-48 text-primary/10" />
-                    <div className="absolute w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center animate-slow-pulse">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center animate-slow-pulse">
                         <Lock className="w-16 h-16 text-white" />
                     </div>
                 </div>
             </div>
-            
-            <div className="relative z-10 w-full px-4">
-                 <HexScramble isActive={isActive} lines={4} />
-            </div>
 
-            <div className="relative z-10 h-6 w-full overflow-hidden mb-12">
+            <div className="relative h-6 w-full overflow-hidden mb-8">
                  {securityFeatures.map((feature, index) => (
                     <p 
                         key={feature}
                         className={cn(
-                            "absolute w-full text-foreground font-semibold transition-all duration-500",
+                            "absolute w-full text-center text-foreground font-semibold transition-all duration-500",
                             index === featureIndex ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-5',
                             index > featureIndex && 'translate-y-5'
                         )}
