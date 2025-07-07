@@ -1,4 +1,3 @@
-
 'use client';
 
 import { cn } from "@/lib/utils";
@@ -33,7 +32,7 @@ const HexScramble = ({ isActive, lines = 8 }: { isActive: boolean; lines?: numbe
     }, [isActive, lines]);
 
     return (
-        <div className="font-mono text-sm text-primary/70 leading-relaxed select-none text-center break-all">
+        <div className="font-mono text-lg text-primary/70 leading-relaxed select-none text-center break-all">
             {hexStrings.map((hex, i) => (
                 <p key={i}>{hex}</p>
             ))}
@@ -60,19 +59,19 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
 
     return (
         <div className={cn(
-            "relative w-full max-w-sm h-full rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-6 backdrop-blur-sm overflow-hidden flex flex-col justify-center items-center",
+            "relative w-full max-w-sm h-full rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-6 backdrop-blur-sm overflow-hidden flex flex-col justify-between items-center",
             className
         )}>
 
-            <div className="relative w-full h-72 flex items-center justify-center">
-                {/* Hex scramble in the background, slightly blurred for depth */}
-                <div className="absolute inset-0 flex items-center justify-center overflow-hidden blur-[1px] opacity-80">
+            <div className="relative w-full h-[20rem] flex items-center justify-center">
+                {/* Hex scramble in the background */}
+                <div className="absolute inset-0 flex items-center justify-center overflow-hidden opacity-90">
                     <HexScramble isActive={isActive} lines={8} />
                 </div>
 
                 {/* Shield and lock icon on top */}
                 <div className="relative z-10 flex items-center justify-center">
-                    <ShieldCheck className="w-48 h-48 text-primary/10" />
+                    <ShieldCheck className="w-56 h-56 text-primary/10" />
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center animate-slow-pulse">
                             <Lock className="w-12 h-12 text-white" />
