@@ -134,7 +134,7 @@ export default function AccountCard({ account, isPrivate }: AccountCardProps) {
   );
 
 
-  const isClickable = account.type === 'bank' || account.type === 'investment' || account.type === 'loan';
+  const isClickable = account.type === 'bank' || account.type === 'e-wallet' || account.type === 'investment' || account.type === 'loan';
 
   if (!isClickable) {
     return (
