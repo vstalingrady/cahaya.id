@@ -21,7 +21,7 @@ const HexScramble = ({ isActive, lines = 4 }: { isActive: boolean; lines?: numbe
             return;
         }
 
-        const generateHexString = () => Array(40).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
+        const generateHexString = () => Array(40).fill(0).map(() => Math.floor(Math.random() * 16).toString(16).toUpperCase()).join('');
 
         const intervalId = setInterval(() => {
             setHexStrings(Array.from({ length: lines }, generateHexString));
@@ -34,7 +34,7 @@ const HexScramble = ({ isActive, lines = 4 }: { isActive: boolean; lines?: numbe
     }, [isActive, lines]);
 
     return (
-        <div className="font-mono text-primary/80 text-xs leading-relaxed text-center">
+        <div className="font-mono text-primary/80 text-lg leading-relaxed text-center">
             {hexStrings.map((hex, i) => (
                 <p key={i} className="truncate select-none">{hex}</p>
             ))}
@@ -66,9 +66,9 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
 
             <div className="relative z-10 flex flex-col items-center justify-center gap-4 mt-12">
                 <div className="relative flex items-center justify-center">
-                    <ShieldCheck className="w-36 h-36 text-primary/10" />
-                    <div className="absolute w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center animate-slow-pulse">
-                        <Lock className="w-12 h-12 text-white" />
+                    <ShieldCheck className="w-48 h-48 text-primary/10" />
+                    <div className="absolute w-32 h-32 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center animate-slow-pulse">
+                        <Lock className="w-16 h-16 text-white" />
                     </div>
                 </div>
             </div>
