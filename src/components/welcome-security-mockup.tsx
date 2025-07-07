@@ -1,3 +1,4 @@
+
 'use client';
 
 import { cn } from "@/lib/utils";
@@ -31,7 +32,7 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             className
         )}>
             <div className={cn(
-                "relative flex items-center justify-center w-56 h-56 transition-opacity duration-1000",
+                "relative flex items-center justify-center w-64 h-64 transition-opacity duration-1000",
                 isActive ? 'opacity-100' : 'opacity-0'
             )}>
                  {/* Big blurry background glow in the shape of a shield */}
@@ -40,14 +41,14 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
                     fill="currentColor"
                  />
                  {/* Smaller, sharp shield icon in the center */}
-                 <div className="relative">
+                 <div className="relative animate-slow-pulse">
                      <Shield
-                        className="w-12 h-12 text-primary"
+                        className="w-32 h-32 text-primary"
                         fill="currentColor"
                     />
                     <Lock
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 text-background"
-                        strokeWidth={2.5}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 text-background"
+                        strokeWidth={2}
                     />
                 </div>
             </div>
