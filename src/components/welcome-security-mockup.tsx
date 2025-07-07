@@ -2,30 +2,17 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import { Lock, Fingerprint } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { useEffect, useState } from "react";
-
-const BiometricsAnimation = ({ isActive }: { isActive?: boolean }) => {
-    return (
-        <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-             <Fingerprint className={cn("w-72 h-72 text-primary/10 transition-opacity duration-500", isActive ? 'opacity-100' : 'opacity-0')} />
-             <div className={cn(
-                "absolute w-64 h-1 bg-accent rounded-full shadow-[0_0_15px_2px] shadow-accent/70 transition-opacity",
-                isActive ? "animate-biometric-scan" : "opacity-0"
-             )}/>
-        </div>
-    );
-};
-
 
 export default function WelcomeSecurityMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
     const [featureIndex, setFeatureIndex] = useState(0);
 
     const securityFeatures = [
-        "Biometric Authentication",
-        "256-bit AES Encryption",
-        "OJK Licensed Partner API",
-        "Your Privacy is Our Priority"
+        "Bank-Grade Encryption",
+        "Secure Data Handling",
+        "Your Privacy is Our Priority",
+        "OJK Licensed Partner API"
     ];
 
     useEffect(() => {
@@ -36,32 +23,28 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
 
         const timer = setInterval(() => {
             setFeatureIndex(prev => (prev + 1) % securityFeatures.length);
-        }, 2000);
+        }, 2500);
         
         return () => clearInterval(timer);
-    }, [isActive]);
+    }, [isActive, securityFeatures.length]);
 
     return (
         <div className={cn(
             "relative w-full max-w-sm h-[500px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-6 backdrop-blur-sm overflow-hidden flex flex-col justify-center items-center",
             className
         )}>
-
-            <BiometricsAnimation isActive={isActive} />
-
-            <div className="relative z-10 flex items-center justify-center">
-                <div className="w-24 h-24 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center animate-slow-pulse shadow-lg">
-                    <Lock className="w-12 h-12 text-primary" />
-                </div>
+            
+            <div className="relative z-10 flex flex-col items-center justify-center flex-1">
+                <ShieldCheck className="w-40 h-40 text-primary animate-slow-pulse" />
             </div>
 
-            <div className="relative h-6 w-full overflow-hidden mt-auto">
+            <div className="relative h-6 w-full overflow-hidden mt-auto flex-shrink-0">
                  {securityFeatures.map((feature, index) => (
                     <p 
                         key={feature}
                         className={cn(
-                            "absolute w-full text-center text-foreground font-semibold transition-all duration-500",
-                            index === featureIndex ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-5',
+                            "absolute w-full text-center font-medium text-sm transition-all duration-500",
+                            index === featureIndex ? 'opacity-100 translate-y-0 text-foreground' : 'opacity-0 -translate-y-5 text-muted-foreground',
                             index > featureIndex && 'translate-y-5'
                         )}
                     >
