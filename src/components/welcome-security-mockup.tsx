@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import { cn } from "@/lib/utils";
-import { Shield, Lock, Circle } from 'lucide-react';
+import { Shield, Lock } from 'lucide-react';
 
 const securityFeatures = [
     "End-to-End Encryption",
@@ -48,28 +49,22 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             isActive ? "opacity-100" : "opacity-40",
             className
         )}>
-            <div className={cn(
-                "relative flex items-center justify-center w-48 h-48 transition-transform duration-700 ease-in-out animate-slow-pulse",
-                isActive ? "scale-100" : "scale-90"
-            )}>
+             <div className="relative w-48 h-48 flex items-center justify-center">
                 {/* 1. Background Glow */}
-                <Circle
-                    strokeWidth={0}
-                    fill="currentColor"
-                    className="absolute w-full h-full text-primary/20 blur-2xl"
-                />
-                
+                <div className="absolute w-full h-full bg-primary/10 rounded-full blur-2xl" />
+
                 {/* 2. Shield Stroke Outline */}
                 <Shield 
-                    className="absolute w-full h-full text-primary" 
-                    strokeWidth={1.5} 
+                    className="absolute w-[90%] h-[90%] text-primary" 
+                    strokeWidth={3}
                     fill="none" 
                 />
                 
-                {/* 3. Inner Circle containing the Lock */}
-                <div className="relative w-2/3 h-2/3 bg-background/50 rounded-full flex items-center justify-center shadow-xl backdrop-blur-sm">
-                    <Lock className="w-1/2 h-1/2 text-white" strokeWidth={1.5} />
-                </div>
+                {/* 3. Inner Circle */}
+                <div className="absolute w-[60%] h-[60%] bg-background/20 rounded-full backdrop-blur-sm" />
+
+                {/* 4. Inner Lock Icon */}
+                <Lock className="w-1/3 h-1/3 text-white relative" strokeWidth={3} />
             </div>
             
             <div className="relative h-7 w-full overflow-hidden text-center">
