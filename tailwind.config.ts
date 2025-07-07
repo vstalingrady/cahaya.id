@@ -108,6 +108,16 @@ export default {
           '0%, 100%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.05)' },
         },
+        'breathe-glow': {
+          '0%, 100%': {
+            transform: 'scale(1)',
+            opacity: 0.6
+          },
+          '50%': {
+            transform: 'scale(1.05)',
+            opacity: 0.8
+          },
+        },
         'text-shine': {
           'from': { 'background-position': '0% center' },
           'to': { 'background-position': '-200% center' },
@@ -134,6 +144,7 @@ export default {
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'logo-blink-glow': 'logo-blink-glow 5s ease-in-out infinite',
         'slow-pulse': 'slow-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'breathe-glow': 'breathe-glow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'text-shine': 'text-shine 3s linear infinite',
         'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
