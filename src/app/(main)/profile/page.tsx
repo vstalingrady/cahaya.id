@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, User as UserIcon, Mail, Phone, CheckCircle2, Shield, LogOut, Loader2, Edit, X, Save } from 'lucide-react';
+import { ArrowLeft, User as UserIcon, Mail, Phone, CheckCircle2, LogOut, Loader2, Edit, X, Save, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/components/auth/auth-provider';
@@ -15,7 +15,6 @@ import { Separator } from '@/components/ui/separator';
 import { updateUserProfile } from '@/lib/actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ThemeSwitcher } from '@/components/theme-switcher';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function ProfilePage() {
@@ -133,7 +132,7 @@ export default function ProfilePage() {
           <ArrowLeft className="w-6 h-6 text-foreground" />
         </Link>
         <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-          Profile & Settings
+          Profile
         </h1>
       </header>
 
@@ -184,7 +183,7 @@ export default function ProfilePage() {
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground"/>
                     <Input id="email" value={email} onChange={e => setEmail(e.target.value)} readOnly={!isEditing} className="bg-input border-border h-14 pl-12 text-base disabled:opacity-100 disabled:cursor-default" />
                     {user?.emailVerified && (
-                        <Badge variant="outline" className="absolute right-3 top-1/2 -translate-y-1/2 bg-primary/20 border-primary/50 text-primary text-xs">
+                        <Badge variant="outline" className="bg-primary/20 border-primary/50 text-primary text-xs">
                             <CheckCircle2 className="w-3 h-3 mr-1.5"/>
                             Verified
                         </Badge>
@@ -219,19 +218,11 @@ export default function ProfilePage() {
 
         <Separator className="my-6 bg-border/50" />
         
-        {/* APP SETTINGS */}
-        <div className="space-y-4">
-             <h3 className="text-lg font-semibold text-foreground font-serif">App Settings</h3>
-             <div className="bg-secondary p-4 rounded-lg border border-border">
-                <Label className="text-muted-foreground">Theme</Label>
-                <ThemeSwitcher />
-             </div>
-             <Button asChild variant="outline" className="w-full justify-start text-left font-normal bg-secondary border-border h-14 text-base placeholder:text-muted-foreground hover:bg-secondary/80">
-                <Link href="/profile/security">
-                    <Shield className="mr-3" /> Security & Login
-                </Link>
-             </Button>
-        </div>
+        <Button asChild variant="outline" className="w-full justify-start text-left font-normal bg-secondary border-border h-14 text-base placeholder:text-muted-foreground hover:bg-secondary/80">
+          <Link href="/profile/settings">
+              <Settings className="mr-3" /> App Settings
+          </Link>
+        </Button>
 
 
         <Separator className="my-6 bg-border/50" />
