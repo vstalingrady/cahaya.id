@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import { Lock, ShieldCheck } from "lucide-react";
+import { Shield } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const securityFeatures = [
@@ -34,9 +34,10 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             <div className="relative flex items-center justify-center w-48 h-48">
                 {/* Radiating shield pulses */}
                 {isActive && [0, 1, 2].map((i) => (
-                    <ShieldCheck
+                    <Shield
                         key={i}
                         className="absolute w-full h-full text-primary opacity-0 animate-shield-pulse"
+                        fill="currentColor"
                         style={{
                             animationDelay: `${i * 1}s`,
                         }}
@@ -45,8 +46,11 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
 
                 {/* The central, breathing icon */}
                 <div className="relative w-32 h-32 flex items-center justify-center animate-slow-pulse">
-                    <ShieldCheck className="absolute w-full h-full text-primary/20" />
-                    <Lock className="w-16 h-16 text-primary" />
+                    {/* The central, breathing icon is now a single, filled shield */}
+                    <Shield
+                        className="w-24 h-24 text-primary"
+                        fill="currentColor"
+                    />
                 </div>
             </div>
 
