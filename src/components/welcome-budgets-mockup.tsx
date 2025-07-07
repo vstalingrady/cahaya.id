@@ -1,126 +1,162 @@
+
 'use client';
 
 import { cn } from "@/lib/utils";
-import { ClipboardList, Car, ShoppingCart } from "lucide-react";
+import { ClipboardList, Car, ShoppingCart, Plus, Edit, Tag, Banknote, Check } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState, useEffect, useRef } from "react";
+
+const initialBudgets = [
+    { id: 'food', name: 'Monthly Food & Drink', category: 'Food & Drink', current: 5500000, target: 5000000, icon: ClipboardList, progress: 110, color: 'destructive' },
+    { id: 'shopping', name: 'Monthly Shopping', category: 'Shopping', current: 2700000, target: 3000000, icon: ShoppingCart, progress: 90, color: 'yellow-500' },
+    { id: 'transport', name: 'Monthly Transport', category: 'Transportation', current: 1125000, target: 1500000, icon: Car, progress: 75, color: 'primary' },
+];
+
+const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+}).format(value);
+
+type DisplayBudget = typeof initialBudgets[0] & { isNew?: boolean };
+type AnimationPhase = 'idle' | 'showing_list' | 'button_active' | 'show_form' | 'fill_form' | 'create_budget' | 'show_new_budget' | 'resetting';
 
 export default function WelcomeBudgetsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
-    const [foodProgress, setFoodProgress] = useState(0);
-    const [transportProgress, setTransportProgress] = useState(0);
-    const [shoppingProgress, setShoppingProgress] = useState(0);
+    const [displayBudgets, setDisplayBudgets] = useState<DisplayBudget[]>(initialBudgets);
+    const [animationPhase, setAnimationPhase] = useState<AnimationPhase>('idle');
+    const [formState, setFormState] = useState({ name: '', category: '', amount: '' });
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (isActive) {
-            // Trigger animations when the slide is active
-            const foodTimer = setTimeout(() => setFoodProgress(110), 300); // 5.5M / 5M
-            const shoppingTimer = setTimeout(() => setShoppingProgress(90), 500); // 2.7M / 3M
-            const transportTimer = setTimeout(() => setTransportProgress(75), 700); // 1.125M / 1.5M
-            return () => {
-                clearTimeout(foodTimer);
-                clearTimeout(transportTimer);
-                clearTimeout(shoppingTimer);
-            };
-        } else {
-            // Reset when slide is not active
-            setFoodProgress(0);
-            setTransportProgress(0);
-            setShoppingProgress(0);
+        if (!isActive) {
+            setAnimationPhase('idle');
+            setDisplayBudgets(initialBudgets);
+            setFormState({ name: '', category: '', amount: '' });
+            if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
+            return;
         }
+
+        const timeouts: NodeJS.Timeout[] = [];
+        
+        const type = (text: string, updater: (newText: string) => void, onComplete?: () => void) => {
+            let currentText = '';
+            const interval = setInterval(() => {
+                currentText = text.slice(0, currentText.length + 1);
+                updater(currentText);
+                if (currentText === text) {
+                    clearInterval(interval);
+                    if (onComplete) onComplete();
+                }
+            }, 80);
+            timeouts.push(interval as unknown as NodeJS.Timeout);
+        };
+
+        const sequence = () => {
+            setAnimationPhase('showing_list');
+            timeouts.push(setTimeout(() => setAnimationPhase('button_active'), 1500));
+            timeouts.push(setTimeout(() => setAnimationPhase('show_form'), 2000));
+            timeouts.push(setTimeout(() => {
+                setAnimationPhase('fill_form');
+                type("Japan Trip", t => setFormState(p => ({ ...p, name: t })), () => {
+                    timeouts.push(setTimeout(() => {
+                        type("Travel", t => setFormState(p => ({ ...p, category: t })), () => {
+                            timeouts.push(setTimeout(() => {
+                                type("20000000", t => setFormState(p => ({ ...p, amount: t })), () => {
+                                    timeouts.push(setTimeout(() => setAnimationPhase('create_budget'), 500));
+                                    timeouts.push(setTimeout(() => {
+                                        const newBudget: DisplayBudget = { id: 'new', name: 'Japan Trip', category: 'Travel', current: 0, target: 20000000, icon: Car, progress: 0, color: 'primary', isNew: true };
+                                        setDisplayBudgets(prev => [...prev, newBudget]);
+                                        setAnimationPhase('show_new_budget');
+                                        timeouts.push(setTimeout(() => {
+                                            if (scrollContainerRef.current) {
+                                                scrollContainerRef.current.scrollTo({ top: scrollContainerRef.current.scrollHeight, behavior: 'smooth' });
+                                            }
+                                        }, 200));
+                                        timeouts.push(setTimeout(() => setAnimationPhase('resetting'), 3000));
+                                        timeouts.push(setTimeout(() => {
+                                            setDisplayBudgets(initialBudgets);
+                                            setFormState({ name: '', category: '', amount: '' });
+                                            if(scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
+                                            sequence();
+                                        }, 3500));
+                                    }, 800));
+                                });
+                            }, 500));
+                        });
+                    }, 500));
+                });
+            }, 2500));
+        };
+        
+        sequence();
+        return () => timeouts.forEach(clearTimeout);
     }, [isActive]);
 
-    const getProgressColor = (progress: number) => {
-        if (progress > 100) return '[&>div]:bg-destructive'; // Red if over budget
-        if (progress > 85) return '[&>div]:bg-yellow-500'; // Yellow as a warning
-        return '[&>div]:bg-primary'; // Default primary color
-    }
-    
+    const showList = animationPhase !== 'show_form' && animationPhase !== 'fill_form' && animationPhase !== 'create_budget';
+
     return (
         <div className={cn(
-            "relative w-full max-w-sm h-[450px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col justify-center gap-4",
+            "relative w-full max-w-sm h-[450px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
             className
         )}>
-            {/* Food Budget Card */}
-            <div className={cn(
-                "bg-secondary/50 rounded-xl p-4 border border-border transition-all duration-500",
-                isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            )}>
-                <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-primary/80 rounded-full flex items-center justify-center">
-                        <ClipboardList className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                        <p className="text-foreground font-medium">Monthly Food & Drink</p>
-                        <p className="text-sm text-muted-foreground">Rp 5,500,000 / 5,000,000</p>
-                    </div>
+             <div className="absolute inset-0 p-4 flex flex-col gap-4 transition-all duration-300"
+                style={{ opacity: showList ? 1 : 0, transform: showList ? 'scale(1)' : 'scale(0.95)', pointerEvents: showList ? 'auto' : 'none' }}
+            >
+                <div className="flex-shrink-0">
+                    <h1 className="text-xl font-bold font-serif text-foreground">Smart Budgets</h1>
                 </div>
-                <Progress
-                    value={foodProgress}
-                    className={cn(
-                        "h-2.5 transition-all duration-1000 ease-out", 
-                        getProgressColor(foodProgress)
-                    )} 
-                />
-                <p className={cn(
-                    "text-sm font-semibold mt-2 transition-opacity duration-500 delay-500",
-                    isActive ? 'opacity-100' : 'opacity-0',
-                    'text-destructive'
-                )}>Rp 500,000 over budget</p>
+                <div ref={scrollContainerRef} className="space-y-3 overflow-y-auto custom-scrollbar pr-2 -mr-3 flex-1">
+                    {displayBudgets.map(budget => (
+                         <div key={budget.id} className={cn(
+                            "bg-secondary/50 rounded-xl p-3 border border-border transition-all duration-500",
+                            budget.isNew ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0',
+                            animationPhase === 'resetting' && 'opacity-0'
+                         )} ref={el => { if (el && budget.isNew) { setTimeout(() => el.classList.remove('opacity-0', 'translate-y-4'), 50); }}}>
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                                    <budget.icon className="w-4 h-4 text-primary" />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-foreground font-medium text-sm">{budget.name}</p>
+                                    <p className="text-xs text-muted-foreground">{formatCurrency(budget.current)} / {formatCurrency(budget.target)}</p>
+                                </div>
+                            </div>
+                            <Progress value={budget.progress} className={`h-2 [&>div]:bg-${budget.color}`} />
+                        </div>
+                    ))}
+                </div>
+                <div className={cn(
+                    "w-full bg-card p-4 rounded-xl flex items-center justify-center text-muted-foreground border-2 border-dashed border-border transition-all duration-200 flex-shrink-0",
+                    animationPhase === 'button_active' && "border-primary/80 bg-primary/20 text-primary"
+                )}>
+                    <Plus className="w-5 h-5 mr-2" />
+                    <span className="font-semibold text-sm">Create New Budget</span>
+                </div>
             </div>
 
-            {/* Shopping Budget Card */}
-            <div className={cn(
-                "bg-secondary/50 rounded-xl p-4 border border-border transition-all duration-500 delay-150",
-                isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            )}>
-                <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
-                        <ShoppingCart className="w-5 h-5 text-white" />
+            <div className="absolute inset-0 p-4 flex flex-col gap-3 transition-all duration-300"
+                style={{ opacity: !showList ? 1 : 0, transform: !showList ? 'scale(1)' : 'scale(0.95)', pointerEvents: !showList ? 'auto' : 'none' }}
+            >
+                <h3 className="text-xl font-bold font-serif text-center text-foreground flex-shrink-0">Create New Budget</h3>
+                 <div className="space-y-3">
+                    <div className="relative">
+                        <Edit className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input value={formState.name} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="Budget Name" />
                     </div>
-                    <div className="flex-1">
-                        <p className="text-foreground font-medium">Monthly Shopping</p>
-                        <p className="text-sm text-muted-foreground">Rp 2,700,000 / 3,000,000</p>
+                     <div className="relative">
+                        <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input value={formState.category} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="Category" />
                     </div>
-                </div>
-                <Progress 
-                    value={shoppingProgress} 
-                    className={cn(
-                        "h-2.5 transition-all duration-1000 ease-out",
-                        getProgressColor(shoppingProgress)
-                    )} 
-                />
-                <p className={cn(
-                    "text-sm font-semibold mt-2 transition-opacity duration-500 delay-500",
-                    isActive ? 'opacity-100' : 'opacity-0',
-                    'text-yellow-600 dark:text-yellow-500' // Custom color for the warning text
-                )}>Rp 300,000 left</p>
-            </div>
-
-            {/* Transport Budget Card */}
-            <div className={cn(
-                "bg-secondary/50 rounded-xl p-4 border border-border transition-all duration-500 delay-300",
-                isActive ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            )}>
-                <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center">
-                        <Car className="w-5 h-5 text-white" />
-                    </div>
-                    <div className="flex-1">
-                        <p className="text-foreground font-medium">Monthly Transport</p>
-                        <p className="text-sm text-muted-foreground">Rp 1,125,000 / 1,500,000</p>
+                    <div className="relative">
+                        <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input value={formState.amount ? formatCurrency(Number(formState.amount)) : ''} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="Amount" />
                     </div>
                 </div>
-                <Progress 
-                    value={transportProgress} 
-                    className={cn(
-                        "h-2.5 transition-all duration-1000 ease-out",
-                        getProgressColor(transportProgress)
-                    )}
-                />
-                <p className={cn(
-                    "text-sm text-primary font-semibold mt-2 transition-opacity duration-500 delay-500",
-                    isActive ? 'opacity-100' : 'opacity-0'
-                )}>Rp 375,000 left</p>
+                <Button className={cn("w-full h-12 text-base mt-auto flex-shrink-0 transition-colors duration-200", animationPhase === 'create_budget' ? 'bg-accent text-accent-foreground' : 'bg-primary text-primary-foreground')}>
+                    {animationPhase === 'create_budget' ? <Check className="w-5 h-5"/> : 'Create Budget'}
+                 </Button>
             </div>
         </div>
     )
