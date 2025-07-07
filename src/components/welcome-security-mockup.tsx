@@ -1,4 +1,3 @@
-
 'use client';
 
 import { cn } from "@/lib/utils";
@@ -33,18 +32,24 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             className
         )}>
              <div className={cn(
-                "relative flex items-center justify-center w-[300px] h-[300px] transition-opacity duration-1000",
+                "relative flex items-center justify-center w-72 h-72 transition-opacity duration-1000",
                 isActive ? 'opacity-100' : 'opacity-0'
             )}>
-                {/* Glow Layer */}
-                <div className="absolute w-full h-full animate-breathe-glow">
-                    <Shield className="w-full h-full text-primary/80 blur-2xl" strokeWidth={0.5} />
-                </div>
-                {/* Icon Layer */}
-                <div className="relative animate-breathe-glow">
-                    <Shield className="w-48 h-48 text-primary fill-primary/20" strokeWidth={1} />
-                    <Lock className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 text-white" strokeWidth={1} />
-                </div>
+                {/* 1. The circular glow, animated */}
+                <div className="absolute inset-0 bg-primary/10 rounded-full blur-2xl animate-slow-pulse"></div>
+
+                {/* 2. The main shield icon */}
+                <Shield
+                    className="w-48 h-48 text-primary/40"
+                    strokeWidth={1.5}
+                    fill="hsl(var(--primary)/0.1)"
+                 />
+                
+                {/* 3. The lock icon, centered on top */}
+                 <Lock
+                    className="absolute w-20 h-20 text-primary/50"
+                    strokeWidth={1.5}
+                 />
             </div>
 
             {/* The text ticker animation */}
