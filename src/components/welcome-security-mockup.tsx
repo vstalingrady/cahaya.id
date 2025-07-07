@@ -12,15 +12,19 @@ const securityFeatures = [
     "Your Privacy is Our Priority"
 ];
 
-export default function WelcomeSecurityMockup({ className }: { className?: string }) {
+export default function WelcomeSecurityMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
     const [featureIndex, setFeatureIndex] = useState(0);
 
     useEffect(() => {
+        if (!isActive) {
+            setFeatureIndex(0);
+            return;
+        }
         const timer = setInterval(() => {
             setFeatureIndex(prev => (prev + 1) % securityFeatures.length);
         }, 2500);
         return () => clearInterval(timer);
-    }, []);
+    }, [isActive]);
 
     return (
         <div className={cn(
@@ -39,16 +43,14 @@ export default function WelcomeSecurityMockup({ className }: { className?: strin
                     <p 
                         key={feature}
                         className={cn(
-                            "absolute w-full text-foreground font-semibold transition-all duration-500",
-                            index === featureIndex ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-5',
-                            index > featureIndex && 'translate-y-5'
+                            "absolute w-full text-foreground font-semibold transition-opacity duration-500",
+                            index === featureIndex ? 'opacity-100' : 'opacity-0'
                         )}
                     >
                         {feature}
                     </p>
                 ))}
             </div>
-            
         </div>
     )
 }

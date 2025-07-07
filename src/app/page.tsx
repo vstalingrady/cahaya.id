@@ -1,7 +1,8 @@
+
 'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ArrowRight, BarChart2, Zap, PiggyBank, Sparkles, ClipboardList } from 'lucide-react';
+import { ArrowRight, BarChart2, Zap, PiggyBank, Sparkles, ClipboardList, ShieldCheck } from 'lucide-react';
 import CahayaLogo from '@/components/icons/cuanlogo';
 import NoiseOverlay from '@/components/noise-overlay';
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
@@ -11,6 +12,7 @@ import WelcomePaymentMockup from '@/components/welcome-payment-mockup';
 import WelcomeInsightsMockup from '@/components/welcome-insights-mockup';
 import WelcomeVaultsMockup from '@/components/welcome-vaults-mockup';
 import WelcomeBudgetsMockup from '@/components/welcome-budgets-mockup';
+import WelcomeSecurityMockup from '@/components/welcome-security-mockup';
 import Image from 'next/image';
 import React, { useState, useEffect, useCallback } from 'react';
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react';
@@ -48,7 +50,7 @@ export default function WelcomePage() {
     .filter(f => ['bibit', 'pintu', 'jenius', 'dbs', 'ocbc'].includes(f.slug))
     .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" data-ai-hint={`${f.name} logo`} /> }));
 
-  const numSlides = 7;
+  const numSlides = 8;
 
   return (
     <div className="relative min-h-screen w-full bg-background text-foreground overflow-hidden">
@@ -147,8 +149,20 @@ export default function WelcomePage() {
                     <WelcomeVaultsMockup isActive={selectedIndex === 5} className="h-[450px]" />
                 </div>
             </section>
+
+            {/* Slide 7: Security */}
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
+                <div className="text-center max-w-sm">
+                    <ShieldCheck className="w-8 h-8 text-primary mx-auto mb-2" />
+                    <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Bank-Grade Security</h2>
+                    <p className="text-muted-foreground text-sm">Your data is encrypted and protected with the highest security standards. Your privacy is our priority.</p>
+                </div>
+                <div className="w-full px-4">
+                    <WelcomeSecurityMockup isActive={selectedIndex === 6} />
+                </div>
+            </section>
             
-            {/* Slide 7: Sign Up */}
+            {/* Slide 8: Sign Up */}
             <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
                 <div className="text-center space-y-6 animate-fade-in-up max-w-sm">
                     <h2 className="text-3xl font-bold font-serif text-foreground">Ready to take control?</h2>
