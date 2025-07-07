@@ -124,10 +124,10 @@ export default {
         },
         'scroll-left': {
           'from': { transform: 'translateX(0)' },
-          'to': { transform: 'translateX(calc(-50% - 0.5rem))' },
+          'to': { transform: 'translateX(calc(-50% - 0.75rem))' },
         },
         'scroll-right': {
-          'from': { transform: 'translateX(calc(-50% - 0.5rem))' },
+          'from': { transform: 'translateX(calc(-50% - 0.75rem))' },
           'to': { transform: 'translateX(0)' },
         },
       },
