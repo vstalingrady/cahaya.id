@@ -22,10 +22,7 @@ const InfiniteLogoScroller: React.FC<InfiniteLogoScrollerProps> = ({
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       return;
     }
-    const scroller = scrollerRef.current;
-    if (scroller) {
-      scroller.setAttribute("data-animated", "true");
-    }
+    scrollerRef.current?.setAttribute('data-animated', 'true');
   }, []);
 
   const speedMap = {
@@ -34,34 +31,83 @@ const InfiniteLogoScroller: React.FC<InfiniteLogoScrollerProps> = ({
     fast: '25s',
   };
 
+  const css = `
+    .scroller-wrapper {
+      width: 100%;
+      overflow: hidden;
+      -webkit-mask: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
+      mask: linear-gradient(to right, transparent, white 20%, white 80%, transparent);
+    }
+
+    .scroller-track {
+      display: flex;
+      width: max-content;
+      flex-wrap: nowrap;
+      gap: 1.5rem;
+    }
+
+    .scroller-track[data-animated="true"] {
+      animation: scroll var(--animation-duration, 40s) linear infinite;
+      animation-direction: var(--animation-direction, normal);
+    }
+    
+    @keyframes scroll {
+      to {
+        transform: translate(calc(-50% - 0.75rem));
+      }
+    }
+
+    .logo-card {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 140px;
+      height: 110px;
+      background-color: hsl(var(--card));
+      border: 1px solid hsl(var(--border));
+      border-radius: 1rem;
+      box-shadow: 0 4px 15px hsla(var(--primary) / 0.07);
+      flex-shrink: 0;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .logo-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px hsla(var(--primary) / 0.1);
+    }
+
+    .logo-card span {
+      margin-top: 12px;
+      font-size: 0.875rem;
+      color: hsl(var(--muted-foreground));
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.2;
+      padding: 0 4px;
+    }
+  `;
+
   return (
-    <div
-      ref={scrollerRef}
-      className={cn(
-        "w-full overflow-hidden relative",
-        className
-      )}
-      style={{
-        maskImage: 'linear-gradient(to right, transparent, white 20%, white 80%, transparent)',
-        WebkitMaskImage: 'linear-gradient(to right, transparent, white 20%, white 80%, transparent)',
-      }}
-    >
-      <div
-        className={cn(
-          "flex min-w-full w-max flex-nowrap gap-6",
-          direction === 'forward' ? 'animate-scroll-left' : 'animate-scroll-right'
-        )}
-        style={{ '--animation-duration': speedMap[speed] } as React.CSSProperties}
+    <>
+      <style>{css}</style>
+      <div 
+        className={cn('scroller-wrapper', className)}
+        style={{
+          '--animation-duration': speedMap[speed],
+          '--animation-direction': direction === 'reverse' ? 'reverse' : 'normal',
+        } as React.CSSProperties}
       >
-        {/* We duplicate the institutions list to create the seamless loop effect */}
-        {[...institutions, ...institutions].map((institution, index) => (
-          <div key={`${institution.name}-${index}`} className="flex flex-shrink-0 flex-col items-center justify-center w-[140px] h-[110px] rounded-2xl bg-white shadow-lg">
-            {institution.logo}
-            <span className="mt-3 text-sm text-center font-medium text-gray-700 px-1">{institution.name}</span>
-          </div>
-        ))}
+        <div ref={scrollerRef} className="scroller-track">
+          {[...institutions, ...institutions].map((institution, index) => (
+            <div key={`${institution.name}-${index}`} className="logo-card">
+              {institution.logo}
+              <span>{institution.name}</span>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
