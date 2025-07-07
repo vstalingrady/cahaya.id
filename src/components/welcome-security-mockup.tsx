@@ -32,26 +32,19 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
         )}>
             {/* The main animated graphic */}
             <div className="relative flex items-center justify-center w-48 h-48">
-                {/* Radiating shield pulses */}
-                {isActive && [0, 1, 2].map((i) => (
-                    <Shield
-                        key={i}
-                        className="absolute w-full h-full text-primary opacity-0 animate-shield-pulse"
-                        fill="currentColor"
-                        style={{
-                            animationDelay: `${i * 1}s`,
-                        }}
-                    />
-                ))}
-
-                {/* The central, breathing icon */}
-                <div className="relative w-32 h-32 flex items-center justify-center animate-slow-pulse">
-                    {/* The central, breathing icon is now a single, filled shield */}
-                    <Shield
-                        className="w-24 h-24 text-primary"
-                        fill="currentColor"
-                    />
-                </div>
+                {/* Layer 1: The Glow (blurred background icon) */}
+                <Shield
+                    className={cn(
+                        "absolute w-24 h-24 text-primary blur-xl transition-opacity duration-2000",
+                        isActive ? "animate-glow-fade" : "opacity-0"
+                    )}
+                    fill="currentColor"
+                />
+                {/* Layer 2: The Main Icon (breathing) */}
+                <Shield
+                    className="relative w-24 h-24 text-primary animate-slow-pulse"
+                    fill="currentColor"
+                />
             </div>
 
             {/* The text ticker animation */}

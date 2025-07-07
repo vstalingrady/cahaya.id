@@ -104,25 +104,13 @@ export default {
             filter: 'drop-shadow(0 0 15px hsl(var(--primary) / 0.7))'
           },
         },
-        'slow-pulse': { /* For the central breathing icon */
-          '0%, 100%': {
-            transform: 'scale(1)',
-            filter: 'drop-shadow(0 0 8px hsl(var(--primary) / 0.5))',
-          },
-          '50%': {
-            transform: 'scale(1.05)',
-            filter: 'drop-shadow(0 0 20px hsl(var(--primary) / 0.8))',
-          },
+        'slow-pulse': {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%': { transform: 'scale(1.05)' },
         },
-        'shield-pulse': { /* For the radiating shields */
-          '0%': {
-            transform: 'scale(1)',
-            opacity: '0.7',
-          },
-          '100%': {
-            transform: 'scale(1.75)',
-            opacity: '0',
-          },
+        'glow-fade': {
+          '0%, 100%': { opacity: '0.4' },
+          '50%': { opacity: '0.8' },
         },
         'text-shine': {
           'from': { 'background-position': '0% center' },
@@ -150,7 +138,7 @@ export default {
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'logo-blink-glow': 'logo-blink-glow 5s ease-in-out infinite',
         'slow-pulse': 'slow-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'shield-pulse': 'shield-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'glow-fade': 'glow-fade 4s ease-in-out infinite',
         'text-shine': 'text-shine 3s linear infinite',
         'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
