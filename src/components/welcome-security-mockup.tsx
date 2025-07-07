@@ -2,41 +2,17 @@
 'use client';
 
 import { cn } from "@/lib/utils";
-import { Lock, ShieldCheck } from "lucide-react";
+import { Lock, Fingerprint } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const securityFeatures = [
-    "256-bit AES Encryption",
-    "Biometric Authentication",
-    "OJK Licensed Partner API",
-    "Your Privacy is Our Priority"
-];
-
-const HexScramble = ({ isActive, lines = 8 }: { isActive: boolean; lines?: number }) => {
-    const [hexStrings, setHexStrings] = useState<string[]>([]);
-    
-    useEffect(() => {
-        if (!isActive) {
-            setHexStrings([]);
-            return;
-        }
-
-        const generateHexString = () => Array(24).fill(0).map(() => Math.floor(Math.random() * 16).toString(16).toUpperCase()).join('');
-
-        const intervalId = setInterval(() => {
-            setHexStrings(Array.from({ length: lines }, generateHexString));
-        }, 100);
-
-        setHexStrings(Array.from({ length: lines }, generateHexString));
-
-        return () => clearInterval(intervalId);
-    }, [isActive, lines]);
-
+const BiometricsAnimation = ({ isActive }: { isActive?: boolean }) => {
     return (
-        <div className="font-mono text-lg text-primary/70 leading-relaxed select-none text-center break-all opacity-70">
-            {hexStrings.map((hex, i) => (
-                <p key={i}>{hex}</p>
-            ))}
+        <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
+             <Fingerprint className={cn("w-72 h-72 text-primary/10 transition-opacity duration-500", isActive ? 'opacity-100' : 'opacity-0')} />
+             <div className={cn(
+                "absolute w-64 h-1 bg-accent rounded-full shadow-[0_0_15px_2px] shadow-accent/70 transition-opacity",
+                isActive ? "animate-biometric-scan" : "opacity-0"
+             )}/>
         </div>
     );
 };
@@ -44,6 +20,13 @@ const HexScramble = ({ isActive, lines = 8 }: { isActive: boolean; lines?: numbe
 
 export default function WelcomeSecurityMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
     const [featureIndex, setFeatureIndex] = useState(0);
+
+    const securityFeatures = [
+        "Biometric Authentication",
+        "256-bit AES Encryption",
+        "OJK Licensed Partner API",
+        "Your Privacy is Our Priority"
+    ];
 
     useEffect(() => {
         if (!isActive) {
@@ -64,20 +47,11 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             className
         )}>
 
-            <div className="relative w-full h-[24rem] flex items-center justify-center">
-                {/* Hex scramble in the background */}
-                <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-                    <HexScramble isActive={isActive} lines={8} />
-                </div>
+            <BiometricsAnimation isActive={isActive} />
 
-                {/* Shield and lock icon on top */}
-                <div className="relative z-10 flex items-center justify-center">
-                    <ShieldCheck className="w-56 h-56 text-primary/10" />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-24 h-24 bg-destructive-foreground rounded-full flex items-center justify-center animate-slow-pulse">
-                            <Lock className="w-12 h-12 text-primary" />
-                        </div>
-                    </div>
+            <div className="relative z-10 flex items-center justify-center">
+                <div className="w-24 h-24 bg-background/80 backdrop-blur-sm rounded-full flex items-center justify-center animate-slow-pulse shadow-lg">
+                    <Lock className="w-12 h-12 text-primary" />
                 </div>
             </div>
 

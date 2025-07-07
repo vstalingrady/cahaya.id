@@ -125,6 +125,11 @@ export default {
           'from': { transform: 'translateX(calc(-50% - 0.75rem))' },
           'to': { transform: 'translateX(0)' },
         },
+        'biometric-scan': {
+          '0%': { transform: 'translateY(-20%)', opacity: '0' },
+          '20%, 80%': { transform: 'translateY(288px)', opacity: '1' },
+          '100%': { transform: 'translateY(300px)', opacity: '0' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -139,6 +144,7 @@ export default {
         'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
         'scroll-right': 'scroll-right var(--animation-duration) linear infinite',
+        'biometric-scan': 'biometric-scan 3s ease-in-out infinite',
       },
     },
   },
