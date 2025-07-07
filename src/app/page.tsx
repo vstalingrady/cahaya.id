@@ -92,7 +92,7 @@ export default function WelcomePage() {
 
             {/* Slide 2: Dashboard */}
             <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center max-w-sm">
+                <div className="text-center max-w-sm min-h-36">
                     <BarChart2 className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Unified Dashboard</h2>
                     <p className="text-muted-foreground text-sm">See your complete financial picture in one glance. Track balances across all your linked accounts in real-time.</p>
@@ -104,7 +104,7 @@ export default function WelcomePage() {
 
             {/* Slide 3: Payments */}
             <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center max-w-sm">
+                <div className="text-center max-w-sm min-h-36">
                     <Zap className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Effortless Payments</h2>
                     <p className="text-muted-foreground text-sm">Pay bills, transfer funds, and top-up e-wallets seamlessly from any of your accounts, all from one central hub.</p>
@@ -116,7 +116,7 @@ export default function WelcomePage() {
 
             {/* Slide 4: Budgets */}
             <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center max-w-sm">
+                <div className="text-center max-w-sm min-h-36">
                     <ClipboardList className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Smart Budgeting</h2>
                     <p className="text-muted-foreground text-sm">Set custom budgets, track your spending against them in real-time, and get coached by our AI to stay on track.</p>
@@ -128,7 +128,7 @@ export default function WelcomePage() {
 
             {/* Slide 5: Insights */}
             <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center max-w-sm">
+                <div className="text-center max-w-sm min-h-36">
                     <Sparkles className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">AI-Powered Insights</h2>
                     <p className="text-muted-foreground text-sm">Let our AI analyze your spending to find personalized saving opportunities and create actionable financial plans.</p>
@@ -140,7 +140,7 @@ export default function WelcomePage() {
 
             {/* Slide 6: Vaults */}
             <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center max-w-sm">
+                <div className="text-center max-w-sm min-h-36">
                     <PiggyBank className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Automated Savings</h2>
                     <p className="text-muted-foreground text-sm">Create savings vaults for your goals. Automate contributions with round-ups and scheduled transfers.</p>
@@ -152,7 +152,7 @@ export default function WelcomePage() {
 
             {/* Slide 7: Security */}
             <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center max-w-sm">
+                <div className="text-center max-w-sm min-h-36">
                     <ShieldCheck className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Bank-Grade Security</h2>
                     <p className="text-muted-foreground text-sm">Your data is encrypted and protected with the highest security standards. Your privacy is our priority.</p>
