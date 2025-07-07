@@ -219,7 +219,7 @@ export default function AccountDetailPage() {
         </div>
       )}
 
-      {(account.type === 'bank' || account.type === 'e-wallet') && (
+      {(account.type === 'bank' || account.type === 'e-wallet' || account.type === 'loan') && (
          <div className="space-y-4">
           <h2 className="text-xl font-semibold text-foreground font-serif">Transaction History</h2>
           {transactions.length > 0 ? (
@@ -231,18 +231,16 @@ export default function AccountDetailPage() {
           )}
         </div>
       )}
-
-      {account.type !== 'loan' && (
-        <div className="mt-8 pt-6 border-t border-border/50 text-center">
-            <Button
-                variant="link"
-                className="text-destructive hover:text-destructive/80 font-semibold"
-                onClick={() => setIsUnlinkConfirmOpen(true)}
-            >
-                Unlink this Account
-            </Button>
-        </div>
-      )}
+      
+      <div className="mt-8 pt-6 border-t border-border/50 text-center">
+          <Button
+              variant="link"
+              className="text-destructive hover:text-destructive/80 font-semibold"
+              onClick={() => setIsUnlinkConfirmOpen(true)}
+          >
+              Unlink this Account
+          </Button>
+      </div>
     </div>
     </>
   );
