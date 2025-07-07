@@ -11,11 +11,21 @@ const securityFeatures = [
     "Your Privacy is Our Priority"
 ];
 
-const DECRYPTION_TARGET = "BANK-GRADE SECURITY";
+const DECRYPTION_TARGET = "YOUR PRIVACY IS OUR PRIORITY";
+const GIBBERISH_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+=";
+
+const generateGibberish = (length: number) => {
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += GIBBERISH_CHARS[Math.floor(Math.random() * GIBBERISH_CHARS.length)];
+    }
+    return result;
+};
+
 
 export default function WelcomeSecurityMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
     const [featureIndex, setFeatureIndex] = useState(0);
-    const [scrambledTitle, setScrambledTitle] = useState(" ".repeat(DECRYPTION_TARGET.length));
+    const [scrambledTitle, setScrambledTitle] = useState(generateGibberish(DECRYPTION_TARGET.length));
 
     // Effect for the cycling text at the bottom
     useEffect(() => {
@@ -33,14 +43,19 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
     // Effect for the decryption text at the top
     useEffect(() => {
         if (!isActive) {
-            setScrambledTitle(" ".repeat(DECRYPTION_TARGET.length));
+            setScrambledTitle(generateGibberish(DECRYPTION_TARGET.length));
             return;
         }
 
         const unrevealedIndices = [...Array(DECRYPTION_TARGET.length).keys()];
+        // Initialize with gibberish
+        setScrambledTitle(generateGibberish(DECRYPTION_TARGET.length));
+
         const interval = setInterval(() => {
             if (unrevealedIndices.length === 0) {
                 clearInterval(interval);
+                // Ensure the final state is perfect, in case of timing issues.
+                setScrambledTitle(DECRYPTION_TARGET);
                 return;
             }
 
