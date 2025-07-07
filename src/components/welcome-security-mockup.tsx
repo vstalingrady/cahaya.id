@@ -21,7 +21,7 @@ const HexScramble = ({ isActive, lines = 4 }: { isActive: boolean; lines?: numbe
             return;
         }
 
-        const generateHexString = () => Array(40).fill(0).map(() => Math.floor(Math.random() * 16).toString(16).toUpperCase()).join('');
+        const generateHexString = () => Array(32).fill(0).map(() => Math.floor(Math.random() * 16).toString(16).toUpperCase()).join('');
 
         const intervalId = setInterval(() => {
             setHexStrings(Array.from({ length: lines }, generateHexString));
@@ -34,13 +34,14 @@ const HexScramble = ({ isActive, lines = 4 }: { isActive: boolean; lines?: numbe
     }, [isActive, lines]);
 
     return (
-        <div className="font-mono text-primary/80 text-lg leading-relaxed text-center">
+        <div className="font-mono text-primary/80 text-base leading-relaxed text-center">
             {hexStrings.map((hex, i) => (
-                <p key={i} className="truncate select-none">{hex}</p>
+                <p key={i} className="select-none">{hex}</p>
             ))}
         </div>
     );
 };
+
 
 export default function WelcomeSecurityMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
     const [featureIndex, setFeatureIndex] = useState(0);
@@ -73,7 +74,7 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
                 </div>
             </div>
             
-            <div className="relative z-10 w-full px-6">
+            <div className="relative z-10 w-full px-4">
                  <HexScramble isActive={isActive} lines={4} />
             </div>
 
