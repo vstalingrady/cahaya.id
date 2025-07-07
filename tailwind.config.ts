@@ -130,6 +130,11 @@ export default {
           'from': { transform: 'translateX(calc(-50% - 0.75rem))' },
           'to': { transform: 'translateX(0)' },
         },
+        'ring-pulse': {
+          '0%': { transform: 'scale(0.8)', opacity: '0' },
+          '50%': { opacity: '0.7' },
+          '100%': { transform: 'scale(1.4)', opacity: '0' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -144,6 +149,7 @@ export default {
         'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
         'scroll-right': 'scroll-right var(--animation-duration) linear infinite',
+        'ring-pulse': 'ring-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
