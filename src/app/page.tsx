@@ -1,15 +1,21 @@
+
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { BarChart2, Zap, PiggyBank } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { BarChart2, Zap, PiggyBank, ClipboardList, ShieldCheck, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+
+// Import all mockups
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
 import WelcomePaymentMockup from '@/components/welcome-payment-mockup';
 import WelcomeInsightsMockup from '@/components/welcome-insights-mockup';
 import WelcomeVaultsMockup from '@/components/welcome-vaults-mockup';
-import CuanLogo from '@/components/icons/cuanlogo';
+import WelcomeBudgetsMockup from '@/components/welcome-budgets-mockup';
+import WelcomeSecurityMockup from '@/components/welcome-security-mockup';
+
 import NoiseOverlay from '@/components/noise-overlay';
 
 const featureSlides = [
@@ -29,28 +35,48 @@ const featureSlides = [
   },
   {
     id: 'insights',
-    icon: CuanLogo,
+    icon: Sparkles,
     title: 'AI-Powered Insights',
     description: 'Let our AI analyze your spending to find personalized saving opportunities and create actionable financial plans.',
     mockup: WelcomeInsightsMockup,
   },
-   {
+  {
     id: 'vaults',
     icon: PiggyBank,
     title: 'Automated Savings',
     description: 'Create savings vaults for your goals. Automate contributions with round-ups and scheduled transfers.',
     mockup: WelcomeVaultsMockup,
   },
+  {
+    id: 'budgets',
+    icon: ClipboardList,
+    title: 'Smart Budgets',
+    description: 'Take control of your spending. Set custom budgets for different categories and get alerts before you go over.',
+    mockup: WelcomeBudgetsMockup,
+  },
+  {
+    id: 'security',
+    icon: ShieldCheck,
+    title: 'Bank-Grade Security',
+    description: 'Your data is encrypted and protected with the highest security standards. Your privacy is our priority.',
+    mockup: WelcomeSecurityMockup,
+  },
 ];
 
 export default function WelcomePage() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const router = useRouter();
 
   const handleNext = () => {
-    setActiveSlide((prev) => (prev + 1) % featureSlides.length);
+    if (activeSlide < featureSlides.length - 1) {
+      setActiveSlide((prev) => prev + 1);
+    } else {
+      router.push('/signup');
+    }
   };
   
   const CurrentMockup = featureSlides[activeSlide].mockup;
+  const isLastSlide = activeSlide === featureSlides.length - 1;
   
   return (
     <div className="w-full max-w-md mx-auto bg-background text-white p-6 flex flex-col min-h-screen relative overflow-hidden">
@@ -91,13 +117,13 @@ export default function WelcomePage() {
             ))}
         </div>
          <Button size="lg" className="w-full h-14 text-lg" onClick={handleNext}>
-            Continue
+            {isLastSlide ? 'Get Started' : 'Continue'}
         </Button>
         <div className="text-center">
             <p className="text-sm text-muted-foreground">
-                Don&apos;t have an account?{' '}
-                <Link href="/signup" className="font-semibold text-primary/80 hover:text-primary underline">
-                  Sign Up Now
+                {isLastSlide ? "Already have an account? " : "Don't have an account? "}
+                <Link href={isLastSlide ? "/login" : "/signup"} className="font-semibold text-primary/80 hover:text-primary underline">
+                  {isLastSlide ? "Log In" : "Sign Up Now"}
                 </Link>
             </p>
         </div>
