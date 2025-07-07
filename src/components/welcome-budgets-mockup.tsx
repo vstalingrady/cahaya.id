@@ -1,4 +1,3 @@
-
 'use client';
 
 import { cn } from "@/lib/utils";
@@ -11,7 +10,7 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
 
     return (
         <div className={cn(
-            "relative w-full max-w-sm h-[400px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col justify-center gap-4",
+            "relative w-full max-w-sm h-[450px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col justify-center gap-4",
             className
         )}>
             {/* Food Budget Card */}

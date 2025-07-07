@@ -1,4 +1,3 @@
-
 'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -122,7 +121,7 @@ export default function WelcomePage() {
                     <p className="text-muted-foreground text-sm">Set custom budgets, track your spending against them in real-time, and get coached by our AI to stay on track.</p>
                 </div>
                 <div className="w-full px-4">
-                    <WelcomeBudgetsMockup isActive={selectedIndex === 3} className="h-[400px]" />
+                    <WelcomeBudgetsMockup isActive={selectedIndex === 3} className="h-[450px]" />
                 </div>
             </section>
 
