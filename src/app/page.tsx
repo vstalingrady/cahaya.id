@@ -59,13 +59,13 @@ export default function WelcomePage() {
     .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" /> }));
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden">
+    <div className="w-full max-w-md mx-auto min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden">
       <NoiseOverlay opacity={0.02} />
       <div className="absolute inset-0 -z-10 h-full w-full bg-background has-hero-glow"></div>
       
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 p-4 z-50 bg-background/50 backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+      <header className="w-full p-4 z-10">
+        <div className="w-full flex justify-between items-center">
           <CuanLogo className="w-32 h-auto" />
           <div className="flex items-center gap-2">
             <Button variant="ghost" asChild>
@@ -79,21 +79,21 @@ export default function WelcomePage() {
       </header>
       
       {/* Main Hero Section */}
-      <main className="flex-1 flex items-center justify-center pt-24 pb-12">
-        <div className="w-full max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          {/* Left Side: Text Content & Controls */}
-          <div className="text-center lg:text-left space-y-6 animate-fade-in-up">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-serif leading-tight">
+      <main className="flex-1 flex items-center justify-center pt-12 pb-12">
+        <div className="w-full px-4 grid grid-cols-1 gap-8 items-center">
+          {/* Text Content */}
+          <div className="text-center space-y-6 animate-fade-in-up">
+            <h1 className="text-4xl font-bold font-serif leading-tight">
               All Your Money, <br />
               <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 One Single App.
               </span>
             </h1>
-            <p className="text-lg text-muted-foreground max-w-lg mx-auto lg:mx-0">
+            <p className="text-lg text-muted-foreground max-w-lg mx-auto">
               CuanFlex securely connects to all your bank and e-wallet accounts,
               giving you a complete financial overview and AI-powered insights to grow your wealth.
             </p>
-            <div className="flex justify-center lg:justify-start">
+            <div className="flex justify-center">
               <Button size="lg" className="h-12 text-lg" asChild>
                 <Link href="/signup">
                   Get Started for Free <ArrowRight className="ml-2" />
@@ -102,7 +102,7 @@ export default function WelcomePage() {
             </div>
           </div>
           
-          {/* Right Side: Animated Mockup */}
+          {/* Animated Mockup */}
           <div className="relative w-full h-[550px] flex items-center justify-center">
             {featureSlides.map((slide, index) => {
               const MockupComponent = slide.mockup;
@@ -121,7 +121,7 @@ export default function WelcomePage() {
 
       {/* Feature Selector Section */}
        <section className="py-12 bg-background/50 backdrop-blur-sm">
-         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+         <div className="w-full px-4 grid grid-cols-1 gap-4">
             {featureSlides.map((slide, index) => (
               <button
                 key={slide.id}
@@ -138,8 +138,8 @@ export default function WelcomePage() {
 
       {/* Compatibility Section */}
        <section className="py-24 bg-card/20">
-        <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold font-serif">Broad Compatibility</h2>
+        <div className="w-full px-4 text-center">
+          <h2 className="text-3xl font-bold font-serif">Broad Compatibility</h2>
           <p className="text-muted-foreground mt-4 mb-12 max-w-2xl mx-auto">
             We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
           </p>
@@ -152,7 +152,7 @@ export default function WelcomePage() {
 
       {/* Footer */}
       <footer className="py-8 bg-background">
-          <div className="max-w-7xl mx-auto px-4 text-center text-muted-foreground">
+          <div className="w-full px-4 text-center text-muted-foreground">
             <p>&copy; {new Date().getFullYear()} CuanFlex. All Rights Reserved.</p>
           </div>
       </footer>
