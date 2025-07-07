@@ -12,6 +12,15 @@ export interface MockInstitution {
   primary_color: string; // hex code
 }
 
+export type CryptoHolding = {
+  id: string;
+  name: string;
+  symbol: string;
+  amount: number;
+  value: number; // in IDR
+  logoUrl: string;
+}
+
 export interface MockBalance {
   current: number;
   available: number | null;
@@ -26,8 +35,9 @@ export interface MockAccount {
   official_name: string | null;
   mask: string; // Last 4 digits
   type: 'depository' | 'ewallet' | 'credit' | 'investment' | 'loan';
-  subtype: 'checking' | 'savings' | 'digital_wallet' | 'credit_card' | 'mutual_fund' | 'stock' | 'crypto';
+  subtype: 'checking' | 'savings' | 'digital_wallet' | 'credit_card' | 'mutual_fund' | 'stock' | 'crypto' | 'personal_loan';
   balances: MockBalance;
+  holdings?: CryptoHolding[];
 }
 
 export interface MockTransaction {
@@ -59,25 +69,14 @@ export interface MockUser {
 // --- DATABASE TABLES ---
 
 export const mockInstitutions: MockInstitution[] = [
-  {
-    institution_id: 'bca',
-    name: 'BCA',
-    logo: '/logos/bca.svg',
-    primary_color: '#0060f0',
-  },
-  {
-    institution_id: 'gopay',
-    name: 'GoPay',
-    logo: '/logos/gopay.svg',
-    primary_color: '#00a9de',
-  },
-  {
-    institution_id: 'mandiri',
-    name: 'Mandiri',
-    logo: '/logos/mandiri.svg',
-    primary_color: '#003d79',
-  },
+  { institution_id: 'bca', name: 'BCA', logo: 'https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia_logo.svg', primary_color: '#0060f0' },
+  { institution_id: 'gopay', name: 'GoPay', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/86/Gopay_logo.svg', primary_color: '#00a9de' },
+  { institution_id: 'mandiri', name: 'Mandiri', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/ad/Bank_Mandiri_logo.svg', primary_color: '#003d79' },
+  { institution_id: 'bibit', name: 'Bibit', logo: 'https://upload.wikimedia.org/wikipedia/commons/e/e0/Bibit.id_logo.svg', primary_color: '#4CAF50' },
+  { institution_id: 'pintu', name: 'Pintu', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Pintu_logo.svg/2560px-Pintu_logo.svg.png', primary_color: '#00A3FF' },
+  { institution_id: 'kredivo', name: 'Kredivo', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Kredivo_logo.svg/2560px-Kredivo_logo.svg.png', primary_color: '#0A429E' },
 ];
+
 
 export const mockUsers: MockUser[] = [
     {
@@ -141,6 +140,54 @@ export const mockAccounts: MockAccount[] = [
       available: 1068000,
       iso_currency_code: 'IDR',
     },
+  },
+   {
+    account_id: 'acc_mandiri_payroll_4',
+    institution_id: 'mandiri',
+    user_id: 'user_budi_123',
+    name: 'Mandiri Payroll',
+    official_name: 'Budi Santoso - Gaji',
+    mask: '5566',
+    type: 'depository',
+    subtype: 'checking',
+    balances: { current: 42500000, available: 42500000, iso_currency_code: 'IDR' },
+  },
+  {
+    account_id: 'acc_bibit_main_5',
+    institution_id: 'bibit',
+    user_id: 'user_budi_123',
+    name: 'Bibit Portfolio',
+    official_name: 'Budi Santoso - Bibit',
+    mask: 'IVST',
+    type: 'investment',
+    subtype: 'mutual_fund',
+    balances: { current: 125000000, available: 125000000, iso_currency_code: 'IDR' },
+  },
+  {
+    account_id: 'acc_pintu_main_6',
+    institution_id: 'pintu',
+    user_id: 'user_budi_123',
+    name: 'Pintu Crypto',
+    official_name: 'Budi S - Pintu',
+    mask: 'CRPT',
+    type: 'investment',
+    subtype: 'crypto',
+    balances: { current: 75000000, available: 75000000, iso_currency_code: 'IDR' },
+    holdings: [
+      { id: 'btc', name: 'Bitcoin', symbol: 'BTC', amount: 0.65, value: 45000000, logoUrl: 'https://placehold.co/48x48.png' },
+      { id: 'eth', name: 'Ethereum', symbol: 'ETH', amount: 5, value: 25000000, logoUrl: 'https://placehold.co/48x48.png' },
+    ]
+  },
+  {
+    account_id: 'acc_kredivo_loan_7',
+    institution_id: 'kredivo',
+    user_id: 'user_budi_123',
+    name: 'Kredivo PayLater',
+    official_name: null,
+    mask: 'LOAN',
+    type: 'loan',
+    subtype: 'personal_loan',
+    balances: { current: 5500000, available: 14500000, iso_currency_code: 'IDR' },
   },
 ];
 
@@ -225,6 +272,10 @@ export const mockTransactions: MockTransaction[] = [
     category: ['Services', 'Subscription'],
     pending: false,
   },
+  // New Transactions for new accounts
+  { transaction_id: 'txn_8', account_id: 'acc_mandiri_payroll_4', amount: 45000000, iso_currency_code: 'IDR', description: 'Bonus Tahunan', merchant_name: 'PT Cuan Sejahtera', date: '2024-06-30', category: ['Income', 'Bonus'], pending: false },
+  { transaction_id: 'txn_9', account_id: 'acc_mandiri_payroll_4', amount: -250000, iso_currency_code: 'IDR', description: 'Biaya Admin', merchant_name: 'Bank Mandiri', date: '2024-07-31', category: ['Fees', 'Bank Fees'], pending: false },
+  { transaction_id: 'txn_10', account_id: 'acc_kredivo_loan_7', amount: -5500000, iso_currency_code: 'IDR', description: 'Pembayaran Tagihan Kredivo', merchant_name: 'Kredivo', date: '2024-07-01', category: ['Payments', 'Loan Payments'], pending: false },
 ];
 
 // --- API Helper Functions ---
@@ -250,7 +301,8 @@ export const db = {
     }
     const accessToken = `access_token_budi_${Date.now()}`;
     const userId = 'user_budi_123';
-    tokenStore.set(accessToken, { userId, accounts: ['acc_bca_tahapan_1', 'acc_bca_kredit_2', 'acc_gopay_main_3'] });
+    const allAccountIds = mockAccounts.filter(a => a.user_id === userId).map(a => a.account_id);
+    tokenStore.set(accessToken, { userId, accounts: allAccountIds });
     return { access_token: accessToken, user_id: userId };
   },
 

@@ -12,6 +12,7 @@ import {
   type Vault,
   type Beneficiary,
   type FavoriteTransaction,
+  financialInstitutions,
 } from "./data";
 import {
   accounts as seedAccounts,
@@ -31,7 +32,7 @@ import { updateProfile } from "firebase/auth";
 import { doc, setDoc, getDoc, deleteDoc, collection, writeBatch, getDocs, addDoc, query, where, updateDoc, orderBy, limit } from "firebase/firestore";
 import { headers } from 'next/headers';
 import { db as mockApiDb } from './mock-api-db';
-import { type MockAccount, type MockTransaction } from './mock-api-db';
+import { type MockTransaction } from './mock-api-db';
 
 
 /**
@@ -239,6 +240,81 @@ export async function exchangePublicToken(publicToken: string | null) {
     return { error: 'An internal server error occurred.' };
   }
 }
+
+/**
+ * Fetches accounts and transactions from a mock provider using an access token,
+ * transforms the data, and saves it to the user's Firestore database.
+ * @param {string} userId - The current user's UID.
+ * @param {string} accessToken - The access token from the mock provider.
+ * @returns {Promise<{success: boolean, accountsAdded?: number, error?: string}>} Result of the sync operation.
+ */
+export async function syncAccountsFromProvider(userId: string, accessToken: string) {
+  try {
+    if (!userId || !accessToken) {
+      throw new Error("User ID and Access Token are required.");
+    }
+    // 1. Use accessToken to get user info from mock API
+    const tokenInfo = mockApiDb.getUserByAccessToken(accessToken);
+    if (!tokenInfo) {
+      return { success: false, error: 'Invalid access token' };
+    }
+
+    // 2. Fetch all accounts and transactions belonging to the user from the mock provider
+    const providerAccounts = mockApiDb.accounts.filter(acc => tokenInfo.accounts.includes(acc.account_id));
+    const providerTransactions: MockTransaction[] = [];
+    
+    for (const acc of providerAccounts) {
+      const txns = mockApiDb.transactions.filter(t => t.account_id === acc.account_id);
+      providerTransactions.push(...txns);
+    }
+
+    // 3. Transform mock API data to our app's data format
+    const mappedAccounts: Account[] = providerAccounts.map(mockAcc => ({
+      id: mockAcc.account_id,
+      name: mockAcc.name,
+      institutionSlug: mockAcc.institution_id,
+      type: mockAcc.type as 'bank' | 'e-wallet' | 'investment' | 'loan',
+      balance: mockAcc.balances.current,
+      accountNumber: mockAcc.mask,
+      isPinned: false, // Default for newly linked accounts
+      holdings: mockAcc.holdings,
+    }));
+
+    const mappedTransactions: Transaction[] = providerTransactions.map(mockTxn => ({
+      id: mockTxn.transaction_id,
+      date: new Date(mockTxn.date).toISOString(),
+      description: mockTxn.description,
+      amount: mockTxn.amount,
+      category: mockTxn.category[0] || 'Other',
+      accountId: mockTxn.account_id,
+    }));
+
+    // 4. Save the new data to Firestore in a batch write
+    const batch = writeBatch(db);
+
+    mappedAccounts.forEach(account => {
+      const accountDocRef = doc(db, 'users', userId, 'accounts', account.id);
+      batch.set(accountDocRef, account, { merge: true });
+    });
+
+    mappedTransactions.forEach(transaction => {
+      const transactionDocRef = doc(db, 'users', userId, 'transactions', transaction.id);
+      batch.set(transactionDocRef, transaction);
+    });
+
+    await batch.commit();
+
+    // 5. Revalidate the dashboard path to force a data refresh on the client
+    revalidatePath('/dashboard');
+
+    return { success: true, accountsAdded: mappedAccounts.length };
+
+  } catch (error: any) {
+    console.error("Error syncing accounts from provider:", error);
+    return { success: false, error: error.message || "An unknown error occurred during sync." };
+  }
+}
+
 
 /**
  * Updates a user's profile information in both Firebase Authentication and Firestore.

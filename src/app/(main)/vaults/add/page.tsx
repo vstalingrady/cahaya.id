@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Banknote, Edit, Repeat, Coins, Image as ImageIcon, Users, Send, ChevronsUpDown } from 'lucide-react';
+import { ArrowLeft, Banknote, Edit, Repeat, Coins, Image as ImageIcon, Users, Send, ChevronsUpDown, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import {
@@ -21,12 +21,15 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
-import { accounts } from '@/lib/data';
 import { Switch } from '@/components/ui/switch';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/components/auth/auth-provider';
+import { getDashboardData, addVault } from '@/lib/actions';
+import { type Account } from '@/lib/data';
 
 
 const formSchema = z.object({
@@ -61,12 +64,35 @@ const icons = [
   { value: 'Wedding', label: '💍 Wedding' },
 ];
 
-const fundingAccounts = accounts.filter(acc => acc.type === 'bank' || acc.type === 'e-wallet');
-const destinationAccounts = accounts.filter(acc => acc.type === 'bank');
-
 export default function AddVaultPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [fundingAccounts, setFundingAccounts] = useState<Account[]>([]);
+  const [destinationAccounts, setDestinationAccounts] = useState<Account[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        const { accounts } = await getDashboardData(user.uid);
+        setFundingAccounts(accounts.filter(acc => acc.type === 'bank' || acc.type === 'e-wallet'));
+        setDestinationAccounts(accounts.filter(acc => acc.type === 'bank'));
+      } catch (error) {
+        toast({
+          variant: 'destructive',
+          title: 'Error fetching accounts',
+          description: 'Could not load your accounts.',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [user, toast]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -84,15 +110,35 @@ export default function AddVaultPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // In a real app, you would save this to a database
-    // and update the vaults list.
-    toast({
-      title: "Vault Created!",
-      description: `${values.name} has been added to your vaults.`,
-    });
-    router.push('/vaults');
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+        toast({ variant: 'destructive', title: 'Authentication Error', description: 'You must be logged in to create a vault.' });
+        return;
+    }
+
+    try {
+        await addVault(user.uid, {
+            ...values,
+            currentAmount: 0,
+        });
+
+        toast({
+          title: "Vault Created!",
+          description: `${values.name} has been added to your vaults.`,
+        });
+        router.push('/vaults');
+    } catch (error) {
+        console.error("Failed to create vault:", error);
+        toast({ variant: 'destructive', title: 'Error', description: 'Could not create the vault.' });
+    }
+  }
+  
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full pt-24">
+        <Loader2 className="w-10 h-10 text-primary animate-spin" />
+      </div>
+    );
   }
 
   return (
