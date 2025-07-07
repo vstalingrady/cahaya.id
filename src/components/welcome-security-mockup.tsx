@@ -32,25 +32,21 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
         )}>
             {/* The main animated graphic */}
             <div className="relative flex items-center justify-center w-48 h-48">
-                {/* Radiating rings for a techy pulse effect */}
-                {[0, 1, 2].map((i) => (
-                    <div
+                {/* Radiating shield pulses */}
+                {isActive && [0, 1, 2].map((i) => (
+                    <ShieldCheck
                         key={i}
-                        className={cn(
-                            'absolute w-full h-full rounded-full border-2 border-primary/50',
-                            // The animation is only applied when the slide is active
-                            isActive ? 'animate-ring-pulse' : 'opacity-0'
-                        )}
-                        style={{ animationDelay: `${i * 0.8}s` }}
+                        className="absolute w-full h-full text-primary opacity-0 animate-shield-pulse"
+                        style={{
+                            animationDelay: `${i * 1}s`,
+                        }}
                     />
                 ))}
 
-                {/* The static background shield */}
-                <ShieldCheck className="w-48 h-48 text-primary/10" />
-
-                {/* The pulsing lock icon in the center */}
-                <div className="absolute w-24 h-24 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center animate-slow-pulse">
-                    <Lock className="w-12 h-12 text-white" />
+                {/* The central, breathing icon */}
+                <div className="relative w-32 h-32 flex items-center justify-center animate-slow-pulse">
+                    <ShieldCheck className="absolute w-full h-full text-primary/20" />
+                    <Lock className="w-16 h-16 text-primary" />
                 </div>
             </div>
 

@@ -104,14 +104,24 @@ export default {
             filter: 'drop-shadow(0 0 15px hsl(var(--primary) / 0.7))'
           },
         },
-        'slow-pulse': {
+        'slow-pulse': { /* For the central breathing icon */
           '0%, 100%': {
             transform: 'scale(1)',
-            'box-shadow': '0 0 20px -10px hsl(var(--primary) / 0.3)',
+            filter: 'drop-shadow(0 0 8px hsl(var(--primary) / 0.5))',
           },
           '50%': {
             transform: 'scale(1.05)',
-            'box-shadow': '0 0 40px 5px hsl(var(--primary) / 0.7)',
+            filter: 'drop-shadow(0 0 20px hsl(var(--primary) / 0.8))',
+          },
+        },
+        'shield-pulse': { /* For the radiating shields */
+          '0%': {
+            transform: 'scale(1)',
+            opacity: '0.7',
+          },
+          '100%': {
+            transform: 'scale(1.75)',
+            opacity: '0',
           },
         },
         'text-shine': {
@@ -130,11 +140,6 @@ export default {
           'from': { transform: 'translateX(calc(-50% - 0.75rem))' },
           'to': { transform: 'translateX(0)' },
         },
-        'ring-pulse': {
-          '0%': { transform: 'scale(0.8)', opacity: '0' },
-          '50%': { opacity: '0.7' },
-          '100%': { transform: 'scale(1.4)', opacity: '0' },
-        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -144,12 +149,12 @@ export default {
         'flash': 'flash 0.5s ease-out',
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'logo-blink-glow': 'logo-blink-glow 5s ease-in-out infinite',
-        'slow-pulse': 'slow-pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'slow-pulse': 'slow-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'shield-pulse': 'shield-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'text-shine': 'text-shine 3s linear infinite',
         'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
         'scroll-right': 'scroll-right var(--animation-duration) linear infinite',
-        'ring-pulse': 'ring-pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
