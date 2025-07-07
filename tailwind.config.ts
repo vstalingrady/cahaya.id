@@ -111,11 +111,11 @@ export default {
         'breathe-glow': {
           '0%, 100%': {
             transform: 'scale(1)',
-            opacity: 0.6
+            opacity: 0.4
           },
           '50%': {
             transform: 'scale(1.05)',
-            opacity: 0.8
+            opacity: 0.6
           },
         },
         'text-shine': {

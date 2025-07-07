@@ -32,23 +32,23 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             className
         )}>
             <div className={cn(
-                "relative flex items-center justify-center w-72 h-72 transition-opacity duration-1000",
+                "relative flex items-center justify-center w-80 h-80 transition-opacity duration-1000",
                 isActive ? 'opacity-100' : 'opacity-0'
             )}>
-                 {/* Big blurry background glow in the shape of a shield */}
+                 {/* Big blurry background glow */}
                  <Shield
                     className="absolute w-full h-full text-primary blur-3xl animate-breathe-glow"
                     fill="currentColor"
                  />
                  {/* Smaller, sharp shield icon in the center */}
-                 <div className="relative animate-slow-pulse">
+                 <div className="relative animate-breathe-glow">
                      <Shield
-                        className="w-36 h-36 text-primary"
+                        className="w-48 h-48 text-primary"
                         fill="currentColor"
                     />
                     <Lock
-                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 text-background"
-                        strokeWidth={2}
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 text-background"
+                        strokeWidth={1.5}
                     />
                 </div>
             </div>
