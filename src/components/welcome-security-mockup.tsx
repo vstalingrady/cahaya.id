@@ -2,28 +2,57 @@
 
 import { cn } from "@/lib/utils";
 import { Lock, ShieldCheck } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
-const securityFeatures = [
-    "256-bit AES Encryption",
-    "Biometric Authentication",
-    "OJK Licensed Partner API",
-    "Your Privacy is Our Priority"
-];
+const TARGET_MESSAGE = "Your Privacy is Our Priority";
+const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?";
+
+const generateRandomString = (length: number) => {
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += CHARS.charAt(Math.floor(Math.random() * CHARS.length));
+    }
+    return result;
+};
+
 
 export default function WelcomeSecurityMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
-    const [featureIndex, setFeatureIndex] = useState(0);
+    const [decryptedText, setDecryptedText] = useState(generateRandomString(TARGET_MESSAGE.length));
 
     useEffect(() => {
-        if (!isActive) {
-            setFeatureIndex(0);
-            return;
+        let intervalId: NodeJS.Timeout;
+
+        if (isActive) {
+            let iteration = 0;
+            intervalId = setInterval(() => {
+                const newText = TARGET_MESSAGE
+                    .split("")
+                    .map((letter, index) => {
+                        if(index < iteration) {
+                            return TARGET_MESSAGE[index];
+                        }
+                        return CHARS[Math.floor(Math.random() * CHARS.length)]
+                    })
+                    .join("");
+                
+                setDecryptedText(newText);
+
+                if(iteration >= TARGET_MESSAGE.length + 5) { // Hold the final message for a bit
+                    clearInterval(intervalId);
+                }
+                
+                iteration += TARGET_MESSAGE.length / 45; // Speed of reveal
+            }, 40); // Speed of scramble effect
+
+        } else {
+            // Reset when not active
+            setDecryptedText(generateRandomString(TARGET_MESSAGE.length));
         }
-        const timer = setInterval(() => {
-            setFeatureIndex(prev => (prev + 1) % securityFeatures.length);
-        }, 2500);
-        return () => clearInterval(timer);
+
+        return () => clearInterval(intervalId);
+
     }, [isActive]);
+    
 
     return (
         <div className={cn(
@@ -38,18 +67,9 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
             </div>
 
             <div className="relative h-6 w-full overflow-hidden mt-4">
-                 {securityFeatures.map((feature, index) => (
-                    <p 
-                        key={feature}
-                        className={cn(
-                            "absolute w-full text-foreground font-semibold transition-all duration-500",
-                            index === featureIndex ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-5',
-                            index > featureIndex && 'translate-y-5'
-                        )}
-                    >
-                        {feature}
-                    </p>
-                ))}
+                 <p className="w-full text-foreground font-semibold font-mono tracking-wider">
+                    {decryptedText}
+                 </p>
             </div>
             
         </div>
