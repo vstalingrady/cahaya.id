@@ -25,8 +25,8 @@ import { app, auth, db } from '@/lib/firebase';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { FaGoogle, FaApple } from 'react-icons/fa';
 import { Separator } from '../ui/separator';
-import { completeUserProfile } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
+import { syncUserDocument, seedNewUserData } from '@/lib/actions';
 
 // Extend the global Window interface to include Firebase Auth objects.
 declare global {
@@ -80,11 +80,8 @@ export default function LoginForm() {
     const { value } = e.target;
 
     if (!value.startsWith('+62 ')) {
-      // Prevent loop if the value is already the default
-      if (phone !== '+62 ') {
         setPhone('+62 ');
-      }
-      return;
+        return;
     }
 
     const rawNumbers = value.substring(4).replace(/\D/g, '');
@@ -95,11 +92,7 @@ export default function LoginForm() {
     if (trimmedNumbers.length > 7) chunks.push(trimmedNumbers.slice(7));
     
     const formattedPhone = `+62 ${chunks.join('-')}`;
-
-    // Only update state if the formatted value is different to prevent an infinite loop.
-    if (formattedPhone !== phone) {
-      setPhone(formattedPhone);
-    }
+    setPhone(formattedPhone);
   };
 
   const formatPhoneNumberForFirebase = (phoneNumber: string): string => {
@@ -241,34 +234,38 @@ export default function LoginForm() {
       const additionalInfo = getAdditionalUserInfo(result);
       
       const profile = additionalInfo?.profile;
-      const displayNameFromProvider = (profile as any)?.name || user.displayName;
+      const displayNameFromProvider = (profile as any)?.name || user.displayName || 'New Cahaya User';
       const photoURLFromProvider = (profile as any)?.picture || user.photoURL;
-      const emailFromProvider = (profile as any)?.email || user.email;
+      const emailFromProvider = (profile as any)?.email;
+      
+      if (!emailFromProvider) {
+          throw new Error("Could not retrieve email from provider. Please try again.");
+      }
 
+      // Step 1: Update the Firebase Auth profile on the client.
       await updateProfile(user, {
           displayName: displayNameFromProvider,
           photoURL: photoURLFromProvider,
       });
 
-      const userDocRef = doc(db, "users", user.uid);
-      await setDoc(userDocRef, { 
-        fullName: displayNameFromProvider, 
-        email: emailFromProvider,
-        photoURL: photoURLFromProvider,
-      }, { merge: true });
-
+      // Step 2: Sync the user document in Firestore via a server action.
+      await syncUserDocument(user.uid, {
+          fullName: displayNameFromProvider,
+          email: emailFromProvider,
+          photoURL: photoURLFromProvider,
+          phone: user.phoneNumber || ''
+      });
+      
+      // Step 3: Wait for the client-side user object to be updated.
       await user.reload();
 
       if (additionalInfo?.isNewUser) {
-        await completeUserProfile(
-            user.uid,
-            displayNameFromProvider || "New Social User",
-            emailFromProvider || 'no-email@example.com',
-            user.phoneNumber || ''
-        );
+        // Step 4a: If it's a new user, seed their initial data.
+        await seedNewUserData(user.uid);
         sessionStorage.setItem('social_auth_in_progress', 'true');
         router.push('/setup-security');
       } else {
+        // Step 4b: If it's a returning user, trigger 2FA.
         await trigger2FA(user);
       }
 

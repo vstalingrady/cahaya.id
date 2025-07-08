@@ -86,6 +86,24 @@ async function seedInitialDataForUser(uid: string) {
 }
 
 /**
+ * An exported server action that seeds data for a new user. It includes a check
+ * to prevent accidentally overwriting existing data.
+ * @param {string} uid The user's unique ID.
+ */
+export async function seedNewUserData(uid: string) {
+    if (!uid) return;
+    // Check if data already exists to prevent accidental overwrites.
+    const accountsColRef = collection(db, 'users', uid, 'accounts');
+    const accountsSnapshot = await getDocs(query(accountsColRef, limit(1)));
+    if (!accountsSnapshot.empty) {
+        console.log(`Data already exists for user ${uid}. Skipping seed.`);
+        return;
+    }
+    await seedInitialDataForUser(uid);
+}
+
+
+/**
  * Checks if a user has data in Firestore subcollections, and if not, seeds it.
  * This ensures that users who log in but didn't complete the signup flow
  * still get their initial account and transaction data.
@@ -112,67 +130,61 @@ export async function ensureUserData(uid: string) {
     }
 }
 
+/**
+ * A server action to create or update a user's document in Firestore.
+ * This is the single source of truth for syncing profile information.
+ * @param uid The user's ID.
+ * @param data An object with the user's full name, email, photo URL, and phone.
+ */
+export async function syncUserDocument(uid: string, data: { fullName: string; email: string; photoURL: string | null; phone: string; }) {
+  if (!uid) {
+    throw new Error("User ID is required to sync document.");
+  }
+  try {
+    const userDocRef = doc(db, "users", uid);
+    const docSnap = await getDoc(userDocRef);
+    
+    const dataToSet: any = {
+      uid: uid,
+      fullName: data.fullName,
+      email: data.email,
+      phone: data.phone,
+    };
+    if (data.photoURL) {
+      dataToSet.photoURL = data.photoURL;
+    }
+
+    if (!docSnap.exists()) {
+      dataToSet.createdAt = new Date();
+    }
+    
+    await setDoc(userDocRef, dataToSet, { merge: true });
+    console.log(`[Action:syncUserDocument] User document for ${uid} successfully synced.`);
+  } catch (error) {
+    console.error("Error syncing user document:", error);
+    throw new Error("Could not sync user profile to database.");
+  }
+}
+
+
 export async function handleSignIn(user: User) {
   if (!user || !user.uid) return;
-
-  const userDocRef = doc(db, 'users', user.uid);
-  const userDoc = await getDoc(userDocRef);
-
-  const userData: {
-    displayName?: string | null;
-    photoURL?: string | null;
-    email?: string | null;
-  } = {};
-
-  if (user.displayName) {
-    userData.displayName = user.displayName;
-  }
-  if (user.photoURL) {
-    userData.photoURL = user.photoURL;
-  }
-  if (user.email) {
-    userData.email = user.email;
-  }
-
-  if (!userDoc.exists()) {
-    await setDoc(userDocRef, {
-      uid: user.uid,
-      ...userData,
-      createdAt: new Date(),
-    });
-    await seedInitialDataForUser(user.uid);
-  } else {
-    await updateDoc(userDocRef, userData);
-  }
-
+  
+  const dataToSync = {
+      fullName: user.displayName || 'New User',
+      email: user.email || 'no-email@example.com',
+      photoURL: user.photoURL || null,
+      phone: user.phoneNumber || ''
+  };
+  
+  await syncUserDocument(user.uid, dataToSync);
   await ensureUserData(user.uid);
 };
 
 export async function completeUserProfile(uid: string, fullName: string, email: string, phone: string) {
   console.log(`[Cahaya Debug] completeUserProfile action called with:`, { uid, fullName, email, phone });
-  try {
-    const userDocRef = doc(db, "users", uid);
-    const userDoc = await getDoc(userDocRef);
-    
-    if (!userDoc.exists()) {
-      await setDoc(userDocRef, {
-        uid: uid,
-        fullName: fullName,
-        email: email,
-        phone: phone,
-        createdAt: new Date(),
-      });
-      // New users start with a clean slate, so no data seeding here.
-    } else {
-      console.log(`User ${uid} already exists. Skipping data seeding.`);
-    }
-  } catch (error: any) {
-    console.error("Error creating user document in Firestore:", error);
-    if (error.code === 'permission-denied' || (error.message && error.message.includes('Cloud Firestore API has not been used'))) {
-      throw new Error("Account creation failed: The Firestore database isn't enabled for this project. Please visit the Firebase console, go to the Firestore Database section, and enable it.");
-    }
-    throw new Error(error.message || "Failed to create user profile in database.");
-  }
+  await syncUserDocument(uid, { fullName, email, photoURL: null, phone });
+  await seedNewUserData(uid);
 }
 
 export async function setSecurityPin(uid: string, pin: string) {
