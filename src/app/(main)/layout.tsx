@@ -1,5 +1,4 @@
 import MainNav from '@/components/main-nav';
-import NoiseOverlay from '@/components/noise-overlay';
 import { AuthProvider } from '@/components/auth/auth-provider';
 
 export default function MainAppLayout({
@@ -10,7 +9,6 @@ export default function MainAppLayout({
   return (
     <AuthProvider>
       <div className="w-full max-w-md mx-auto bg-background text-foreground min-h-screen relative flex flex-col overflow-hidden">
-        <NoiseOverlay opacity={0.02} />
         <div className="absolute inset-0 -z-10 h-full w-full bg-background">
           <div className="absolute -top-1/2 left-0 right-0 h-full bg-[radial-gradient(ellipse_50%_50%_at_50%_0%,hsl(var(--primary)/0.1),transparent_70%)]"></div>
           <div className="absolute -bottom-1/2 left-0 right-0 h-full bg-[radial-gradient(ellipse_50%_50%_at_50%_100%,hsl(var(--accent)/0.15),transparent_70%)]"></div>

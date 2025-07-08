@@ -5,7 +5,6 @@ import { ChevronRight } from 'lucide-react';
 import { financialInstitutions, FinancialInstitution } from '@/lib/data';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import NoiseOverlay from '@/components/noise-overlay';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
@@ -47,7 +46,6 @@ export default function LinkAccountPage() {
        <div className="absolute inset-0 -z-10 h-full w-full bg-background">
         <div className="absolute -top-1/2 left-0 right-0 h-full bg-[radial-gradient(ellipse_50%_50%_at_50%_0%,hsl(var(--primary)/0.15),transparent_70%)]"></div>
       </div>
-      <NoiseOverlay opacity={0.02} />
       
       <div className="pt-12 pb-8 relative z-10 text-center">
         <h1 className="text-3xl font-bold mb-3 text-primary font-serif">Let's get you connected.</h1>

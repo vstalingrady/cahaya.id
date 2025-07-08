@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, ArrowLeftRight, PiggyBank, PieChart, ClipboardList, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import NoiseOverlay from './noise-overlay';
 
 const navItems = [
   { href: '/dashboard', icon: Home, label: 'Home' },
@@ -21,7 +20,6 @@ export default function MainNav() {
 
   return (
     <nav className="bg-background/70 backdrop-blur-lg border-t border-border relative shadow-[0_-5px_25px_-10px_hsl(var(--primary)/0.15)]">
-      <NoiseOverlay opacity={0.03} />
       <div className="flex justify-around items-center h-20">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);

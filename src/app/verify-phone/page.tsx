@@ -3,7 +3,6 @@
 import VerifyPhoneForm from '@/components/auth/verify-phone-form';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import NoiseOverlay from '@/components/noise-overlay';
 import { Loader2 } from 'lucide-react';
 
 function VerifyPhonePageContent() {
@@ -13,7 +12,6 @@ function VerifyPhonePageContent() {
     
     return (
         <div className="w-full max-w-md mx-auto bg-background text-foreground p-6 flex flex-col justify-center min-h-screen relative overflow-hidden">
-            <NoiseOverlay />
             <div className="relative z-10">
                 <div className="text-center mb-8">
                     <h1 className="text-4xl font-bold mb-4 text-primary font-serif">Enter Your Code</h1>

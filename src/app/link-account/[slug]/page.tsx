@@ -12,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Image from 'next/image';
 import { linkAccount } from '@/lib/actions';
-import NoiseOverlay from '@/components/noise-overlay';
 
 const defaultInstitution = {
   id: 'unknown',
@@ -46,8 +45,7 @@ export default function InstitutionAuthPage() {
   const [state, dispatch] = useActionState(linkAccount, initialState);
 
   return (
-    <div className="w-full max-w-md mx-auto bg-background text-white p-6 flex flex-col justify-center min-h-screen relative overflow-hidden">
-      <NoiseOverlay />
+    <div className="w-full max-w-md mx-auto bg-background text-foreground p-6 flex flex-col justify-center min-h-screen relative overflow-hidden">
       <Link href="/link-account" className="absolute top-6 left-6 text-muted-foreground hover:text-foreground z-20">
         <ArrowLeft className="w-6 h-6" />
       </Link>

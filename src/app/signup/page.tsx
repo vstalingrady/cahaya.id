@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import SignupForm from '@/components/auth/signup-form';
-import NoiseOverlay from '@/components/noise-overlay';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -22,7 +21,6 @@ export default function SignupPage() {
 
   return (
     <div className="w-full max-w-md mx-auto bg-background text-foreground p-6 flex flex-col justify-center min-h-screen relative overflow-hidden">
-      <NoiseOverlay />
         
       <div className="relative z-10">
         <div className="text-center mb-8">

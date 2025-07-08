@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import NoiseOverlay from '@/components/noise-overlay';
 
 export default function TermsOfServicePage() {
   const router = useRouter();
@@ -69,8 +68,7 @@ export default function TermsOfServicePage() {
   const loremIpsumParagraph = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse nisl augue, tincidunt eget ex sit amet, ultrices pellentesque sapien. In hac habitasse platea dictumst. Praesent et eros sit amet massa vehicula pulvinar. Vivamus nec quam ex. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Sed et arcu sed justo blandit efficitur. Integer quis ligula nec justo cursus sodales. Nam non ex sit amet enim semper mollis. Sed non enim viverra, efficitur tellus sed, dapibus massa. Donec sit amet quam sit amet lorem aliquam auctor. Nullam ac orci at quam rhoncus semper. Quisque sed massa quis arcu facilisis blandit."
 
   return (
-    <div className="w-full max-w-md mx-auto bg-background text-white p-6 min-h-screen flex flex-col relative overflow-hidden">
-        <NoiseOverlay />
+    <div className="w-full max-w-md mx-auto bg-background text-foreground p-6 min-h-screen flex flex-col relative overflow-hidden">
        <header className="text-center mb-8 pt-8 z-10">
         <h1 className="text-3xl font-bold mb-2 text-primary font-serif">Terms of Service</h1>
         <p className="text-muted-foreground">Please read carefully before proceeding.</p>
