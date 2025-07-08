@@ -15,7 +15,7 @@ import Image from 'next/image';
 
 const provider = new GoogleAuthProvider();
 
-export function LoginForm() {
+export default function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
 

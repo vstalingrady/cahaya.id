@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { cn } from "@/lib/utils";
 import { Sparkles, Loader2, Check, Info, Send } from "lucide-react";
 import { Button } from '@/components/ui/button';
-import GeminiLogo from '@/components/icons/GeminiLogo';
+
 
 const ScoreCircle = ({ score, isActive }: { score: number, isActive: boolean }) => {
     const circumference = 2 * Math.PI * 20; // radius is 20
@@ -167,7 +167,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
             animationState === 'initial' ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
         )}>
             <div className="flex items-center justify-center gap-2 mb-2">
-                <GeminiLogo size={24} />
+                                <svg height="1em" style={{flex: 'none', lineHeight: 1}} viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>Gemini</title><defs><linearGradient id="lobe-icons-gemini-fill" x1="0%" x2="68.73%" y1="100%" y2="30.395%"><stop offset="0%" stopColor="#1C7DFF"></stop><stop offset="52.021%" stopColor="#1C69FF"></stop><stop offset="100%" stopColor="#F0DCD6"></stop></linearGradient></defs><path d="M12 24A14.304 14.304 0 000 12 14.304 14.304 0 0012 0a14.305 14.305 0 0012 12 14.305 14.305 0 00-12 12" fill="url(#lobe-icons-gemini-fill)" fillRule="nonzero"></path></svg>
                 <p className="flashy-gemini-text text-lg">Powered by Gemini</p>
             </div>
             <h3 className="text-xl font-bold font-serif text-foreground">Your Personal Financial Analyst</h3>

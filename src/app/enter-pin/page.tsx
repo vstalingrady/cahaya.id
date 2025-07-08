@@ -35,10 +35,21 @@ export default function PinEntryPage() {
     }
 
     try {
-      // Simulate API call to verify PIN
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch('/api/flows/verifyPinFlow', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ pin }),
+      });
 
-      if (pin === '123456') { // Replace with actual PIN verification
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const result = await response.json();
+
+      if (result.success) {
         toast({
           title: 'PIN Verified',
           description: 'Welcome to your dashboard.',
