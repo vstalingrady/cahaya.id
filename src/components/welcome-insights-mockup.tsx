@@ -77,7 +77,7 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
           timeouts.push(setTimeout(() => setShowUserPrompt(true), 1000));
           // Reset the whole cycle after a while
           timeouts.push(setTimeout(cycleAnimation, 10000)); // Total cycle time
-        }, 800)); // Loading duration
+        }, 500)); // Loading duration
       }, 1500)); // Initial button view duration
     };
   
