@@ -45,10 +45,33 @@ export function SignupForm() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+
+    if (name === 'phone') {
+        const inputDigits = value.replace(/\D/g, ''); // Remove non-digits
+        
+        const truncatedDigits = inputDigits.slice(0, 12);
+        
+        let formattedValue = truncatedDigits;
+        // Simple formatting example: 812-3456-7890
+        if (truncatedDigits.length > 7) {
+            formattedValue = `${truncatedDigits.slice(0,3)}-${truncatedDigits.slice(3,7)}-${truncatedDigits.slice(7)}`;
+        } else if (truncatedDigits.length > 3) {
+            formattedValue = `${truncatedDigits.slice(0,3)}-${truncatedDigits.slice(3)}`;
+        }
+
+        // This check prevents the infinite loop
+        if (formattedValue !== formData.phone) {
+            setFormData({
+                ...formData,
+                phone: formattedValue
+            });
+        }
+    } else {
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

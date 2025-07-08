@@ -93,7 +93,7 @@ export default function ChatPage() {
         <div className="flex items-center gap-2">
             <Button variant="outline" className="hidden md:inline-flex">PRO</Button>
           <Avatar className="w-8 h-8">
-            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+            <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
             <AvatarFallback>
               <User className="w-4 h-4" />
             </AvatarFallback>
@@ -143,7 +143,7 @@ export default function ChatPage() {
                 </div>
                 {message.role === 'user' && (
                   <Avatar className="w-8 h-8 flex-shrink-0">
-                    <AvatarImage src={user.photoURL || undefined} alt={user.displayName || 'User'} />
+                    <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
                     <AvatarFallback>
                       <User className="w-4 h-4" />
                     </AvatarFallback>
