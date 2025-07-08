@@ -112,10 +112,12 @@ export default {
         },
         'breathing-glow': {
           '0%, 100%': {
-            boxShadow: '0 0 10px hsl(var(--primary) / 0.2)',
+            transform: 'scale(1)',
+            boxShadow: '0 0 15px 5px hsl(var(--primary) / 0.4)',
           },
           '50%': {
-            boxShadow: '0 0 25px hsl(var(--primary) / 0.5)',
+            transform: 'scale(1.05)',
+            boxShadow: '0 0 30px 10px hsl(var(--primary) / 0.7)',
           },
         },
         'text-shine': {
@@ -149,7 +151,7 @@ export default {
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'logo-blink-glow': 'logo-blink-glow 5s ease-in-out infinite',
         'slow-pulse': 'slow-pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'breathing-glow': 'breathing-glow 4s ease-in-out infinite',
+        'breathing-glow': 'breathing-glow 3s ease-in-out infinite',
         'text-shine': 'text-shine 3s linear infinite',
         'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
