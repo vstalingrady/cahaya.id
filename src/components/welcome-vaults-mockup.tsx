@@ -13,14 +13,16 @@
 import { Plus, Repeat, Trash2, Banknote, Check, ChevronDown, Coins, ChevronsUpDown, ArrowUpFromLine, ArrowDownToLine, Edit } from "lucide-react";
 // Import core React hooks for managing component state and side effects.
 import React, { useState, useEffect, useRef } from 'react';
-// Import seed data to populate the initial state of the mockup.
-import { vaults as initialVaults, type Vault, accounts } from '@/lib/data-seed';
+// Import type definitions for our data structures.
+import { type Vault, type VaultMember, type Account } from '@/lib/data';
 // Import UI components from ShadCN.
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import Image from "next/image";
+
 
 // A dictionary mapping vault icon names to emoji characters for display.
 const icons: { [key: string]: string } = {
@@ -42,6 +44,52 @@ const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
 type DisplayVault = Vault & { isNew?: boolean, animatedAmount?: number };
 type AnimationPhase = 'idle' | 'scrolling' | 'button_active' | 'show_form' | 'fill_form' | 'create_vault' | 'show_new_vault' | 'resetting';
 
+// Hardcoded mock data to make the component self-contained and visually appealing.
+const mockAccounts: Account[] = [
+    { id: 'bca1', name: 'BCA Main Account', type: 'bank', balance: 50000000, institutionSlug: 'bca', accountNumber: '1234' },
+    { id: 'gopay1', name: 'GoPay', type: 'e-wallet', balance: 500000, institutionSlug: 'gopay', accountNumber: '5678' },
+    { id: 'mandiri1', name: 'Mandiri Savings', type: 'bank', balance: 25000000, institutionSlug: 'mandiri', accountNumber: '9012' }
+];
+
+const mockVaults: Vault[] = [
+    {
+        id: 'vault1',
+        name: 'Holiday to Japan',
+        icon: 'Holiday',
+        currentAmount: 28500000,
+        targetAmount: 30000000,
+        sourceAccountIds: ['bca1'],
+        destinationAccountId: 'bca1',
+        roundUpEnabled: true,
+        imageUrl: 'https://placehold.co/600x400.png'
+    },
+    {
+        id: 'vault2',
+        name: 'New iPhone 16',
+        icon: 'New Gadget',
+        currentAmount: 3500000,
+        targetAmount: 25000000,
+        sourceAccountIds: ['gopay1'],
+        destinationAccountId: 'bca1',
+        autoSaveEnabled: true,
+        autoSaveFrequency: 'weekly',
+        autoSaveAmount: 500000,
+    },
+    {
+        id: 'vault3',
+        name: 'Budi & Susi Wedding',
+        icon: 'Wedding',
+        currentAmount: 112000000,
+        targetAmount: 200000000,
+        sourceAccountIds: ['bca1', 'mandiri1'],
+        destinationAccountId: 'mandiri1',
+        isShared: true,
+        members: [
+            { id: 'user1', name: 'Budi', avatarUrl: 'https://placehold.co/40x40.png' },
+            { id: 'user2', name: 'Susi', avatarUrl: 'https://placehold.co/40x40.png' },
+        ]
+    }
+];
 
 /**
  * @component WelcomeVaultsMockup
@@ -52,7 +100,7 @@ type AnimationPhase = 'idle' | 'scrolling' | 'button_active' | 'show_form' | 'fi
  */
 export default function WelcomeVaultsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
     // State to manage the list of vaults displayed in the UI.
-    const [displayVaults, setDisplayVaults] = useState<DisplayVault[]>(initialVaults);
+    const [displayVaults, setDisplayVaults] = useState<DisplayVault[]>(mockVaults);
     // State to track the current phase of the animation loop.
     const [animationPhase, setAnimationPhase] = useState<AnimationPhase>('idle');
     // State to manage the values in the simulated "Create New Vault" form.
@@ -76,7 +124,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
         // If the component is not active, reset everything to its initial state.
         if (!isActive) {
             setAnimationPhase('idle');
-            setDisplayVaults(initialVaults);
+            setDisplayVaults(mockVaults);
             setFormState({ name: '', targetAmount: '', fundingSources: [], destinationAccount: '', autoSaveEnabled: false, autoSaveFrequency: '', autoSaveAmount: '', roundUpEnabled: false });
             if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
             if (formScrollRef.current) formScrollRef.current.scrollTop = 0;
@@ -186,7 +234,7 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                 timeouts.push(setTimeout(() => {
                                     // Reset all states and scroll positions to prepare for the next loop.
                                     setFormState({ name: '', targetAmount: '', fundingSources: [], destinationAccount: '', autoSaveEnabled: false, autoSaveFrequency: '', autoSaveAmount: '', roundUpEnabled: false });
-                                    setDisplayVaults(initialVaults);
+                                    setDisplayVaults(mockVaults);
                                     scrollContainer.scrollTo({ top: 0, behavior: 'auto' });
                                     if (formScrollRef.current) formScrollRef.current.scrollTop = 0;
                                     // Recursively call the sequence to loop the animation.
@@ -317,8 +365,8 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                     {/* Map through the vaults and render a card for each */}
                     {displayVaults.map(vault => {
                         const progress = (vault.animatedAmount ?? vault.currentAmount) / vault.targetAmount * 100;
-                        const sourceNames = vault.sourceAccountIds.map(id => accounts.find(acc => acc.id === id)?.name).filter(Boolean).join(', ');
-                        const destinationName = accounts.find(acc => acc.id === vault.destinationAccountId)?.name;
+                        const sourceNames = vault.sourceAccountIds.map(id => mockAccounts.find(acc => acc.id === id)?.name).filter(Boolean).join(', ');
+                        const destinationName = mockAccounts.find(acc => acc.id === vault.destinationAccountId)?.name;
                         
                         return (
                             <div key={vault.id} id={vault.id} className={cn("block bg-card p-4 rounded-2xl border border-border transition-all duration-500",
@@ -349,7 +397,18 @@ export default function WelcomeVaultsMockup({ className, isActive }: { className
                                         </div>
                                     )}
                                 </div>
-                                {vault.isShared && (<div className="flex -space-x-3 rtl:space-x-reverse items-center"><div className="w-8 h-8 rounded-full bg-muted border-2 border-card" /><div className="w-8 h-8 rounded-full bg-muted border-2 border-card" /><div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-primary-foreground bg-primary border-2 border-card rounded-full">+2</div></div>)}
+                                {vault.isShared && vault.members && (
+                                     <div className="flex -space-x-3 rtl:space-x-reverse items-center">
+                                        {vault.members.slice(0, 2).map(member => (
+                                            <Image key={member.id} className="w-8 h-8 rounded-full bg-muted border-2 border-card" src={member.avatarUrl} alt={member.name} width={32} height={32} data-ai-hint="person avatar"/>
+                                        ))}
+                                        {vault.members.length > 2 && (
+                                            <div className="flex items-center justify-center w-8 h-8 text-xs font-medium text-primary-foreground bg-primary border-2 border-card rounded-full">
+                                                +{vault.members.length - 2}
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                                 </div>
                             </div>
                         )
