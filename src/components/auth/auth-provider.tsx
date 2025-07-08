@@ -5,7 +5,7 @@ import { onAuthStateChanged, type User } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { auth } from '@/lib/firebase';
-import { ensureUserData } from '@/lib/actions';
+import { handleSignIn } from '@/lib/actions';
 import { Loader2 } from 'lucide-react';
 
 interface AuthContextType {
@@ -43,52 +43,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      // Set the user state immediately.
       setUser(currentUser);
       
-      // If a user is logged in, ensure their backend data exists.
-      // This is done without `await` to avoid blocking the UI.
       if (currentUser) {
-        ensureUserData(currentUser.uid).catch(error => {
-            // Log the error but don't crash the app. The user can continue.
-            console.error("Failed to ensure user data:", error);
+        // This function now handles creating the user record in Firestore
+        // and seeding data if it's their first time.
+        handleSignIn(currentUser).catch(error => {
+            console.error("Failed to handle user sign-in:", error);
         });
       }
       
-      // We are no longer loading the initial auth state.
       setLoading(false);
     });
     
-    // Cleanup the subscription on unmount.
     return () => unsubscribe();
-  }, []); // This effect should only run once.
+  }, []);
 
   useEffect(() => {
-    // Don't perform redirects until the initial auth check is complete.
     if (loading) {
       return;
     }
 
     const isPublicRoute = PUBLIC_ROUTES.some(route => {
-        if (route === '/') {
-            return pathname === '/';
-        }
-        // Make sure /link-account and its sub-paths are public.
+        if (route === '/') return pathname === '/';
         return pathname.startsWith(route);
     });
 
-    // If user is logged in and on a public route (that isn't the landing page), redirect to dashboard.
     if (user && isPublicRoute && pathname !== '/') {
       router.replace('/dashboard');
     }
 
-    // If user is not logged in and on a protected route, redirect to login.
     if (!user && !isPublicRoute) {
       router.replace('/login');
     }
   }, [user, loading, pathname, router]);
 
-  // While the initial auth check is running, show a full-screen loader.
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -97,7 +86,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
-  // Render the children within the provider's context.
   return (
     <AuthContext.Provider value={{ user }}>
       {children}

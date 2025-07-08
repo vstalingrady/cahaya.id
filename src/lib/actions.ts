@@ -28,7 +28,7 @@ import { z } from 'zod';
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth, db } from './firebase';
-import { updateProfile } from "firebase/auth";
+import { updateProfile, type User } from "firebase/auth";
 import { doc, setDoc, getDoc, deleteDoc, collection, writeBatch, getDocs, addDoc, query, where, updateDoc, orderBy, limit } from "firebase/firestore";
 import { headers } from 'next/headers';
 import { db as mockApiDb } from './mock-api-db';
@@ -111,6 +111,42 @@ export async function ensureUserData(uid: string) {
         // The user will see an empty dashboard, but it won't crash the app.
     }
 }
+
+export async function handleSignIn(user: User) {
+  if (!user || !user.uid) return;
+
+  const userDocRef = doc(db, 'users', user.uid);
+  const userDoc = await getDoc(userDocRef);
+
+  const userData: {
+    displayName?: string | null;
+    photoURL?: string | null;
+    email?: string | null;
+  } = {};
+
+  if (user.displayName) {
+    userData.displayName = user.displayName;
+  }
+  if (user.photoURL) {
+    userData.photoURL = user.photoURL;
+  }
+  if (user.email) {
+    userData.email = user.email;
+  }
+
+  if (!userDoc.exists()) {
+    await setDoc(userDocRef, {
+      uid: user.uid,
+      ...userData,
+      createdAt: new Date(),
+    });
+    await seedInitialDataForUser(user.uid);
+  } else {
+    await updateDoc(userDocRef, userData);
+  }
+
+  await ensureUserData(user.uid);
+};
 
 export async function completeUserProfile(uid: string, fullName: string, email: string, phone: string) {
   console.log(`[Cahaya Debug] completeUserProfile action called with:`, { uid, fullName, email, phone });
