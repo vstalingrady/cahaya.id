@@ -71,7 +71,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const isPublicRoute = PUBLIC_ROUTES.some(route => pathname.startsWith(route));
+    // A more precise check for public routes.
+    // The root path '/' should only match exactly, not act as a prefix for all routes.
+    const isPublicRoute = PUBLIC_ROUTES.some(route => {
+        if (route === '/') {
+            return pathname === '/';
+        }
+        return pathname.startsWith(route);
+    });
 
     // If user is logged in and tries to access a public-only route (like login/signup), redirect to dashboard.
     // We exclude the root welcome page from this rule.
