@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
 import InfiniteLogoScroller from '@/components/infinite-logo-scroller';
 import { financialInstitutions } from '@/lib/data';
 
@@ -40,14 +39,12 @@ export default function WelcomeSignupSlide() {
                     </div>
 
                     <div className="pt-6 space-y-4">
-                         <Button size="lg" asChild className="h-12 text-base w-full animate-breathing shadow-lg">
-                            <Link href="/signup">
-                                Get Started for Free <ArrowRight className="ml-2" />
-                            </Link>
-                        </Button>
+                         <Link href="/signup" className="h-12 text-base w-full animate-breathing shadow-lg inline-flex items-center justify-center px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-colors duration-300">
+                            Get Started for Free <ArrowRight className="ml-2 w-5 h-5" />
+                         </Link>
                         <p className="text-sm text-muted-foreground">
                             Already have an account?{' '}
-                            <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">
+                            <Link href="/login" className="font-semibold text-primary hover:text-primary/90 underline">
                                 Log In
                             </Link>
                         </p>
@@ -60,17 +57,17 @@ export default function WelcomeSignupSlide() {
             </div>
             <style jsx>{`
                 @keyframes breathing {
-                    0%, 100% {
-                        transform: scale(1);
-                        box-shadow: 0 0 0 0 rgba(255, 145, 0, 0.7);
-                    }
-                    50% {
-                        transform: scale(1.05);
-                        box-shadow: 0 0 25px 12px rgba(255, 145, 0, 0);
-                    }
+                  0%, 100% {
+                    transform: scale(1);
+                    box-shadow: 0 0 0 0 rgba(255, 140, 0, 0.7); /* Match --primary HSL */
+                  }
+                  50% {
+                    transform: scale(1.05);
+                    box-shadow: 0 0 25px 12px rgba(255, 140, 0, 0);
+                  }
                 }
                 .animate-breathing {
-                    animation: breathing 3s ease-in-out infinite;
+                  animation: breathing 3s ease-in-out infinite;
                 }
             `}</style>
         </section>
