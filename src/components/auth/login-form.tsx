@@ -79,12 +79,14 @@ export default function LoginForm() {
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
 
+    // Always ensure the prefix is present.
     if (!value.startsWith('+62 ')) {
-        setPhone('+62 ');
-        return;
+      setPhone('+62 ');
+      return;
     }
 
-    const rawNumbers = value.substring(4).replace(/\D/g, '');
+    // Extract numbers, format with dashes, and create the new value.
+    const rawNumbers = value.substring(4).replace(/[^0-9]/g, '');
     const trimmedNumbers = rawNumbers.slice(0, 12);
     const chunks = [];
     if (trimmedNumbers.length > 0) chunks.push(trimmedNumbers.slice(0, 3));
@@ -92,7 +94,12 @@ export default function LoginForm() {
     if (trimmedNumbers.length > 7) chunks.push(trimmedNumbers.slice(7));
     
     const formattedPhone = `+62 ${chunks.join('-')}`;
-    setPhone(formattedPhone);
+
+    // This is the crucial check to prevent the infinite loop.
+    // Only update the state if the formatted value is different from the current state.
+    if (formattedPhone !== phone) {
+      setPhone(formattedPhone);
+    }
   };
 
   const formatPhoneNumberForFirebase = (phoneNumber: string): string => {

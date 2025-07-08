@@ -24,6 +24,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/components/auth/auth-provider';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 export default function DashboardPage() {
     const { user } = useAuth();
@@ -39,6 +41,16 @@ export default function DashboardPage() {
     const { toast } = useToast();
 
     useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          if (user) {
+            // User is signed in, see docs for a list of available properties
+            // https://firebase.google.com/docs/reference/js/firebase.User
+            // ...
+          } else {
+            // User is signed out
+            // ...
+          }
+        });
         const fetchData = async () => {
             if (!user) return;
             setIsLoading(true);
@@ -59,6 +71,7 @@ export default function DashboardPage() {
         };
 
         fetchData();
+        return () => unsubscribe();
     }, [user, toast]);
 
     const handleConfirmPin = async () => {
