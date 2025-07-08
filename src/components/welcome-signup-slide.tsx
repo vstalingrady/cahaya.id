@@ -40,11 +40,14 @@ export default function WelcomeSignupSlide() {
                     </div>
 
                     <div className="pt-6 space-y-4">
-                        <Button size="lg" className="h-12 text-lg w-full animate-slow-pulse" asChild>
-                            <Link href="/signup">
-                                Get Started for Free <ArrowRight className="ml-2" />
-                            </Link>
-                        </Button>
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-xl opacity-50 blur-lg animate-breathing"></div>
+                            <Button size="lg" className="h-12 text-lg w-full relative" asChild>
+                                <Link href="/signup">
+                                    Get Started for Free <ArrowRight className="ml-2" />
+                                </Link>
+                            </Button>
+                        </div>
                         <p className="text-sm text-muted-foreground">
                             Already have an account?{' '}
                             <Link href="/login" className="font-semibold text-primary/80 hover:text-primary underline">
@@ -58,6 +61,26 @@ export default function WelcomeSignupSlide() {
             <div className="flex-shrink-0 text-center text-muted-foreground text-xs pt-4">
                 <p>&copy; {new Date().getFullYear()} Cahaya. All Rights Reserved.</p>
             </div>
+            <style jsx>{`
+                @keyframes breathing {
+                  0% {
+                    transform: scale(1);
+                    opacity: 0.5;
+                  }
+                  50% {
+                    transform: scale(1.1);
+                    opacity: 0.8;
+                  }
+                  100% {
+                    transform: scale(1);
+                    opacity: 0.5;
+                  }
+                }
+                
+                .animate-breathing {
+                  animation: breathing 4s ease-in-out infinite;
+                }
+            `}</style>
         </section>
     );
 }

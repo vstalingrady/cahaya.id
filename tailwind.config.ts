@@ -106,10 +106,6 @@ export default {
             filter: 'drop-shadow(0 0 15px hsl(var(--primary) / 0.7))'
           },
         },
-        'slow-pulse': {
-          '0%, 100%': { transform: 'scale(1)', boxShadow: '0 0 15px 5px rgba(249, 170, 22, 0.2)' },
-          '50%': { transform: 'scale(1.03)', boxShadow: '0 0 25px 10px rgba(249, 170, 22, 0.4)' },
-        },
         'text-shine': {
           'from': { 'background-position': '0% center' },
           'to': { 'background-position': '-200% center' },
@@ -140,7 +136,6 @@ export default {
         'flash': 'flash 0.5s ease-out',
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'logo-blink-glow': 'logo-blink-glow 5s ease-in-out infinite',
-        'slow-pulse': 'slow-pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'text-shine': 'text-shine 3s linear infinite',
         'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
