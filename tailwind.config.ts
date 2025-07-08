@@ -147,7 +147,7 @@ export default {
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
         'scroll-right': 'scroll-right var(--animation-duration) linear infinite',
         'biometric-scan': 'biometric-scan 3s ease-in-out infinite',
-        'slow-pulse': 'slow-pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'slow-pulse': 'slow-pulse 40s cubic-bezier(0.4, 0, 0.6, 1) infinite',
       },
     },
   },
