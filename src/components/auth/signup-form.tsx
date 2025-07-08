@@ -108,19 +108,28 @@ export default function SignupForm() {
    */
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    
+
     if (!value.startsWith('+62 ')) {
-      setPhone('+62 ');
+      // Prevent loop if the value is already the default
+      if (phone !== '+62 ') {
+        setPhone('+62 ');
+      }
       return;
     }
-    
+
     const rawNumbers = value.substring(4).replace(/\D/g, '');
     const trimmedNumbers = rawNumbers.slice(0, 12);
     const chunks = [];
     if (trimmedNumbers.length > 0) chunks.push(trimmedNumbers.slice(0, 3));
     if (trimmedNumbers.length > 3) chunks.push(trimmedNumbers.slice(3, 7));
     if (trimmedNumbers.length > 7) chunks.push(trimmedNumbers.slice(7));
-    setPhone(`+62 ${chunks.join('-')}`);
+    
+    const formattedPhone = `+62 ${chunks.join('-')}`;
+
+    // Only update state if the formatted value is different to prevent an infinite loop.
+    if (formattedPhone !== phone) {
+      setPhone(formattedPhone);
+    }
   };
 
   /**
