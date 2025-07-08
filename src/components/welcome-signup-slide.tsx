@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -42,7 +41,7 @@ export default function WelcomeSignupSlide() {
                     <div className="pt-6 space-y-4">
                         <div className="relative">
                             <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent rounded-xl opacity-50 blur-lg animate-breathing"></div>
-                            <Button size="lg" className="h-12 text-lg w-full relative" asChild>
+                            <Button size="lg" className="h-12 text-lg w-full relative animate-pulse-slow" asChild>
                                 <Link href="/signup">
                                     Get Started for Free <ArrowRight className="ml-2" />
                                 </Link>
@@ -76,9 +75,22 @@ export default function WelcomeSignupSlide() {
                     opacity: 0.5;
                   }
                 }
+
+                @keyframes pulse-slow {
+                    0%, 100% {
+                        transform: scale(1);
+                    }
+                    50% {
+                        transform: scale(1.03);
+                    }
+                }
                 
                 .animate-breathing {
                   animation: breathing 4s ease-in-out infinite;
+                }
+
+                .animate-pulse-slow {
+                    animation: pulse-slow 3s ease-in-out infinite;
                 }
             `}</style>
         </section>
