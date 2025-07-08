@@ -47,25 +47,14 @@ export function SignupForm() {
     const { name, value } = e.target;
 
     if (name === 'phone') {
-        const inputDigits = value.replace(/\D/g, ''); // Remove non-digits
-        
+        // Remove all non-digit characters to prevent formatting loops
+        const inputDigits = value.replace(/\D/g, '');
         const truncatedDigits = inputDigits.slice(0, 12);
         
-        let formattedValue = truncatedDigits;
-        // Simple formatting example: 812-3456-7890
-        if (truncatedDigits.length > 7) {
-            formattedValue = `${truncatedDigits.slice(0,3)}-${truncatedDigits.slice(3,7)}-${truncatedDigits.slice(7)}`;
-        } else if (truncatedDigits.length > 3) {
-            formattedValue = `${truncatedDigits.slice(0,3)}-${truncatedDigits.slice(3)}`;
-        }
-
-        // This check prevents the infinite loop
-        if (formattedValue !== formData.phone) {
-            setFormData({
-                ...formData,
-                phone: formattedValue
-            });
-        }
+        setFormData({
+            ...formData,
+            phone: truncatedDigits
+        });
     } else {
         setFormData({
             ...formData,
@@ -95,7 +84,8 @@ export function SignupForm() {
         userCredential.user.uid,
         formData.fullName,
         formData.email,
-        formData.phone
+        // Prepend the country code for consistency
+        `+62${formData.phone}`
       );
 
       toast({
@@ -169,7 +159,7 @@ export function SignupForm() {
             <div className="relative">
                  {/* This could be improved with a country code selector */}
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-base">+62</span>
-                <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} className="bg-input h-14 pl-14 text-base placeholder:text-muted-foreground" placeholder="812-3456-7890" disabled={isLoading} />
+                <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} className="bg-input h-14 pl-14 text-base placeholder:text-muted-foreground" placeholder="81234567890" disabled={isLoading} />
             </div>
             {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
            </div>
