@@ -45,10 +45,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       try {
         if (currentUser) {
-          // Force a refresh of the user's profile from Firebase's backend.
-          await currentUser.reload();
           // Ensure user has their initial data seeded if they are new.
           await ensureUserData(currentUser.uid);
+          // Set the user state with the object provided by the listener.
+          // The Firebase SDK handles providing the most up-to-date user object.
           setUser(currentUser);
         } else {
           setUser(null);
