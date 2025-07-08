@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -39,7 +40,7 @@ export default function WelcomeSignupSlide() {
                     </div>
 
                     <div className="pt-6 space-y-4">
-                         <Button size="lg" className="h-11 text-base w-full animate-pulse-glow" asChild>
+                         <Button size="lg" asChild className="h-12 text-base w-full animate-breathing shadow-lg">
                             <Link href="/signup">
                                 Get Started for Free <ArrowRight className="ml-2" />
                             </Link>
@@ -58,19 +59,18 @@ export default function WelcomeSignupSlide() {
                 <p>&copy; {new Date().getFullYear()} Cahaya. All Rights Reserved.</p>
             </div>
             <style jsx>{`
-                @keyframes pulse-glow {
-                  0%, 100% {
-                    transform: scale(1);
-                    box-shadow: 0 0 15px 2px hsl(var(--primary) / 0.4);
-                  }
-                  50% {
-                    transform: scale(1.03);
-                    box-shadow: 0 0 25px 8px hsl(var(--primary) / 0.6);
-                  }
+                @keyframes breathing {
+                    0%, 100% {
+                        transform: scale(1);
+                        box-shadow: 0 0 0 0 rgba(255, 145, 0, 0.7);
+                    }
+                    50% {
+                        transform: scale(1.05);
+                        box-shadow: 0 0 25px 12px rgba(255, 145, 0, 0);
+                    }
                 }
-
-                .animate-pulse-glow {
-                  animation: pulse-glow 4s ease-in-out infinite;
+                .animate-breathing {
+                    animation: breathing 3s ease-in-out infinite;
                 }
             `}</style>
         </section>
