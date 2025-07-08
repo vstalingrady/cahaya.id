@@ -160,7 +160,7 @@ export default function WelcomePage() {
                     onClick={() => emblaApi?.scrollTo(index)}
                     className={cn(
                         "transition-all duration-300 rounded-full",
-                        selectedIndex === index ? "w-6 h-2 bg-primary" : "w-2 h-2 bg-muted hover:bg-muted-foreground/50"
+                        selectedIndex === index ? "w-6 h-2 bg-primary" : "w-2 h-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
                     )}
                     aria-label={`Go to slide ${index + 1}`}
                 />
