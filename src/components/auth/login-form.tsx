@@ -231,28 +231,30 @@ export default function LoginForm() {
       const user = result.user;
       const additionalInfo = getAdditionalUserInfo(result);
       
-      // Update the user's Auth profile with the latest from the social provider.
+      const profile = additionalInfo?.profile;
+      const displayNameFromProvider = (profile as any)?.name || user.displayName;
+      const photoURLFromProvider = (profile as any)?.picture || user.photoURL;
+      const emailFromProvider = (profile as any)?.email || user.email;
+
       await updateProfile(user, {
-          displayName: user.displayName,
-          photoURL: user.photoURL,
+          displayName: displayNameFromProvider,
+          photoURL: photoURLFromProvider,
       });
 
-      // Also update the Firestore document for data consistency.
       const userDocRef = doc(db, "users", user.uid);
       await setDoc(userDocRef, { 
-        fullName: user.displayName, 
-        photoURL: user.photoURL,
+        fullName: displayNameFromProvider, 
+        email: emailFromProvider,
+        photoURL: photoURLFromProvider,
       }, { merge: true });
 
-
-      // Force a refresh of the user object to get the latest profile data client-side.
       await user.reload();
 
       if (additionalInfo?.isNewUser) {
         await completeUserProfile(
             user.uid,
-            user.displayName || "New Social User",
-            user.email || 'no-email@example.com',
+            displayNameFromProvider || "New Social User",
+            emailFromProvider || 'no-email@example.com',
             user.phoneNumber || ''
         );
         sessionStorage.setItem('social_auth_in_progress', 'true');
