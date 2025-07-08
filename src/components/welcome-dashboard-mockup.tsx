@@ -246,7 +246,7 @@ export default function WelcomeDashboardMockup({ className, isActive }: { classN
     }, [isActive]);
 
 
-    const { totalAssets, totalLiabilities, netWorth, pinnedAccount, accountGroups } = useMemo(() => {
+    const { totalAssets, totalLiabilities, netWorth, pinnedAccounts, accountGroups } = useMemo(() => {
         const totalAssets = mockAccounts
             .filter(acc => acc.type !== 'loan')
             .reduce((sum, acc) => sum + acc.balance, 0);
@@ -257,17 +257,17 @@ export default function WelcomeDashboardMockup({ className, isActive }: { classN
             
         const netWorth = totalAssets - totalLiabilities;
 
-        const pinnedAccount = mockAccounts.find(a => a.isPinned);
-        const unpinnedAccounts = mockAccounts.filter(a => !a.isPinned);
+        const pinnedAccounts = mockAccounts.filter(a => a.isPinned);
 
+        // All accounts are included in their respective groups, regardless of pin status.
         const accountGroups = {
-            bank: unpinnedAccounts.filter(a => a.type === 'bank'),
-            ewallet: unpinnedAccounts.filter(a => a.type === 'e-wallet'),
-            investment: unpinnedAccounts.filter(a => a.type === 'investment'),
-            loan: unpinnedAccounts.filter(a => a.type === 'loan'),
+            bank: mockAccounts.filter(a => a.type === 'bank'),
+            ewallet: mockAccounts.filter(a => a.type === 'e-wallet'),
+            investment: mockAccounts.filter(a => a.type === 'investment'),
+            loan: mockAccounts.filter(a => a.type === 'loan'),
         };
 
-        return { totalAssets, totalLiabilities, netWorth, pinnedAccount, accountGroups };
+        return { totalAssets, totalLiabilities, netWorth, pinnedAccounts, accountGroups };
     }, []);
 
   return (
@@ -281,7 +281,7 @@ export default function WelcomeDashboardMockup({ className, isActive }: { classN
                 <TotalBalance title="Total Net Worth" amount={netWorth} transactions={mockTransactions} showHistoryLink={false} isActive={isActive} />
                 
                  {/* Pinned Account Section */}
-                {pinnedAccount && (
+                {pinnedAccounts.length > 0 && (
                     <div className="space-y-2">
                         <div className="bg-card p-4 rounded-xl border-none shadow-md">
                             <div className='flex items-center gap-3 text-foreground font-semibold text-sm'>
@@ -289,19 +289,21 @@ export default function WelcomeDashboardMockup({ className, isActive }: { classN
                                 <span>Pinned</span>
                             </div>
                             <div className="pt-2 space-y-2">
-                                <MockAccountCard 
-                                    key={pinnedAccount.id}
-                                    icon={getAccountIcon(pinnedAccount.institutionSlug)}
-                                    name={pinnedAccount.name}
-                                    displayNumber={formatDisplayNumber(pinnedAccount)}
-                                    balance={formatCurrency(pinnedAccount.balance)}
-                                />
+                               {pinnedAccounts.map(account => (
+                                    <MockAccountCard 
+                                        key={account.id}
+                                        icon={getAccountIcon(account.institutionSlug)}
+                                        name={account.name}
+                                        displayNumber={formatDisplayNumber(account)}
+                                        balance={formatCurrency(account.balance)}
+                                    />
+                                ))}
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Unpinned Accounts Section */}
+                {/* Accounts Section */}
                 <div className="space-y-2">
                     {accountGroups.bank.length > 0 && (
                         <div className="bg-card p-4 rounded-xl border-none shadow-md">
@@ -377,27 +379,6 @@ export default function WelcomeDashboardMockup({ className, isActive }: { classN
                                         displayNumber={formatDisplayNumber(account)}
                                         balance={formatCurrency(account.balance)}
                                         isLoan={true}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Duplicate bank section for scrolling effect */}
-                     {accountGroups.bank.length > 0 && (
-                        <div className="bg-card p-4 rounded-xl border-none shadow-md">
-                            <div className='flex items-center gap-3 text-foreground font-semibold text-sm'>
-                                <Landmark className='w-4 h-4' />
-                                <span>More Banks</span>
-                            </div>
-                            <div className="pt-2 space-y-2">
-                                {accountGroups.bank.slice().reverse().map(account => (
-                                    <MockAccountCard 
-                                        key={`${account.id}-dup`}
-                                        icon={getAccountIcon(account.institutionSlug)}
-                                        name={account.name}
-                                        displayNumber={formatDisplayNumber(account)}
-                                        balance={formatCurrency(account.balance)}
                                     />
                                 ))}
                             </div>
