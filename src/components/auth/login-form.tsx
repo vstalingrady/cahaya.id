@@ -45,7 +45,7 @@ export function LoginForm() {
       document.cookie = "isLoggedIn=true; path=/; max-age=86400"; // Expires in 24 hours
       router.push('/enter-pin');
     } catch (error: any) {
-      console.error("Google Sign-In Error:", error);
+      console.error("Google Sign-In Error:", { code: error.code, message: error.message });
       toast({
         variant: "destructive",
         title: "Sign-In Error",
@@ -67,7 +67,8 @@ export function LoginForm() {
       document.cookie = "isLoggedIn=true; path=/; max-age=86400"; // Expires in 24 hours
       router.push('/enter-pin');
     } catch (error: any) {
-      console.error("Email/Password Sign-In Error:", error);
+      // Log only serializable fields to avoid circular reference errors during SSR.
+      console.error("Email/Password Sign-In Error:", { code: error.code, message: error.message });
       let errorMessage = "An unexpected error occurred. Please try again.";
       if (error.code) {
         switch (error.code) {

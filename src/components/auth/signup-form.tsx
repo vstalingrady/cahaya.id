@@ -97,7 +97,8 @@ export function SignupForm() {
       router.push('/dashboard'); 
 
     } catch (error: any) {
-      console.error("Signup Error:", error);
+      // Log only serializable fields to avoid circular reference errors during SSR.
+      console.error("Signup Error:", { code: error.code, message: error.message });
       let errorMessage = "An unexpected error occurred. Please try again.";
       if (error.code) {
           switch (error.code) {
