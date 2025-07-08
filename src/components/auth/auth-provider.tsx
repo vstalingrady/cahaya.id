@@ -1,10 +1,10 @@
 
 'use client';
 
-import { onAuthStateChanged, type User, getAuth } from 'firebase/auth';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { auth, app } from '@/lib/firebase';
+import { auth } from '@/lib/firebase';
 import { ensureUserData } from '@/lib/actions';
 import { Loader2 } from 'lucide-react';
 
@@ -22,67 +22,71 @@ export function useAuth() {
   return context;
 }
 
-const UNAUTHENTICATED_ROUTES = ['/login', '/signup', '/'];
-const ONBOARDING_ROUTES = ['/verify-phone', '/complete-profile', '/setup-security', '/terms-of-service', '/link-account'];
+// Routes accessible to unauthenticated users. All other routes are protected.
+const PUBLIC_ROUTES = [
+    '/', 
+    '/login', 
+    '/signup', 
+    '/verify-phone', 
+    '/complete-profile', 
+    '/setup-security', 
+    '/terms-of-service',
+    '/link-account/callback', // Special case for OAuth flow
+    '/mock-ayo-connect', // Special case for mock API flow
+];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isRedirecting, setIsRedirecting] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        // Force a refresh of the user's profile from Firebase's backend.
-        await currentUser.reload();
-        
-        // After reloading, the currentUser object from the callback is the most up-to-date.
-        // There's no need to call getAuth(app).currentUser, which might be stale.
-        await ensureUserData(currentUser.uid);
-        setUser(currentUser);
-      } else {
+      try {
+        if (currentUser) {
+          // Force a refresh of the user's profile from Firebase's backend.
+          await currentUser.reload();
+          // Ensure user has their initial data seeded if they are new.
+          await ensureUserData(currentUser.uid);
+          setUser(currentUser);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("AuthProvider error during auth state change:", error);
+        // If an error occurs (e.g., user deleted), ensure they are logged out.
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
+    // Cleanup the listener on component unmount
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (loading) return; // Don't perform redirects until auth state is resolved
-
-    let shouldRedirect = false;
-    const isUnauthenticatedRoute = UNAUTHENTICATED_ROUTES.some(p => p !== '/' && pathname.startsWith(p)) || pathname === '/';
-    const isOnboardingRoute = ONBOARDING_ROUTES.some(p => pathname.startsWith(p));
-    const isSpecialRoute = pathname.startsWith('/link-account/callback') || pathname.startsWith('/mock-ayo-connect');
-    
-    if (isSpecialRoute) {
-        setIsRedirecting(false);
-        return;
+    // Wait until the initial authentication check is complete.
+    if (loading) {
+      return;
     }
 
-    if (!user && !isUnauthenticatedRoute && !isOnboardingRoute) {
+    const isPublicRoute = PUBLIC_ROUTES.some(route => pathname.startsWith(route));
+
+    // If user is logged in and tries to access a public-only route (like login/signup), redirect to dashboard.
+    // We exclude the root welcome page from this rule.
+    if (user && isPublicRoute && pathname !== '/') {
+      router.replace('/dashboard');
+    }
+
+    // If user is not logged in and tries to access a protected route, redirect to login.
+    if (!user && !isPublicRoute) {
       router.replace('/login');
-      shouldRedirect = true;
     }
+  }, [user, loading, pathname, router]);
 
-    if (user) {
-      const socialAuthInProgress = sessionStorage.getItem('social_auth_in_progress');
-      if (isUnauthenticatedRoute && pathname !== '/' && !socialAuthInProgress) {
-        router.replace('/dashboard');
-        shouldRedirect = true;
-      }
-      if (socialAuthInProgress && isOnboardingRoute) {
-        sessionStorage.removeItem('social_auth_in_progress');
-      }
-    }
-    setIsRedirecting(shouldRedirect);
-  }, [user, pathname, router, loading]);
-
-
-  if (loading || isRedirecting) {
+  // While checking auth state or redirecting, show a loading spinner.
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <Loader2 className="w-10 h-10 text-primary animate-spin" />
