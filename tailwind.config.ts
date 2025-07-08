@@ -127,6 +127,16 @@ export default {
           '20%, 80%': { transform: 'translateY(288px)', opacity: '1' },
           '100%': { transform: 'translateY(300px)', opacity: '0' },
         },
+        'slow-pulse': {
+          '0%, 100%': {
+            transform: 'scale(1)',
+            'box-shadow': '0 0 20px 0px hsl(var(--primary) / 0.5)',
+          },
+          '50%': {
+            transform: 'scale(1.03)',
+            'box-shadow': '0 0 30px 5px hsl(var(--primary) / 0.6)',
+          },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -141,6 +151,7 @@ export default {
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
         'scroll-right': 'scroll-right var(--animation-duration) linear infinite',
         'biometric-scan': 'biometric-scan 3s ease-in-out infinite',
+        'slow-pulse': 'slow-pulse 4s ease-in-out infinite',
       },
     },
   },
