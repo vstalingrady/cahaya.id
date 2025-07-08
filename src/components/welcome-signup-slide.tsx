@@ -40,7 +40,7 @@ export default function WelcomeSignupSlide() {
                     </div>
 
                     <div className="space-y-4">
-                         <Button asChild className="w-full h-11 text-base animate-slow-pulse">
+                         <Button asChild className="w-full h-11 text-base shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-shadow">
                              <Link href="/signup">
                                 Get Started for Free <ArrowRight className="ml-2 w-5 h-5" />
                              </Link>
