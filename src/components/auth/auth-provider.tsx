@@ -38,15 +38,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Force a refresh of the user's profile from Firebase's backend.
         await currentUser.reload();
         
-        // After reloading, get the most current user instance.
-        const refreshedUser = getAuth(app).currentUser;
-
-        if (refreshedUser) {
-            await ensureUserData(refreshedUser.uid);
-            setUser(refreshedUser);
-        } else {
-             setUser(null);
-        }
+        // After reloading, the currentUser object from the callback is the most up-to-date.
+        // There's no need to call getAuth(app).currentUser, which might be stale.
+        await ensureUserData(currentUser.uid);
+        setUser(currentUser);
       } else {
         setUser(null);
       }
