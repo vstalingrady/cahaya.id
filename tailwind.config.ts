@@ -113,11 +113,11 @@ export default {
         'breathing-glow': {
           '0%, 100%': {
             transform: 'scale(1)',
-            boxShadow: '0 0 15px 5px rgba(255, 170, 0, 0.4)',
+            boxShadow: '0 0 15px 5px rgba(249, 170, 22, 0.4)',
           },
           '50%': {
             transform: 'scale(1.05)',
-            boxShadow: '0 0 30px 10px rgba(255, 170, 0, 0.7)',
+            boxShadow: '0 0 30px 10px rgba(249, 170, 22, 0.7)',
           },
         },
         'text-shine': {
@@ -151,7 +151,7 @@ export default {
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'logo-blink-glow': 'logo-blink-glow 5s ease-in-out infinite',
         'slow-pulse': 'slow-pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'breathing-glow': 'breathing-glow 6s ease-in-out infinite',
+        'breathing-glow': 'breathing-glow 4s ease-in-out infinite',
         'text-shine': 'text-shine 3s linear infinite',
         'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
