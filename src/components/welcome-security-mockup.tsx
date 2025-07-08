@@ -10,7 +10,7 @@ export default function WelcomeSecurityMockup({ className, isActive }: { classNa
 
     const securityFeatures = [
         "Biometric Authentication",
-        "Bank-Grade Encryption",
+        "256-bit AES Encryption",
         "Secure Data Handling",
         "OJK Licensed Partner API"
     ];
