@@ -219,7 +219,7 @@ export default function WelcomeBudgetsMockup({ className, isActive }: { classNam
                         <Switch checked={formState.isRecurring} readOnly className="scale-[0.8]" />
                     </div>
                 </div>
-                <Button className={cn("w-full h-12 text-base mt-auto flex-shrink-0 transition-colors duration-200", animationPhase === 'create_budget' ? 'bg-accent text-accent-foreground' : 'bg-primary text-primary-foreground')}>
+                <Button className={cn("w-full h-12 text-base mt-auto flex-shrink-0 transition-colors duration-200", animationPhase === 'create_budget' ? 'bg-green-500 hover:bg-green-500/90 text-white' : 'bg-primary text-primary-foreground')}>
                     {animationPhase === 'create_budget' ? <Check className="w-5 h-5"/> : 'Create Budget'}
                  </Button>
             </div>
