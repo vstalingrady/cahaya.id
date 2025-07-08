@@ -129,12 +129,10 @@ export default {
         },
         'slow-pulse': {
           '0%, 100%': {
-            transform: 'scale(1)',
-            'box-shadow': '0 0 20px 0px hsl(var(--primary) / 0.5)',
+            'box-shadow': '0 0 0 0 hsl(var(--primary) / 0.0)',
           },
           '50%': {
-            transform: 'scale(1.03)',
-            'box-shadow': '0 0 30px 5px hsl(var(--primary) / 0.6)',
+            'box-shadow': '0 0 20px 5px hsl(var(--primary) / 0.4)',
           },
         },
       },

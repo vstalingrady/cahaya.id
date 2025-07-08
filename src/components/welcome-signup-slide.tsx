@@ -40,11 +40,13 @@ export default function WelcomeSignupSlide() {
                 </div>
 
                 <div className="space-y-4">
-                    <Button asChild size="lg" className="h-12 text-lg animate-slow-pulse">
-                        <Link href="/signup">
-                            Get Started for Free <ArrowRight className="ml-2 w-5 h-5" />
-                        </Link>
-                    </Button>
+                    <div className="animate-slow-pulse rounded-lg">
+                        <Button asChild size="lg" className="w-full h-12 text-lg">
+                            <Link href="/signup">
+                                Get Started for Free <ArrowRight className="ml-2 w-5 h-5" />
+                            </Link>
+                        </Button>
+                    </div>
                     <p className="text-sm text-muted-foreground">
                         Already have an account?{' '}
                         <Button asChild variant="link" className="p-0 h-auto">
