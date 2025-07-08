@@ -31,8 +31,8 @@ const PUBLIC_ROUTES = [
     '/complete-profile', 
     '/setup-security', 
     '/terms-of-service',
-    '/link-account/callback', // Special case for OAuth flow
-    '/mock-ayo-connect', // Special case for mock API flow
+    '/link-account', // Make the entire flow public
+    '/mock-ayo-connect',
 ];
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -45,34 +45,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       try {
         if (currentUser) {
-          // Ensure user has their initial data seeded if they are new.
+          // This is the key change. We manually reload the user object
+          // every time the auth state changes. This ensures that any
+          // recent profile updates (like from a social login) are
+          // immediately reflected before the app renders any other component.
+          await currentUser.reload();
+          
+          // The `currentUser` object is now fresh.
           await ensureUserData(currentUser.uid);
-          // Set the user state with the object provided by the listener.
-          // The Firebase SDK handles providing the most up-to-date user object.
           setUser(currentUser);
         } else {
           setUser(null);
         }
       } catch (error) {
-        console.error("AuthProvider error during auth state change:", error);
-        // If an error occurs (e.g., user deleted), ensure they are logged out.
+        console.error("AuthProvider error during auth state change or reload:", error);
+        // If reload fails (e.g. user deleted mid-session), sign them out.
         setUser(null);
       } finally {
         setLoading(false);
       }
     });
-    // Cleanup the listener on component unmount
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    // Wait until the initial authentication check is complete.
     if (loading) {
       return;
     }
 
-    // A more precise check for public routes.
-    // The root path '/' should only match exactly, not act as a prefix for all routes.
     const isPublicRoute = PUBLIC_ROUTES.some(route => {
         if (route === '/') {
             return pathname === '/';
@@ -80,19 +80,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return pathname.startsWith(route);
     });
 
-    // If user is logged in and tries to access a public-only route (like login/signup), redirect to dashboard.
-    // We exclude the root welcome page from this rule.
     if (user && isPublicRoute && pathname !== '/') {
       router.replace('/dashboard');
     }
 
-    // If user is not logged in and tries to access a protected route, redirect to login.
     if (!user && !isPublicRoute) {
       router.replace('/login');
     }
   }, [user, loading, pathname, router]);
 
-  // While checking auth state or redirecting, show a loading spinner.
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
