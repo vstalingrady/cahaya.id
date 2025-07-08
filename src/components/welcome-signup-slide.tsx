@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -39,7 +40,7 @@ export default function WelcomeSignupSlide() {
                     </div>
 
                     <div className="pt-6 space-y-4">
-                        <Button size="lg" className="h-12 text-lg w-full animate-breathing-glow" asChild>
+                        <Button size="lg" className="h-12 text-lg w-full animate-slow-pulse" asChild>
                             <Link href="/signup">
                                 Get Started for Free <ArrowRight className="ml-2" />
                             </Link>
