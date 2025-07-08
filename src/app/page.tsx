@@ -14,6 +14,7 @@ import WelcomeSignupSlide from '@/components/welcome-signup-slide';
 import React, { useState, useEffect, useCallback } from 'react';
 import useEmblaCarousel, { type EmblaCarouselType } from 'embla-carousel-react';
 import { cn } from '@/lib/utils';
+import GeminiLogo from '@/components/icons/GeminiLogo';
 
 export default function WelcomePage() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
@@ -40,6 +41,7 @@ export default function WelcomePage() {
   return (
     <div className="relative min-h-screen w-full bg-background text-foreground overflow-hidden">
       <div className="absolute inset-0 -z-10 h-full w-full bg-background has-hero-glow" />
+      <div className="absolute inset-x-0 top-[-80px] -z-10 h-[300px] w-full bg-background has-glowing-dots-glow" />
       
       <div className="w-full max-w-md mx-auto h-screen flex flex-col">
         <header className="p-4 z-50 flex-shrink-0">
@@ -62,7 +64,7 @@ export default function WelcomePage() {
             {/* Slide 1: Hero */}
             <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pb-6 gap-4 overflow-y-auto custom-scrollbar">
                 <div className="text-center space-y-4 animate-fade-in-up max-w-sm">
-                    <h1 className="text-3xl text-foreground font-bold font-serif leading-tight">
+                    <h1 className="text-3xl text-foreground font-bold font-serif leading-tight has-blurry-glow-2">
                         All Your Money, <br />
                         <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                             One Single App.
@@ -112,14 +114,18 @@ export default function WelcomePage() {
 
             {/* Slide 5: Insights */}
             <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center max-w-sm min-h-36">
-                    <Sparkles className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">AI-Powered Insights</h2>
-                    <p className="text-muted-foreground text-sm">Let our AI analyze your spending to find personalized saving opportunities and create actionable financial plans.</p>
-                </div>
-                <div className="w-full px-4">
-                    <WelcomeInsightsMockup isActive={selectedIndex === 4} className="h-[500px]" />
-                </div>
+              <div className="text-center max-w-sm min-h-36">
+                  <Sparkles className="w-8 h-8 text-primary mx-auto mb-2" />
+                  <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">AI-Powered Insights</h2>
+                  <div className="flex justify-center items-center gap-2 mb-2">
+                    <GeminiLogo className="w-5 h-5" />
+                    <p className="text-xs flashy-gemini-text">Powered by Gemini</p>
+                  </div>
+                  <p className="text-muted-foreground text-sm">Let our AI analyze your spending to find personalized saving opportunities and create actionable financial plans.</p>
+              </div>
+              <div className="w-full px-4">
+                  <WelcomeInsightsMockup isActive={selectedIndex === 4} className="h-[500px]" />
+              </div>
             </section>
 
             {/* Slide 6: Vaults */}

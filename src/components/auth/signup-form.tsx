@@ -1,207 +1,193 @@
 
-/**
- * @file src/components/auth/signup-form.tsx
- * @fileoverview The form component for the first step of user registration,
- * which involves capturing and verifying the user's phone number via Firebase
- * Phone Authentication. It includes an invisible reCAPTCHA for security and
- * a developer bypass for easier testing.
- */
-
 'use client';
-
-// React hooks for state and side-effects.
-import { useState, useEffect } from 'react';
-// Next.js router for navigation.
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-// UI components from ShadCN.
+import Link from 'next/link';
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-// Firebase authentication functions.
-import { getAuth, RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
-// Firebase app instance initialized in firebase.ts.
-import { app } from '@/lib/firebase';
-// Icons from lucide-react.
-import { Phone, Loader2 } from 'lucide-react';
-// Custom hook for displaying toast notifications.
 import { useToast } from '@/hooks/use-toast';
+import { Loader2, AtSign, Lock, User } from 'lucide-react';
+import { completeUserProfile } from '@/lib/actions';
 
-/**
- * A submit button component that shows a loading spinner when a request is pending.
- * @param {object} props - The component props.
- * @param {boolean} props.pending - Whether the form submission is in progress.
- * @returns {JSX.Element} The rendered button.
- */
-function SubmitButton({ pending }: { pending: boolean }) {
-  return (
-    <Button 
-      type="submit" 
-      disabled={pending}
-      className="w-full bg-primary text-primary-foreground py-4 rounded-xl font-semibold text-lg shadow-lg hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 h-auto"
-    >
-      {/* Show a loading spinner if pending, otherwise show the button text. */}
-      {pending ? <Loader2 className="animate-spin" /> : 'Send Verification Code'}
-    </Button>
-  );
-}
 
-// Extend the global Window interface to include Firebase Auth objects.
-// This allows passing them between pages during the verification flow.
-declare global {
-  interface Window {
-    confirmationResult: ConfirmationResult;
-  }
-}
-
-/**
- * The main signup form component.
- * @returns {JSX.Element} The rendered signup form.
- */
-export default function SignupForm() {
-  // Hooks for routing and showing notifications.
+export function SignupForm() {
   const router = useRouter();
   const { toast } = useToast();
-  // State for the phone number input, error messages, and loading status.
-  const [phone, setPhone] = useState('+62 ');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [verifier, setVerifier] = useState<RecaptchaVerifier | null>(null);
 
-  useEffect(() => {
-    const auth = getAuth(app);
-    // Ensure this runs only on the client
-    if (typeof window !== 'undefined' && !verifier) {
-      const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        'size': 'invisible',
-        'callback': (response: any) => {
-          console.log('reCAPTCHA solved.');
-        },
-        'expired-callback': () => {
-          toast({
-            variant: 'destructive',
-            title: 'reCAPTCHA Expired',
-            description: 'Please try sending the code again.',
-          });
-        },
-      });
-      setVerifier(recaptchaVerifier);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    password: '',
+    confirmPassword: '',
+  });
 
-      // We don't need a cleanup function here because the verifier is meant to persist
-      // for the component's lifecycle. Re-creating it can cause issues.
-    }
-  }, [toast, verifier]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
 
-  /**
-   * Formats a phone number string into the E.164 format required by Firebase.
-   * @param {string} phoneNumber - The phone number string from the input.
-   * @returns {string} The formatted phone number (e.g., "+6281234567890").
-   */
-  const formatPhoneNumberForFirebase = (phoneNumber: string): string => {
-    return `+${phoneNumber.replace(/\D/g, '')}`;
-  };
-
-  /**
-   * Handles changes to the phone number input field, formatting the input
-   * with dashes for better readability while maintaining the country code.
-   * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event.
-   */
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-
-    // Always ensure the prefix is present.
-    if (!value.startsWith('+62 ')) {
-      setPhone('+62 ');
-      return;
-    }
-
-    // Extract numbers, format with dashes, and create the new value.
-    const rawNumbers = value.substring(4).replace(/[^0-9]/g, '');
-    const trimmedNumbers = rawNumbers.slice(0, 12);
-    const chunks = [];
-    if (trimmedNumbers.length > 0) chunks.push(trimmedNumbers.slice(0, 3));
-    if (trimmedNumbers.length > 3) chunks.push(trimmedNumbers.slice(3, 7));
-    if (trimmedNumbers.length > 7) chunks.push(trimmedNumbers.slice(7));
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+    if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required.';
+    if (!formData.email.trim()) newErrors.email = 'Email is required.';
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid.';
+    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required.';
+    if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters.';
+    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match.';
     
-    const formattedPhone = `+62 ${chunks.join('-')}`;
-
-    // This is the crucial check to prevent the infinite loop.
-    // Only update the state if the formatted value is different from the current state.
-    if (formattedPhone !== phone) {
-      setPhone(formattedPhone);
-    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  /**
-   * Handles the form submission to send the verification code.
-   * Creates the reCAPTCHA verifier on-demand.
-   * @param {React.FormEvent} e - The form submission event.
-   */
-  const handleSendCode = async (e: React.FormEvent) => {
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
-    
-    if (!verifier) {
-      setError("reCAPTCHA not ready. Please wait a moment and try again.");
-      setLoading(false);
-      return;
+    if (!validateForm()) {
+        return;
     }
-
-    const auth = getAuth(app);
-    const formattedPhone = formatPhoneNumberForFirebase(phone);
     
-    try {
-      const confirmationResult = await signInWithPhoneNumber(auth, formattedPhone, verifier);
-      // Store the result on the window object to be used on the verification page.
-      window.confirmationResult = confirmationResult;
-      
-      router.push(`/verify-phone?phone=${encodeURIComponent(phone)}`);
-    } catch (err: any) {
-      console.error("Error sending code:", err);
-      let errorMessage = 'Failed to send verification code. Please try again.';
+    setIsLoading(true);
 
-      if (err.code === 'auth/invalid-phone-number') {
-        errorMessage = 'Invalid phone number format. Please check your number.';
-      } else if (err.code === 'auth/too-many-requests') {
-        errorMessage = 'Too many requests. Please try again later.';
-      } else if (err.code === 'auth/internal-error') {
-        errorMessage = "An internal error occurred. Please ensure Phone Sign-In is enabled in your Firebase project and that your App Check configuration is correct.";
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      
+      // Update the user's profile with their full name
+      await updateProfile(userCredential.user, {
+        displayName: formData.fullName
+      });
+
+      // Sync user data to Firestore, but don't seed data yet
+      await completeUserProfile(
+        userCredential.user.uid,
+        formData.fullName,
+        formData.email,
+        formData.phone
+      );
+
+      toast({
+        title: "Account Created!",
+        description: "Welcome! Let's get your account set up.",
+      });
+
+      // Redirect to the next step in the onboarding flow
+      router.push('/dashboard'); 
+
+    } catch (error: any) {
+      console.error("Signup Error:", error);
+      let errorMessage = "An unexpected error occurred. Please try again.";
+      if (error.code) {
+          switch (error.code) {
+              case 'auth/email-already-in-use':
+                  errorMessage = 'This email address is already registered. Please login or use a different email.';
+                  break;
+              case 'auth/invalid-email':
+                  errorMessage = 'Please enter a valid email address.';
+                  break;
+              case 'auth/weak-password':
+                  errorMessage = 'The password is too weak. Please choose a stronger password.';
+                  break;
+              default:
+                  errorMessage = error.message;
+          }
       }
-      setError(errorMessage);
+      toast({
+        variant: "destructive",
+        title: "Signup Failed",
+        description: errorMessage,
+      });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10">
-      <form onSubmit={handleSendCode} className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number</Label>
-          <div className="relative">
-            <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-            <Input 
-              id="phone" 
-              name="phone" 
-              type="tel" 
-              className="bg-input h-14 text-lg pl-12"
-              placeholder="+62 000-0000-00000"
-              value={phone}
-              onChange={handlePhoneChange}
-              required
-            />
+    <>
+      <div className="text-center">
+        <h1 className="text-3xl font-bold mb-2 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+          Create an Account
+        </h1>
+        <p className="text-muted-foreground">Start your journey to financial freedom.</p>
+      </div>
+
+      <div className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          
+           <div className="space-y-2">
+            <Label htmlFor="fullName">Full Name</Label>
+            <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input id="fullName" name="fullName" type="text" value={formData.fullName} onChange={handleInputChange} className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="e.g. Budi Purnomo" disabled={isLoading} />
+            </div>
+            {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
+           </div>
+
+           <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <div className="relative">
+                <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="you@example.com" disabled={isLoading} />
+            </div>
+            {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
+           </div>
+           
+           <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number</Label>
+            <div className="relative">
+                 {/* This could be improved with a country code selector */}
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-base">+62</span>
+                <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} className="bg-input h-14 pl-14 text-base placeholder:text-muted-foreground" placeholder="812-3456-7890" disabled={isLoading} />
+            </div>
+            {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
+           </div>
+
+           <div className="space-y-2">
+            <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <Link href="/forgot-password"
+                className="text-sm font-medium text-primary hover:underline">
+                Forgot Password?
+                </Link>
+            </div>
+            <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input id="password" name="password" type="password" value={formData.password} onChange={handleInputChange} className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="Create a password" disabled={isLoading} />
+            </div>
+            {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
           </div>
-        </div>
-        
-        <SubmitButton pending={loading} />
-        
-        {error && (
-          <p className="mt-4 text-sm text-red-500 text-center whitespace-pre-line">{error}</p>
-        )}
-      </form>
-      {/* This div is the container for the invisible reCAPTCHA widget. */}
-      <div id="recaptcha-container"></div>
-    </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input id="confirmPassword" name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleInputChange} className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="Confirm your password" disabled={isLoading} />
+            </div>
+            {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
+          </div>
+
+
+          <Button type="submit" disabled={isLoading} className="w-full h-14 text-lg font-semibold">
+            {isLoading ? <Loader2 className="animate-spin" /> : 'Create Account'}
+          </Button>
+        </form>
+      </div>
+      
+      <p className="px-8 text-center text-sm text-muted-foreground">
+        Already have an account?{' '}
+        <Link href="/login" className="underline underline-offset-4 hover:text-primary">
+          Sign In
+        </Link>
+      </p>
+    </>
   );
 }
