@@ -238,6 +238,10 @@ export default function LoginForm() {
           photoURL: user.photoURL,
       });
 
+      // Explicitly reload the user object to ensure the local auth state
+      // reflects the profile update before we proceed. This prevents race conditions.
+      await user.reload();
+
       if (additionalInfo?.isNewUser) {
         await completeUserProfile(
             user.uid,
