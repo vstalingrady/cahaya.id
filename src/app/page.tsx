@@ -139,7 +139,7 @@ export default function WelcomePage() {
                 <div className="text-center max-w-sm min-h-36">
                     <ShieldCheck className="w-8 h-8 text-primary mx-auto mb-2" />
                     <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Bank-Grade Security</h2>
-                    <p className="text-muted-foreground text-sm">Your data is encrypted and protected with the highest security standards. Your privacy is our priority.</p>
+                    <p className="text-muted-foreground text-sm">Your data is protected with the highest bank-grade security standards, including 256-bit AES encryption. Your privacy is our priority.</p>
                 </div>
                 <div className="w-full px-4">
                     <WelcomeSecurityMockup isActive={selectedIndex === 6} className="h-[500px]" />
