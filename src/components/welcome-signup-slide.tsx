@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -25,21 +24,6 @@ export default function WelcomeSignupSlide() {
 
     return (
         <section className="flex-[0_0_100%] min-w-0 flex flex-col">
-            <style jsx>{`
-                @keyframes pulse-glow {
-                  0%, 100% {
-                    transform: scale(1);
-                    box-shadow: 0 0 15px 5px hsla(var(--primary), 0.2);
-                  }
-                  50% {
-                    transform: scale(1.03);
-                    box-shadow: 0 0 30px 10px hsla(var(--primary), 0.4);
-                  }
-                }
-                .animate-pulse-glow {
-                  animation: pulse-glow 4s ease-in-out infinite;
-                }
-            `}</style>
             <div className="flex-1 flex flex-col justify-center px-6 pb-6 overflow-y-auto custom-scrollbar">
                 <div className="space-y-6 animate-fade-in-up max-w-sm mx-auto text-center">
                     <div className="min-h-36 flex flex-col items-center justify-center">
@@ -56,7 +40,7 @@ export default function WelcomeSignupSlide() {
                     </div>
 
                     <div className="space-y-4">
-                         <Button asChild className="w-full h-11 text-base animate-pulse-glow">
+                         <Button asChild className="w-full h-11 text-base animate-slow-pulse">
                              <Link href="/signup">
                                 Get Started for Free <ArrowRight className="ml-2 w-5 h-5" />
                              </Link>
