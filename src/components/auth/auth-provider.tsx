@@ -42,29 +42,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      try {
-        if (currentUser) {
-          // The user object provided by the listener is the source of truth.
-          // We no longer need to manually reload it here, as the login form now
-          // handles the explicit reload after a profile update.
-          await ensureUserData(currentUser.uid);
-          setUser(currentUser);
-        } else {
-          setUser(null);
-        }
-      } catch (error) {
-        console.error("AuthProvider error during auth state change or reload:", error);
-        // If there's an error, assume the user is not authenticated.
-        setUser(null);
-      } finally {
-        setLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      // Set the user state immediately.
+      setUser(currentUser);
+      
+      // If a user is logged in, ensure their backend data exists.
+      // This is done without `await` to avoid blocking the UI.
+      if (currentUser) {
+        ensureUserData(currentUser.uid).catch(error => {
+            // Log the error but don't crash the app. The user can continue.
+            console.error("Failed to ensure user data:", error);
+        });
       }
+      
+      // We are no longer loading the initial auth state.
+      setLoading(false);
     });
+    
+    // Cleanup the subscription on unmount.
     return () => unsubscribe();
-  }, []);
+  }, []); // This effect should only run once.
 
   useEffect(() => {
+    // Don't perform redirects until the initial auth check is complete.
     if (loading) {
       return;
     }
@@ -73,18 +73,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (route === '/') {
             return pathname === '/';
         }
+        // Make sure /link-account and its sub-paths are public.
         return pathname.startsWith(route);
     });
 
+    // If user is logged in and on a public route (that isn't the landing page), redirect to dashboard.
     if (user && isPublicRoute && pathname !== '/') {
       router.replace('/dashboard');
     }
 
+    // If user is not logged in and on a protected route, redirect to login.
     if (!user && !isPublicRoute) {
       router.replace('/login');
     }
   }, [user, loading, pathname, router]);
 
+  // While the initial auth check is running, show a full-screen loader.
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
@@ -93,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
   }
 
+  // Render the children within the provider's context.
   return (
     <AuthContext.Provider value={{ user }}>
       {children}
