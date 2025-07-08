@@ -172,10 +172,12 @@ export default function WelcomeInsightsMockup({ className, isActive }: { classNa
             </div>
             <h3 className="text-xl font-bold font-serif text-foreground">Your Personal Financial Analyst</h3>
             <p className="text-muted-foreground mt-2 mb-6">Let Gemini build your personalized financial plan, find saving opportunities, and answer your toughest money questions.</p>
-            <Button size="lg" className="bg-primary hover:bg-primary/90 rounded-xl font-semibold text-lg shadow-lg h-auto animate-slow-pulse">
-                <Sparkles className="w-5 h-5 mr-2" />
-                <span>Generate My Financial Plan</span>
-            </Button>
+            <div className="animate-slow-pulse rounded-xl">
+              <Button size="lg" className="bg-primary hover:bg-primary/90 rounded-xl font-semibold text-lg shadow-lg h-auto">
+                  <Sparkles className="w-5 h-5 mr-2" />
+                  <span>Generate My Financial Plan</span>
+              </Button>
+            </div>
         </div>
 
         {/* Loading State */}
