@@ -45,13 +45,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       try {
         if (currentUser) {
-          // This is the key change. We manually reload the user object
-          // every time the auth state changes. This ensures that any
-          // recent profile updates (like from a social login) are
-          // immediately reflected before the app renders any other component.
-          await currentUser.reload();
-          
-          // The `currentUser` object is now fresh.
+          // The user object provided by the listener is the source of truth.
+          // We no longer need to manually reload it here, as the login form now
+          // handles the explicit reload after a profile update.
           await ensureUserData(currentUser.uid);
           setUser(currentUser);
         } else {
@@ -59,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         console.error("AuthProvider error during auth state change or reload:", error);
-        // If reload fails (e.g. user deleted mid-session), sign them out.
+        // If there's an error, assume the user is not authenticated.
         setUser(null);
       } finally {
         setLoading(false);

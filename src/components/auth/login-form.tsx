@@ -232,11 +232,14 @@ export default function LoginForm() {
       const additionalInfo = getAdditionalUserInfo(result);
       
       // Always update the user's profile with the latest from the social provider.
-      // This ensures name/picture changes are reflected on subsequent logins.
       await updateProfile(user, {
           displayName: user.displayName,
           photoURL: user.photoURL,
       });
+
+      // Force a refresh of the user object to get the latest profile data client-side.
+      // This is the key fix to prevent the race condition.
+      await user.reload();
 
       if (additionalInfo?.isNewUser) {
         await completeUserProfile(
