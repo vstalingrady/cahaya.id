@@ -231,14 +231,21 @@ export default function LoginForm() {
       const user = result.user;
       const additionalInfo = getAdditionalUserInfo(result);
       
-      // Always update the user's profile with the latest from the social provider.
+      // Update the user's Auth profile with the latest from the social provider.
       await updateProfile(user, {
           displayName: user.displayName,
           photoURL: user.photoURL,
       });
 
+      // Also update the Firestore document for data consistency.
+      const userDocRef = doc(db, "users", user.uid);
+      await setDoc(userDocRef, { 
+        fullName: user.displayName, 
+        photoURL: user.photoURL,
+      }, { merge: true });
+
+
       // Force a refresh of the user object to get the latest profile data client-side.
-      // This is the key fix to prevent the race condition.
       await user.reload();
 
       if (additionalInfo?.isNewUser) {
