@@ -230,13 +230,15 @@ export default function LoginForm() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       const additionalInfo = getAdditionalUserInfo(result);
+      
+      // Always update the user's profile with the latest from the social provider.
+      // This ensures name/picture changes are reflected on subsequent logins.
+      await updateProfile(user, {
+          displayName: user.displayName,
+          photoURL: user.photoURL,
+      });
 
       if (additionalInfo?.isNewUser) {
-        await updateProfile(user, {
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-        });
-
         await completeUserProfile(
             user.uid,
             user.displayName || "New Social User",
