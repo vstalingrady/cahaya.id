@@ -1,10 +1,10 @@
 
 'use client';
 
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { onAuthStateChanged, type User, getAuth } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { auth, db } from '@/lib/firebase';
+import { auth, db, app } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import { Loader2 } from 'lucide-react';
 import { ensureUserData } from '@/lib/actions';
@@ -91,14 +91,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         // Force a refresh of the user's profile from Firebase's backend.
-        // This is crucial for ensuring displayName and photoURL are up-to-date after login.
         await currentUser.reload();
-
-        // Ensure backend data (accounts, transactions, etc.) is seeded if it's a new user.
-        await ensureUserData(currentUser.uid);
         
-        // Set the user state with the genuine, refreshed currentUser object.
-        setUser(currentUser);
+        // After reloading, get the most current user instance to avoid stale references.
+        const refreshedUser = getAuth(app).currentUser;
+
+        if (refreshedUser) {
+            // Ensure backend data is seeded if it's a new user.
+            await ensureUserData(refreshedUser.uid);
+            
+            // Set the user state with the refreshed user object.
+            setUser(refreshedUser);
+        } else {
+             // This case is unlikely if currentUser exists, but for safety:
+             setUser(null);
+        }
       } else {
         setUser(null);
       }
