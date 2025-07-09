@@ -1,134 +1,16 @@
 
 'use client';
 
-import React, { useState, useRef, ChangeEvent, KeyboardEvent, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { setSecurityPin } from '@/lib/actions';
 import { auth } from '@/lib/firebase';
+import { PinInput } from '@/components/ui/pin-input';
 
-/**
- * A controlled component for a 6-digit PIN input that masks characters as you type.
- * Focus and value are controlled by the parent component.
- */
-const PinInput = ({
-  value,
-  onChange,
-  idPrefix,
-  focusedIndex,
-  onFocusChange,
-  onComplete,
-  blurOnComplete,
-}: {
-  value: string[];
-  onChange: (value: string[]) => void;
-  idPrefix: string;
-  focusedIndex: number;
-  onFocusChange: (index: number) => void;
-  onComplete?: () => void;
-  blurOnComplete?: boolean;
-}) => {
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-  // Effect to handle focusing inputs programmatically when parent state changes
-  useEffect(() => {
-    if (focusedIndex >= 0 && focusedIndex < 6) {
-      inputRefs.current[focusedIndex]?.focus();
-    }
-  }, [focusedIndex]);
-
-  const handlePaste = (pastedValue: string, startIndex: number) => {
-    const sanitizedValue = pastedValue.replace(/[^a-zA-Z0-9]/g, '');
-    const newPin = [...value];
-    
-    for (let i = 0; i < sanitizedValue.length && startIndex + i < 6; i++) {
-        newPin[startIndex + i] = sanitizedValue.charAt(i);
-    }
-    onChange(newPin);
-
-    const newFocusIndex = Math.min(startIndex + sanitizedValue.length, 5);
-    onFocusChange(newFocusIndex);
-
-    if (newPin.join('').length === 6) {
-      onComplete?.();
-      if (blurOnComplete) {
-        inputRefs.current[newFocusIndex]?.blur();
-      }
-    }
-  };
-
-  const handleWrapperPaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      const pastedText = e.clipboardData.getData('text');
-      const activeIndex = inputRefs.current.findIndex(ref => ref === document.activeElement);
-      handlePaste(pastedText, activeIndex >= 0 ? activeIndex : 0);
-  }
-
-  const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    const { value: inputValue } = e.target;
-    
-    if (inputValue.length > 1) {
-        handlePaste(inputValue, index);
-        return;
-    }
-
-    const sanitizedValue = inputValue.replace(/[^a-zA-Z0-9]/g, '');
-    const newPin = [...value];
-    newPin[index] = sanitizedValue;
-    onChange(newPin);
-
-    if (sanitizedValue) {
-      if (index < 5) {
-        onFocusChange(index + 1);
-      } else if (index === 5) {
-        onComplete?.();
-        if (blurOnComplete) {
-          inputRefs.current[index]?.blur();
-        }
-      }
-    }
-  };
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
-    if (e.key === 'Backspace' && value[index] === '' && index > 0) {
-      onFocusChange(index - 1);
-    }
-  };
-  
-  return (
-    <div className="flex justify-center items-center gap-2" onPaste={handleWrapperPaste}>
-      {Array(6)
-        .fill('')
-        .map((_, index) => {
-            return (
-              <React.Fragment key={`${idPrefix}-${index}`}>
-                <Input
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  id={`${idPrefix}-${index}`}
-                  type="password"
-                  inputMode="text"
-                  value={value[index]}
-                  onChange={(e) => handleInputChange(e, index)}
-                  onKeyDown={(e) => handleKeyDown(e, index)}
-                  onFocus={() => onFocusChange(index)}
-                  onBlur={() => onFocusChange(-1)}
-                  className="w-12 h-14 text-center text-xl font-mono"
-                  autoComplete="one-time-code"
-                />
-                 {index === 2 && <div className="w-4 h-1 bg-border rounded-full" />}
-              </React.Fragment>
-            )
-        })}
-    </div>
-  );
-};
 
 export default function SetupSecurityForm() {
   const router = useRouter();
@@ -136,9 +18,10 @@ export default function SetupSecurityForm() {
   const [loading, setLoading] = useState(false);
 
   const [pin, setPin] = useState(Array(6).fill(''));
-  const [pinFocusedIndex, setPinFocusedIndex] = useState(0);
   const [confirmPin, setConfirmPin] = useState(Array(6).fill(''));
-  const [confirmPinFocusedIndex, setConfirmPinFocusedIndex] = useState(-1);
+  
+  const confirmPinRef = useRef<{ focus: () => void }>(null);
+
 
   const handleSetPin = async () => {
     const pinString = pin.join('');
@@ -160,7 +43,7 @@ export default function SetupSecurityForm() {
         description: 'The PINs you entered do not match. Please try again.',
       });
       setConfirmPin(Array(6).fill(''));
-      setConfirmPinFocusedIndex(0);
+      confirmPinRef.current?.focus();
       return;
     }
     
@@ -202,32 +85,22 @@ export default function SetupSecurityForm() {
     <div className="bg-card/50 backdrop-blur-xl p-8 rounded-2xl border border-border shadow-lg shadow-primary/10 relative z-10">
       <form onSubmit={(e) => { e.preventDefault(); handleSetPin(); }} className="space-y-6">
         <div className="space-y-2">
-            <Label htmlFor="pin-0">Create 6-Character PIN</Label>
+            <Label>Create 6-Character PIN</Label>
             <PinInput 
-                idPrefix="pin" 
                 value={pin} 
                 onChange={setPin}
-                focusedIndex={pinFocusedIndex}
-                onFocusChange={setPinFocusedIndex}
                 onComplete={() => {
-                    setPinFocusedIndex(-1);
-                    setConfirmPinFocusedIndex(0);
+                  confirmPinRef.current?.focus();
                 }}
             />
         </div>
 
         <div className="space-y-2">
-            <Label htmlFor="confirmPin-0">Confirm PIN</Label>
-            <PinInput 
-                idPrefix="confirmPin"
+            <Label>Confirm PIN</Label>
+            <PinInput
+                ref={confirmPinRef}
                 value={confirmPin}
                 onChange={setConfirmPin}
-                focusedIndex={confirmPinFocusedIndex}
-                onFocusChange={setConfirmPinFocusedIndex}
-                blurOnComplete={true}
-                onComplete={() => {
-                    setConfirmPinFocusedIndex(-1);
-                }}
             />
         </div>
         
