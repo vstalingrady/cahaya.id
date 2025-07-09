@@ -6,7 +6,7 @@ import { Send, User, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/components/auth/auth-provider';
 import { getAiChatResponse, getChatSuggestions } from '@/lib/actions';
 import { type ChatMessage } from '@/ai/flows/chat-flow';
@@ -92,21 +92,13 @@ export default function ChatPage() {
   return (
     <div className="flex flex-col h-full w-full max-w-4xl mx-auto animate-fade-in-up">
       <main className="flex-1 flex flex-col min-h-0">
-        <header className="flex-shrink-0 flex items-center justify-between p-2 md:p-4">
-          <h1 className="text-xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Cahaya AI
-          </h1>
-          <Link href="/profile">
-            <Avatar className="w-8 h-8">
-              <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
-              <AvatarFallback>
-                <User className="w-4 h-4" />
-              </AvatarFallback>
-            </Avatar>
-          </Link>
+        <header className="flex items-center relative py-4 flex-shrink-0">
+            <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                Cahaya AI
+            </h1>
         </header>
         
-        <div className="flex-1 flex flex-col mt-4 overflow-hidden">
+        <div className="flex-1 flex flex-col justify-center overflow-hidden">
           {messages.length === 0 && !isLoading ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
               <div className="w-full max-w-3xl">
