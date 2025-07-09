@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { PinInput } from '@/components/ui/pin-input';
@@ -17,7 +17,6 @@ export default function PinEntryPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const formRef = useRef<HTMLFormElement>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -84,7 +83,7 @@ export default function PinEntryPage() {
           </p>
         </div>
 
-        <form ref={formRef} onSubmit={handleSubmit} className="w-full max-w-sm">
+        <form onSubmit={handleSubmit} className="w-full max-w-sm">
           <div className="mb-6">
             <PinInput
                 value={pin}

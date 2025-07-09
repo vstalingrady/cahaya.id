@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -19,8 +19,6 @@ export default function SetupSecurityForm() {
 
   const [pin, setPin] = useState(Array(6).fill(''));
   const [confirmPin, setConfirmPin] = useState(Array(6).fill(''));
-  
-  const confirmPinRef = useRef<HTMLInputElement>(null);
 
 
   const handleSetPin = async () => {
@@ -43,7 +41,6 @@ export default function SetupSecurityForm() {
         description: 'The PINs you entered do not match. Please try again.',
       });
       setConfirmPin(Array(6).fill(''));
-      confirmPinRef.current?.focus();
       return;
     }
     
@@ -95,7 +92,6 @@ export default function SetupSecurityForm() {
         <div className="space-y-2">
             <Label>Confirm PIN</Label>
             <PinInput
-                ref={confirmPinRef}
                 value={confirmPin}
                 onChange={setConfirmPin}
             />

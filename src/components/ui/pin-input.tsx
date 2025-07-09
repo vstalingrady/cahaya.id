@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useRef } from 'react';
+import React from 'react';
 import { cn } from '@/lib/utils';
 
 interface PinInputProps {
@@ -12,73 +11,61 @@ interface PinInputProps {
 
 export const PinInput = React.forwardRef<HTMLInputElement, PinInputProps>(
   ({ value, onChange, pinLength = 6 }, ref) => {
-    const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
-      const entry = e.target.value;
-      if (!/^[a-zA-Z0-9]*$/.test(entry)) return; // Allow only alphanumeric
-
-      const newPin = [...value];
-      newPin[index] = entry.slice(-1); // Take only the last character
-      onChange(newPin);
-
-      // Move to the next input if a character was entered
-      if (entry && index < pinLength - 1) {
-        inputRefs.current[index + 1]?.focus();
+    
+    // Focus the hidden input when the component is clicked.
+    const handleContainerClick = () => {
+      if (ref && typeof ref === 'object' && ref.current) {
+        ref.current.focus();
       }
     };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-      if (e.key === 'Backspace' && !value[index] && index > 0) {
-        // If backspace is pressed on an empty input, move to the previous one
-        inputRefs.current[index - 1]?.focus();
-      }
+    
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      // Sanitize the input to be alphanumeric and of the correct length.
+      const sanitizedValue = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, pinLength);
+      // Pad the array with empty strings to ensure it always has `pinLength` elements.
+      const newPinArray = sanitizedValue.split('').concat(Array(pinLength).fill('')).slice(0, pinLength);
+      onChange(newPinArray);
     };
-
-    const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
-      e.preventDefault();
-      const pastedData = e.clipboardData.getData('text').replace(/[^a-zA-Z0-9]/g, '').slice(0, pinLength);
-      
-      if (pastedData) {
-        const newPin = Array(pinLength).fill('');
-        for (let i = 0; i < pastedData.length; i++) {
-          newPin[i] = pastedData[i];
-        }
-        onChange(newPin);
-        
-        const nextFocusIndex = Math.min(pastedData.length, pinLength - 1);
-        inputRefs.current[nextFocusIndex]?.focus();
-      }
-    };
-
-    // Use the first input as the main ref for the parent component if needed
-    React.useImperativeHandle(ref, () => inputRefs.current[0] as HTMLInputElement);
 
     return (
-      <div className="flex justify-center items-center gap-2 w-full h-14">
-        {Array(pinLength)
-          .fill('')
-          .map((_, index) => (
-            <React.Fragment key={index}>
-              <input
-                ref={(el) => (inputRefs.current[index] = el)}
-                type="password"
-                inputMode="text"
-                value={value[index] || ''}
-                onChange={(e) => handleChange(e, index)}
-                onKeyDown={(e) => handleKeyDown(e, index)}
-                onPaste={handlePaste}
-                maxLength={1}
-                className={cn(
-                  "w-12 h-14 flex items-center justify-center text-center text-xl font-mono border rounded-md transition-all duration-200 bg-input",
-                  "focus:border-primary focus:ring-2 focus:ring-primary/50 focus:shadow-md focus:shadow-primary/20",
-                  value[index] ? 'border-primary/50' : 'border-input'
-                )}
-                autoComplete="one-time-code"
-              />
-              {index === 2 && <div className="w-4 h-1 bg-border rounded-full" />}
-            </React.Fragment>
-          ))}
+      <div 
+        className="relative w-full h-14" 
+        onClick={handleContainerClick}
+      >
+        {/* This is the real input, but it's hidden. */}
+        <input
+          ref={ref}
+          type="text"
+          inputMode="text"
+          value={value.join('')}
+          onChange={handleChange}
+          maxLength={pinLength}
+          autoComplete="one-time-code"
+          className="absolute inset-0 w-full h-full bg-transparent border-0 opacity-0 cursor-pointer"
+        />
+
+        {/* These are the visual boxes for the PIN. */}
+        <div className="flex justify-center items-center gap-2 w-full h-full pointer-events-none">
+          {Array(pinLength)
+            .fill('')
+            .map((_, index) => (
+              <React.Fragment key={index}>
+                <div
+                  className={cn(
+                    "w-12 h-14 flex items-center justify-center text-center text-xl font-mono border-2 rounded-md transition-all duration-200",
+                    // The box is "active" if it's the next one to be typed in.
+                    index === value.filter(Boolean).length ? 'border-primary shadow-md shadow-primary/20' : 'border-input',
+                     // Filled boxes have a different border color.
+                    value[index] ? 'border-primary/50' : 'border-input'
+                  )}
+                >
+                  {/* Display the character or a placeholder dot */}
+                  {value[index] ? <span className="transform -translate-y-1">●</span> : null}
+                </div>
+                {index === 2 && <div className="w-4 h-1 bg-border rounded-full" />}
+              </React.Fragment>
+            ))}
+        </div>
       </div>
     );
   }
