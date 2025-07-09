@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useRef, useImperativeHandle } from 'react';
@@ -9,57 +8,45 @@ interface PinInputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>
   value: string[];
   onChange: (value: string[]) => void;
   pinLength?: number;
-  onComplete?: () => void;
+  onComplete?: (pin: string) => void;
 }
 
 export const PinInput = React.forwardRef<HTMLDivElement, PinInputProps>(
   ({ value, onChange, pinLength = 6, onComplete, className, ...props }, ref) => {
     const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
+    // Expose a 'focus' method to the parent component
     useImperativeHandle(ref, () => ({
       focus: () => {
         inputsRef.current[0]?.focus();
       },
     }));
 
-    const processPinChange = (newPin: string[]) => {
-      onChange(newPin);
-      if (newPin.join('').length === pinLength) {
-        onComplete?.();
-      }
-    };
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+      const entry = e.target.value.slice(-1); // Only take the last character
+      // Basic validation: only allow alphanumeric characters
+      if (!/^[a-zA-Z0-9]$/.test(entry) && entry !== '') return;
 
-    const handleInputChange = (
-      e: React.ChangeEvent<HTMLInputElement>,
-      index: number
-    ) => {
-      // Get the last character typed. This handles overwriting correctly.
-      const char = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(-1); 
-      
       const newPin = [...value];
-      newPin[index] = char;
-      processPinChange(newPin);
-      
+      newPin[index] = entry;
+      onChange(newPin);
+
       // If a character was entered, move to the next input
-      if (char && index < pinLength - 1) {
+      if (entry && index < pinLength - 1) {
         inputsRef.current[index + 1]?.focus();
       }
+      
+      // If all inputs are filled, call onComplete
+      const pinString = newPin.join('');
+      if(pinString.length === pinLength) {
+        onComplete?.(pinString);
+      }
     };
 
-    const handleKeyDown = (
-      e: React.KeyboardEvent<HTMLInputElement>,
-      index: number
-    ) => {
-      if (e.key === 'Backspace') {
-        // If the input is already empty, move focus to the previous input
-        if (!value[index] && index > 0) {
-          inputsRef.current[index - 1]?.focus();
-        } else {
-          // Otherwise, just clear the current input
-          const newPin = [...value];
-          newPin[index] = '';
-          onChange(newPin); // Don't call processPinChange, no onComplete on backspace
-        }
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
+      if (e.key === 'Backspace' && !value[index] && index > 0) {
+        // If backspace is pressed on an empty input, move focus to the previous one
+        inputsRef.current[index - 1]?.focus();
       }
     };
 
@@ -71,10 +58,15 @@ export const PinInput = React.forwardRef<HTMLDivElement, PinInputProps>(
         for (let i = 0; i < Math.min(pinLength, pastedText.length); i++) {
           newPin[i] = pastedText[i];
         }
-        processPinChange(newPin);
+        onChange(newPin);
         
         const nextFocusIndex = Math.min(pastedText.length, pinLength - 1);
         inputsRef.current[nextFocusIndex]?.focus();
+
+        const pinString = newPin.join('');
+        if(pinString.length === pinLength) {
+            onComplete?.(pinString);
+        }
       }
     };
 
@@ -88,8 +80,9 @@ export const PinInput = React.forwardRef<HTMLDivElement, PinInputProps>(
                 ref={(el) => (inputsRef.current[index] = el)}
                 type="password"
                 inputMode="text"
+                maxLength={1} // Important: enforce single character
                 value={value[index]}
-                onChange={(e) => handleInputChange(e, index)}
+                onChange={(e) => handleChange(e, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
                 className="w-12 h-14 text-center text-xl font-mono"
                 autoComplete="one-time-code"
