@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,24 +12,69 @@ import { verifySecurityPin } from '@/lib/actions';
 
 export default function PinEntryPage() {
   const { user } = useAuth();
-  const [pin, setPin] = useState('');
+  const [pin, setPin] = useState(Array(6).fill(''));
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const formRef = useRef<HTMLFormElement>(null);
 
-  const handlePinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    if (value.length <= 6) {
-      setPin(value);
-      setError('');
+  // --- Multi-input component logic ---
+  const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+
+  const handlePinChange = (newPin: string[]) => {
+    setPin(newPin);
+    setError('');
+    // If the PIN is complete, automatically submit the form
+    if (newPin.join('').length === 6) {
+        // Use a tiny timeout to allow the final input to render before submitting
+        setTimeout(() => formRef.current?.requestSubmit(), 0);
     }
   };
+
+  const handleIndividualInputChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
+    const inputValue = e.target.value.replace(/[^a-zA-Z0-9]/g, ''); // Sanitize input
+    const newPin = [...pin];
+
+    // Handle paste within a single input
+    if (inputValue.length > 1) {
+        handlePaste(inputValue, index);
+        return;
+    }
+
+    newPin[index] = inputValue;
+    if (inputValue && index < 5) {
+      inputsRef.current[index + 1]?.focus();
+    }
+    handlePinChange(newPin);
+  };
+  
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (e.key === 'Backspace' && !pin[index] && index > 0) {
+      inputsRef.current[index - 1]?.focus();
+    }
+  };
+
+  const handlePaste = (pastedText: string, startIndex: number = 0) => {
+    const sanitizedValue = pastedText.replace(/[^a-zA-Z0-9]/g, '');
+    const newPin = [...pin];
+    for (let i = 0; i < sanitizedValue.length && i < 6; i++) {
+        const charIndex = startIndex + i;
+        if(charIndex < 6) {
+            newPin[charIndex] = sanitizedValue.charAt(i);
+        }
+    }
+    const nextFocus = Math.min(startIndex + sanitizedValue.length, 5);
+    inputsRef.current[nextFocus]?.focus();
+    handlePinChange(newPin);
+  };
+  // --- End of multi-input logic ---
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    const pinString = pin.join('');
 
     if (!user) {
       setError('User session not found. Please log in again.');
@@ -38,17 +83,16 @@ export default function PinEntryPage() {
       return;
     }
 
-    if (pin.length !== 6) {
+    if (pinString.length !== 6) {
       setError('PIN must be 6 characters.');
       setIsLoading(false);
       return;
     }
 
     try {
-      const result = await verifySecurityPin(user.uid, pin);
+      const result = await verifySecurityPin(user.uid, pinString);
 
       if (result.success) {
-        // Set a session cookie to grant access to the dashboard until browser is closed
         document.cookie = "hasEnteredPin=true; path=/";
         toast({
           title: 'PIN Verified',
@@ -62,6 +106,9 @@ export default function PinEntryPage() {
           description: result.reason || 'Invalid PIN. Please try again.',
           variant: 'destructive',
         });
+        // Clear input on failure
+        setPin(Array(6).fill(''));
+        inputsRef.current[0]?.focus();
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
@@ -90,21 +137,31 @@ export default function PinEntryPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="w-full max-w-xs">
+        <form ref={formRef} onSubmit={handleSubmit} className="w-full max-w-sm">
           <div className="mb-4">
-            <Input
-              type="password"
-              value={pin}
-              onChange={handlePinChange}
-              maxLength={6}
-              className="text-center text-2xl tracking-[0.5em] font-bold h-14"
-              placeholder="••••••"
-              autoFocus
-            />
+            <div className="flex justify-center items-center gap-2" onPaste={(e) => handlePaste(e.clipboardData.getData('text'))}>
+              {Array(6).fill('').map((_, index) => (
+                  <React.Fragment key={index}>
+                    <Input
+                      ref={(el) => (inputsRef.current[index] = el)}
+                      type="password"
+                      value={pin[index] || ''}
+                      onChange={(e) => handleIndividualInputChange(e, index)}
+                      onKeyDown={(e) => handleKeyDown(e, index)}
+                      onFocus={(e) => e.target.select()}
+                      maxLength={1}
+                      className="w-12 h-14 text-center text-xl font-mono"
+                      autoComplete="one-time-code"
+                      autoFocus={index === 0}
+                    />
+                    {index === 2 && <div className="w-4 h-1 bg-border rounded-full" />}
+                  </React.Fragment>
+              ))}
+            </div>
             {error && <p className="text-destructive text-sm mt-2 text-center">{error}</p>}
           </div>
 
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full" disabled={isLoading || pin.join('').length < 6}>
             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Enter'}
           </Button>
         </form>

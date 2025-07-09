@@ -103,20 +103,18 @@ const PinInput = ({
   };
   
   return (
-    <div className="flex justify-between items-center gap-2" onPaste={handleWrapperPaste}>
+    <div className="flex justify-center items-center gap-2" onPaste={handleWrapperPaste}>
       {Array(6)
         .fill('')
         .map((_, index) => {
-            const displayValue = focusedIndex === index ? value[index] : (value[index] ? '●' : '');
-
             return (
               <React.Fragment key={`${idPrefix}-${index}`}>
                 <Input
                   ref={(el) => (inputRefs.current[index] = el)}
                   id={`${idPrefix}-${index}`}
-                  type="text" 
+                  type="password"
                   inputMode="text"
-                  value={displayValue}
+                  value={value[index]}
                   onChange={(e) => handleInputChange(e, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   onFocus={() => onFocusChange(index)}
@@ -124,6 +122,7 @@ const PinInput = ({
                   className="w-12 h-14 text-center text-xl font-mono"
                   autoComplete="one-time-code"
                 />
+                 {index === 2 && <div className="w-4 h-1 bg-border rounded-full" />}
               </React.Fragment>
             )
         })}
