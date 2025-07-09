@@ -161,7 +161,7 @@ export default function WelcomePage() {
             </section>
             
             {/* Slide 8: Sign Up */}
-            <section className="flex-[0_0_100%] min-w-0 flex items-center justify-center p-4">
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start pt-8 pb-4 px-4 overflow-y-auto custom-scrollbar">
                 <WelcomeSignupSlide />
             </section>
 

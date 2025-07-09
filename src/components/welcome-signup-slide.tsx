@@ -24,7 +24,7 @@ export default function WelcomeSignupSlide({ onSignUp, isSigningUp }: { onSignUp
         .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" data-ai-hint={`${f.name} logo`} /> }));
 
     return (
-        <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pb-6 gap-4 overflow-y-auto custom-scrollbar">
+        <div className="w-full flex flex-col items-center justify-start gap-4">
             <div className="w-full max-w-sm mx-auto text-center">
                 <div className="min-h-[180px] flex flex-col items-center justify-center mb-6">
                     <h2 className="text-3xl font-bold font-serif text-primary animate-text-glow">Ready to take control?</h2>
@@ -61,6 +61,6 @@ export default function WelcomeSignupSlide({ onSignUp, isSigningUp }: { onSignUp
             <div className="text-center text-muted-foreground text-xs pt-8">
                 <p>&copy; {new Date().getFullYear()} Semua. All Rights Reserved.</p>
             </div>
-        </section>
+        </div>
     );
 }
