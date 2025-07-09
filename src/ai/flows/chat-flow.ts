@@ -55,7 +55,10 @@ You must be encouraging and provide clear, actionable advice. If you don't know 
 
 Keep your answers concise and easy to understand.
 
-IMPORTANT: This is the first user message in the conversation. You MUST generate a short, descriptive title for the conversation (e.g., "Saving for a Japan Trip", "Understanding Index Funds") and include it in the 'title' field of the output.
+IMPORTANT: This is the first user message in the conversation. You MUST generate a short, descriptive title (3-5 words) for the conversation and include it in the 'title' field of the output.
+
+- If the user's message is a simple greeting like "hi", "hello", or "hey", create a simple title like "Friendly Greeting" or "Chatting with Cahaya".
+- For any other message, summarize the user's intent in the title (e.g., "Saving for a Japan Trip", "Understanding Index Funds").
 
 Chat History:
 {{#each history}}
