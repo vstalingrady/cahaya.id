@@ -22,7 +22,7 @@ export function useAuth() {
   return context;
 }
 
-// Routes accessible to unauthenticated users.
+// Routes accessible to ANY user (logged out or logged in).
 const PUBLIC_ROUTES = [
     '/', 
     '/login', 
@@ -32,13 +32,11 @@ const PUBLIC_ROUTES = [
     '/setup-security', 
     '/terms-of-service',
     '/forgot-password',
-    '/link-account', // Make the entire flow public
+    '/link-account',
     '/mock-ayo-connect',
 ];
-
-// Auth-specific routes that a logged-in user should be redirected away from.
-const AUTH_ROUTES = ['/login', '/signup', '/verify-phone', '/complete-profile', '/setup-security', '/forgot-password'];
-
+// The page where a logged-in user must enter their PIN.
+const PIN_ENTRY_ROUTE = '/enter-pin';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -49,42 +47,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      
       if (currentUser) {
-        handleSignIn(currentUser).catch(error => {
-            console.error("Failed to handle user sign-in:", error);
-        });
+        handleSignIn(currentUser).catch(console.error);
       }
-      
       setLoading(false);
     });
-    
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    if (loading) {
-      return;
-    }
+    if (loading) return;
 
-    const isPublicRoute = PUBLIC_ROUTES.some(route => {
-        if (route === '/') return pathname === '/';
-        return pathname.startsWith(route);
-    });
-
-    const isAuthRoute = AUTH_ROUTES.some(route => pathname.startsWith(route));
-
-    // If the user is logged in...
+    const isPublic = PUBLIC_ROUTES.some(route => pathname.startsWith(route));
+    
+    // If there is a logged-in user...
     if (user) {
-        // ...and they are on an auth page (like /login), redirect them to the next step.
-        if (isAuthRoute) {
-            router.replace('/enter-pin');
+        // ...and they are on a public-only page (like login/signup), redirect them.
+        // This prevents a logged-in user from seeing the signup page again.
+        if (['/login', '/signup', '/verify-phone'].includes(pathname)) {
+             router.replace(PIN_ENTRY_ROUTE);
         }
     } 
-    // If the user is not logged in...
+    // If there is NO logged-in user...
     else {
-        // ...and they are trying to access a protected route, redirect them to login.
-        if (!isPublicRoute) {
+        // ...and they are trying to access a protected page, redirect them to login.
+        if (!isPublic) {
             router.replace('/login');
         }
     }
