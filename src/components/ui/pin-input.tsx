@@ -22,72 +22,64 @@ export const PinInput = React.forwardRef<HTMLDivElement, PinInputProps>(
       },
     }));
 
+    const processPinChange = (newPin: string[]) => {
+      onChange(newPin);
+      if (newPin.join('').length === pinLength) {
+        onComplete?.();
+      }
+    };
+
     const handleInputChange = (
       e: React.ChangeEvent<HTMLInputElement>,
       index: number
     ) => {
-      const { value: inputValue } = e.target;
-      const sanitizedValue = inputValue.replace(/[^a-zA-Z0-9]/g, '');
-
-      if (!sanitizedValue) return;
+      // Get the last character typed. This handles overwriting correctly.
+      const char = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(-1); 
       
       const newPin = [...value];
-
-      if (sanitizedValue.length > 1) { // Handle paste
-          handlePaste(sanitizedValue, index);
-          return;
-      }
+      newPin[index] = char;
+      processPinChange(newPin);
       
-      newPin[index] = sanitizedValue;
-      onChange(newPin);
-
-      if (index < pinLength - 1) {
+      // If a character was entered, move to the next input
+      if (char && index < pinLength - 1) {
         inputsRef.current[index + 1]?.focus();
-      } else if (index === pinLength - 1) {
-        onComplete?.();
       }
     };
-    
+
     const handleKeyDown = (
       e: React.KeyboardEvent<HTMLInputElement>,
       index: number
     ) => {
-      if (e.key === 'Backspace' && !value[index] && index > 0) {
-        inputsRef.current[index - 1]?.focus();
-      } else if (e.key === 'Backspace' && value[index]) {
-        const newPin = [...value];
-        newPin[index] = '';
-        onChange(newPin);
+      if (e.key === 'Backspace') {
+        // If the input is already empty, move focus to the previous input
+        if (!value[index] && index > 0) {
+          inputsRef.current[index - 1]?.focus();
+        } else {
+          // Otherwise, just clear the current input
+          const newPin = [...value];
+          newPin[index] = '';
+          onChange(newPin); // Don't call processPinChange, no onComplete on backspace
+        }
       }
     };
 
-    const handlePaste = (pastedValue: string, startIndex: number) => {
-        const sanitizedValue = pastedValue.replace(/[^a-zA-Z0-9]/g, '');
-        const newPin = [...value];
+    const handlePaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      const pastedText = e.clipboardData.getData('text').replace(/[^a-zA-Z0-9]/g, '');
+      if (pastedText) {
+        const newPin = Array(pinLength).fill('');
+        for (let i = 0; i < Math.min(pinLength, pastedText.length); i++) {
+          newPin[i] = pastedText[i];
+        }
+        processPinChange(newPin);
         
-        for (let i = 0; i < sanitizedValue.length && startIndex + i < pinLength; i++) {
-            newPin[startIndex + i] = sanitizedValue.charAt(i);
-        }
-        onChange(newPin);
-    
-        const newFocusIndex = Math.min(startIndex + sanitizedValue.length, pinLength - 1);
-        inputsRef.current[newFocusIndex]?.focus();
-
-        if (newPin.join('').length === pinLength) {
-            onComplete?.();
-        }
+        const nextFocusIndex = Math.min(pastedText.length, pinLength - 1);
+        inputsRef.current[nextFocusIndex]?.focus();
+      }
     };
 
-    const handleWrapperPaste = (e: React.ClipboardEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        const pastedText = e.clipboardData.getData('text');
-        const activeInput = document.activeElement as HTMLInputElement;
-        const activeIndex = inputsRef.current.indexOf(activeInput);
-        handlePaste(pastedText, activeIndex >= 0 ? activeIndex : 0);
-    }
-
     return (
-      <div className={cn("flex justify-center items-center gap-2", className)} onPaste={handleWrapperPaste} ref={ref}>
+      <div className={cn("flex justify-center items-center gap-2", className)} ref={ref} onPaste={handlePaste}>
         {Array(pinLength)
           .fill('')
           .map((_, index) => (
