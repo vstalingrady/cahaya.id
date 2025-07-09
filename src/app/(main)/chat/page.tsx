@@ -91,7 +91,7 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-full max-h-[calc(100vh-4rem)] w-full max-w-4xl mx-auto animate-fade-in-up">
+    <div className="flex flex-col h-full w-full max-w-4xl mx-auto animate-fade-in-up">
        <header className="flex items-center justify-between p-2 md:p-4">
         <h1 className="text-xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Cahaya AI
@@ -106,16 +106,16 @@ export default function ChatPage() {
         </Link>
       </header>
       
-      <Tabs defaultValue="chat" className="flex-1 flex flex-col">
+      <Tabs defaultValue="chat" className="flex-1 flex flex-col min-h-0">
         <TabsList className="grid w-full grid-cols-2 bg-card border-border mx-auto max-w-sm">
             <TabsTrigger value="chat">Chat</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="chat" className="flex-1 flex flex-col mt-4 overflow-hidden">
-            <main className="flex-1 flex flex-col items-center justify-start text-center pb-4 pt-12">
+            <div className="flex-1 flex flex-col items-center justify-start text-center pb-4 min-h-0">
                 {messages.length === 0 && !isLoading && (
-                <div className="text-center w-full px-4">
+                <div className="text-center w-full px-4 pt-12">
                     <h2 className="text-5xl md:text-6xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent pb-2">
                     Ask me anything.
                     </h2>
@@ -183,7 +183,7 @@ export default function ChatPage() {
                     )}
                 </div>
                 </ScrollArea>
-            </main>
+            </div>
         </TabsContent>
         <TabsContent value="history" className="flex-1 flex flex-col mt-4">
             <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
