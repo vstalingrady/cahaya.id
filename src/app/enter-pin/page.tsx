@@ -25,11 +25,6 @@ export default function PinEntryPage() {
   const handlePinChange = (newPin: string[]) => {
     setPin(newPin);
     setError('');
-    // If the PIN is complete, automatically submit the form
-    if (newPin.join('').length === 6) {
-        // Use a tiny timeout to allow the final input to render before submitting
-        setTimeout(() => formRef.current?.requestSubmit(), 0);
-    }
   };
 
   const handleIndividualInputChange = (e: ChangeEvent<HTMLInputElement>, index: number) => {
