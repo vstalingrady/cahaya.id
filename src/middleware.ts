@@ -7,6 +7,14 @@ export function middleware(request: NextRequest) {
   const isLoggedIn = request.cookies.get('isLoggedIn')?.value === 'true'
   const hasEnteredPin = request.cookies.get('hasEnteredPin')?.value === 'true'
 
+  const onLoginPage = pathname === '/login';
+
+  // If user is logged in and tries to access the login page, redirect them.
+  // This is the key fix for the Google Sign-In issue.
+  if (isLoggedIn && onLoginPage) {
+    return NextResponse.redirect(new URL('/enter-pin', request.url));
+  }
+
   // If trying to access a protected area (dashboard or sub-pages)
   if (pathname.startsWith('/dashboard')) {
     if (!isLoggedIn) {
@@ -27,10 +35,6 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
-
-  // NOTE: The redirect for logged-in users on the /login page has been removed.
-  // The client-side logic in the LoginForm component now handles this redirection,
-  // preventing a redirect loop between the middleware and the client.
 
   return NextResponse.next()
 }
