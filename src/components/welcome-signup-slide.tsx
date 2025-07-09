@@ -33,7 +33,7 @@ export default function WelcomeSignupSlide() {
                 </div>
 
                 <div className="space-y-3 mb-8">
-                    <InfiniteLogoScroller institutions={partnersRow1} speed="normal" direction="forward" />
+                    <InfiniteLogoScroller institutions={partnersRow1} speed="slow" direction="reverse" />
                     <InfiniteLogoScroller institutions={partnersRow2} speed="slow" direction="reverse" />
                     <InfiniteLogoScroller institutions={partnersRow3} speed="slow" direction="forward" />
                 </div>

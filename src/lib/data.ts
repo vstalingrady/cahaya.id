@@ -161,3 +161,7 @@ export const financialInstitutions: FinancialInstitution[] = [
   { id: 'spotify', slug: 'spotify', name: 'Spotify', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Spotify_logo_with_text.svg/2560px-Spotify_logo_with_text.svg.png', type: 'other' },
   { id: 'steam', slug: 'steam', name: 'Steam', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/83/Steam_icon_logo.svg/2048px-Steam_icon_logo.svg.png', type: 'other' },
 ];
+
+export const partnersRow1 = financialInstitutions.slice(0, 10);
+export const partnersRow2 = financialInstitutions.slice(10, 20);
+export const partnersRow3 = financialInstitutions.slice(20, 30);
