@@ -8,19 +8,20 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/components/auth/auth-provider';
-import { getAiChatResponse, getChatSuggestions, getChatHistoryList, getChatSessionMessages } from '@/lib/actions';
+import { getAiChatResponse, getChatHistoryList, getChatSessionMessages } from '@/lib/actions';
+import { getChatSuggestions } from '@/lib/data';
 import { type ChatMessage } from '@/ai/flows/chat-flow';
-import { type ChatSession } from '@/lib/data';
+import { type ChatSession, type ChatSuggestion } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import GeminiLogo from '@/components/icons/GeminiLogo';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { formatDistanceToNow } from 'date-fns';
 
-const defaultSuggestionChips = [
-    { text: "Help me budget for a trip to Japan" },
-    { text: "What are some ways to save on groceries?" },
-    { text: "Explain compound interest like I'm 5" },
+const defaultSuggestionChips: ChatSuggestion[] = [
+    { suggestion: "Help me budget for a trip to Japan" },
+    { suggestion: "What are some ways to save on groceries?" },
+    { suggestion: "Explain compound interest like I'm 5" },
 ];
 
 export default function ChatPage() {
@@ -33,7 +34,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   
   // Suggestions state
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<ChatSuggestion[]>([]);
   const [isSuggestionsLoading, setIsSuggestionsLoading] = useState(true);
 
   // History state
@@ -55,21 +56,20 @@ export default function ChatPage() {
   
   // Fetch starter suggestions on initial load
   useEffect(() => {
-    if (!user) return;
     async function fetchSuggestions() {
       setIsSuggestionsLoading(true);
       try {
-        const result = await getChatSuggestions(user.uid);
-        setSuggestions(result.length > 0 ? result : defaultSuggestionChips.map(c => c.text));
+        const result = await getChatSuggestions();
+        setSuggestions(result.length > 0 ? result : defaultSuggestionChips);
       } catch (error) {
         console.error("Failed to fetch suggestions:", error);
-        setSuggestions(defaultSuggestionChips.map(c => c.text));
+        setSuggestions(defaultSuggestionChips);
       } finally {
         setIsSuggestionsLoading(false);
       }
     }
     fetchSuggestions();
-  }, [user]);
+  }, []);
 
   // Fetch chat history
   const fetchHistory = useCallback(async () => {
@@ -202,9 +202,9 @@ export default function ChatPage() {
                             <Skeleton key={i} className="h-14 w-full" />
                         ))
                     ) : (
-                        suggestions.map((text, i) => (
-                            <Button key={i} variant="secondary" className="h-auto text-left py-3 whitespace-normal" onClick={() => handleSuggestionClick(text)}>
-                                {text}
+                        suggestions.map((suggestion, i) => (
+                            <Button key={i} variant="secondary" className="h-auto text-left py-3 whitespace-normal" onClick={() => handleSuggestionClick(suggestion.suggestion)}>
+                                {suggestion.suggestion}
                             </Button>
                         ))
                     )}

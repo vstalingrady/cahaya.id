@@ -1,5 +1,5 @@
 
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
+import { collection, getDocs, query, orderBy, limit, addDoc, serverTimestamp, writeBatch, doc, getDoc, deleteDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
 export async function getLoginHistory(userId: string) {
@@ -102,6 +102,89 @@ export type ChatSession = {
   title: string;
   lastUpdated: any; // Firestore Timestamp
 };
+
+export type ChatSuggestion = {
+    id?: string;
+    suggestion: string;
+};
+
+const suggestionTemplates = [
+    "What's a good budgeting method for beginners?",
+    "How can I start saving money effectively?",
+    "Explain compound interest in simple terms.",
+    "What are some common financial mistakes to avoid?",
+    "How can I improve my credit score?",
+    "What's the difference between a savings and a checking account?",
+    "How do I create a budget that works for me?",
+    "What are some ways to reduce my monthly expenses?",
+    "How much should I have in my emergency fund?",
+    "What are the benefits of using a high-yield savings account?",
+    "How can I start investing with a small amount of money?",
+    "What is a good debt-to-income ratio?",
+    "How can I protect myself from identity theft?",
+    "What should I know before taking out a personal loan?",
+    "How can I teach my kids about financial literacy?"
+];
+
+// This function preloads 15 suggestions into the database.
+// It is designed to be idempotent and safe from race conditions.
+export async function preloadChatSuggestions() {
+    const metaRef = doc(db, 'chat_suggestions', '_meta');
+    const metaSnap = await getDoc(metaRef);
+
+    // If the meta document exists, it means we've already seeded.
+    if (metaSnap.exists()) {
+        return;
+    }
+
+    // Use a batch to write all documents atomically.
+    const batch = writeBatch(db);
+
+    // Add each suggestion from the template array.
+    for (const suggestionText of suggestionTemplates) {
+        // Create a new document reference with an auto-generated ID.
+        const suggestionRef = doc(collection(db, 'chat_suggestions'));
+        batch.set(suggestionRef, {
+            suggestion: suggestionText,
+            createdAt: serverTimestamp()
+        });
+    }
+
+    // Add the meta document to prevent this function from running again.
+    batch.set(metaRef, { seededAt: serverTimestamp() });
+
+    await batch.commit();
+    console.log("Chat suggestions have been successfully seeded.");
+}
+
+// This function fetches a rotating list of 3 suggestions.
+export async function getChatSuggestions(limitCount = 3): Promise<ChatSuggestion[]> {
+    await preloadChatSuggestions(); // This is now safe to call every time.
+
+    const suggestionsCollection = collection(db, 'chat_suggestions');
+    // Rotate suggestions daily. A simple way is to use the day of the year.
+    const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+    
+    // We fetch all suggestions to perform client-side rotation.
+    // For very large collections, a more advanced pagination/offset strategy would be needed.
+    const q = query(suggestionsCollection, orderBy('createdAt'));
+    const querySnapshot = await getDocs(q);
+
+    const allSuggestions = querySnapshot.docs
+        .filter(doc => doc.id !== '_meta') // Exclude the meta document
+        .map(doc => ({ id: doc.id, ...doc.data() } as ChatSuggestion));
+
+    if (allSuggestions.length === 0) return [];
+    
+    const offset = (dayOfYear * limitCount) % allSuggestions.length;
+
+    const rotatedSuggestions = [];
+    for(let i=0; i<limitCount; i++) {
+        rotatedSuggestions.push(allSuggestions[(offset + i) % allSuggestions.length]);
+    }
+
+    return rotatedSuggestions;
+}
 
 
 export const financialInstitutions: FinancialInstitution[] = [
