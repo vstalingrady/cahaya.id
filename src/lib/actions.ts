@@ -73,6 +73,25 @@ const formatCurrency = (value: number) =>
 // ---- User Profile & Onboarding Actions ----
 
 /**
+ * Checks if a user has completed the onboarding process (i.e., set a PIN).
+ * @param userId The UID of the user to check.
+ * @returns An object indicating if onboarding is complete.
+ */
+export async function checkUserOnboardingStatus(userId: string): Promise<{ onboardingComplete: boolean }> {
+  const userRef = doc(db, 'users', userId);
+  const docSnap = await getDoc(userRef);
+
+  if (docSnap.exists()) {
+    const userData = docSnap.data();
+    // A user is considered onboarded if they have a hashedPin or the flag is explicitly true.
+    return { onboardingComplete: !!userData.hashedPin || userData.hasCompletedOnboarding === true };
+  }
+  
+  // If the user document doesn't exist yet (race condition), assume not onboarded.
+  return { onboardingComplete: false };
+}
+
+/**
  * Creates a new user profile in Firestore. This is called during the final
  * step of the sign-up process.
  *

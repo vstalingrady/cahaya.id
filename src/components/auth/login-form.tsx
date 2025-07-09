@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, type User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Mail, Lock } from 'lucide-react';
 import { FaGoogle } from 'react-icons/fa';
 import { Separator } from '@/components/ui/separator';
+import { checkUserOnboardingStatus } from '@/lib/actions';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -24,12 +25,21 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSocialLoading, setIsSocialLoading] = useState(false);
 
+  const handleAuthSuccess = async (user: User) => {
+    const { onboardingComplete } = await checkUserOnboardingStatus(user.uid);
+    document.cookie = "isLoggedIn=true; path=/; max-age=86400";
+    if (onboardingComplete) {
+      router.push('/enter-pin');
+    } else {
+      router.push('/setup-security');
+    }
+  };
+
   const handleSocialSignIn = async (provider: GoogleAuthProvider) => {
     setIsSocialLoading(true);
     try {
-      await signInWithPopup(auth, provider);
-      document.cookie = "isLoggedIn=true; path=/; max-age=86400"; // Expires in 24 hours
-      router.push('/enter-pin');
+      const result = await signInWithPopup(auth, provider);
+      await handleAuthSuccess(result.user);
     } catch (error: any) {
       console.error("Social Sign-In Error:", { code: error.code, message: error.message });
       toast({
@@ -46,9 +56,8 @@ export default function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      document.cookie = "isLoggedIn=true; path=/; max-age=86400"; // Expires in 24 hours
-      router.push('/enter-pin');
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      await handleAuthSuccess(result.user);
     } catch (error: any) {
       let errorMessage = "An unexpected error occurred. Please try again.";
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
