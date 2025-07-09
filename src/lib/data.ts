@@ -89,12 +89,13 @@ export type FavoriteTransaction = {
 };
 
 export type FinancialInstitution = {
-  id: string;
+  id:string;
   slug: string;
   name: string;
   logoUrl: string;
   type: 'bank' | 'e-wallet' | 'investment' | 'loan' | 'other';
 };
+
 
 export const financialInstitutions: FinancialInstitution[] = [
   // Major National Banks

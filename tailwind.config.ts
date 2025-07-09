@@ -1,4 +1,3 @@
-
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -135,6 +134,14 @@ export default {
             'box-shadow': '0 0 20px 5px hsl(var(--primary) / 0.4)',
           },
         },
+        'text-glow': {
+          '0%, 100%': { 
+            'text-shadow': '0 0 5px hsl(var(--primary) / 0.5), 0 0 10px hsl(var(--primary) / 0.3), 0 0 15px hsl(var(--primary) / 0.2)',
+          },
+          '50%': { 
+            'text-shadow': '0 0 10px hsl(var(--primary) / 0.7), 0 0 20px hsl(var(--primary) / 0.5), 0 0 30px hsl(var(--primary) / 0.3)',
+           },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
@@ -150,6 +157,7 @@ export default {
         'scroll-right': 'scroll-right var(--animation-duration) linear infinite',
         'biometric-scan': 'biometric-scan 3s ease-in-out infinite',
         'slow-pulse': 'slow-pulse 4s ease-in-out infinite',
+        'text-glow': 'text-glow 3s ease-in-out infinite alternate',
       },
     },
   },

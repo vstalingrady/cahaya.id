@@ -2,8 +2,8 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { BarChart2, Zap, PiggyBank, Sparkles, ClipboardList, ShieldCheck } from 'lucide-react';
-import CahayaLogo from '@/components/icons/cuanlogo';
 import WelcomeDashboardMockup from '@/components/welcome-dashboard-mockup';
 import WelcomePaymentMockup from '@/components/welcome-payment-mockup';
 import WelcomeInsightsMockup from '@/components/welcome-insights-mockup';
@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 export default function WelcomePage() {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const router = useRouter();
 
   const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
     if (!emblaApi) return;
@@ -37,6 +38,11 @@ export default function WelcomePage() {
   }, [emblaApi, onSelect]);
 
   const numSlides = 8;
+  const isLastSlide = selectedIndex === numSlides - 1;
+
+  const handleSignUpClick = useCallback(() => {
+    router.push('/signup');
+  }, [router]);
 
   return (
     <div className="relative min-h-screen w-full bg-background text-foreground overflow-hidden">
@@ -44,9 +50,15 @@ export default function WelcomePage() {
       <div className="absolute inset-x-0 top-[-80px] -z-10 h-[300px] w-full bg-background has-glowing-dots-glow" />
       
       <div className="w-full max-w-md mx-auto h-screen flex flex-col">
-        <header className="p-4 z-50 flex-shrink-0">
+        <header 
+          className="p-4 z-50 flex-shrink-0 transition-all duration-500 ease-in-out"
+          style={{
+            transform: isLastSlide ? 'translateY(-150%)' : 'translateY(0)',
+            opacity: isLastSlide ? 0 : 1,
+          }}
+        >
           <div className="w-full flex justify-between items-center">
-            <CahayaLogo className="w-32 h-auto" />
+            <div className="w-32 h-auto font-bold text-2xl text-primary font-serif">Semua</div>
             <div className="flex items-center gap-2">
               <Button variant="ghost" asChild>
                 <Link href="/login">Log In</Link>
@@ -71,7 +83,7 @@ export default function WelcomePage() {
                         </span>
                     </h1>
                     <p className="text-base text-muted-foreground">
-                        Cahaya securely connects to all your accounts, giving you a complete financial overview and AI-powered insights to grow your wealth.
+                        Semua securely connects to all your accounts, giving you a complete financial overview and AI-powered insights to grow your wealth.
                     </p>
                 </div>
             </section>
@@ -153,7 +165,9 @@ export default function WelcomePage() {
             </section>
             
             {/* Slide 8: Sign Up */}
-            <WelcomeSignupSlide />
+            <section className="flex-[0_0_100%] min-w-0 flex items-center justify-center p-4">
+                <WelcomeSignupSlide onSignUp={handleSignUpClick} isSigningUp={false} />
+            </section>
 
           </div>
         </div>

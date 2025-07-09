@@ -1,739 +1,695 @@
-
+/**
+ * @file This file contains the server-side actions for the application.
+ * It follows the React Server Actions pattern, allowing client components
+ * to invoke these functions directly on the server.
+ *
+ * It also serves as the interface between the frontend and the Genkit AI flows,
+ * ensuring that all AI-related logic is handled securely on the server.
+ */
 'use server';
 
-import { personalizedSavingSuggestions, PersonalizedSavingSuggestionsOutput } from "@/ai/flows/saving-opportunities";
-import { budgetAnalysis, BudgetAnalysisOutput } from "@/ai/flows/budget-analysis";
-import { discoverRecurringBills, BillDiscoveryOutput } from "@/ai/flows/bill-discovery";
-import { getAiChatResponse as getAiChatResponseFlow, type ChatMessage } from "@/ai/flows/chat-flow";
-import {
-  type Transaction,
-  type Account,
-  type Budget,
-  type Vault,
-  type Beneficiary,
-  type FavoriteTransaction,
-  financialInstitutions,
-} from "./data";
-import {
-  accounts as seedAccounts,
-  transactions as seedTransactions,
-  beneficiaries as seedBeneficiaries,
-  budgets as seedBudgets,
-  vaults as seedVaults,
-  favoriteTransactions as seedFavoriteTransactions,
+import { 
+    billDiscoveryFlow, 
+    budgetAnalysisFlow, 
+    getAiChatResponseFlow, 
+    savingOpportunitiesFlow, 
+    spendingAnalysisFlow,
+    verifyPinFlow,
+} from '@/ai/genkit';
+import { db, auth } from './firebase';
+import { 
+    collection, 
+    doc, 
+    getDoc, 
+    setDoc, 
+    updateDoc,
+    query,
+    where,
+    getDocs,
+    writeBatch,
+    Timestamp,
+    deleteDoc,
+    orderBy,
+    limit,
+    addDoc,
+} from 'firebase/firestore';
+import { 
+    Account, 
+    Transaction, 
+    Vault, 
+    Beneficiary, 
+    Budget, 
+    FavoriteTransaction,
+    FinancialInstitution,
+    CryptoHolding
+} from './data';
+import { 
+    accounts as seedAccounts, 
+    transactions as seedTransactions, 
+    vaults as seedVaults,
+    beneficiaries as seedBeneficiaries,
+    budgets as seedBudgets,
+    favoriteTransactions as seedFavorites,
+    financialInstitutions as seedInstitutions
 } from './data-seed';
-import { encrypt, decrypt } from './crypto';
-import { isWithinInterval, format } from 'date-fns';
-import { z } from 'zod';
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { auth, db } from './firebase';
-import { updateProfile, type User } from "firebase/auth";
-import { doc, setDoc, getDoc, deleteDoc, collection, writeBatch, getDocs, addDoc, query, where, updateDoc, orderBy, limit } from "firebase/firestore";
-import { headers } from 'next/headers';
-import { db as mockApiDb } from './mock-api-db';
-import { type MockTransaction } from './mock-api-db';
 
+import { revalidatePath } from 'next/cache';
+
+// ---- User Profile & Onboarding Actions ----
 
 /**
- * Seeds initial data for a new user in Firestore.
+ * Creates a new user profile in Firestore. This is called during the final
+ * step of the sign-up process.
+ * 
+ * @param {string} userId - The user's UID from Firebase Auth.
+ * @param {string} fullName - The user's full name.
+ * @param {string} email - The user's email address.
+ * @param {string} phoneNumber - The user's phone number.
+ * @returns {Promise<{success: boolean, error?: string}>} - The result of the operation.
  */
-async function seedInitialDataForUser(uid: string) {
+export async function completeUserProfile(
+  userId: string, 
+  fullName: string, 
+  email: string | null,
+  phoneNumber: string | null
+): Promise<{ success: boolean; error?: string }> {
   try {
-    const batch = writeBatch(db);
+    const userRef = doc(db, 'users', userId);
+    await setDoc(userRef, {
+      uid: userId,
+      fullName,
+      email,
+      phoneNumber,
+      createdAt: Timestamp.now(),
+      hasCompletedOnboarding: false,
+    }, { merge: true });
 
-    // Seed Accounts
-    seedAccounts.forEach(account => {
-      const accountDocRef = doc(db, 'users', uid, 'accounts', account.id);
-      batch.set(accountDocRef, account);
-    });
-
-    // Seed Transactions
-    seedTransactions.forEach(transaction => {
-      const transactionDocRef = doc(db, 'users', uid, 'transactions', transaction.id);
-      batch.set(transactionDocRef, transaction);
-    });
-
-    // Seed Budgets
-    seedBudgets.forEach(budget => {
-        const budgetDocRef = doc(db, 'users', uid, 'budgets', budget.id);
-        batch.set(budgetDocRef, budget);
-    });
-
-    // Seed Vaults
-    seedVaults.forEach(vault => {
-        const vaultDocRef = doc(db, 'users',uid, 'vaults', vault.id);
-        batch.set(vaultDocRef, vault);
-    });
-
-    // Seed Beneficiaries
-    seedBeneficiaries.forEach(beneficiary => {
-        const beneficiaryDocRef = doc(db, 'users', uid, 'beneficiaries', beneficiary.id);
-        batch.set(beneficiaryDocRef, beneficiary);
-    });
-
-    // Seed Favorite Transactions
-    seedFavoriteTransactions.forEach(favorite => {
-        const favoriteDocRef = doc(db, 'users', uid, 'favorites', favorite.id);
-        batch.set(favoriteDocRef, favorite);
-    });
-
-    await batch.commit();
-    console.log(`Successfully seeded initial data for user ${uid}`);
+    return { success: true };
   } catch (error) {
-    console.error('Error seeding initial data for user:', error);
+    console.error("Error completing user profile:", error);
+    return { success: false, error: "Failed to save user profile." };
   }
 }
 
 /**
- * An exported server action that seeds data for a new user. It includes a check
- * to prevent accidentally overwriting existing data.
- * @param {string} uid The user's unique ID.
+ * Sets the user's 6-digit PIN for app access and transaction authorization.
+ * 
+ * @param {string} userId - The user's UID.
+ * @param {string} pin - The 6-digit PIN.
+ * @returns {Promise<{success: boolean, error?: string}>} - The result of the operation.
  */
-export async function seedNewUserData(uid: string) {
-    if (!uid) return;
-    // Check if data already exists to prevent accidental overwrites.
-    const accountsColRef = collection(db, 'users', uid, 'accounts');
-    const accountsSnapshot = await getDocs(query(accountsColRef, limit(1)));
-    if (!accountsSnapshot.empty) {
-        console.log(`Data already exists for user ${uid}. Skipping seed.`);
-        return;
-    }
-    await seedInitialDataForUser(uid);
-}
-
-
-/**
- * Checks if a user has data in Firestore subcollections, and if not, seeds it.
- * This ensures that users who log in but didn't complete the signup flow
- * still get their initial account and transaction data.
- * @param {string} uid - The user's unique ID.
- */
-export async function ensureUserData(uid: string) {
-    if (!uid) return;
-    try {
-        const accountsColRef = collection(db, 'users', uid, 'accounts');
-        // Check if the accounts collection is empty
-        const accountsSnapshot = await getDocs(query(accountsColRef, limit(1)));
-        
-        if (accountsSnapshot.empty) {
-            console.log(`User ${uid} is missing account data. Seeding now...`);
-            await seedInitialDataForUser(uid);
-            console.log(`Data seeding complete for user ${uid}.`);
-            // Revalidate the dashboard path to ensure the client gets the new data
-            revalidatePath('/dashboard');
-        }
-    } catch (error) {
-        console.error(`Error ensuring user data for ${uid}:`, error);
-        // We don't rethrow the error, as we don't want to break the login flow.
-        // The user will see an empty dashboard, but it won't crash the app.
-    }
-}
-
-/**
- * A server action to create or update a user's document in Firestore.
- * This is the single source of truth for syncing profile information.
- * @param uid The user's ID.
- * @param data An object with the user's full name, email, photo URL, and phone.
- */
-export async function syncUserDocument(uid: string, data: { fullName: string; email: string; photoURL: string | null; phone: string; }) {
-  if (!uid) {
-    throw new Error("User ID is required to sync document.");
-  }
+export async function setSecurityPin(
+  userId: string,
+  pin: string
+): Promise<{ success: boolean; error?: string }> {
   try {
-    const userDocRef = doc(db, "users", uid);
-    const docSnap = await getDoc(userDocRef);
-    
-    const dataToSet: any = {
-      uid: uid,
-      fullName: data.fullName,
-      email: data.email,
-      phone: data.phone,
-    };
-    if (data.photoURL) {
-      dataToSet.photoURL = data.photoURL;
-    }
-
-    if (!docSnap.exists()) {
-      dataToSet.createdAt = new Date();
-    }
-    
-    await setDoc(userDocRef, dataToSet, { merge: true });
-    console.log(`[Action:syncUserDocument] User document for ${uid} successfully synced.`);
-  } catch (error) {
-    console.error("Error syncing user document:", error);
-    throw new Error("Could not sync user profile to database.");
-  }
-}
-
-
-export async function handleSignIn(user: User) {
-  if (!user || !user.uid) return;
-  
-  const dataToSync = {
-      fullName: user.displayName || 'New User',
-      email: user.email || 'no-email@example.com',
-      photoURL: user.photoURL || null,
-      phone: user.phoneNumber || ''
-  };
-  
-  await syncUserDocument(user.uid, dataToSync);
-  await ensureUserData(user.uid);
-};
-
-export async function completeUserProfile(uid: string, fullName: string, email: string, phone: string) {
-  console.log(`[Cahaya Debug] completeUserProfile action called with:`, { uid, fullName, email, phone });
-  await syncUserDocument(uid, { fullName, email, photoURL: null, phone });
-  await seedNewUserData(uid);
-}
-
-export async function setSecurityPin(uid: string, pin: string) {
-  if (!uid || !pin) {
-    throw new Error("User ID and PIN are required.");
-  }
-  const trimmedPin = pin.trim();
-  if (trimmedPin.length !== 6) {
-    throw new Error("PIN must be 6 characters.");
-  }
-  try {
-    const userDocRef = doc(db, "users", uid);
-    const encryptedPinData = await encrypt(trimmedPin);
-    await setDoc(userDocRef, { securityPinData: encryptedPinData }, { merge: true });
-    console.log(`Successfully set and encrypted PIN for user ${uid}`);
-  } catch (error: any) {
-    console.error("Error setting security PIN:", error);
-    // Provide a more specific error message for the most likely cause.
-    if (error.message && error.message.includes('ENCRYPTION_KEY')) {
-        throw new Error("PIN setup failed: The server's ENCRYPTION_KEY is missing or invalid. Please ensure it is set correctly in your .env file and is 32 characters long.");
-    }
-    throw new Error("Could not set security PIN.");
-  }
-}
-
-export async function verifySecurityPin(uid: string, pin: string): Promise<{ success: boolean, reason?: string }> {
-  console.log(`Verifying PIN for user: ${uid}`);
-  if (!uid || !pin) {
-    console.log("Verification failed: Missing UID or PIN.");
-    return { success: false, reason: "Missing information. Please try again." };
-  }
-
-  const sanitizedPin = pin.trim();
-  if (sanitizedPin.length !== 6) {
-    return { success: false, reason: "PIN must be 6 characters." };
-  }
-
-  try {
-    const userDocRef = doc(db, "users", uid);
-    const userDoc = await getDoc(userDocRef);
-
-    if (userDoc.exists()) {
-      const storedData = userDoc.data();
-      const storedPinData = storedData.securityPinData;
-
-      if (!storedPinData || !storedPinData.iv || !storedPinData.encrypted) {
-        console.log(`Verification failed: No encrypted PIN data found for user ${uid}.`);
-        return { success: false, reason: "No PIN has been set up for this account. Please try again." };
-      }
-      
-      let decryptedPin;
-      try {
-        decryptedPin = await decrypt(storedPinData);
-      } catch (e: any) {
-          console.error("PIN Decryption failed for user:", uid, e);
-          if (e.message && e.message.includes('ENCRYPTION_KEY')) {
-              return { success: false, reason: "PIN verification failed: The server's ENCRYPTION_KEY is missing or has changed." };
-          }
-          return { success: false, reason: "Failed to verify PIN due to a security error."};
-      }
-      
-      if (sanitizedPin === decryptedPin) {
-        console.log(`Verification successful for user ${uid}.`);
-        return { success: true };
-      } else {
-        console.log(`Verification failed: PIN mismatch for user ${uid}.`);
-        return { success: false, reason: "Invalid PIN. Please try again." };
-      }
-    } else {
-      console.log(`Verification failed: User document not found for UID ${uid}.`);
-      return { success: false, reason: "User account not found." };
-    }
-  } catch (databaseError) {
-    console.error("Failed to check PIN due to database issue:", databaseError);
-    return { success: false, reason: "A database error occurred. Please try again later." };
-  }
-}
-
-
-/**
- * Exchanges a public token from a third-party service (like a bank connection API)
- * for a secure access token. This is part of a simulated OAuth-like flow.
- * @param {string} publicToken - The temporary public token to be exchanged.
- * @returns {Promise<{accessToken?: string, error?: string}>} An object with either the access token or an error message.
- */
-export async function exchangePublicToken(publicToken: string | null) {
-  if (!publicToken) {
-    return { error: 'Invalid public token provided.' };
-  }
-
-  try {
-    // In a real app, you'd make a POST request to the third-party API here.
-    // For this prototype, we use our mock database.
-    const tokenInfo = mockApiDb.exchangePublicToken(publicToken);
-    if (tokenInfo.error) {
-      return { error: 'The public token is invalid or expired.' };
-    }
-    return { accessToken: tokenInfo.access_token };
-  } catch (error) {
-    console.error("[Server Action exchangePublicToken] Error:", error);
-    return { error: 'An internal server error occurred.' };
-  }
-}
-
-/**
- * Fetches accounts and transactions from a mock provider using an access token,
- * transforms the data, and saves it to the user's Firestore database.
- * @param {string} userId - The current user's UID.
- * @param {string} accessToken - The access token from the mock provider.
- * @returns {Promise<{success: boolean, accountsAdded?: number, error?: string}>} Result of the sync operation.
- */
-export async function syncAccountsFromProvider(userId: string, accessToken: string) {
-  try {
-    if (!userId || !accessToken) {
-      throw new Error("User ID and Access Token are required.");
-    }
-    // 1. Use accessToken to get user info from mock API
-    const tokenInfo = mockApiDb.getUserByAccessToken(accessToken);
-    if (!tokenInfo) {
-      return { success: false, error: 'Invalid access token' };
-    }
-
-    // 2. Fetch all accounts and transactions belonging to the user from the mock provider
-    const providerAccounts = mockApiDb.accounts.filter(acc => tokenInfo.accounts.includes(acc.account_id));
-    const providerTransactions: MockTransaction[] = [];
-    
-    for (const acc of providerAccounts) {
-      const txns = mockApiDb.transactions.filter(t => t.account_id === acc.account_id);
-      providerTransactions.push(...txns);
-    }
-
-    // 3. Transform mock API data to our app's data format
-    const mappedAccounts: Account[] = providerAccounts.map(mockAcc => ({
-      id: mockAcc.account_id,
-      name: mockAcc.name,
-      institutionSlug: mockAcc.institution_id,
-      type: mockAcc.subtype === 'digital_wallet' ? 'e-wallet' : mockAcc.type === 'depository' ? 'bank' : (mockAcc.type as 'investment' | 'loan'),
-      balance: mockAcc.balances.current,
-      accountNumber: mockAcc.mask,
-      isPinned: false, // Default for newly linked accounts
-      holdings: mockAcc.holdings,
-    }));
-
-    const mappedTransactions: Transaction[] = providerTransactions.map(mockTxn => ({
-      id: mockTxn.transaction_id,
-      date: new Date(mockTxn.date).toISOString(),
-      description: mockTxn.description,
-      amount: mockTxn.amount,
-      category: mockTxn.category[0] || 'Other',
-      accountId: mockTxn.account_id,
-    }));
-
-    // 4. Save the new data to Firestore in a batch write
-    const batch = writeBatch(db);
-
-    mappedAccounts.forEach(account => {
-      const accountDocRef = doc(db, 'users', userId, 'accounts', account.id);
-      batch.set(accountDocRef, account, { merge: true });
+    const userRef = doc(db, 'users', userId);
+    await updateDoc(userRef, {
+      pin: pin, // In a real app, this should be hashed.
+      hasCompletedOnboarding: true, // This is the final step
     });
+    
+    // Seed the user's account with mock data upon completing onboarding.
+    await seedUserData(userId);
 
-    mappedTransactions.forEach(transaction => {
-      const transactionDocRef = doc(db, 'users', userId, 'transactions', transaction.id);
-      batch.set(transactionDocRef, transaction);
-    });
-
-    await batch.commit();
-
-    // 5. Revalidate the dashboard path to force a data refresh on the client
+    // Revalidate all data-heavy paths
     revalidatePath('/dashboard');
+    revalidatePath('/history');
+    revalidatePath('/budgets');
 
-    return { success: true, accountsAdded: mappedAccounts.length };
-
-  } catch (error: any) {
-    console.error("Error syncing accounts from provider:", error);
-    return { success: false, error: error.message || "An unknown error occurred during sync." };
+    return { success: true };
+  } catch (error) {
+    console.error("Error setting security PIN:", error);
+    return { success: false, error: "Failed to set security PIN." };
   }
 }
 
+/**
+ * Verifies a user's PIN against the one stored in Firestore.
+ * This is a server-side action that calls a Genkit flow.
+ * 
+ * @param {string} userId - The user's UID.
+ * @param {string} pinAttempt - The PIN entered by the user.
+ * @returns {Promise<{success: boolean, error?: string}>} - The result of the verification.
+ */
+export async function verifySecurityPin(
+    userId: string,
+    pinAttempt: string
+): Promise<{ success: boolean; error?: string }> {
+    try {
+        const result = await verifyPinFlow({ userId, pinAttempt });
+        return result;
+    } catch (error) {
+        console.error("Error verifying PIN in action:", error);
+        return { success: false, error: "An unexpected error occurred during PIN verification." };
+    }
+}
+
+
+// ---- Data Seeding Actions ----
 
 /**
- * Updates a user's profile information in both Firebase Authentication and Firestore.
- * @param {string} uid - The user's unique ID.
- * @param {object} data - An object containing the profile fields to update (displayName, email, phone, photoURL).
+ * Seeds a new user's account with mock financial data for demonstration purposes.
+ * This function uses a batched write to perform all operations atomically.
+ * 
+ * @param {string} userId - The UID of the user to seed data for.
  */
-export async function updateUserProfile(
-  uid: string,
-  data: { displayName?: string; email?: string; phone?: string; photoURL?: string }
-) {
-  if (!uid) {
-    throw new Error("User is not authenticated.");
-  }
+export async function seedUserData(userId: string) {
+    const batch = writeBatch(db);
 
-  // Ensure the user performing the action is the one being updated.
-  const currentUser = auth.currentUser;
-  if (!currentUser || currentUser.uid !== uid) {
-    throw new Error("Authentication mismatch.");
-  }
+    // Seed accounts
+    seedAccounts.forEach(account => {
+        const accountRef = doc(db, 'users', userId, 'accounts', account.id);
+        batch.set(accountRef, account);
+    });
 
-  try {
-    const { displayName, email, phone, photoURL } = data;
+    // Seed transactions
+    seedTransactions.forEach(transaction => {
+        const transactionRef = doc(db, 'users', userId, 'transactions', transaction.id);
+        batch.set(transactionRef, transaction);
+    });
 
-    // Prepare data for Firebase Auth update (only displayName and photoURL can be updated this way).
-    const authUpdateData: { displayName?: string; photoURL?: string } = {};
-    if (displayName !== undefined) authUpdateData.displayName = displayName;
-    if (photoURL !== undefined) authUpdateData.photoURL = photoURL;
+    // Seed vaults
+    seedVaults.forEach(vault => {
+        const vaultRef = doc(db, 'users', userId, 'vaults', vault.id);
+        batch.set(vaultRef, vault);
+    });
 
-    if (Object.keys(authUpdateData).length > 0) {
-      await updateProfile(currentUser, authUpdateData);
-    }
+    // Seed beneficiaries
+    seedBeneficiaries.forEach(beneficiary => {
+        const beneficiaryRef = doc(db, 'users', userId, 'beneficiaries', beneficiary.id);
+        batch.set(beneficiaryRef, beneficiary);
+    });
 
-    // Prepare data for Firestore update (all other fields).
-    const firestoreUpdateData: { [key: string]: string } = {};
-    if (displayName !== undefined) firestoreUpdateData.fullName = displayName;
-    if (email !== undefined) firestoreUpdateData.email = email;
-    if (phone !== undefined) firestoreUpdateData.phone = phone;
-    if (photoURL !== undefined) firestoreUpdateData.photoURL = photoURL;
+    // Seed budgets
+    seedBudgets.forEach(budget => {
+        const budgetRef = doc(db, 'users', userId, 'budgets', budget.id);
+        batch.set(budgetRef, budget);
+    });
 
-    if (Object.keys(firestoreUpdateData).length > 0) {
-      const userDocRef = doc(db, "users", uid);
-      await updateDoc(userDocRef, firestoreUpdateData);
-    }
-
-    // Revalidate the path to ensure the UI updates with the new data immediately.
-    revalidatePath('/profile');
-  } catch (error) {
-    console.error("Error updating user profile:", error);
-    throw new Error("Failed to update profile.");
-  }
+    // Seed favorite transactions
+    seedFavorites.forEach(favorite => {
+        const favoriteRef = doc(db, 'users', userId, 'favoriteTransactions', favorite.id);
+        batch.set(favoriteRef, favorite);
+    });
+    
+    await batch.commit();
 }
 
 
 // ---- Data Fetching Actions ----
 
 /**
- * Fetches core dashboard data (accounts and all transactions) for a given user.
- * @param {string} userId - The user's unique ID.
- * @returns {Promise<{accounts: Account[], transactions: Transaction[]}>} The user's accounts and transactions.
+ * Fetches the user's profile data from Firestore.
+ * 
+ * @param {string} userId - The user's UID.
+ * @returns {Promise<any>} - The user's profile data.
  */
-export async function getDashboardData(
-  userId: string
-): Promise<{ accounts: Account[]; transactions: Transaction[] }> {
-  if (!userId) {
-    console.error('getDashboardData called without a userId.');
-    return { accounts: [], transactions: [] };
-  }
-  try {
-    const accountsCol = collection(db, 'users', userId, 'accounts');
-    const accountsSnapshot = await getDocs(accountsCol);
-    const fetchedAccounts = accountsSnapshot.docs.map(
-      doc => doc.data() as Account
-    );
-
-    const transactionsCol = collection(db, 'users', userId, 'transactions');
-    const transactionsSnapshot = await getDocs(transactionsCol);
-    const fetchedTransactions = transactionsSnapshot.docs.map(
-      doc => doc.data() as Transaction
-    );
-
-    return {
-      accounts: fetchedAccounts,
-      transactions: fetchedTransactions,
-    };
-  } catch (error) {
-    console.error('Error in getDashboardData from Firestore:', error);
-    return { accounts: [], transactions: [] };
-  }
+export async function getUserProfile(userId: string): Promise<any> {
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+        return userSnap.data();
+    }
+    return null;
 }
 
 /**
- * Fetches details for a single account and its associated transactions.
- * @param {string} userId - The user's unique ID.
+ * Fetches all financial accounts for a given user.
+ * 
+ * @param {string} userId - The user's UID.
+ * @returns {Promise<Account[]>} - An array of the user's accounts.
+ */
+export async function getAccounts(userId: string): Promise<Account[]> {
+    const accountsCollection = collection(db, 'users', userId, 'accounts');
+    const q = query(accountsCollection, orderBy('balance', 'desc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Account));
+}
+
+/**
+ * Fetches a single financial account by its ID.
+ * @param {string} userId - The user's UID.
  * @param {string} accountId - The ID of the account to fetch.
- * @returns {Promise<{account: Account | null, transactions: Transaction[]}>} The account and its transactions.
+ * @returns {Promise<Account | null>} - The account object or null if not found.
  */
-export async function getAccountDetails(userId: string, accountId: string): Promise<{ account: Account | null, transactions: Transaction[] }> {
-    if (!userId || !accountId) return { account: null, transactions: [] };
-    try {
-        const accountDocRef = doc(db, 'users', userId, 'accounts', accountId);
-        const accountDoc = await getDoc(accountDocRef);
-
-        if (!accountDoc.exists()) return { account: null, transactions: [] };
-        
-        const account = accountDoc.data() as Account;
-
-        // Query for transactions specifically matching the accountId.
-        const transactionsCol = collection(db, 'users', userId, 'transactions');
-        const q = query(transactionsCol, where('accountId', '==', accountId));
-        const transactionsSnapshot = await getDocs(q);
-        const transactions = transactionsSnapshot.docs.map(doc => doc.data() as Transaction);
-
-        return { account, transactions };
-    } catch (error) {
-        console.error('Error fetching account details:', error);
-        return { account: null, transactions: [] };
+export async function getAccountById(userId: string, accountId: string): Promise<Account | null> {
+    const accountRef = doc(db, 'users', userId, 'accounts', accountId);
+    const docSnap = await getDoc(accountRef);
+    if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() } as Account;
     }
+    return null;
 }
 
 /**
- * Toggles the pinned status of a user's account.
- * @param {string} userId - The user's unique ID.
- * @param {string} accountId - The ID of the account to pin/unpin.
- * @param {boolean} isPinned - The new pinned status.
+ * Fetches the most recent transactions for a given user, with an optional limit.
+ * 
+ * @param {string} userId - The user's UID.
+ * @param {number} [count=100] - The maximum number of transactions to fetch.
+ * @returns {Promise<Transaction[]>} - An array of the user's recent transactions.
  */
-export async function togglePinAccount(userId: string, accountId: string, isPinned: boolean) {
-  if (!userId || !accountId) {
-    throw new Error("User ID and Account ID are required.");
-  }
-
-  try {
-    const accountDocRef = doc(db, 'users', userId, 'accounts', accountId);
-    await updateDoc(accountDocRef, { isPinned });
-    revalidatePath('/dashboard'); // Revalidate the dashboard to show the change
-    return { success: true };
-  } catch (error) {
-    console.error("Error toggling account pin status:", error);
-    return { success: false, error: "Could not update account." };
-  }
+export async function getRecentTransactions(userId: string, count: number = 100): Promise<Transaction[]> {
+    const transactionsCollection = collection(db, 'users', userId, 'transactions');
+    const q = query(transactionsCollection, orderBy('date', 'desc'), limit(count));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction));
 }
 
-// ---- Budget Actions ----
-
-export async function getBudgets(userId: string): Promise<Budget[]> {
-  if (!userId) return [];
-  const budgetsCol = collection(db, 'users', userId, 'budgets');
-  const snapshot = await getDocs(budgetsCol);
-  return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Budget));
+/**
+ * Fetches all transactions for a specific account.
+ * 
+ * @param {string} userId - The user's UID.
+ * @param {string} accountId - The ID of the account to fetch transactions for.
+ * @returns {Promise<Transaction[]>} - An array of transactions for the specified account.
+ */
+export async function getTransactionsByAccountId(userId: string, accountId: string): Promise<Transaction[]> {
+    const transactionsCollection = collection(db, 'users', userId, 'transactions');
+    const q = query(transactionsCollection, where('accountId', '==', accountId), orderBy('date', 'desc'));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Transaction));
 }
 
-export async function addBudget(userId: string, values: Omit<Budget, 'id'>) {
-    if (!userId) throw new Error("User not authenticated.");
-    const budgetsCol = collection(db, 'users', userId, 'budgets');
-    await addDoc(budgetsCol, values);
-    revalidatePath('/budgets');
-}
-
-export async function deleteBudget(userId: string, budgetId: string) {
-    if (!userId || !budgetId) return;
-    const budgetDocRef = doc(db, 'users', userId, 'budgets', budgetId);
-    await deleteDoc(budgetDocRef);
-    revalidatePath('/budgets');
-}
-
-export async function getUniqueTransactionCategories(userId: string): Promise<string[]> {
-    if (!userId) return [];
-    const { transactions } = await getDashboardData(userId);
-    const categories = new Set(transactions.map(t => t.category));
-    return Array.from(categories).filter(c => c !== 'Income');
-}
-
-
-// ---- Vault Actions ----
+/**
+ * Fetches all savings vaults for a given user.
+ * 
+ * @param {string} userId - The user's UID.
+ * @returns {Promise<Vault[]>} - An array of the user's savings vaults.
+ */
 export async function getVaults(userId: string): Promise<Vault[]> {
-  if (!userId) return [];
-  const vaultsCol = collection(db, 'users', userId, 'vaults');
-  const snapshot = await getDocs(vaultsCol);
-  return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Vault));
+    const vaultsCollection = collection(db, 'users', userId, 'vaults');
+    const querySnapshot = await getDocs(vaultsCollection);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Vault));
 }
-
-export async function getVaultDetails(userId: string, vaultId: string): Promise<Vault | null> {
-    if (!userId || !vaultId) return null;
-    const vaultDocRef = doc(db, 'users', userId, 'vaults', vaultId);
-    const docSnap = await getDoc(vaultDocRef);
-    return docSnap.exists() ? { ...docSnap.data(), id: docSnap.id } as Vault : null;
-}
-
-export async function addVault(userId: string, values: Omit<Vault, 'id' | 'currentAmount'>) {
-    if (!userId) throw new Error("User not authenticated.");
-    const newVault: Omit<Vault, 'id'> = { ...values, currentAmount: 0 };
-    const vaultsCol = collection(db, 'users', userId, 'vaults');
-    await addDoc(vaultsCol, newVault);
-    revalidatePath('/vaults');
-}
-
-export async function deleteVault(userId: string, vaultId: string) {
-    if (!userId || !vaultId) return;
-    const vaultDocRef = doc(db, 'users', userId, 'vaults', vaultId);
-    await deleteDoc(vaultDocRef);
-    revalidatePath('/vaults');
-}
-
-// ---- Beneficiary Actions ----
-export async function getBeneficiaries(userId: string): Promise<Beneficiary[]> {
-  if (!userId) return [];
-  const beneficiariesCol = collection(db, 'users', userId, 'beneficiaries');
-  const snapshot = await getDocs(beneficiariesCol);
-  return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as Beneficiary));
-}
-
-export async function addBeneficiary(userId: string, values: Omit<Beneficiary, 'id'>) {
-    if (!userId) throw new Error("User not authenticated.");
-    const beneficiariesCol = collection(db, 'users', userId, 'beneficiaries');
-    await addDoc(beneficiariesCol, values);
-    revalidatePath('/transfer/recipients');
-    redirect('/transfer/recipients');
-}
-
-// ---- Favorites Actions ----
-export async function getFavorites(userId: string): Promise<FavoriteTransaction[]> {
-  if (!userId) return [];
-  const favoritesCol = collection(db, 'users', userId, 'favorites');
-  const snapshot = await getDocs(favoritesCol);
-  return snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id } as FavoriteTransaction));
-}
-
-export async function addFavorite(userId: string, favorite: Omit<FavoriteTransaction, 'id'>) {
-    if (!userId) throw new Error("User not authenticated.");
-    const favoritesCol = collection(db, 'users', userId, 'favorites');
-    const newDoc = await addDoc(favoritesCol, favorite);
-    revalidatePath('/transfer');
-    return { ...favorite, id: newDoc.id };
-}
-
-export async function removeFavorite(userId: string, favoriteId: string) {
-    if (!userId || !favoriteId) return;
-    const favoriteDocRef = doc(db, 'users', userId, 'favorites', favoriteId);
-    await deleteDoc(favoriteDocRef);
-    revalidatePath('/transfer');
-}
-
-// ---- Account Actions ----
 
 /**
- * Deletes an account and its associated transactions from Firestore.
- * @param {string} userId - The user's unique ID.
- * @param {string} accountId - The ID of the account to delete.
+ * Fetches a single savings vault by its ID.
+ * 
+ * @param {string} userId - The user's UID.
+ * @param {string} vaultId - The ID of the vault to fetch.
+ * @returns {Promise<Vault | null>} - The vault object or null if not found.
  */
-export async function deleteAccount(userId: string, accountId: string): Promise<{ success: boolean, error?: string }> {
-    if (!userId || !accountId) {
-        return { success: false, error: 'User ID and Account ID are required.' };
+export async function getVaultById(userId: string, vaultId: string): Promise<Vault | null> {
+    const vaultRef = doc(db, 'users', userId, 'vaults', vaultId);
+    const docSnap = await getDoc(vaultRef);
+    if (docSnap.exists()) {
+        return { id: docSnap.id, ...docSnap.data() } as Vault;
     }
+    return null;
+}
+
+/**
+ * Fetches all beneficiaries (saved recipients) for a user.
+ * 
+ * @param {string} userId - The user's UID.
+ * @returns {Promise<Beneficiary[]>} - An array of the user's beneficiaries.
+ */
+export async function getBeneficiaries(userId: string): Promise<Beneficiary[]> {
+    const beneficiariesCollection = collection(db, 'users', userId, 'beneficiaries');
+    const querySnapshot = await getDocs(beneficiariesCollection);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Beneficiary));
+}
+
+/**
+ * Fetches all budgets for a given user.
+ * 
+ * @param {string} userId - The user's UID.
+ * @returns {Promise<Budget[]>} - An array of the user's budgets.
+ */
+export async function getBudgets(userId: string): Promise<Budget[]> {
+    const budgetsCollection = collection(db, 'users', userId, 'budgets');
+    const querySnapshot = await getDocs(budgetsCollection);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Budget));
+}
+
+/**
+ * Fetches all favorite transactions for a user.
+ * 
+ * @param {string} userId - The user's UID.
+ * @returns {Promise<FavoriteTransaction[]>} - An array of the user's favorite transactions.
+ */
+export async function getFavoriteTransactions(userId: string): Promise<FavoriteTransaction[]> {
+    const favoritesCollection = collection(db, 'users', userId, 'favoriteTransactions');
+    const querySnapshot = await getDocs(favoritesCollection);
+    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as FavoriteTransaction));
+}
+
+/**
+ * Fetches a user's login history.
+ * 
+ * @param {string} userId - The user's UID.
+ * @returns {Promise<any[]>} - An array of login history events.
+ */
+export async function getLoginHistory(userId: string): Promise<any[]> {
+    const historyCollection = collection(db, 'users', userId, 'login_history');
+    const q = query(historyCollection, orderBy('timestamp', 'desc'), limit(10));
+    const querySnapshot = await getDocs(q);
+    const history = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return history;
+}
+
+
+// ---- Data Mutation Actions ----
+
+/**
+ * Adds a new savings vault for a user.
+ * @param {string} userId - The user's UID.
+ * @param {Omit<Vault, 'id'>} vaultData - The data for the new vault.
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function addVault(userId: string, vaultData: Omit<Vault, 'id' | 'currentAmount'>): Promise<{ success: boolean, error?: string }> {
+    try {
+        const vaultsCollection = collection(db, 'users', userId, 'vaults');
+        await addDoc(vaultsCollection, {
+            ...vaultData,
+            currentAmount: 0 // Vaults always start at 0
+        });
+        revalidatePath('/vaults');
+        return { success: true };
+    } catch (error) {
+        console.error("Error adding vault:", error);
+        return { success: false, error: "Failed to add new vault." };
+    }
+}
+
+/**
+ * Updates an existing savings vault.
+ * @param {string} userId - The user's UID.
+ * @param {string} vaultId - The ID of the vault to update.
+ * @param {Partial<Vault>} vaultData - The data to update.
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function updateVault(userId: string, vaultId: string, vaultData: Partial<Vault>): Promise<{ success: boolean, error?: string }> {
+    try {
+        const vaultRef = doc(db, 'users', userId, 'vaults', vaultId);
+        await updateDoc(vaultRef, vaultData);
+        revalidatePath('/vaults');
+        revalidatePath(`/vaults/${vaultId}`);
+        return { success: true };
+    } catch (error) {
+        console.error("Error updating vault:", error);
+        return { success: false, error: "Failed to update vault." };
+    }
+}
+
+/**
+ * Deletes a savings vault.
+ * @param {string} userId - The user's UID.
+ * @param {string} vaultId - The ID of the vault to delete.
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function deleteVault(userId: string, vaultId: string): Promise<{ success: boolean, error?: string }> {
+    try {
+        const vaultRef = doc(db, 'users', userId, 'vaults', vaultId);
+        await deleteDoc(vaultRef);
+        revalidatePath('/vaults');
+        return { success: true };
+    } catch (error) {
+        console.error("Error deleting vault:", error);
+        return { success: false, error: "Failed to delete vault." };
+    }
+}
+
+
+/**
+ * Adds a new budget for a user.
+ * @param {string} userId - The user's UID.
+ * @param {Omit<Budget, 'id'>} budgetData - The data for the new budget.
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function addBudget(userId: string, budgetData: Omit<Budget, 'id'>): Promise<{ success: boolean, error?: string }> {
+    try {
+        const budgetsCollection = collection(db, 'users', userId, 'budgets');
+        await addDoc(budgetsCollection, budgetData);
+        revalidatePath('/budgets');
+        return { success: true };
+    } catch (error) {
+        console.error("Error adding budget:", error);
+        return { success: false, error: "Failed to add new budget." };
+    }
+}
+
+
+/**
+ * Adds a new beneficiary for a user.
+ * @param {string} userId - The user's UID.
+ * @param {Omit<Beneficiary, 'id'>} beneficiaryData - The data for the new beneficiary.
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function addBeneficiary(userId: string, beneficiaryData: Omit<Beneficiary, 'id'>): Promise<{ success: boolean, error?: string }> {
+    try {
+        const beneficiariesCollection = collection(db, 'users', userId, 'beneficiaries');
+        await addDoc(beneficiariesCollection, beneficiaryData);
+        revalidatePath('/transfer/recipients');
+        return { success: true };
+    } catch (error) {
+        console.error("Error adding beneficiary:", error);
+        return { success: false, error: "Failed to add new beneficiary." };
+    }
+}
+
+
+/**
+ * Simulates a fund transfer between accounts.
+ * In a real app, this would involve complex interactions with payment gateways.
+ * Here, we just create a new transaction record.
+ * 
+ * @param {string} userId - The user's UID.
+ * @param {string} fromAccountId - The ID of the source account.
+ * @param {string} toAccountId - The ID of the destination account or beneficiary name.
+ * @param {number} amount - The amount to transfer.
+ * @param {string} notes - Transfer notes.
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function transferFunds(
+    userId: string,
+    fromAccountId: string,
+    toAccountId: string, // Can be another of the user's accounts or a beneficiary
+    amount: number,
+    notes: string
+): Promise<{ success: boolean; error?: string }> {
+    const batch = writeBatch(db);
 
     try {
-        const batch = writeBatch(db);
+        // 1. Debit the source account
+        const fromAccountRef = doc(db, 'users', userId, 'accounts', fromAccountId);
+        const fromAccountSnap = await getDoc(fromAccountRef);
+        if (!fromAccountSnap.exists() || fromAccountSnap.data().balance < amount) {
+            return { success: false, error: "Insufficient funds." };
+        }
+        const fromAccountData = fromAccountSnap.data();
+        batch.update(fromAccountRef, { balance: fromAccountData.balance - amount });
 
-        // 1. Delete the account document
-        const accountDocRef = doc(db, 'users', userId, 'accounts', accountId);
-        batch.delete(accountDocRef);
-
-        // 2. Find and delete all transactions associated with this account
-        const transactionsCol = collection(db, 'users', userId, 'transactions');
-        const q = query(transactionsCol, where('accountId', '==', accountId));
-        const transactionsSnapshot = await getDocs(q);
+        // 2. Credit the destination account (if it's one of the user's accounts)
+        const toAccountRef = doc(db, 'users', userId, 'accounts', toAccountId);
+        const toAccountSnap = await getDoc(toAccountRef);
+        if (toAccountSnap.exists()) {
+             const toAccountData = toAccountSnap.data();
+             batch.update(toAccountRef, { balance: toAccountData.balance + amount });
+        }
         
-        transactionsSnapshot.forEach(doc => {
-            batch.delete(doc.ref);
+        // 3. Create transaction records
+        const debitTransactionRef = doc(collection(db, 'users', userId, 'transactions'));
+        batch.set(debitTransactionRef, {
+            accountId: fromAccountId,
+            amount: -amount,
+            category: 'Transfer',
+            date: new Date().toISOString(),
+            description: `Transfer to ${toAccountSnap.exists() ? toAccountSnap.data().name : toAccountId}`,
+            notes,
+        });
+
+        if (toAccountSnap.exists()) {
+            const creditTransactionRef = doc(collection(db, 'users', userId, 'transactions'));
+            batch.set(creditTransactionRef, {
+                accountId: toAccountId,
+                amount: amount,
+                category: 'Transfer',
+                date: new Date().toISOString(),
+                description: `Transfer from ${fromAccountData.name}`,
+                notes,
+            });
+        }
+        
+        await batch.commit();
+
+        revalidatePath('/dashboard');
+        revalidatePath('/history');
+        revalidatePath(`/accounts/${fromAccountId}`);
+        if(toAccountSnap.exists()) revalidatePath(`/accounts/${toAccountId}`);
+
+        return { success: true };
+
+    } catch (error) {
+        console.error("Error transferring funds:", error);
+        return { success: false, error: "Fund transfer failed." };
+    }
+}
+
+/**
+ * Simulates a QRIS payment.
+ * Creates a transaction record for the payment.
+ * 
+ * @param {string} userId - The user's UID.
+ * @param {string} fromAccountId - The ID of the source account.
+ * @param {number} amount - The payment amount.
+ * @param {string} merchantName - The name of the QRIS merchant.
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function makeQrisPayment(
+    userId: string,
+    fromAccountId: string,
+    amount: number,
+    merchantName: string
+): Promise<{ success: boolean; error?: string }> {
+     const batch = writeBatch(db);
+    try {
+        const fromAccountRef = doc(db, 'users', userId, 'accounts', fromAccountId);
+        const fromAccountSnap = await getDoc(fromAccountRef);
+
+        if (!fromAccountSnap.exists() || fromAccountSnap.data().balance < amount) {
+            return { success: false, error: "Insufficient funds." };
+        }
+        const fromAccountData = fromAccountSnap.data();
+        batch.update(fromAccountRef, { balance: fromAccountData.balance - amount });
+
+        const transactionRef = doc(collection(db, 'users', userId, 'transactions'));
+        batch.set(transactionRef, {
+            accountId: fromAccountId,
+            amount: -amount,
+            category: 'QRIS Payment',
+            date: new Date().toISOString(),
+            description: `Payment to ${merchantName}`,
         });
 
         await batch.commit();
-        
+
         revalidatePath('/dashboard');
         revalidatePath('/history');
-        revalidatePath(`/account/${accountId}`);
+        revalidatePath(`/accounts/${fromAccountId}`);
 
         return { success: true };
     } catch (error) {
-        console.error('Error deleting account:', error);
-        return { success: false, error: 'Could not delete the account.' };
+        console.error("Error making QRIS payment:", error);
+        return { success: false, error: "QRIS payment failed." };
     }
 }
 
-// ---- AI Actions ----
-
-export async function getSavingSuggestions(transactions: Transaction[]): Promise<PersonalizedSavingSuggestionsOutput & { error?: string }> {
-  try {
-    const spendingData = transactions
-        .filter(t => t.amount < 0)
-        .map(t => `${t.date}: ${t.description} (${t.category}) - ${Math.abs(t.amount)}`)
-        .join('\n');
-
-    if (transactions.length === 0) {
-        return { 
-            error: "No transaction data available to analyze.", financialHealthScore: 0, spenderType: "N/A",
-            summary: "We need some transaction data to give you suggestions.", suggestions: [],
-            investmentPlan: "", localDeals: [],
-         };
-    }
-    
-    // Estimate income from the largest single deposit in the period.
-    const monthlyIncome = transactions
-        .filter(t => t.amount > 0)
-        .reduce((max, t) => t.amount > max ? t.amount : max, 0);
-
-    const result = await personalizedSavingSuggestions({ 
-        spendingData, monthlyIncome: monthlyIncome || 0, location: "Jakarta, Indonesia",
-    });
-    return result;
-
-  } catch (error) {
-    console.error("Error getting saving suggestions:", error);
-    return { 
-        error: "Failed to get AI-powered suggestions.", financialHealthScore: 0, spenderType: "Error",
-        summary: "An unexpected error occurred while fetching suggestions.", suggestions: [],
-        investmentPlan: "Could not generate an investment plan.", localDeals: [],
-    };
-  }
-}
-
-export async function getBudgetAnalysis(userId: string): Promise<BudgetAnalysisOutput & { error?: string }> {
+/**
+ * Simulates a mobile top-up.
+ * Creates a transaction record for the purchase.
+ * 
+ * @param {string} userId - The user's UID.
+ * @param {string} fromAccountId - The ID of the source account.
+ * @param {string} phoneNumber - The phone number to top-up.
+ * @param {number} amount - The top-up amount.
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function topUpMobile(
+    userId: string,
+    fromAccountId: string,
+    phoneNumber: string,
+    amount: number
+): Promise<{ success: boolean; error?: string }> {
+    const batch = writeBatch(db);
     try {
-        const budgets = await getBudgets(userId);
-        const { transactions } = await getDashboardData(userId);
+        const fromAccountRef = doc(db, 'users', userId, 'accounts', fromAccountId);
+        const fromAccountSnap = await getDoc(fromAccountRef);
 
-        if (budgets.length === 0) {
-            return {
-                error: "No budgets created.", coachTitle: "N/A",
-                summary: "You haven't set any budgets yet. Create one to get started!",
-                suggestions: [], proTip: "",
-            };
+        if (!fromAccountSnap.exists() || fromAccountSnap.data().balance < amount) {
+            return { success: false, error: "Insufficient funds." };
         }
+        const fromAccountData = fromAccountSnap.data();
+        batch.update(fromAccountRef, { balance: fromAccountData.balance - amount });
 
-        const budgetData = budgets.map(budget => {
-            const budgetInterval = { start: new Date(budget.startDate), end: new Date(budget.endDate) };
-            const spent = transactions
-                .filter(t =>
-                    t.category === budget.category && t.amount < 0 &&
-                    isWithinInterval(new Date(t.date), budgetInterval)
-                )
-                .reduce((acc, t) => acc + Math.abs(t.amount), 0);
-            
-            return `${budget.name} (${budget.category}): Budget is ${formatCurrency(budget.amount)}, Spent ${formatCurrency(spent)}.`;
-        }).join('\n');
+        const transactionRef = doc(collection(db, 'users', userId, 'transactions'));
+        batch.set(transactionRef, {
+            accountId: fromAccountId,
+            amount: -amount,
+            category: 'Top-up',
+            date: new Date().toISOString(),
+            description: `Mobile top-up for ${phoneNumber}`,
+        });
+        
+        await batch.commit();
 
-        const result = await budgetAnalysis({ budgetData });
-        return result;
+        revalidatePath('/dashboard');
+        revalidatePath('/history');
+        revalidatePath(`/accounts/${fromAccountId}`);
 
+        return { success: true };
+    } catch (error) {
+        console.error("Error with mobile top-up:", error);
+        return { success: false, error: "Mobile top-up failed." };
+    }
+}
+
+// ---- AI-Powered Actions ----
+// These actions act as server-side wrappers for the Genkit flows.
+
+/**
+ * Gets AI-powered analysis of a user's spending habits.
+ * 
+ * @param {Transaction[]} transactions - An array of the user's transactions.
+ * @returns {Promise<string>} - A string containing the AI's analysis.
+ */
+export async function getSpendingAnalysis(transactions: Transaction[]): Promise<string> {
+    try {
+        const analysis = await spendingAnalysisFlow({ transactions });
+        return analysis;
+    } catch (error) {
+        console.error("Error getting spending analysis:", error);
+        return "I'm sorry, I was unable to analyze your spending data at this time.";
+    }
+}
+
+/**
+ * Gets AI-powered suggestions for saving opportunities.
+ * 
+ * @param {Transaction[]} transactions - An array of the user's transactions.
+ * @returns {Promise<string>} - A string containing the AI's suggestions.
+ */
+export async function getSavingOpportunities(transactions: Transaction[]): Promise<string> {
+    try {
+        const opportunities = await savingOpportunitiesFlow({ transactions });
+        return opportunities;
+    } catch (error) {
+        console.error("Error getting saving opportunities:", error);
+        return "I'm sorry, I couldn't find any saving opportunities right now.";
+    }
+}
+
+/**
+ * Gets AI-powered analysis of a user's budget performance.
+ * 
+ * @param {Budget[]} budgets - An array of the user's budgets.
+ * @param {Transaction[]} transactions - An array of the user's transactions.
+ * @returns {Promise<string>} - A string containing the AI's analysis.
+ */
+export async function getBudgetAnalysis(
+    budgets: Budget[],
+    transactions: Transaction[]
+): Promise<string> {
+    try {
+        const analysis = await budgetAnalysisFlow({ budgets, transactions });
+        return analysis;
     } catch (error) {
         console.error("Error getting budget analysis:", error);
-        return {
-            error: "Failed to get AI-powered analysis.", coachTitle: "Error",
-            summary: "An unexpected error occurred while fetching analysis.",
-            suggestions: [], proTip: "Could not generate a tip.",
-        };
+        return "I'm sorry, I was unable to analyze your budget performance at this time.";
     }
 }
 
-export async function getBillSuggestions(transactions: Transaction[]): Promise<BillDiscoveryOutput & { error?: string }> {
+/**
+ * Discovers potential recurring bills from a user's transaction history.
+ * @param {Transaction[]} transactions - The user's transactions.
+ * @returns {Promise<{potentialBills: any[], error?: string}>}
+ */
+export async function getBillSuggestions(
+  transactions: Transaction[]
+): Promise<{ potentialBills: any[]; error?: string }> {
   try {
-    const transactionHistory = transactions
-      .filter(t => t.amount < 0)
-      .map(t => `${t.date}: ${t.description} - ${Math.abs(t.amount)}`)
-      .join('\n');
-
-    if (transactions.length === 0) {
-      return { potentialBills: [] };
-    }
-
-    const result = await discoverRecurringBills({ transactionHistory });
-    return result;
-
+    const suggestions = await billDiscoveryFlow({ transactions });
+    return { potentialBills: suggestions, error: undefined };
   } catch (error) {
     console.error("Error getting bill suggestions:", error);
     return {
@@ -755,32 +711,4 @@ export async function getAiChatResponse(
   }
 }
 
-/**
- * A utility function to format a number into Indonesian Rupiah currency format.
- * @param {number} value - The numeric value to format.
- * @returns {string} The formatted currency string (e.g., "Rp 50.000").
- */
-const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
-  style: 'currency',
-  currency: 'IDR',
-  minimumFractionDigits: 0,
-}).format(value);
-
 // ---- Legacy/Mock Actions ----
-
-export async function linkAccount(prevState: any, formData: FormData) {
-  // This is a no-op because the linking flow is now handled by the mock API pages.
-  // The redirect will happen from the /mock-ayo-connect page.
-  // This action can be removed if the form is updated to no longer use it.
-  console.log("linkAccount action called, but it's a no-op. Redirecting from client-side after mock flow.");
-  redirect('/dashboard?new_account=true');
-}
-
-export async function getLoginHistory(userId: string) {
-  if (!userId) return [];
-  const historyCol = collection(db, 'users', userId, 'login_history');
-  const q = query(historyCol, orderBy('timestamp', 'desc'), limit(10));
-  const querySnapshot = await getDocs(q);
-  const history = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-  return history;
-}

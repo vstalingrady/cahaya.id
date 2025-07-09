@@ -1,228 +1,134 @@
 
 'use client';
-
-import { cn } from "@/lib/utils";
-import { ClipboardList, Plus, Edit, Tag, Banknote, Check, CalendarIcon, Repeat, ChevronsUpDown } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState, useEffect, useRef } from "react";
-import { format } from "date-fns";
-import Image from "next/image";
+import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import { Progress } from './ui/progress';
+import { Button } from './ui/button';
+import { Plus } from 'lucide-react';
 import { Switch } from "./ui/switch";
 import { accounts as seedAccounts } from "@/lib/data-seed";
-import { financialInstitutions } from "@/lib/data";
+import { financialInstitutions } from '@/lib/data';
+
+
 
 const getAccountIcon = (accountId: string) => {
     // Find the account from the seed data using its ID
     const account = seedAccounts.find(acc => acc.id === accountId);
-    if (!account) return <Banknote className="w-4 h-4" />;
+    if (!account) return null;
 
-    // Use the account's institutionSlug to find the institution details
+    // Find the corresponding financial institution using the slug
     const institution = financialInstitutions.find(inst => inst.slug === account.institutionSlug);
-    
-    // If we find an institution and it has a logo, use it.
-    if (institution?.logoUrl) {
-        return <Image src={institution.logoUrl} alt={institution.name} width={16} height={16} className="object-contain" />;
-    }
-    
-    // Fallback icon if no logo is found
-    return <Banknote className="w-4 h-4" />;
+    if (!institution) return null;
+
+    return institution.logoUrl;
 };
 
-const initialBudgets = [
-    { id: 'food', name: 'Monthly Food & Drink', category: 'Food & Drink', current: 5500000, target: 5000000, progress: 110, color: 'destructive', startDate: '2024-07-01', endDate: '2024-07-31', accounts: ['bca1', 'gopay1'], isRecurring: true },
-    { id: 'shopping', name: 'Monthly Shopping', category: 'Shopping', current: 2700000, target: 3000000, progress: 90, color: 'yellow-500', startDate: '2024-07-01', endDate: '2024-07-31', accounts: ['mandiri1', 'ovo1'], isRecurring: true },
-    { id: 'transport', name: 'Monthly Transport', category: 'Transportation', current: 1125000, target: 1500000, progress: 75, color: 'primary', startDate: '2024-07-01', endDate: '2024-07-31', accounts: ['gopay1'], isRecurring: false },
-];
 
-const formatCurrency = (value: number) => new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-}).format(value);
-
-const formatDateRange = (startDate: string, endDate: string) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    return `${format(start, 'd MMM')} - ${format(end, 'd MMM yyyy')}`;
+interface CategoryBudgetCardProps {
+    category: string;
+    icon: React.ReactNode;
+    spent: number;
+    total: number;
+    color: string;
 }
 
-type DisplayBudget = typeof initialBudgets[0] & { isNew?: boolean };
-type AnimationPhase = 'idle' | 'showing_list' | 'button_active' | 'show_form' | 'fill_form' | 'create_budget' | 'show_new_budget' | 'resetting';
-
-export default function WelcomeBudgetsMockup({ className, isActive }: { className?: string, isActive?: boolean }) {
-    const [displayBudgets, setDisplayBudgets] = useState<DisplayBudget[]>(initialBudgets);
-    const [animationPhase, setAnimationPhase] = useState<AnimationPhase>('idle');
-    const [formState, setFormState] = useState({ name: '', category: '', amount: '', startDate: '', endDate: '', accounts: [] as string[], isRecurring: false });
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (!isActive) {
-            setAnimationPhase('idle');
-            setDisplayBudgets(initialBudgets);
-            setFormState({ name: '', category: '', amount: '', startDate: '', endDate: '', accounts: [], isRecurring: false });
-            if (scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
-            return;
-        }
-
-        const timeouts: NodeJS.Timeout[] = [];
-        
-        const type = (text: string, updater: (newText: string) => void, onComplete?: () => void) => {
-            let currentText = '';
-            const interval = setInterval(() => {
-                currentText = text.slice(0, currentText.length + 1);
-                updater(currentText);
-                if (currentText === text) {
-                    clearInterval(interval);
-                    if (onComplete) onComplete();
-                }
-            }, 80);
-            timeouts.push(interval as unknown as NodeJS.Timeout);
-        };
-        
-        const sequence = () => {
-            setAnimationPhase('showing_list');
-            timeouts.push(setTimeout(() => setAnimationPhase('button_active'), 1500));
-            timeouts.push(setTimeout(() => setAnimationPhase('show_form'), 2000));
-            timeouts.push(setTimeout(() => {
-                setAnimationPhase('fill_form');
-                type("Japan Trip", t => setFormState(p => ({ ...p, name: t })), () => {
-                    timeouts.push(setTimeout(() => {
-                        type("Travel", t => setFormState(p => ({ ...p, category: t })), () => {
-                            timeouts.push(setTimeout(() => {
-                                type("20000000", t => setFormState(p => ({ ...p, amount: t })), () => {
-                                    timeouts.push(setTimeout(() => setFormState(p => ({...p, startDate: "Aug 01, 2024"})), 300));
-                                    timeouts.push(setTimeout(() => setFormState(p => ({...p, endDate: "Aug 31, 2024"})), 600));
-                                    timeouts.push(setTimeout(() => setFormState(p => ({...p, accounts: ['BCA Main Account', 'GoPay']})), 900));
-                                    timeouts.push(setTimeout(() => setFormState(p => ({...p, isRecurring: true})), 1200));
-                                    timeouts.push(setTimeout(() => setAnimationPhase('create_budget'), 1500));
-                                    timeouts.push(setTimeout(() => {
-                                        const newBudget: DisplayBudget = { id: 'new', name: 'Japan Trip', category: 'Travel', current: 0, target: 20000000, progress: 0, color: 'primary', isNew: true, startDate: '2024-08-01', endDate: '2024-08-31', accounts: ['bca1', 'gopay1'], isRecurring: true };
-                                        setDisplayBudgets(prev => [...prev, newBudget]);
-                                        setAnimationPhase('show_new_budget');
-                                        timeouts.push(setTimeout(() => {
-                                            if (scrollContainerRef.current) {
-                                                scrollContainerRef.current.scrollTo({ top: scrollContainerRef.current.scrollHeight, behavior: 'smooth' });
-                                            }
-                                        }, 200));
-                                        timeouts.push(setTimeout(() => setAnimationPhase('resetting'), 3000));
-                                        timeouts.push(setTimeout(() => {
-                                            setDisplayBudgets(initialBudgets);
-                                            setFormState({ name: '', category: '', amount: '', startDate: '', endDate: '', accounts: [], isRecurring: false });
-                                            if(scrollContainerRef.current) scrollContainerRef.current.scrollTop = 0;
-                                            sequence();
-                                        }, 3500));
-                                    }, 2000));
-                                });
-                            }, 500));
-                        });
-                    }, 500));
-                });
-            }, 2500));
-        };
-        
-        sequence();
-        return () => timeouts.forEach(clearTimeout);
-    }, [isActive]);
-
-    const showList = animationPhase !== 'show_form' && animationPhase !== 'fill_form' && animationPhase !== 'create_budget';
+const CategoryBudgetCard: React.FC<CategoryBudgetCardProps> = ({ category, icon, spent, total, color }) => {
+    const spentPercentage = (spent / total) * 100;
+    const remaining = total - spent;
 
     return (
-        <div className={cn(
-            "relative w-full max-w-sm h-[500px] rounded-2xl border-2 border-primary/20 shadow-2xl shadow-primary/20 bg-card/50 p-4 backdrop-blur-sm overflow-hidden flex flex-col gap-4",
-            className
-        )}>
-             <div className="absolute inset-0 p-4 flex flex-col gap-4 transition-all duration-300"
-                style={{ opacity: showList ? 1 : 0, transform: showList ? 'scale(1)' : 'scale(0.95)', pointerEvents: showList ? 'auto' : 'none' }}
-            >
-                <div className="flex-shrink-0">
-                    <h1 className="text-xl font-bold font-serif text-foreground">Smart Budgets</h1>
+        <div className="bg-card/30 backdrop-blur-sm border border-white/10 p-3 rounded-lg flex flex-col gap-2 shadow-lg">
+            <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: color }}>
+                    {icon}
                 </div>
-                <div ref={scrollContainerRef} className="space-y-3 overflow-y-auto custom-scrollbar pr-2 -mr-3 flex-1">
-                    {displayBudgets.map(budget => (
-                         <div key={budget.id} className={cn(
-                            "bg-secondary/50 rounded-xl p-3 border border-border transition-all duration-500",
-                            budget.isNew ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0',
-                            animationPhase === 'resetting' && 'opacity-0'
-                         )} ref={el => { if (el && budget.isNew) { setTimeout(() => el.classList.remove('opacity-0', 'translate-y-4'), 50); }}}>
-                            <div className="flex items-start justify-between mb-2">
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-foreground font-medium text-sm truncate">{budget.name}</p>
-                                    <p className="text-xs text-muted-foreground font-medium">{budget.category} &bull; <span className="text-primary/80">{formatDateRange(budget.startDate, budget.endDate)}</span></p>
-                                </div>
-                                <div className="flex items-center gap-1">
-                                    {budget.isRecurring && <Repeat className="w-3 h-3 text-muted-foreground" />}
-                                    <div className="flex -space-x-1">
-                                        {budget.accounts.map(acc => (
-                                            <div key={acc} className="w-4 h-4 rounded-full bg-white flex items-center justify-center border border-border">
-                                                {getAccountIcon(acc)}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                            <Progress value={budget.progress} className={cn("h-2", `[&>div]:bg-${budget.color}`)} />
-                            <div className="flex justify-between text-xs mt-1.5">
-                                <p className="text-muted-foreground font-medium">{formatCurrency(budget.current)} <span className="text-muted-foreground/70">of {formatCurrency(budget.target)}</span></p>
-                                <p className={`font-semibold ${budget.target - budget.current < 0 ? 'text-destructive' : 'text-primary'}`}>
-                                    {formatCurrency(Math.abs(budget.target - budget.current))} {budget.target - budget.current < 0 ? 'over' : 'left'}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
+                <div className="flex-1">
+                    <p className="font-semibold text-sm text-foreground">{category}</p>
+                    <p className="text-xs text-muted-foreground">Remaining: Rp {remaining.toLocaleString('id-ID')}</p>
                 </div>
-                <div className={cn(
-                    "w-full bg-card p-4 rounded-xl flex items-center justify-center text-muted-foreground border-2 border-dashed border-border transition-all duration-200 flex-shrink-0",
-                    animationPhase === 'button_active' && "border-primary/80 bg-primary/20 text-primary"
-                )}>
-                    <Plus className="w-5 h-5 mr-2" />
-                    <span className="font-semibold text-sm">Create New Budget</span>
-                </div>
+                <p className="text-sm font-bold text-foreground">Rp {spent.toLocaleString('id-ID')}</p>
             </div>
-
-            <div className="absolute inset-0 p-4 flex flex-col gap-2.5 transition-all duration-300"
-                style={{ opacity: !showList ? 1 : 0, transform: !showList ? 'scale(1)' : 'scale(0.95)', pointerEvents: !showList ? 'auto' : 'none' }}
-            >
-                <h3 className="text-xl font-bold font-serif text-center text-foreground flex-shrink-0">Create New Budget</h3>
-                 <div className="space-y-2">
-                    <div className="relative">
-                        <Edit className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input value={formState.name} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="Budget Name" />
-                    </div>
-                     <div className="relative">
-                        <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input value={formState.category} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="Category" />
-                    </div>
-                    <div className="relative">
-                        <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input value={formState.amount ? formatCurrency(Number(formState.amount)) : ''} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="Amount" />
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                        <div className="relative">
-                            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input value={formState.startDate} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="Start Date" />
-                        </div>
-                         <div className="relative">
-                            <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input value={formState.endDate} readOnly className="bg-input border-border h-10 pl-9 text-sm" placeholder="End Date" />
-                        </div>
-                    </div>
-                    <div className={cn("flex h-10 w-full items-center justify-between rounded-md border bg-input px-3 py-2 transition-colors", formState.accounts.length > 0 ? "border-primary" : "border-border")}>
-                        <span className={cn("truncate text-sm", formState.accounts.length > 0 ? "text-foreground" : "text-muted-foreground")}>
-                            {formState.accounts.length > 0 ? formState.accounts.join(', ') : "Accounts to Track"}
-                        </span>
-                        <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-                    </div>
-                     <div className="flex flex-row items-center justify-between rounded-lg border border-border p-3 bg-secondary">
-                        <label className="text-sm font-medium text-foreground">Recurring monthly</label>
-                        <Switch checked={formState.isRecurring} readOnly className="scale-[0.8]" />
-                    </div>
-                </div>
-                <Button className={cn("w-full h-12 text-base mt-auto flex-shrink-0 transition-colors duration-200", animationPhase === 'create_budget' ? 'bg-green-500 hover:bg-green-500/90 text-white' : 'bg-primary text-primary-foreground')}>
-                    {animationPhase === 'create_budget' ? <Check className="w-5 h-5"/> : 'Create Budget'}
-                 </Button>
-            </div>
+            <Progress value={spentPercentage} className="h-2" indicatorClassName={cn(color === '#000000' ? 'bg-white' : '')} style={{
+                '--indicator-color': color
+            } as React.CSSProperties}  />
         </div>
-    )
-}
+    );
+};
+
+const budgets = [
+    { category: 'Food & Drinks', icon: <span className="text-white text-lg">🍔</span>, spent: 750000, total: 2000000, color: '#3B82F6' },
+    { category: 'Shopping', icon: <span className="text-white text-lg">🛍️</span>, spent: 1200000, total: 1500000, color: '#A855F7' },
+    { category: 'Transport', icon: <span className="text-white text-lg">🚗</span>, spent: 450000, total: 500000, color: '#F97316' },
+];
+
+const WelcomeBudgetsMockup: React.FC<{ isActive: boolean, className?: string }> = ({ isActive, className }) => {
+    
+    return (
+        <div className={cn("relative w-full aspect-[9/16] bg-background/80 rounded-2xl shadow-2xl overflow-hidden border-4 border-foreground/10 has-blurry-glow-2", className)}>
+            <AnimatePresence>
+                {isActive && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="p-4 h-full"
+                    >
+                         <motion.div
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.3, duration: 0.5, ease: "easeOut" }}
+                            className="text-center mb-4"
+                        >
+                            <h3 className="text-lg font-bold text-foreground">My Budgets</h3>
+                            <p className="text-xs text-muted-foreground">July 2024</p>
+                        </motion.div>
+                        
+                        <div className="space-y-3">
+                            {budgets.map((budget, index) => (
+                                <motion.div
+                                    key={budget.category}
+                                    initial={{ x: -20, opacity: 0 }}
+                                    animate={{ x: 0, opacity: 1 }}
+                                    transition={{ delay: 0.5 + index * 0.1, duration: 0.5, ease: "easeOut" }}
+                                >
+                                    <CategoryBudgetCard {...budget} />
+                                </motion.div>
+                            ))}
+                        </div>
+                        
+                        <motion.div
+                             initial={{ y: 20, opacity: 0 }}
+                             animate={{ y: 0, opacity: 1 }}
+                             transition={{ delay: 1.0, duration: 0.5, ease: "easeOut" }}
+                             className="mt-4"
+                        >
+                            <Button variant="outline" className="w-full h-12 border-dashed border-primary/50 text-primary hover:text-primary hover:bg-primary/10">
+                                <Plus className="w-4 h-4 mr-2" /> Create New Budget
+                            </Button>
+                        </motion.div>
+
+                        <motion.div
+                             initial={{ y: 20, opacity: 0 }}
+                             animate={{ y: 0, opacity: 1 }}
+                             transition={{ delay: 1.2, duration: 0.5, ease: "easeOut" }}
+                             className="bg-card/30 backdrop-blur-sm border border-white/10 p-3 rounded-lg flex items-center gap-3 shadow-lg mt-4"
+                        >
+                            <div className="flex-1">
+                                <p className="font-semibold text-sm text-foreground">AI Budget Coach</p>
+                                <p className="text-xs text-muted-foreground">Get tips to stay on track.</p>
+                            </div>
+                            <Switch defaultChecked />
+                        </motion.div>
+                        
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            <div className="absolute inset-0 bg-gradient-to-t from-background/50 to-transparent pointer-events-none"></div>
+        </div>
+    );
+};
+
+export default WelcomeBudgetsMockup;
