@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, AtSign, ArrowLeft } from 'lucide-react';
-import { CuanLogo } from '@/components/icons/CuanLogo';
+import CuanLogo from '@/components/icons/CuanLogo';
 
 export default function ForgotPasswordPage() {
   const { toast } = useToast();
