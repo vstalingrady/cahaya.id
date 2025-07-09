@@ -223,24 +223,24 @@ export async function verifySecurityPin(
 /**
  * Handles actions to perform when a user signs in. It checks if a user record
  * exists and creates one if it doesn't.
- * @param user The Firebase user object.
+ * @param userData A simplified, plain object with user data.
  */
-export async function handleSignIn(user: {
+export async function handleSignIn(userData: {
   uid: string;
-  displayName?: string | null;
-  email?: string | null;
-  phoneNumber?: string | null;
+  displayName: string | null;
+  email: string | null;
+  phoneNumber: string | null;
 }) {
-  const userRef = doc(db, 'users', user.uid);
+  const userRef = doc(db, 'users', userData.uid);
   const docSnap = await getDoc(userRef);
 
   if (!docSnap.exists()) {
-    console.log(`New user detected: ${user.uid}. Creating Firestore record.`);
+    console.log(`New user detected: ${userData.uid}. Creating Firestore record.`);
     await setDoc(userRef, {
-      uid: user.uid,
-      fullName: user.displayName,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
+      uid: userData.uid,
+      fullName: userData.displayName,
+      email: userData.email,
+      phoneNumber: userData.phoneNumber,
       createdAt: Timestamp.now(),
       hasCompletedOnboarding: false,
     });
@@ -250,7 +250,7 @@ export async function handleSignIn(user: {
   }
 
   // Record the login event for security auditing.
-  const loginHistoryRef = collection(db, 'users', user.uid, 'login_history');
+  const loginHistoryRef = collection(db, 'users', userData.uid, 'login_history');
   await addDoc(loginHistoryRef, {
     timestamp: Timestamp.now(),
     ipAddress: '0.0.0.0', // In a real app, get this from request headers

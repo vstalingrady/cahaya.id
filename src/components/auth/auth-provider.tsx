@@ -86,7 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     phoneNumber: firebaseUser.phoneNumber,
                 };
                 setUser(appUser);
-                await handleSignIn(firebaseUser);
+                // Pass the simple appUser object to the server action, not the complex firebaseUser object.
+                await handleSignIn(appUser);
             } else {
                 setUser(null);
             }
