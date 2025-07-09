@@ -24,6 +24,8 @@ export interface AppUser {
 
 interface AuthContextType {
   user: AppUser | null;
+  isPinVerified: boolean;
+  setPinVerified: (verified: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,14 +66,18 @@ const PROTECTED_ROUTES = [
 ];
 
 const PIN_ENTRY_ROUTE = '/enter-pin';
-const LINK_ACCOUNT_ROUTE = '/link-account';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPinVerified, setIsPinVerified] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
   const { toast } = useToast();
+
+  const setPinVerifiedState = (verified: boolean) => {
+    setIsPinVerified(verified);
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
@@ -90,6 +96,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 await handleSignIn(appUser);
             } else {
                 setUser(null);
+                setIsPinVerified(false); // Reset on logout
             }
         } catch (error) {
             console.error("Auth state change error:", error);
@@ -99,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 description: 'Could not verify your session. Please try logging in again.',
             });
             setUser(null); // Ensure user is logged out on error
+            setIsPinVerified(false); // Reset on error
         } finally {
             setLoading(false);
         }
@@ -109,21 +117,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (loading) return;
 
-    const isPublicRoute = PUBLIC_ROUTES.some(route => pathname === route || (route !== '/' && pathname.startsWith(route)));
+    const isProtectedRoute = PROTECTED_ROUTES.some(route => pathname.startsWith(route));
 
     if (user) {
-        // If user is logged in, but on a public-only page, redirect them.
-        if (['/login', '/signup', '/verify-phone'].includes(pathname)) {
-             router.replace(PIN_ENTRY_ROUTE);
+        // User is logged in.
+        if (!isPinVerified && isProtectedRoute) {
+            router.replace(PIN_ENTRY_ROUTE);
         }
     } else {
-        // If user is not logged in and trying to access a protected page, redirect to login.
-        if (!isPublicRoute) {
-            router.replace('/login');
-        }
+      // No user.
+      if (isProtectedRoute) {
+        router.replace('/login');
+      }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, loading, pathname]);
+  }, [user, loading, isPinVerified, pathname, router]);
 
 
   if (loading) {
@@ -135,7 +142,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user }}>
+    <AuthContext.Provider value={{ user, isPinVerified, setPinVerified: setPinVerifiedState }}>
       {children}
     </AuthContext.Provider>
   );

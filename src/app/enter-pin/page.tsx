@@ -11,7 +11,7 @@ import { useAuth } from '@/components/auth/auth-provider';
 import { verifySecurityPin } from '@/lib/actions';
 
 export default function PinEntryPage() {
-  const { user } = useAuth();
+  const { user, setPinVerified } = useAuth();
   const [pin, setPin] = useState(Array(6).fill(''));
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -41,6 +41,7 @@ export default function PinEntryPage() {
       const result = await verifySecurityPin(user.uid, pinString);
 
       if (result.success) {
+        setPinVerified(true);
         toast({
           title: 'PIN Verified',
           description: 'Welcome to your dashboard.',
