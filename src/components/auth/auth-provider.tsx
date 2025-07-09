@@ -7,6 +7,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import { auth } from '@/lib/firebase';
 import { handleSignIn } from '@/lib/actions';
 import { Loader2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 /**
  * A simplified user object that only contains primitive values.
@@ -35,7 +36,7 @@ export function useAuth() {
   return context;
 }
 
-// Routes accessible to ANY user (logged out or logged in).
+// Routes that do NOT require authentication.
 const PUBLIC_ROUTES = [
     '/', 
     '/login', 
@@ -45,54 +46,78 @@ const PUBLIC_ROUTES = [
     '/setup-security', 
     '/terms-of-service',
     '/forgot-password',
-    '/enter-pin', // The PIN page is part of the auth flow
+];
+
+// The main app routes that require authentication AND a PIN to have been entered.
+const PROTECTED_ROUTES = [
+    '/dashboard',
+    '/account',
+    '/bills',
+    '/budgets',
+    '/chat',
+    '/history',
+    '/insights',
+    '/profile',
+    '/subscriptions',
+    '/transfer',
+    '/vaults'
 ];
 
 const PIN_ENTRY_ROUTE = '/enter-pin';
+const LINK_ACCOUNT_ROUTE = '/link-account';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const { toast } = useToast();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      if (firebaseUser) {
-        // Create a clean, simple user object for React state
-        const appUser: AppUser = {
-          uid: firebaseUser.uid,
-          displayName: firebaseUser.displayName,
-          email: firebaseUser.email,
-          photoURL: firebaseUser.photoURL,
-          phoneNumber: firebaseUser.phoneNumber,
-        };
-        setUser(appUser);
-        await handleSignIn(firebaseUser);
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
+        try {
+            if (firebaseUser) {
+                // Create a clean, simple user object for React state
+                const appUser: AppUser = {
+                    uid: firebaseUser.uid,
+                    displayName: firebaseUser.displayName,
+                    email: firebaseUser.email,
+                    photoURL: firebaseUser.photoURL,
+                    phoneNumber: firebaseUser.phoneNumber,
+                };
+                setUser(appUser);
+                await handleSignIn(firebaseUser);
+            } else {
+                setUser(null);
+            }
+        } catch (error) {
+            console.error("Auth state change error:", error);
+            toast({
+                variant: 'destructive',
+                title: 'Authentication Error',
+                description: 'Could not verify your session. Please try logging in again.',
+            });
+            setUser(null); // Ensure user is logged out on error
+        } finally {
+            setLoading(false);
+        }
     });
     return () => unsubscribe();
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
     if (loading) return;
 
-    const isPublic = PUBLIC_ROUTES.some(route => pathname.startsWith(route)) || pathname === '/';
-    
-    // If there is a logged-in user...
+    const isPublicRoute = PUBLIC_ROUTES.some(route => pathname === route || (route !== '/' && pathname.startsWith(route)));
+
     if (user) {
-        // ...and they are on a public-only page (like login/signup), redirect them.
+        // If user is logged in, but on a public-only page, redirect them.
         if (['/login', '/signup', '/verify-phone'].includes(pathname)) {
              router.replace(PIN_ENTRY_ROUTE);
         }
-    } 
-    // If there is NO logged-in user...
-    else {
-        // ...and they are trying to access a protected page, redirect them to login.
-        if (!isPublic) {
+    } else {
+        // If user is not logged in and trying to access a protected page, redirect to login.
+        if (!isPublicRoute) {
             router.replace('/login');
         }
     }
