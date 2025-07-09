@@ -55,8 +55,13 @@ function ForgotPasswordContent() {
     if (!email) return;
     setIsLoading(true);
 
+    const actionCodeSettings = {
+      url: `${window.location.origin}/forgot-password`,
+      handleCodeInApp: true,
+    };
+
     try {
-      await sendPasswordResetEmail(auth, email);
+      await sendPasswordResetEmail(auth, email, actionCodeSettings);
       toast({
         title: 'Reset Link Sent',
         description: `If an account exists for ${email}, a password reset link has been sent. Please check your inbox.`,
@@ -64,6 +69,8 @@ function ForgotPasswordContent() {
       setStep(3); // A step to show "check your email" message
     } catch (error: any) {
       console.error('Forgot Password Error:', { code: error.code, message: error.message });
+      // It's good practice to show a generic success message even on failure
+      // to prevent email enumeration attacks.
       toast({
         title: 'Reset Link Sent',
         description: `If an account exists for this email, a password reset link has been sent. Please check your inbox.`,
