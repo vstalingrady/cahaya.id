@@ -46,6 +46,21 @@ export default function ForgotPasswordPage() {
     }
   };
 
+  const maskEmail = (email: string) => {
+    const atIndex = email.indexOf('@');
+    if (atIndex < 1) return email;
+
+    const username = email.substring(0, atIndex);
+    const domain = email.substring(atIndex);
+
+    if (username.length <= 2) {
+      return '*'.repeat(username.length) + domain;
+    }
+
+    const maskedUsername = username.substring(0, 2) + '*'.repeat(username.length - 2);
+    return maskedUsername + domain;
+  };
+
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -60,7 +75,7 @@ export default function ForgotPasswordPage() {
                 <h1 className="text-3xl font-bold font-serif">Check Your Email</h1>
                 <p className="text-muted-foreground">
                     We&apos;ve sent a password reset link to <br/>
-                    <span className="font-semibold text-foreground">{email}</span>.
+                    <span className="font-semibold text-foreground">{maskEmail(email)}</span>.
                 </p>
                 <p className='text-sm text-muted-foreground'>Please check your spam folder if you don&apos;t see it in your inbox.</p>
                 <Button asChild className="w-full h-12 text-lg">
