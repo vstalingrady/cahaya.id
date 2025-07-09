@@ -1,15 +1,28 @@
 
 'use client';
 
-import { onAuthStateChanged, type User } from 'firebase/auth';
+import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { auth } from '@/lib/firebase';
-import { handleSignIn } from '@/lib/actions';
+import { handleSignIn, checkUserOnboardingStatus } from '@/lib/actions';
 import { Loader2 } from 'lucide-react';
 
+/**
+ * A simplified user object that only contains primitive values.
+ * This is safe to store in React state and avoids circular references
+ * found in the complex FirebaseUser object.
+ */
+export interface AppUser {
+  uid: string;
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+  phoneNumber: string | null;
+}
+
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,23 +45,45 @@ const PUBLIC_ROUTES = [
     '/setup-security', 
     '/terms-of-service',
     '/forgot-password',
-    '/link-account',
-    '/mock-ayo-connect',
 ];
-// The page where a logged-in user must enter their PIN.
+// Pages that are part of the main app experience and require a PIN session.
+const MAIN_APP_ROUTES = [
+    '/dashboard',
+    '/transfer',
+    '/budgets',
+    '/insights',
+    '/chat',
+    '/vaults',
+    '/history',
+    '/profile',
+    '/account',
+    '/bills',
+    '/subscriptions'
+];
+
 const PIN_ENTRY_ROUTE = '/enter-pin';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        handleSignIn(currentUser).catch(console.error);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+      if (firebaseUser) {
+        // Create a clean, simple user object for React state
+        const appUser: AppUser = {
+          uid: firebaseUser.uid,
+          displayName: firebaseUser.displayName,
+          email: firebaseUser.email,
+          photoURL: firebaseUser.photoURL,
+          phoneNumber: firebaseUser.phoneNumber,
+        };
+        setUser(appUser);
+        await handleSignIn(firebaseUser);
+      } else {
+        setUser(null);
       }
       setLoading(false);
     });
@@ -58,12 +93,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (loading) return;
 
-    const isPublic = PUBLIC_ROUTES.some(route => pathname.startsWith(route));
+    const isPublic = PUBLIC_ROUTES.some(route => pathname.startsWith(route)) || pathname === '/';
     
     // If there is a logged-in user...
     if (user) {
         // ...and they are on a public-only page (like login/signup), redirect them.
-        // This prevents a logged-in user from seeing the signup page again.
         if (['/login', '/signup', '/verify-phone'].includes(pathname)) {
              router.replace(PIN_ENTRY_ROUTE);
         }
@@ -76,6 +110,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }
   }, [user, loading, pathname, router]);
+
 
   if (loading) {
     return (
