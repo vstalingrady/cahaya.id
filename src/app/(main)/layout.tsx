@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import MainNav from '@/components/main-nav';
+import { AuthProvider } from '@/components/auth/auth-provider';
 
 export default function MainLayout({
     children,
@@ -12,11 +13,14 @@ export default function MainLayout({
     const isHomePage = pathname === '/';
 
     return (
-        <div className="flex flex-col min-h-screen">
-            {!isHomePage && <MainNav />}
-            <main className="flex-1">
-                {children}
-            </main>
-        </div>
+        <AuthProvider>
+            <div className="flex flex-col min-h-screen">
+                <main className="flex-1 p-6">
+                    {children}
+                </main>
+                {/* The MainNav component is positioned at the bottom */}
+                {!isHomePage && <MainNav />}
+            </div>
+        </AuthProvider>
     );
 }
