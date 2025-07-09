@@ -9,7 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/components/auth/auth-provider';
 import { getAiChatResponse, getChatHistoryList, getChatSessionMessages } from '@/lib/actions';
-import { getChatSuggestions } from '@/lib/data';
+import { getChatSuggestions as fetchSuggestions } from '@/lib/actions';
 import { type ChatMessage } from '@/ai/flows/chat-flow';
 import { type ChatSession, type ChatSuggestion } from '@/lib/data';
 import { cn } from '@/lib/utils';
@@ -17,6 +17,7 @@ import GeminiLogo from '@/components/icons/GeminiLogo';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { formatDistanceToNow } from 'date-fns';
+import Link from 'next/link';
 
 const defaultSuggestionChips: ChatSuggestion[] = [
     { suggestion: "Help me budget for a trip to Japan" },
@@ -56,11 +57,17 @@ export default function ChatPage() {
   
   // Fetch starter suggestions on initial load
   useEffect(() => {
-    async function fetchSuggestions() {
+    async function getSuggestions() {
+      if (!user) {
+          setIsSuggestionsLoading(false);
+          setSuggestions(defaultSuggestionChips);
+          return;
+      }
       setIsSuggestionsLoading(true);
       try {
-        const result = await getChatSuggestions();
-        setSuggestions(result.length > 0 ? result : defaultSuggestionChips);
+        const result = await fetchSuggestions(user.uid);
+        const suggestionChips = result.map(s => ({ suggestion: s }));
+        setSuggestions(suggestionChips.length > 0 ? suggestionChips : defaultSuggestionChips);
       } catch (error) {
         console.error("Failed to fetch suggestions:", error);
         setSuggestions(defaultSuggestionChips);
@@ -68,8 +75,8 @@ export default function ChatPage() {
         setIsSuggestionsLoading(false);
       }
     }
-    fetchSuggestions();
-  }, []);
+    getSuggestions();
+  }, [user]);
 
   // Fetch chat history
   const fetchHistory = useCallback(async () => {
@@ -143,49 +150,58 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full max-w-4xl mx-auto animate-fade-in-up p-6 space-y-4">
-      <div className="flex justify-between items-start">
-        <div>
-          <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Cahaya AI
-          </h1>
-          <p className="text-muted-foreground">Your personal financial assistant.</p>
-        </div>
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
-            <Button onClick={() => fetchHistory()} variant="outline" size="sm" className="bg-primary/10 hover:bg-primary/20 text-primary border-primary/20 font-semibold">
-              <History className="w-4 h-4 mr-2" /> History
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="flex flex-col">
-            <SheetHeader>
-              <SheetTitle>Chat History</SheetTitle>
-            </SheetHeader>
-            <div className="flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4 space-y-2">
-              {isHistoryLoading ? (
-                Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
-              ) : historyList.length > 0 ? (
-                historyList.map(session => (
-                  <button key={session.id} onClick={() => handleSelectChat(session.id)} className={cn(
-                      "w-full text-left p-3 rounded-lg border transition-colors",
-                      activeChatId === session.id ? "bg-secondary border-primary/50" : "bg-card hover:bg-secondary/50 border-border"
-                  )}>
-                      <p className="font-semibold text-card-foreground truncate">{session.title}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(session.lastUpdated.toDate(), { addSuffix: true })}
-                      </p>
-                  </button>
-                ))
-              ) : (
-                <p className="text-muted-foreground text-center pt-10">No chat history yet.</p>
-              )}
+    <div className="flex flex-col h-full animate-fade-in-up p-6 space-y-4">
+      <header className="sticky top-0 -mt-6 pt-6 pb-4 -mx-6 px-6 bg-background/80 backdrop-blur-md z-20 flex justify-between items-center">
+            <div>
+                <h1 className="text-xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                    Cahaya AI
+                </h1>
+                <p className="text-sm text-muted-foreground">Your personal financial assistant.</p>
             </div>
-             <Button onClick={handleNewChat} className="mt-4">
-              <Plus className="w-4 h-4 mr-2" /> New Chat
-            </Button>
-          </SheetContent>
-        </Sheet>
-      </div>
+            <div className="flex items-center gap-3">
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                <SheetTrigger asChild>
+                  <Button onClick={() => fetchHistory()} variant="outline" size="sm" className="bg-primary/10 hover:bg-primary/20 text-primary border-primary/20 font-semibold">
+                    <History className="w-4 h-4 mr-2" /> History
+                  </Button>
+                </SheetTrigger>
+                <SheetContent className="flex flex-col">
+                  <SheetHeader>
+                    <SheetTitle>Chat History</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4 space-y-2">
+                    {isHistoryLoading ? (
+                      Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
+                    ) : historyList.length > 0 ? (
+                      historyList.map(session => (
+                        <button key={session.id} onClick={() => handleSelectChat(session.id)} className={cn(
+                            "w-full text-left p-3 rounded-lg border transition-colors",
+                            activeChatId === session.id ? "bg-secondary border-primary/50" : "bg-card hover:bg-secondary/50 border-border"
+                        )}>
+                            <p className="font-semibold text-card-foreground truncate">{session.title}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(session.lastUpdated), { addSuffix: true })}
+                            </p>
+                        </button>
+                      ))
+                    ) : (
+                      <p className="text-muted-foreground text-center pt-10">No chat history yet.</p>
+                    )}
+                  </div>
+                   <Button onClick={handleNewChat} className="mt-4">
+                    <Plus className="w-4 h-4 mr-2" /> New Chat
+                  </Button>
+                </SheetContent>
+              </Sheet>
+              <Link href="/profile">
+                  <Avatar className="w-11 h-11 bg-primary rounded-full shadow-lg border-2 border-border/50 cursor-pointer">
+                    <AvatarImage src={user?.photoURL || "https://placehold.co/128x128.png"} alt={user?.displayName || "User Avatar"} data-ai-hint="person avatar" />
+                    <AvatarFallback><UserIcon /></AvatarFallback>
+                  </Avatar>
+              </Link>
+            </div>
+      </header>
+
 
       <main className="flex-1 flex flex-col min-h-0">
         <div className="flex-1 flex flex-col justify-center overflow-hidden">

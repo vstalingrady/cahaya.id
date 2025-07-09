@@ -1049,7 +1049,15 @@ export async function getChatHistoryList(
   const q = query(sessionsRef, orderBy('lastUpdated', 'desc'));
   const querySnapshot = await getDocs(q);
   return querySnapshot.docs.map(
-    doc => ({ id: doc.id, ...doc.data() } as ChatSession)
+    doc => {
+        const data = doc.data();
+        return { 
+            id: doc.id,
+            userId: data.userId,
+            title: data.title,
+            lastUpdated: (data.lastUpdated as Timestamp).toDate().toISOString(),
+        }
+    }
   );
 }
 

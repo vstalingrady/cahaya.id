@@ -100,7 +100,7 @@ export type ChatSession = {
   id: string;
   userId: string;
   title: string;
-  lastUpdated: any; // Firestore Timestamp
+  lastUpdated: string;
 };
 
 export type ChatSuggestion = {
