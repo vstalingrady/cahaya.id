@@ -22,7 +22,7 @@ export function useAuth() {
   return context;
 }
 
-// Routes accessible to unauthenticated users. All other routes are protected.
+// Routes accessible to unauthenticated users.
 const PUBLIC_ROUTES = [
     '/', 
     '/login', 
@@ -36,6 +36,10 @@ const PUBLIC_ROUTES = [
     '/mock-ayo-connect',
 ];
 
+// Auth-specific routes that a logged-in user should be redirected away from.
+const AUTH_ROUTES = ['/login', '/signup', '/verify-phone', '/complete-profile', '/setup-security', '/forgot-password'];
+
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -47,8 +51,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(currentUser);
       
       if (currentUser) {
-        // This function now handles creating the user record in Firestore
-        // and seeding data if it's their first time.
         handleSignIn(currentUser).catch(error => {
             console.error("Failed to handle user sign-in:", error);
         });
@@ -66,14 +68,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const isPublicRoute = PUBLIC_ROUTES.some(route => {
-        // Exact match for root, startsWith for others to catch sub-paths like /link-account/[slug]
         if (route === '/') return pathname === '/';
         return pathname.startsWith(route);
     });
-    
-    // If the user is not logged in and trying to access a protected route, redirect to login.
-    if (!user && !isPublicRoute) {
-      router.replace('/login');
+
+    const isAuthRoute = AUTH_ROUTES.some(route => pathname.startsWith(route));
+
+    // If the user is logged in...
+    if (user) {
+        // ...and they are on an auth page (like /login), redirect them to the next step.
+        if (isAuthRoute) {
+            router.replace('/enter-pin');
+        }
+    } 
+    // If the user is not logged in...
+    else {
+        // ...and they are trying to access a protected route, redirect them to login.
+        if (!isPublicRoute) {
+            router.replace('/login');
+        }
     }
   }, [user, loading, pathname, router]);
 
