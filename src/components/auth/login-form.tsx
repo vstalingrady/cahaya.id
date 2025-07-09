@@ -27,7 +27,6 @@ export default function LoginForm() {
 
   const handleAuthSuccess = async (user: User) => {
     const { onboardingComplete } = await checkUserOnboardingStatus(user.uid);
-    document.cookie = "isLoggedIn=true; path=/; max-age=86400";
     if (onboardingComplete) {
       router.push('/enter-pin');
     } else {
