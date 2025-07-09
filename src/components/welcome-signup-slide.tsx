@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -26,7 +27,7 @@ export default function WelcomeSignupSlide() {
         <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-center px-6 pb-6 gap-4 overflow-y-auto custom-scrollbar">
             <div className="w-full max-w-sm mx-auto text-center">
                 <div className="min-h-[180px] flex flex-col items-center justify-center mb-6">
-                    <h2 className="text-3xl font-bold font-serif text-foreground has-blurry-glow-2">Ready to take control?</h2>
+                    <h2 className="text-3xl font-bold font-serif text-primary animate-text-glow">Ready to take control?</h2>
                     <p className="text-muted-foreground text-sm mt-2">
                         We support all major banks, e-wallets, and payment providers in Indonesia, with more coming soon.
                     </p>
