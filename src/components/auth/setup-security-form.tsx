@@ -20,7 +20,7 @@ export default function SetupSecurityForm() {
   const [pin, setPin] = useState(Array(6).fill(''));
   const [confirmPin, setConfirmPin] = useState(Array(6).fill(''));
   
-  const confirmPinRef = useRef<{ focus: () => void }>(null);
+  const confirmPinRef = useRef<HTMLInputElement>(null);
 
 
   const handleSetPin = async () => {
@@ -89,9 +89,6 @@ export default function SetupSecurityForm() {
             <PinInput 
                 value={pin} 
                 onChange={setPin}
-                onComplete={() => {
-                  confirmPinRef.current?.focus();
-                }}
             />
         </div>
 
