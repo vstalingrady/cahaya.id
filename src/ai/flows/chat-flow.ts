@@ -51,7 +51,7 @@ Keep your answers concise and easy to understand.
 
 Use the provided chat history to maintain context of the conversation.
 
-IMPORTANT: If this is the first user message in the conversation (the history provided has only 2 messages), you MUST generate a short, descriptive title for the conversation (e.g., "Saving for a Japan Trip", "Understanding Index Funds") and include it in the 'title' field of the output. For all subsequent messages, you must OMIT the 'title' field.
+IMPORTANT: If this is the first user message in the conversation (i.e., the history contains only a single 'user' message), you MUST generate a short, descriptive title for the conversation (e.g., "Saving for a Japan Trip", "Understanding Index Funds") and include it in the 'title' field of the output. For all subsequent messages, you must OMIT the 'title' field.
 
 Chat History:
 {{#each history}}
