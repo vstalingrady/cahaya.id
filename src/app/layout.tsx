@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster"
 import { Plus_Jakarta_Sans, Domine, Roboto_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
+import { AuthProvider } from '@/components/auth/auth-provider';
 
 export const metadata: Metadata = {
   title: 'Cahaya - All your money, in one place.',
@@ -48,8 +49,10 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
         >
+          <AuthProvider>
             {children}
             <Toaster />
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
