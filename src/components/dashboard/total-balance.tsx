@@ -133,32 +133,27 @@ export default function TotalBalance({ title, amount, transactions, showHistoryL
         return data;
     };
     
-    const timer = setTimeout(() => {
-        const data = generateChartData(amount, transactions, activeRange);
-        setChartData(data);
-        if (data.length > 1) {
-            const lastPoint = data[data.length - 1];
-            const secondLastPoint = data[data.length - 2];
-            const change = lastPoint.netWorth - secondLastPoint.netWorth;
-            const percentageChange = secondLastPoint.netWorth === 0 ? 0 : (change / secondLastPoint.netWorth) * 100;
-            setDisplayData({
-                date: lastPoint.date,
-                amount: lastPoint.netWorth,
-                change: change,
-                percentageChange: percentageChange
-            });
-        } else if (data.length === 1) {
-             setDisplayData({
-                date: data[0].date,
-                amount: data[0].netWorth,
-                change: 0,
-                percentageChange: 0,
-            });
-        }
-
-    }, 1);
-
-    return () => clearTimeout(timer);
+    const data = generateChartData(amount, transactions, activeRange);
+    setChartData(data);
+    if (data.length > 1) {
+        const lastPoint = data[data.length - 1];
+        const secondLastPoint = data[data.length - 2];
+        const change = lastPoint.netWorth - secondLastPoint.netWorth;
+        const percentageChange = secondLastPoint.netWorth === 0 ? 0 : (change / secondLastPoint.netWorth) * 100;
+        setDisplayData({
+            date: lastPoint.date,
+            amount: lastPoint.netWorth,
+            change: change,
+            percentageChange: percentageChange
+        });
+    } else if (data.length === 1) {
+          setDisplayData({
+            date: data[0].date,
+            amount: data[0].netWorth,
+            change: 0,
+            percentageChange: 0,
+        });
+    }
   }, [amount, transactions, activeRange, isActive]);
 
 
