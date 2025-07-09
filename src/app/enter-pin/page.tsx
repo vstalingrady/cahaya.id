@@ -1,11 +1,10 @@
-
 'use client';
 
 import React, { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Shield, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Shield, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/components/auth/auth-provider';
 import { verifySecurityPin } from '@/lib/actions';
@@ -15,7 +14,6 @@ export default function PinEntryPage() {
   const [pin, setPin] = useState(Array(6).fill(''));
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isPinVisible, setIsPinVisible] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
@@ -134,13 +132,13 @@ export default function PinEntryPage() {
         </div>
 
         <form ref={formRef} onSubmit={handleSubmit} className="w-full max-w-sm">
-          <div className="mb-2">
+          <div className="mb-6">
             <div className="flex justify-center items-center gap-2" onPaste={(e) => handlePaste(e.clipboardData.getData('text'))}>
               {Array(6).fill('').map((_, index) => (
                   <React.Fragment key={index}>
                     <Input
                       ref={(el) => (inputsRef.current[index] = el)}
-                      type={isPinVisible ? 'text' : 'password'}
+                      type="password"
                       value={pin[index] || ''}
                       onChange={(e) => handleIndividualInputChange(e, index)}
                       onKeyDown={(e) => handleKeyDown(e, index)}
@@ -155,19 +153,6 @@ export default function PinEntryPage() {
               ))}
             </div>
             {error && <p className="text-destructive text-sm mt-2 text-center">{error}</p>}
-          </div>
-
-          <div className="h-8 flex justify-end items-center pr-1 mb-2">
-             <Button 
-                type="button" 
-                variant="ghost" 
-                size="icon" 
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                onClick={() => setIsPinVisible(!isPinVisible)}
-                aria-label={isPinVisible ? "Hide PIN" : "Show PIN"}
-            >
-                {isPinVisible ? <EyeOff size={20} /> : <Eye size={20} />}
-             </Button>
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading || pin.join('').length < 6}>
