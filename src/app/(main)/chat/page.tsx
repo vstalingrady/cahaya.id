@@ -35,8 +35,7 @@ export default function ChatPage() {
   const [isLoading, setIsLoading] = useState(false);
   
   // Suggestions state
-  const [suggestions, setSuggestions] = useState<ChatSuggestion[]>([]);
-  const [isSuggestionsLoading, setIsSuggestionsLoading] = useState(true);
+  const [suggestions, setSuggestions] = useState<ChatSuggestion[]>(defaultSuggestionChips);
 
   // History state
   const [historyList, setHistoryList] = useState<ChatSession[]>([]);
@@ -59,20 +58,20 @@ export default function ChatPage() {
   useEffect(() => {
     async function getSuggestions() {
       if (!user) {
-          setIsSuggestionsLoading(false);
           setSuggestions(defaultSuggestionChips);
           return;
       }
-      setIsSuggestionsLoading(true);
+      // We don't set a loading state here.
+      // We show default suggestions and update them when the fetch is complete.
       try {
         const result = await fetchSuggestions(user.uid);
         const suggestionChips = result.map(s => ({ suggestion: s }));
-        setSuggestions(suggestionChips.length > 0 ? suggestionChips : defaultSuggestionChips);
+        if (suggestionChips.length > 0) {
+            setSuggestions(suggestionChips);
+        }
       } catch (error) {
         console.error("Failed to fetch suggestions:", error);
-        setSuggestions(defaultSuggestionChips);
-      } finally {
-        setIsSuggestionsLoading(false);
+        // On error, we just keep the default suggestions.
       }
     }
     getSuggestions();
@@ -213,17 +212,11 @@ export default function ChatPage() {
                 </h2>
                 <p className="text-muted-foreground mt-2 text-lg">I can help with budgeting, financial questions, and more.</p>
                 <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mx-auto">
-                    {isSuggestionsLoading ? (
-                        Array.from({ length: 3 }).map((_, i) => (
-                            <Skeleton key={i} className="h-14 w-full" />
-                        ))
-                    ) : (
-                        suggestions.map((suggestion, i) => (
-                            <Button key={i} variant="secondary" className="h-auto text-left py-3 whitespace-normal" onClick={() => handleSuggestionClick(suggestion.suggestion)}>
-                                {suggestion.suggestion}
-                            </Button>
-                        ))
-                    )}
+                    {suggestions.map((suggestion, i) => (
+                        <Button key={i} variant="secondary" className="h-auto text-left py-3 whitespace-normal" onClick={() => handleSuggestionClick(suggestion.suggestion)}>
+                            {suggestion.suggestion}
+                        </Button>
+                    ))}
                 </div>
               </div>
             </div>
