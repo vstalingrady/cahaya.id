@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -20,8 +21,9 @@ export const PinInput = React.forwardRef<HTMLInputElement, PinInputProps>(
     };
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      // Sanitize the input to be alphanumeric and of the correct length.
-      const sanitizedValue = e.target.value.replace(/[^a-zA-Z0-9]/g, '').slice(0, pinLength);
+      // Sanitize the input to be of the correct length.
+      // The problematic .replace() call has been removed.
+      const sanitizedValue = e.target.value.slice(0, pinLength);
       // Pad the array with empty strings to ensure it always has `pinLength` elements.
       const newPinArray = sanitizedValue.split('').concat(Array(pinLength).fill('')).slice(0, pinLength);
       onChange(newPinArray);
