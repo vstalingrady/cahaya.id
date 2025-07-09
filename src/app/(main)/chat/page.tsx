@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useRef, useEffect, FormEvent } from 'react';
-import { Send, User, Loader2, Sparkles, History } from 'lucide-react';
+import { Send, User, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -12,7 +12,6 @@ import { getAiChatResponse, getChatSuggestions } from '@/lib/actions';
 import { type ChatMessage } from '@/ai/flows/chat-flow';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GeminiLogo from '@/components/icons/GeminiLogo';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -108,93 +107,79 @@ export default function ChatPage() {
             </Link>
           </header>
           
-          <Tabs defaultValue="chat" className="flex-1 flex flex-col min-h-0">
-            <TabsList className="grid w-full grid-cols-2 bg-card border-border mx-auto max-w-sm">
-                <TabsTrigger value="chat">Chat</TabsTrigger>
-                <TabsTrigger value="history">History</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="chat" className="flex-1 flex flex-col mt-4 overflow-hidden">
-                <div className="flex-1 flex flex-col items-center justify-start text-center pb-4 min-h-0">
-                    {messages.length === 0 && !isLoading && (
-                    <div className="text-center w-full px-4 pt-12">
-                        <h2 className="text-5xl md:text-6xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent pb-2">
-                        Ask me anything.
-                        </h2>
-                        <p className="text-muted-foreground mt-2 text-lg">I can help with budgeting, financial questions, and more.</p>
-                        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-3xl mx-auto">
-                            {isSuggestionsLoading ? (
-                                Array.from({ length: 3 }).map((_, i) => (
-                                    <Skeleton key={i} className="h-14 w-full" />
-                                ))
-                            ) : (
-                                suggestions.map((text, i) => (
-                                    <Button key={i} variant="secondary" className="h-auto text-left py-3 whitespace-normal" onClick={() => handleSuggestionClick(text)}>
-                                        {text}
-                                    </Button>
-                                ))
-                            )}
-                        </div>
-                    </div>
-                    )}
-                    
-                    <ScrollArea className="flex-1 w-full p-4" ref={scrollAreaRef}>
-                    <div className="space-y-6 max-w-3xl mx-auto">
-                        {messages.map((message, index) => (
-                        <div
-                            key={index}
-                            className={cn(
-                            'flex items-start gap-4',
-                            message.role === 'user' ? 'justify-end' : 'justify-start'
-                            )}
-                        >
-                            {message.role === 'model' && (
-                                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                    <Sparkles className="w-5 h-5 text-primary" />
-                                </div>
-                            )}
-                            <div
-                            className={cn(
-                                'max-w-[85%] rounded-xl px-4 py-3 text-sm text-left whitespace-pre-wrap',
-                                message.role === 'user'
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-secondary text-foreground'
-                            )}
-                            >
-                            {message.content}
-                            </div>
-                            {message.role === 'user' && (
-                            <Avatar className="w-8 h-8 flex-shrink-0">
-                                <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
-                                <AvatarFallback>
-                                <User className="w-4 h-4" />
-                                </AvatarFallback>
-                            </Avatar>
-                            )}
-                        </div>
-                        ))}
-                        {isLoading && (
-                        <div className="flex items-start gap-4 justify-start max-w-3xl mx-auto">
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                <Sparkles className="w-5 h-5 text-primary" />
-                            </div>
-                            <div className="bg-secondary rounded-xl px-4 py-3 text-sm">
-                            <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-                            </div>
-                        </div>
-                        )}
-                    </div>
-                    </ScrollArea>
-                </div>
-            </TabsContent>
-            <TabsContent value="history" className="flex-1 flex flex-col mt-4">
-                <div className="flex-1 flex flex-col items-center justify-center text-center p-6">
-                    <History className="w-16 h-16 text-muted-foreground/30 mb-4" />
-                    <h3 className="text-xl font-semibold text-foreground">No History Yet</h3>
-                    <p className="text-muted-foreground mt-2">Your past conversations will appear here.</p>
-                </div>
-            </TabsContent>
-          </Tabs>
+          <div className="flex-1 flex flex-col mt-4 overflow-hidden">
+              <div className="flex-1 flex flex-col items-center justify-start text-center pb-4 min-h-0">
+                  {messages.length === 0 && !isLoading && (
+                  <div className="text-center w-full px-4 pt-12">
+                      <h2 className="text-5xl md:text-6xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent pb-2">
+                      Ask me anything.
+                      </h2>
+                      <p className="text-muted-foreground mt-2 text-lg">I can help with budgeting, financial questions, and more.</p>
+                      <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-3xl mx-auto">
+                          {isSuggestionsLoading ? (
+                              Array.from({ length: 3 }).map((_, i) => (
+                                  <Skeleton key={i} className="h-14 w-full" />
+                              ))
+                          ) : (
+                              suggestions.map((text, i) => (
+                                  <Button key={i} variant="secondary" className="h-auto text-left py-3 whitespace-normal" onClick={() => handleSuggestionClick(text)}>
+                                      {text}
+                                  </Button>
+                              ))
+                          )}
+                      </div>
+                  </div>
+                  )}
+                  
+                  <ScrollArea className="flex-1 w-full p-4" ref={scrollAreaRef}>
+                  <div className="space-y-6 max-w-3xl mx-auto">
+                      {messages.map((message, index) => (
+                      <div
+                          key={index}
+                          className={cn(
+                          'flex items-start gap-4',
+                          message.role === 'user' ? 'justify-end' : 'justify-start'
+                          )}
+                      >
+                          {message.role === 'model' && (
+                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                  <Sparkles className="w-5 h-5 text-primary" />
+                              </div>
+                          )}
+                          <div
+                          className={cn(
+                              'max-w-[85%] rounded-xl px-4 py-3 text-sm text-left whitespace-pre-wrap',
+                              message.role === 'user'
+                              ? 'bg-primary text-primary-foreground'
+                              : 'bg-secondary text-foreground'
+                          )}
+                          >
+                          {message.content}
+                          </div>
+                          {message.role === 'user' && (
+                          <Avatar className="w-8 h-8 flex-shrink-0">
+                              <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
+                              <AvatarFallback>
+                              <User className="w-4 h-4" />
+                              </AvatarFallback>
+                          </Avatar>
+                          )}
+                      </div>
+                      ))}
+                      {isLoading && (
+                      <div className="flex items-start gap-4 justify-start max-w-3xl mx-auto">
+                          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                              <Sparkles className="w-5 h-5 text-primary" />
+                          </div>
+                          <div className="bg-secondary rounded-xl px-4 py-3 text-sm">
+                          <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
+                          </div>
+                      </div>
+                      )}
+                  </div>
+                  </ScrollArea>
+              </div>
+          </div>
       </div>
 
 

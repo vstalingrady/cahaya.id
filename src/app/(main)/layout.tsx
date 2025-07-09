@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import MainNav from '@/components/main-nav';
+import { cn } from '@/lib/utils';
 
 export default function MainLayout({
     children,
@@ -9,15 +10,17 @@ export default function MainLayout({
     children: React.ReactNode
 }) {
     const pathname = usePathname();
-    const isHomePage = pathname === '/';
+    const isChatPage = pathname === '/chat';
 
     return (
-        <div className="flex flex-col min-h-screen">
-            <main className="flex-1 p-6">
+        <div className="flex flex-col h-screen">
+            <main className={cn(
+                "flex-1 flex flex-col",
+                isChatPage ? "p-0" : "p-6 pb-24"
+            )}>
                 {children}
             </main>
-            {/* The MainNav component is positioned at the bottom */}
-            {!isHomePage && <MainNav />}
+            <MainNav />
         </div>
     );
 }
