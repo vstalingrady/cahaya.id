@@ -25,26 +25,9 @@ export default function SignupForm() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    // 1. Remove all non-digit characters to get the raw number
-    const inputDigits = value.replace(/\D/g, '');
-    
-    // 2. Truncate to a maximum of 12 digits
-    const truncatedDigits = inputDigits.slice(0, 12);
-
-    // 3. Apply the chunked formatting (e.g., 812-3456-7890)
-    const parts = [];
-    if (truncatedDigits.length > 0) {
-        parts.push(truncatedDigits.substring(0, 3));
-    }
-    if (truncatedDigits.length > 3) {
-        parts.push(truncatedDigits.substring(3, 7));
-    }
-    if (truncatedDigits.length > 7) {
-        parts.push(truncatedDigits.substring(7, 12));
-    }
-    const formattedPhone = parts.join('-');
-    
-    setPhone(formattedPhone);
+    // Allow only digits and limit length
+    const digitsOnly = value.replace(/\D/g, '');
+    setPhone(digitsOnly.slice(0, 12));
   };
   
   const handleSocialSignIn = async (provider: GoogleAuthProvider) => {
@@ -67,18 +50,17 @@ export default function SignupForm() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const rawPhone = phone.replace(/\D/g, '');
-    if (!rawPhone || rawPhone.length < 9) {
+    if (!phone || phone.length < 9) {
         toast({
             variant: 'destructive',
             title: 'Invalid Phone Number',
-            description: 'Please enter a valid Indonesian phone number (e.g., 812-3456-7890).',
+            description: 'Please enter a valid Indonesian phone number (e.g., 81234567890).',
         });
         return;
     }
 
     setIsLoading(true);
-    const formattedPhone = `+62${rawPhone}`;
+    const formattedPhone = `+62${phone}`;
     // Redirect to phone verification, then to complete the profile
     router.push(`/verify-phone?phone=${encodeURIComponent(formattedPhone)}&next=/complete-profile`);
   };
@@ -97,7 +79,7 @@ export default function SignupForm() {
           <Label htmlFor="phone">Phone Number</Label>
           <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-base">+62</span>
-              <Input id="phone" name="phone" type="tel" value={phone} onChange={handleInputChange} className="bg-input h-14 pl-14 text-base placeholder:text-muted-foreground" placeholder="812-3456-7890" disabled={isLoading || isSocialLoading} />
+              <Input id="phone" name="phone" type="tel" value={phone} onChange={handleInputChange} className="bg-input h-14 pl-14 text-base placeholder:text-muted-foreground" placeholder="81234567890" disabled={isLoading || isSocialLoading} />
           </div>
         </div>
         <Button
