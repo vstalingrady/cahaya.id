@@ -121,7 +121,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             router.replace('/login');
         }
     }
-  }, [user, loading, pathname, router]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, loading, pathname]);
 
 
   if (loading) {
