@@ -96,6 +96,13 @@ export type FinancialInstitution = {
   type: 'bank' | 'e-wallet' | 'investment' | 'loan' | 'other';
 };
 
+export type ChatSession = {
+  id: string;
+  userId: string;
+  title: string;
+  lastUpdated: any; // Firestore Timestamp
+};
+
 
 export const financialInstitutions: FinancialInstitution[] = [
   // Major National Banks

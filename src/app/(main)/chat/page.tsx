@@ -1,19 +1,21 @@
 
 'use client';
 
-import { useState, useRef, useEffect, FormEvent } from 'react';
-import { Send, User as UserIcon, Loader2, Sparkles } from 'lucide-react';
+import { useState, useRef, useEffect, FormEvent, useCallback } from 'react';
+import { Send, User as UserIcon, Loader2, Sparkles, History, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useAuth } from '@/components/auth/auth-provider';
-import { getAiChatResponse, getChatSuggestions } from '@/lib/actions';
+import { getAiChatResponse, getChatSuggestions, getChatHistoryList, getChatSessionMessages } from '@/lib/actions';
 import { type ChatMessage } from '@/ai/flows/chat-flow';
+import { type ChatSession } from '@/lib/data';
 import { cn } from '@/lib/utils';
-import Link from 'next/link';
 import GeminiLogo from '@/components/icons/GeminiLogo';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { formatDistanceToNow } from 'date-fns';
 
 const defaultSuggestionChips = [
     { text: "Help me budget for a trip to Japan" },
@@ -23,13 +25,25 @@ const defaultSuggestionChips = [
 
 export default function ChatPage() {
   const { user } = useAuth();
+  
+  // Chat state
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Suggestions state
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isSuggestionsLoading, setIsSuggestionsLoading] = useState(true);
+
+  // History state
+  const [historyList, setHistoryList] = useState<ChatSession[]>([]);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+  // Scroll to bottom of chat
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTo({
@@ -39,17 +53,14 @@ export default function ChatPage() {
     }
   }, [messages]);
   
+  // Fetch starter suggestions on initial load
   useEffect(() => {
     if (!user) return;
     async function fetchSuggestions() {
       setIsSuggestionsLoading(true);
       try {
         const result = await getChatSuggestions(user.uid);
-        if (result && result.length > 0) {
-          setSuggestions(result);
-        } else {
-          setSuggestions(defaultSuggestionChips.map(c => c.text));
-        }
+        setSuggestions(result.length > 0 ? result : defaultSuggestionChips.map(c => c.text));
       } catch (error) {
         console.error("Failed to fetch suggestions:", error);
         setSuggestions(defaultSuggestionChips.map(c => c.text));
@@ -60,13 +71,52 @@ export default function ChatPage() {
     fetchSuggestions();
   }, [user]);
 
+  // Fetch chat history
+  const fetchHistory = useCallback(async () => {
+    if (!user) return;
+    setIsHistoryLoading(true);
+    try {
+      const history = await getChatHistoryList(user.uid);
+      setHistoryList(history);
+    } catch (error) {
+      console.error("Failed to fetch chat history:", error);
+    } finally {
+      setIsHistoryLoading(false);
+    }
+  }, [user]);
+
+  // Initial history fetch
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+  
   const handleSuggestionClick = (text: string) => {
     setInputValue(text);
-  }
+  };
+  
+  const handleNewChat = () => {
+    setActiveChatId(null);
+    setMessages([]);
+    setIsSheetOpen(false);
+  };
+
+  const handleSelectChat = async (chatId: string) => {
+    setIsSheetOpen(false);
+    setActiveChatId(chatId);
+    setIsLoading(true);
+    try {
+        const pastMessages = await getChatSessionMessages(user!.uid, chatId);
+        setMessages(pastMessages);
+    } catch(e) {
+        console.error("Failed to load chat", e);
+        setMessages([{ role: 'model', content: "Sorry, I couldn't load this conversation."}]);
+    }
+    setIsLoading(false);
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
+    if (!inputValue.trim() || isLoading || !user) return;
 
     const userMessage: ChatMessage = { role: 'user', content: inputValue };
     const newMessages = [...messages, userMessage];
@@ -75,9 +125,12 @@ export default function ChatPage() {
     setIsLoading(true);
 
     try {
-      const aiResponse = await getAiChatResponse({ history: newMessages });
-      const modelMessage: ChatMessage = { role: 'model', content: aiResponse };
-      setMessages([...newMessages, modelMessage]);
+      const { aiResponse, chatId: newChatId } = await getAiChatResponse(user.uid, newMessages, activeChatId);
+      setMessages([...newMessages, aiResponse]);
+      if (!activeChatId) {
+        setActiveChatId(newChatId);
+        fetchHistory(); // Refresh history list if new chat was created
+      }
     } catch (error) {
       const errorMessage: ChatMessage = {
         role: 'model',
@@ -90,27 +143,54 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full max-w-4xl mx-auto animate-fade-in-up">
-      <header className="sticky top-0 bg-background/80 backdrop-blur-md z-20 flex justify-between items-center p-4 border-b border-border">
-          <div>
-              <h1 className="text-xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  Cahaya AI
-              </h1>
-              <p className="text-sm text-muted-foreground">Your personal financial assistant.</p>
-          </div>
-          <Link href="/profile">
-              <Avatar className="w-10 h-10">
-                  <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
-                  <AvatarFallback>
-                  <UserIcon className="w-5 h-5" />
-                  </AvatarFallback>
-              </Avatar>
-          </Link>
-      </header>
+    <div className="flex flex-col h-full w-full max-w-4xl mx-auto animate-fade-in-up p-6 space-y-4">
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold mb-1 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Cahaya AI
+          </h1>
+          <p className="text-muted-foreground">Your personal financial assistant.</p>
+        </div>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetTrigger asChild>
+            <Button onClick={() => fetchHistory()} variant="outline" size="sm" className="bg-primary/10 hover:bg-primary/20 text-primary border-primary/20 font-semibold">
+              <History className="w-4 h-4 mr-2" /> History
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="flex flex-col">
+            <SheetHeader>
+              <SheetTitle>Chat History</SheetTitle>
+            </SheetHeader>
+            <div className="flex-1 overflow-y-auto custom-scrollbar pr-4 -mr-4 space-y-2">
+              {isHistoryLoading ? (
+                Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-16 w-full" />)
+              ) : historyList.length > 0 ? (
+                historyList.map(session => (
+                  <button key={session.id} onClick={() => handleSelectChat(session.id)} className={cn(
+                      "w-full text-left p-3 rounded-lg border transition-colors",
+                      activeChatId === session.id ? "bg-secondary border-primary/50" : "bg-card hover:bg-secondary/50 border-border"
+                  )}>
+                      <p className="font-semibold text-card-foreground truncate">{session.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDistanceToNow(session.lastUpdated.toDate(), { addSuffix: true })}
+                      </p>
+                  </button>
+                ))
+              ) : (
+                <p className="text-muted-foreground text-center pt-10">No chat history yet.</p>
+              )}
+            </div>
+             <Button onClick={handleNewChat} className="mt-4">
+              <Plus className="w-4 h-4 mr-2" /> New Chat
+            </Button>
+          </SheetContent>
+        </Sheet>
+      </div>
+
       <main className="flex-1 flex flex-col min-h-0">
         <div className="flex-1 flex flex-col justify-center overflow-hidden">
           {messages.length === 0 && !isLoading ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
+            <div className="flex-1 flex flex-col items-center justify-center text-center">
               <div className="w-full max-w-3xl">
                 <h2 className="text-5xl md:text-6xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent pb-2">
                 Ask me anything.
@@ -132,7 +212,7 @@ export default function ChatPage() {
               </div>
             </div>
           ) : (
-            <ScrollArea className="flex-1 w-full p-4" ref={scrollAreaRef}>
+            <ScrollArea className="flex-1 w-full" ref={scrollAreaRef}>
             <div className="space-y-6 max-w-3xl mx-auto">
                 {messages.map((message, index) => (
                 <div
@@ -183,7 +263,7 @@ export default function ChatPage() {
         </div>
       </main>
 
-      <footer className="p-4 w-full max-w-3xl mx-auto flex-shrink-0">
+      <footer className="w-full max-w-3xl mx-auto flex-shrink-0">
         <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground mb-2">
             <GeminiLogo />
             <span>Powered by Gemini</span>

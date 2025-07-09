@@ -3,7 +3,7 @@
 /**
  * @fileOverview A conversational AI agent for personal finance.
  *
- * - getAiChatResponse - A function that handles the AI chat completions.
+ * - runFinancialChatFlow - A function that handles the AI chat completions.
  * - ChatMessage - The type for a single message in the chat history.
  */
 
@@ -21,12 +21,20 @@ const ChatInputSchema = z.object({
 });
 export type ChatInput = z.infer<typeof ChatInputSchema>;
 
-const ChatOutputSchema = z.string();
+const ChatOutputSchema = z.object({
+  response: z.string().describe("The AI's response to the user."),
+  title: z
+    .string()
+    .optional()
+    .describe(
+      "A short, 3-5 word title for the conversation. Only generate this on the first turn."
+    ),
+});
 export type ChatOutput = z.infer<typeof ChatOutputSchema>;
 
-export async function getAiChatResponse(
+export async function runFinancialChatFlow(
   input: ChatInput
-): Promise<string> {
+): Promise<ChatOutput> {
   const response = await financialChatFlow(input);
   return response;
 }
@@ -42,6 +50,8 @@ You must be encouraging and provide clear, actionable advice. If you don't know 
 Keep your answers concise and easy to understand.
 
 Use the provided chat history to maintain context of the conversation.
+
+IMPORTANT: If this is the first user message in the conversation (the history provided has only 2 messages), you MUST generate a short, descriptive title for the conversation (e.g., "Saving for a Japan Trip", "Understanding Index Funds") and include it in the 'title' field of the output. For all subsequent messages, you must OMIT the 'title' field.
 
 Chat History:
 {{#each history}}

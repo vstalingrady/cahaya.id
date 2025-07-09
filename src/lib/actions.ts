@@ -18,7 +18,7 @@ import {
   type BudgetAnalysisOutput,
 } from '@/ai/flows/budget-analysis';
 import {
-  getAiChatResponse as getAiChatResponseFlow,
+  runFinancialChatFlow,
   type ChatMessage,
 } from '@/ai/flows/chat-flow';
 import {
@@ -52,6 +52,7 @@ import {
   Beneficiary,
   Budget,
   FavoriteTransaction,
+  ChatSession,
 } from './data';
 import {
   accounts as seedAccounts,
@@ -925,18 +926,6 @@ export async function getBillSuggestions(
   }
 }
 
-export async function getAiChatResponse(input: {
-  history: ChatMessage[];
-}): Promise<string> {
-  try {
-    const response = await getAiChatResponseFlow(input);
-    return response;
-  } catch (error) {
-    console.error('Error getting AI chat response:', error);
-    return "I'm sorry, I encountered an error and can't respond right now. Please try again later.";
-  }
-}
-
 /**
  * Gets personalized chat suggestions for the user.
  * @param userId The UID of the logged-in user.
@@ -961,6 +950,132 @@ export async function getChatSuggestions(userId: string): Promise<string[]> {
     // Return empty array on error, client will use defaults.
     return [];
   }
+}
+
+/**
+ * Gets an AI chat response, saves the conversation to the database,
+ * and handles creating new chat sessions with auto-generated titles.
+ * @param userId The ID of the current user.
+ * @param history The current message history.
+ * @param chatId The optional ID of the current chat session.
+ * @returns An object containing the AI's response message and the chat ID.
+ */
+export async function getAiChatResponse(
+  userId: string,
+  history: ChatMessage[],
+  chatId?: string | null
+): Promise<{
+  aiResponse: ChatMessage;
+  chatId: string;
+}> {
+  try {
+    // 1. Get the AI's response and potential title from the Genkit flow.
+    const { response, title } = await runFinancialChatFlow({ history });
+    const aiMessage: ChatMessage = { role: 'model', content: response };
+    const userMessage = history[history.length - 1];
+
+    let currentChatId = chatId;
+
+    // 2. If it's a new chat (no chatId) and we got a title, create the session document.
+    if (!currentChatId && title) {
+      const chatSessionsRef = collection(db, 'users', userId, 'chatSessions');
+      const newChatDoc = await addDoc(chatSessionsRef, {
+        userId,
+        title,
+        lastUpdated: Timestamp.now(),
+      });
+      currentChatId = newChatDoc.id;
+    }
+
+    if (!currentChatId) {
+      throw new Error(
+        'Could not create or find a chat session. A title is required for new chats.'
+      );
+    }
+
+    // 3. Use a batched write to save messages and update the session timestamp atomically.
+    const batch = writeBatch(db);
+    const chatSessionRef = doc(
+      db,
+      'users',
+      userId,
+      'chatSessions',
+      currentChatId
+    );
+
+    // Update lastUpdated timestamp on the parent session
+    batch.update(chatSessionRef, { lastUpdated: Timestamp.now() });
+
+    // Add the user message to the 'messages' subcollection
+    const userMessageRef = doc(collection(chatSessionRef, 'messages'));
+    batch.set(userMessageRef, userMessage);
+
+    // Add the AI response to the 'messages' subcollection
+    const aiMessageRef = doc(collection(chatSessionRef, 'messages'));
+    batch.set(aiMessageRef, aiMessage);
+
+    await batch.commit();
+
+    // Revalidate the path to ensure the history list updates on the client.
+    revalidatePath(`/chat`);
+
+    return {
+      aiResponse: aiMessage,
+      chatId: currentChatId,
+    };
+  } catch (error) {
+    console.error('Error in getAiChatResponse action:', error);
+    // Return a friendly error message as the AI response in case of failure.
+    return {
+      aiResponse: {
+        role: 'model',
+        content:
+          "I'm sorry, I encountered an error and can't respond right now. Please try again later.",
+      },
+      chatId: chatId || '',
+    };
+  }
+}
+
+/**
+ * Fetches the list of all chat sessions for a user, sorted by the most recent.
+ * @param userId The UID of the user.
+ * @returns An array of ChatSession objects.
+ */
+export async function getChatHistoryList(
+  userId: string
+): Promise<ChatSession[]> {
+  const sessionsRef = collection(db, 'users', userId, 'chatSessions');
+  const q = query(sessionsRef, orderBy('lastUpdated', 'desc'));
+  const querySnapshot = await getDocs(q);
+  return querySnapshot.docs.map(
+    doc => ({ id: doc.id, ...doc.data() } as ChatSession)
+  );
+}
+
+/**
+ * Fetches all messages for a specific chat session.
+ * In a production app, this should be ordered by a server-side timestamp.
+ * @param userId The UID of the user.
+ * @param chatId The ID of the chat session.
+ * @returns An array of ChatMessage objects.
+ */
+export async function getChatSessionMessages(
+  userId: string,
+  chatId: string
+): Promise<ChatMessage[]> {
+  const messagesRef = collection(
+    db,
+    'users',
+    userId,
+    'chatSessions',
+    chatId,
+    'messages'
+  );
+  // Note: For production, add a 'createdAt' timestamp to each message
+  // and use `orderBy('createdAt', 'asc')` for reliable ordering.
+  const querySnapshot = await getDocs(messagesRef);
+  return querySnapshot.docs.map(doc => doc.data() as ChatMessage);
 }
 
 
