@@ -1,19 +1,57 @@
+'use server';
+/**
+ * @fileOverview A Genkit flow to verify a user's security PIN.
+ */
 
-import { defineFlow, runFlow } from '@genkit-ai/flow';
-import { z } from 'zod';
+import {ai} from '@/ai/genkit';
+import {z} from 'genkit';
 import * as bcrypt from 'bcrypt';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
-// This would be your hashed PIN stored securely in a database or secret manager
-const HASHED_PIN = '$2b$10$inJ5hgx5JdLbXK3YHM0qVer8QDtkX63eBi.YacKgT4LoTtPgA2WmK';
+const VerifyPinInputSchema = z.object({
+  userId: z.string().describe("The user's unique ID."),
+  pinAttempt: z.string().min(6).max(6).describe("The 6-character PIN attempt."),
+});
 
-export const verifyPinFlow = defineFlow(
+const VerifyPinOutputSchema = z.object({
+  success: z.boolean(),
+  reason: z.string().optional(),
+});
+
+export async function verifyPin(input: z.infer<typeof VerifyPinInputSchema>): Promise<z.infer<typeof VerifyPinOutputSchema>> {
+    return verifyPinFlow(input);
+}
+
+export const verifyPinFlow = ai.defineFlow(
   {
     name: 'verifyPinFlow',
-    inputSchema: z.object({ pin: z.string() }),
-    outputSchema: z.object({ success: z.boolean() }),
+    inputSchema: VerifyPinInputSchema,
+    outputSchema: VerifyPinOutputSchema,
   },
-  async ({ pin }) => {
-    const match = await bcrypt.compare(pin, HASHED_PIN);
-    return { success: match };
+  async ({ userId, pinAttempt }) => {
+    try {
+        const userRef = doc(db, 'users', userId);
+        const userSnap = await getDoc(userRef);
+
+        if (!userSnap.exists()) {
+            return { success: false, reason: "User not found." };
+        }
+        
+        const userData = userSnap.data();
+        const hashedPin = userData.hashedPin;
+
+        if (!hashedPin) {
+            return { success: false, reason: "No PIN is set for this account." };
+        }
+        
+        const match = await bcrypt.compare(pinAttempt, hashedPin);
+        
+        return { success: match, reason: match ? undefined : "The PIN you entered is incorrect." };
+
+    } catch (error) {
+        console.error("Error in verifyPinFlow: ", error);
+        return { success: false, reason: "An unexpected server error occurred." };
+    }
   }
 );
