@@ -60,7 +60,7 @@ import {
 } from './data-seed';
 
 import { revalidatePath } from 'next/cache';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { format, isWithinInterval } from 'date-fns';
 
 const formatCurrency = (value: number) =>

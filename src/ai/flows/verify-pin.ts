@@ -5,7 +5,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
