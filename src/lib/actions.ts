@@ -24,7 +24,6 @@ import {
   personalizedSavingSuggestions,
   type PersonalizedSavingSuggestionsOutput,
 } from '@/ai/flows/saving-opportunities';
-import { verifyPin } from '@/ai/flows/verify-pin';
 import { db } from './firebase';
 import {
   collection,
@@ -170,7 +169,7 @@ export async function setSecurityPin(
 
 /**
  * Verifies a user's PIN against the one stored in Firestore.
- * This is a server-side action that calls a Genkit flow.
+ * This is a direct server action and does not use a Genkit flow.
  *
  * @param {string} userId - The user's UID.
  * @param {string} pinAttempt - The PIN entered by the user.
@@ -181,8 +180,29 @@ export async function verifySecurityPin(
   pinAttempt: string
 ): Promise<{ success: boolean; reason?: string }> {
   try {
-    const result = await verifyPin({ userId, pinAttempt });
-    return result;
+    const userRef = doc(db, 'users', userId);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      return { success: false, reason: 'User not found.' };
+    }
+
+    const userData = userSnap.data();
+    const hashedPin = userData.hashedPin;
+
+    if (!hashedPin) {
+      return {
+        success: false,
+        reason: 'No PIN is set for this account. Please complete onboarding.',
+      };
+    }
+
+    const match = await bcrypt.compare(pinAttempt, hashedPin);
+
+    return {
+      success: match,
+      reason: match ? undefined : 'The PIN you entered is incorrect.',
+    };
   } catch (error) {
     console.error('Error verifying PIN in action:', error);
     return {
@@ -191,6 +211,7 @@ export async function verifySecurityPin(
     };
   }
 }
+
 
 /**
  * Handles actions to perform when a user signs in. It checks if a user record
