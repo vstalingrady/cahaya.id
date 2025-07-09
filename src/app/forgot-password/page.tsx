@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -9,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, AtSign, ArrowLeft } from 'lucide-react';
-import CuanLogo from '@/components/icons/CuanLogo';
+import CahayaLogo from '@/components/icons/cuanlogo';
 import { useRouter } from 'next/navigation';
 
 export default function ForgotPasswordPage() {
