@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { cn } from '@/lib/utils';
 
 interface PinInputProps {
@@ -13,17 +13,20 @@ interface PinInputProps {
 export const PinInput = React.forwardRef<HTMLInputElement, PinInputProps>(
   ({ value, onChange, pinLength = 6 }, ref) => {
     
-    // Focus the hidden input when the component is clicked.
+    // Use a ref for the hidden input if an external ref isn't provided.
+    const internalRef = useRef<HTMLInputElement>(null);
+    const inputRef = (ref as React.RefObject<HTMLInputElement>) || internalRef;
+
+    // Focus the hidden input when the user clicks the container.
     const handleContainerClick = () => {
-      if (ref && typeof ref === 'object' && ref.current) {
-        ref.current.focus();
-      }
+      inputRef.current?.focus();
     };
     
+    // Handle changes from the hidden input.
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const sanitizedValue = e.target.value.slice(0, pinLength);
+      const inputValue = e.target.value;
       // Pad the array with empty strings to ensure it always has `pinLength` elements.
-      const newPinArray = sanitizedValue.split('').concat(Array(pinLength).fill('')).slice(0, pinLength);
+      const newPinArray = inputValue.split('').concat(Array(pinLength).fill('')).slice(0, pinLength);
       onChange(newPinArray);
     };
 
@@ -32,20 +35,21 @@ export const PinInput = React.forwardRef<HTMLInputElement, PinInputProps>(
         className="relative w-full h-14" 
         onClick={handleContainerClick}
       >
-        {/* This is the real input, but it's hidden. */}
+        {/* This is the real input, but it's hidden from view. */}
         <input
-          ref={ref}
-          type="text"
+          ref={inputRef}
+          type="text" // Use text to allow alphanumeric, validation is on server
           inputMode="text"
           value={value.join('')}
           onChange={handleChange}
           maxLength={pinLength}
           autoComplete="one-time-code"
           className="absolute inset-0 w-full h-full bg-transparent border-0 opacity-0 cursor-pointer"
+          aria-label="PIN Input"
         />
 
-        {/* These are the visual boxes for the PIN. */}
-        <div className="flex justify-center items-center gap-2 w-full h-full pointer-events-none">
+        {/* These are the visual boxes for displaying the PIN. */}
+        <div className="flex justify-center items-center gap-2 w-full h-full pointer-events-none" aria-hidden="true">
           {Array(pinLength)
             .fill('')
             .map((_, index) => (

@@ -1,3 +1,4 @@
+
 'use client';
 
 import SetupSecurityForm from '@/components/auth/setup-security-form';
