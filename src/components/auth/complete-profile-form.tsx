@@ -137,7 +137,7 @@ export default function CompleteProfileForm() {
                 setLoading(false); // Show the form
                  toast({
                     title: "Phone Verified!",
-                    description: "Please complete your profile to continue.",
+                    description: "Just a few more details and you'll be all set.",
                 });
             }
         } else {
@@ -145,7 +145,7 @@ export default function CompleteProfileForm() {
             toast({
                 variant: 'destructive',
                 title: 'Authentication Required',
-                description: 'Please start by signing up.',
+                description: 'Please complete the phone verification step first.',
             });
             router.replace('/signup');
         }
@@ -217,7 +217,7 @@ export default function CompleteProfileForm() {
 
       toast({
         title: "Profile Created!",
-        description: "Now let's secure your account.",
+        description: "Welcome to Cahaya! Let's get your account secured.",
       });
       // Redirect to the next step in the onboarding flow.
       router.push('/setup-security');
@@ -226,7 +226,7 @@ export default function CompleteProfileForm() {
       console.error("Full Profile Completion Error:", err);
       // Handle common Firebase errors with user-friendly messages.
       if (err.code === 'auth/email-already-in-use' || err.code === 'auth/credential-already-in-use') {
-        setError('This email address is already associated with another account.');
+        setError('This email address is already associated with another account. Please try a different email or sign in.');
       } else if (err.code === 'auth/weak-password') {
           setError('The password is too weak. Please check the requirements.')
       } else if (err.code === 'auth/password-does-not-meet-requirements') {
@@ -290,14 +290,14 @@ export default function CompleteProfileForm() {
 
       toast({
           title: "Profile Created!",
-          description: "Now let's secure your account.",
+          description: "Welcome to Cahaya! Let's get your account secured.",
       });
       router.push('/setup-security');
 
     } catch (err: any) {
       console.error("[Cahaya Debug] Full OAuth Error Object:", err);
       if (err.code === 'auth/account-exists-with-different-credential' || err.code === 'auth/credential-already-in-use') {
-          setError('This social account is already linked to another user.');
+          setError('This social account is already linked to another user. Please choose a different account.');
       } else if (err.code && err.code.includes('app-check')) {
           setError('App Check validation failed. Please ensure your debug token is configured correctly in the Firebase Console.');
       }

@@ -1,207 +1,138 @@
 
 'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, AtSign, Lock, User } from 'lucide-react';
-import { completeUserProfile } from '@/lib/actions';
+import { Loader2 } from 'lucide-react';
+import { FaGoogle, FaApple } from 'react-icons/fa';
+import { Separator } from '@/components/ui/separator';
 
+const googleProvider = new GoogleAuthProvider();
+const appleProvider = new OAuthProvider('apple.com');
 
-export function SignupForm() {
+export default function SignupForm() {
   const router = useRouter();
   const { toast } = useToast();
-
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-  });
-
+  const [phone, setPhone] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-
-
-  const validateForm = () => {
-    const newErrors: Record<string, string> = {};
-    if (!formData.fullName.trim()) newErrors.fullName = 'Full name is required.';
-    if (!formData.email.trim()) newErrors.email = 'Email is required.';
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid.';
-    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required.';
-    if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters.';
-    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match.';
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
+  const [isSocialLoading, setIsSocialLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { value } = e.target;
+    // 1. Remove all non-digit characters to get the raw number
+    const inputDigits = value.replace(/\D/g, '');
+    
+    // 2. Truncate to a maximum of 12 digits
+    const truncatedDigits = inputDigits.slice(0, 12);
 
-    if (name === 'phone') {
-        // Remove all non-digit characters to prevent formatting loops
-        const inputDigits = value.replace(/\D/g, '');
-        const truncatedDigits = inputDigits.slice(0, 12);
-        
-        setFormData({
-            ...formData,
-            phone: truncatedDigits
-        });
-    } else {
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
+    // 3. Apply the chunked formatting (e.g., 812-3456-7890)
+    const parts = [];
+    if (truncatedDigits.length > 0) {
+        parts.push(truncatedDigits.substring(0, 3));
+    }
+    if (truncatedDigits.length > 3) {
+        parts.push(truncatedDigits.substring(3, 7));
+    }
+    if (truncatedDigits.length > 7) {
+        parts.push(truncatedDigits.substring(7, 12));
+    }
+    const formattedPhone = parts.join('-');
+    
+    setPhone(formattedPhone);
+  };
+  
+  const handleSocialSignIn = async (provider: GoogleAuthProvider | OAuthProvider) => {
+    setIsSocialLoading(true);
+    try {
+      await signInWithPopup(auth, provider);
+      document.cookie = "isLoggedIn=true; path=/; max-age=86400";
+      router.push('/dashboard');
+    } catch (error: any) {
+      console.error("Social Sign-In Error:", { code: error.code, message: error.message });
+      toast({
+        variant: "destructive",
+        title: "Sign-In Error",
+        description: error.message || "Failed to sign in. Please try again.",
+      });
+    } finally {
+      setIsSocialLoading(false);
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!validateForm()) {
+    const rawPhone = phone.replace(/\D/g, '');
+    if (!rawPhone || rawPhone.length < 9) {
+        toast({
+            variant: 'destructive',
+            title: 'Invalid Phone Number',
+            description: 'Please enter a valid Indonesian phone number (e.g., 812-3456-7890).',
+        });
         return;
     }
-    
+
     setIsLoading(true);
-
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
-      
-      // Update the user's profile with their full name
-      await updateProfile(userCredential.user, {
-        displayName: formData.fullName
-      });
-
-      // Sync user data to Firestore, but don't seed data yet
-      await completeUserProfile(
-        userCredential.user.uid,
-        formData.fullName,
-        formData.email,
-        // Prepend the country code for consistency
-        `+62${formData.phone}`
-      );
-
-      toast({
-        title: "Account Created!",
-        description: "Welcome! Let's get your account set up.",
-      });
-
-      // Redirect to the next step in the onboarding flow
-      router.push('/dashboard'); 
-
-    } catch (error: any) {
-      // Log only serializable fields to avoid circular reference errors during SSR.
-      console.error("Signup Error:", { code: error.code, message: error.message });
-      let errorMessage = "An unexpected error occurred. Please try again.";
-      if (error.code) {
-          switch (error.code) {
-              case 'auth/email-already-in-use':
-                  errorMessage = 'This email address is already registered. Please login or use a different email.';
-                  break;
-              case 'auth/invalid-email':
-                  errorMessage = 'Please enter a valid email address.';
-                  break;
-              case 'auth/weak-password':
-                  errorMessage = 'The password is too weak. Please choose a stronger password.';
-                  break;
-              default:
-                  errorMessage = error.message;
-          }
-      }
-      toast({
-        variant: "destructive",
-        title: "Signup Failed",
-        description: errorMessage,
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    const formattedPhone = `+62${rawPhone}`;
+    // Redirect to phone verification, then to complete the profile
+    router.push(`/verify-phone?phone=${encodeURIComponent(formattedPhone)}&next=/complete-profile`);
   };
 
   return (
-    <>
+    <div className="space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold mb-2 font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
           Create an Account
         </h1>
-        <p className="text-muted-foreground">Start your journey to financial freedom.</p>
+        <p className="text-muted-foreground">Enter your phone number to get started.</p>
       </div>
 
-      <div className="space-y-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          
-           <div className="space-y-2">
-            <Label htmlFor="fullName">Full Name</Label>
-            <div className="relative">
-                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input id="fullName" name="fullName" type="text" value={formData.fullName} onChange={handleInputChange} className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="e.g. Budi Purnomo" disabled={isLoading} />
-            </div>
-            {errors.fullName && <p className="text-sm text-destructive">{errors.fullName}</p>}
-           </div>
-
-           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <div className="relative">
-                <AtSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input id="email" name="email" type="email" value={formData.email} onChange={handleInputChange} className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="you@example.com" disabled={isLoading} />
-            </div>
-            {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
-           </div>
-           
-           <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <div className="relative">
-                 {/* This could be improved with a country code selector */}
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-base">+62</span>
-                <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} className="bg-input h-14 pl-14 text-base placeholder:text-muted-foreground" placeholder="81234567890" disabled={isLoading} />
-            </div>
-            {errors.phone && <p className="text-sm text-destructive">{errors.phone}</p>}
-           </div>
-
-           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Link href="/forgot-password"
-                className="text-sm font-medium text-primary hover:underline">
-                Forgot Password?
-                </Link>
-            </div>
-            <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input id="password" name="password" type="password" value={formData.password} onChange={handleInputChange} className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="Create a password" disabled={isLoading} />
-            </div>
-            {errors.password && <p className="text-sm text-destructive">{errors.password}</p>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="phone">Phone Number</Label>
+          <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-semibold text-base">+62</span>
+              <Input id="phone" name="phone" type="tel" value={phone} onChange={handleInputChange} className="bg-input h-14 pl-14 text-base placeholder:text-muted-foreground" placeholder="812-3456-7890" disabled={isLoading || isSocialLoading} />
           </div>
+        </div>
+        <Button
+          type="submit"
+          disabled={isLoading || isSocialLoading}
+          className="w-full h-14 text-lg font-semibold"
+        >
+          {isLoading ? <Loader2 className="animate-spin" /> : 'Continue with Phone'}
+        </Button>
+      </form>
 
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <Input id="confirmPassword" name="confirmPassword" type="password" value={formData.confirmPassword} onChange={handleInputChange} className="bg-input h-14 pl-12 text-base placeholder:text-muted-foreground" placeholder="Confirm your password" disabled={isLoading} />
-            </div>
-            {errors.confirmPassword && <p className="text-sm text-destructive">{errors.confirmPassword}</p>}
-          </div>
-
-
-          <Button type="submit" disabled={isLoading} className="w-full h-14 text-lg font-semibold">
-            {isLoading ? <Loader2 className="animate-spin" /> : 'Create Account'}
+      <div className="relative flex items-center justify-center text-sm">
+          <Separator className="flex-1 bg-border" />
+          <span className="px-4 text-muted-foreground">OR</span>
+          <Separator className="flex-1 bg-border" />
+      </div>
+      
+      <div className="space-y-4">
+          <Button className="w-full bg-white text-black hover:bg-gray-200 h-14 text-base font-semibold border border-gray-200/50 flex items-center justify-center" type="button" onClick={() => handleSocialSignIn(googleProvider)} disabled={isLoading || isSocialLoading}>
+              <FaGoogle className="mr-3" />
+              <span>Continue with Google</span>
           </Button>
-        </form>
+          <Button className="w-full bg-black text-white hover:bg-gray-800 h-14 text-base font-semibold flex items-center justify-center" type="button" onClick={() => handleSocialSignIn(appleProvider)} disabled={isLoading || isSocialLoading}>
+              <FaApple className="mr-3" />
+              <span>Continue with Apple</span>
+          </Button>
       </div>
       
       <p className="px-8 text-center text-sm text-muted-foreground">
         Already have an account?{' '}
         <Link href="/login" className="underline underline-offset-4 hover:text-primary">
-          Sign In
+          Log In
         </Link>
       </p>
-    </>
+    </div>
   );
 }
