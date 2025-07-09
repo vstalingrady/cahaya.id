@@ -30,8 +30,6 @@
     --chart-3: 33 80% 65%;
     --chart-4: 45 90% 60%;
     --chart-5: 33 90% 45%;
-    --gemini-start: 217 100% 55%;
-    --gemini-end: 14 53% 89%;
   }
 
   .dark {
@@ -59,8 +57,6 @@
     --chart-3: 33 80% 70%;
     --chart-4: 45 90% 65%;
     --chart-5: 33 90% 40%;
-    --gemini-start: 217 100% 55%;
-    --gemini-end: 14 53% 89%;
   }
 }
 
@@ -133,12 +129,6 @@
     animation: blink 1s step-end infinite;
   }
 
-  .flashy-gemini-text {
-    @apply font-bold bg-gradient-to-r from-[hsl(var(--gemini-start))] to-[hsl(var(--gemini-end))] bg-clip-text text-transparent;
-    background-size: 200% auto;
-    animation: text-shine 3s linear infinite, gemini-glow 4s ease-in-out infinite;
-  }
-  
   .has-hero-glow::before {
     content: '';
     position: absolute;
@@ -302,20 +292,6 @@
     }
   }
 
-  @keyframes text-shine {
-    0% { background-position: 200% center; }
-    100% { background-position: -200% center; }
-  }
-
-  @keyframes gemini-glow {
-    0%, 100% {
-        text-shadow: 0 0 5px hsl(var(--gemini-start) / 0.5), 0 0 10px hsl(var(--gemini-start) / 0.3);
-    }
-    50% {
-        text-shadow: 0 0 10px hsl(var(--gemini-end) / 0.5), 0 0 20px hsl(var(--gemini-end) / 0.3);
-    }
-  }
-  
   @keyframes text-glow {
     0%, 100% {
       text-shadow: 0 0 5px hsl(var(--primary)/.5), 0 0 10px hsl(var(--primary)/.3), 0 0 15px hsl(var(--primary)/.2);

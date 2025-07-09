@@ -109,10 +109,6 @@ export default {
           'from': { 'background-position': '0% center' },
           'to': { 'background-position': '-200% center' },
         },
-        'gemini-glow': {
-          '0%, 100%': { filter: 'drop-shadow(0 0 5px hsl(var(--gemini-start) / 0.5))' },
-          '50%': { filter: 'drop-shadow(0 0 12px hsl(var(--gemini-start) / 0.8))' }
-        },
         'scroll-left': {
           'from': { transform: 'translateX(0)' },
           'to': { transform: 'translateX(calc(-50% - 0.75rem))' },
@@ -152,7 +148,6 @@ export default {
         'fade-in-up': 'fade-in-up 0.6s ease-out forwards',
         'logo-blink-glow': 'logo-blink-glow 5s ease-in-out infinite',
         'text-shine': 'text-shine 3s linear infinite',
-        'gemini-glow': 'gemini-glow 4s ease-in-out infinite',
         'scroll-left': 'scroll-left var(--animation-duration) linear infinite',
         'scroll-right': 'scroll-right var(--animation-duration) linear infinite',
         'biometric-scan': 'biometric-scan 3s ease-in-out infinite',

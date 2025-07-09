@@ -10,7 +10,7 @@ import InfiniteLogoScroller from './infinite-logo-scroller';
 import { Button } from './ui/button';
 
 // --- Main Component ---
-export default function WelcomeSignupSlide() {
+export default function WelcomeSignupSlide({ onSignUp, isSigningUp }: { onSignUp?: () => void; isSigningUp?: boolean }) {
     const partnersRow1 = financialInstitutions
         .filter(f => f.type === 'bank' && ['bca', 'mandiri', 'bri', 'bni', 'cimb'].includes(f.slug))
         .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" data-ai-hint={`${f.name} logo`} /> }));

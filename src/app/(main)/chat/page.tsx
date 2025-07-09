@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useRef, useEffect, FormEvent } from 'react';
-import { Send, User, Loader2, Menu, Plus, ChevronDown } from 'lucide-react';
+import { Send, User, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -11,13 +11,7 @@ import { useAuth } from '@/components/auth/auth-provider';
 import { getAiChatResponse } from '@/lib/actions';
 import { type ChatMessage } from '@/ai/flows/chat-flow';
 import { cn } from '@/lib/utils';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import GeminiLogo from '@/components/icons/GeminiLogo';
+import Link from 'next/link';
 
 const suggestionChips = [
     { text: "Help me budget for a trip to Japan" },
@@ -30,7 +24,6 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [model, setModel] = useState('2.5 Pro');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -73,44 +66,30 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-full max-h-[calc(100vh-4rem)] w-full max-w-4xl mx-auto animate-fade-in-up">
-      <header className="flex items-center justify-between p-2 md:p-4">
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon">
-            <Menu className="w-6 h-6" />
-          </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-1 text-xl font-medium">
-                Gemini <ChevronDown className="w-5 h-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onSelect={() => setModel('2.5 Pro')}>Gemini 2.5 Pro</DropdownMenuItem>
-              <DropdownMenuItem onSelect={() => setModel('Flash')}>Gemini Flash</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-        <div className="flex items-center gap-2">
-            <Button variant="outline" className="hidden md:inline-flex">PRO</Button>
+       <header className="flex items-center justify-between p-2 md:p-4">
+        <h1 className="text-xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Cahaya AI
+        </h1>
+        <Link href="/profile">
           <Avatar className="w-8 h-8">
             <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
             <AvatarFallback>
               <User className="w-4 h-4" />
             </AvatarFallback>
           </Avatar>
-        </div>
+        </Link>
       </header>
       
       <main className="flex-1 flex flex-col items-center justify-center text-center pb-4">
         {messages.length === 0 && !isLoading && (
           <div className="text-center w-full px-4">
-            <h2 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent pb-2">
-              Hello, {user?.displayName?.split(' ')[0] || 'there'}
+            <h2 className="text-5xl md:text-6xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent pb-2">
+              Ask me anything.
             </h2>
-            <p className="text-muted-foreground mt-2 text-lg">How can I help you today?</p>
+            <p className="text-muted-foreground mt-2 text-lg">I can help with budgeting, financial questions, and more.</p>
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-3xl mx-auto">
                 {suggestionChips.map((chip, i) => (
-                    <Button key={i} variant="outline" className="h-auto text-left py-3 whitespace-normal" onClick={() => handleSuggestionClick(chip.text)}>
+                    <Button key={i} variant="secondary" className="h-auto text-left py-3 whitespace-normal" onClick={() => handleSuggestionClick(chip.text)}>
                         {chip.text}
                     </Button>
                 ))}
@@ -129,13 +108,15 @@ export default function ChatPage() {
                 )}
               >
                 {message.role === 'model' && (
-                    <GeminiLogo className="w-8 h-8 flex-shrink-0" />
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Sparkles className="w-5 h-5 text-primary" />
+                    </div>
                 )}
                 <div
                   className={cn(
                     'max-w-[85%] rounded-xl px-4 py-3 text-sm text-left whitespace-pre-wrap',
                     message.role === 'user'
-                      ? 'bg-blue-600 text-white'
+                      ? 'bg-primary text-primary-foreground'
                       : 'bg-secondary text-foreground'
                   )}
                 >
@@ -153,7 +134,9 @@ export default function ChatPage() {
             ))}
             {isLoading && (
               <div className="flex items-start gap-4 justify-start max-w-3xl mx-auto">
-                <GeminiLogo className="w-8 h-8 flex-shrink-0" />
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                </div>
                 <div className="bg-secondary rounded-xl px-4 py-3 text-sm">
                   <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
                 </div>
@@ -168,21 +151,16 @@ export default function ChatPage() {
           <Input
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder={`Message Gemini ${model}...`}
-            className="flex-1 bg-secondary h-14 text-base pl-14 pr-14 rounded-full"
+            placeholder="Ask Cahaya anything..."
+            className="flex-1 bg-input border border-border h-14 text-base pl-6 pr-14 rounded-full"
             disabled={isLoading}
           />
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-            <Button type="button" variant="ghost" size="icon" className="w-8 h-8 rounded-full">
-              <Plus className="w-5 h-5" />
-            </Button>
-          </div>
-          <Button type="submit" size="icon" className="w-10 h-10 absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-blue-600 hover:bg-blue-700" disabled={isLoading || !inputValue.trim()}>
+          <Button type="submit" size="icon" className="w-10 h-10 absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-primary hover:bg-primary/90" disabled={isLoading || !inputValue.trim()}>
             <Send className="w-5 h-5" />
           </Button>
         </form>
         <p className="text-xs text-center text-muted-foreground mt-2 px-4">
-          Gemini may display inaccurate info, including about people, so double-check its responses. Your privacy & Gemini Apps
+          Cahaya AI may display inaccurate info, including about people, so double-check its responses.
         </p>
       </footer>
     </div>
