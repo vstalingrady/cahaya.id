@@ -41,7 +41,6 @@ export default function PinEntryPage() {
       const result = await verifySecurityPin(user.uid, pinString);
 
       if (result.success) {
-        document.cookie = "hasEnteredPin=true; path=/";
         toast({
           title: 'PIN Verified',
           description: 'Welcome to your dashboard.',

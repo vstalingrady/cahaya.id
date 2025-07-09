@@ -5,7 +5,7 @@ import { onAuthStateChanged, type User as FirebaseUser } from 'firebase/auth';
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { auth } from '@/lib/firebase';
-import { handleSignIn, checkUserOnboardingStatus } from '@/lib/actions';
+import { handleSignIn } from '@/lib/actions';
 import { Loader2 } from 'lucide-react';
 
 /**
@@ -45,20 +45,7 @@ const PUBLIC_ROUTES = [
     '/setup-security', 
     '/terms-of-service',
     '/forgot-password',
-];
-// Pages that are part of the main app experience and require a PIN session.
-const MAIN_APP_ROUTES = [
-    '/dashboard',
-    '/transfer',
-    '/budgets',
-    '/insights',
-    '/chat',
-    '/vaults',
-    '/history',
-    '/profile',
-    '/account',
-    '/bills',
-    '/subscriptions'
+    '/enter-pin', // The PIN page is part of the auth flow
 ];
 
 const PIN_ENTRY_ROUTE = '/enter-pin';

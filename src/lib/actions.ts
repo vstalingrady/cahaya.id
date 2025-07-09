@@ -1,3 +1,4 @@
+
 /**
  * @file This file contains the server-side actions for the application.
  * It follows the React Server Actions pattern, allowing client components
@@ -61,6 +62,7 @@ import {
 import { revalidatePath } from 'next/cache';
 import * as bcrypt from 'bcryptjs';
 import { format, isWithinInterval } from 'date-fns';
+import { cookies } from 'next/headers';
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('id-ID', {
@@ -198,6 +200,11 @@ export async function verifySecurityPin(
     }
 
     const match = await bcrypt.compare(pinAttempt, hashedPin);
+
+    if (match) {
+      // On success, set a cookie to remember the PIN was entered for this session.
+      cookies().set('hasEnteredPin', 'true', { path: '/', httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    }
 
     return {
       success: match,
