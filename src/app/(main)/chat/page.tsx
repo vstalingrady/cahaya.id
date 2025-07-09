@@ -8,25 +8,27 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/components/auth/auth-provider';
-import { getAiChatResponse } from '@/lib/actions';
+import { getAiChatResponse, getChatSuggestions } from '@/lib/actions';
 import { type ChatMessage } from '@/ai/flows/chat-flow';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GeminiLogo from '@/components/icons/GeminiLogo';
+import { Skeleton } from '@/components/ui/skeleton';
 
-
-const suggestionChips = [
+const defaultSuggestionChips = [
     { text: "Help me budget for a trip to Japan" },
     { text: "What are some ways to save on groceries?" },
     { text: "Explain compound interest like I'm 5" },
-]
+];
 
 export default function ChatPage() {
   const { user } = useAuth();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isSuggestionsLoading, setIsSuggestionsLoading] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,6 +39,27 @@ export default function ChatPage() {
       });
     }
   }, [messages]);
+  
+  useEffect(() => {
+    if (!user) return;
+    async function fetchSuggestions() {
+      setIsSuggestionsLoading(true);
+      try {
+        const result = await getChatSuggestions(user.uid);
+        if (result && result.length > 0) {
+          setSuggestions(result);
+        } else {
+          setSuggestions(defaultSuggestionChips.map(c => c.text));
+        }
+      } catch (error) {
+        console.error("Failed to fetch suggestions:", error);
+        setSuggestions(defaultSuggestionChips.map(c => c.text));
+      } finally {
+        setIsSuggestionsLoading(false);
+      }
+    }
+    fetchSuggestions();
+  }, [user]);
 
   const handleSuggestionClick = (text: string) => {
     setInputValue(text);
@@ -98,11 +121,17 @@ export default function ChatPage() {
                     </h2>
                     <p className="text-muted-foreground mt-2 text-lg">I can help with budgeting, financial questions, and more.</p>
                     <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-w-3xl mx-auto">
-                        {suggestionChips.map((chip, i) => (
-                            <Button key={i} variant="secondary" className="h-auto text-left py-3 whitespace-normal" onClick={() => handleSuggestionClick(chip.text)}>
-                                {chip.text}
-                            </Button>
-                        ))}
+                        {isSuggestionsLoading ? (
+                            Array.from({ length: 3 }).map((_, i) => (
+                                <Skeleton key={i} className="h-14 w-full" />
+                            ))
+                        ) : (
+                            suggestions.map((text, i) => (
+                                <Button key={i} variant="secondary" className="h-auto text-left py-3 whitespace-normal" onClick={() => handleSuggestionClick(text)}>
+                                    {text}
+                                </Button>
+                            ))
+                        )}
                     </div>
                 </div>
                 )}

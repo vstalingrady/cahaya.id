@@ -22,6 +22,9 @@ import {
   type ChatMessage,
 } from '@/ai/flows/chat-flow';
 import {
+  getChatSuggestions as getChatSuggestionsFlow,
+} from '@/ai/flows/chat-suggestions';
+import {
   personalizedSavingSuggestions,
   type PersonalizedSavingSuggestionsOutput,
 } from '@/ai/flows/saving-opportunities';
@@ -933,6 +936,33 @@ export async function getAiChatResponse(input: {
     return "I'm sorry, I encountered an error and can't respond right now. Please try again later.";
   }
 }
+
+/**
+ * Gets personalized chat suggestions for the user.
+ * @param userId The UID of the logged-in user.
+ * @returns An array of suggestion strings.
+ */
+export async function getChatSuggestions(userId: string): Promise<string[]> {
+  try {
+    const transactions = await getRecentTransactions(userId, 50);
+    const transactionSummary =
+      transactions.length > 0
+        ? transactions
+            .map(t => `- ${t.description} (${formatCurrency(t.amount)})`)
+            .join('\n')
+        : undefined;
+
+    const result = await getChatSuggestionsFlow({
+      transactionHistory: transactionSummary,
+    });
+    return result.suggestions;
+  } catch (error) {
+    console.error('Error getting chat suggestions:', error);
+    // Return empty array on error, client will use defaults.
+    return [];
+  }
+}
+
 
 // ---- Legacy/Mock Actions ----
 
