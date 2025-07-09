@@ -32,7 +32,8 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [inputValue, setInputValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // For waiting on server
+  const [isStreaming, setIsStreaming] = useState(false); // For client-side typing effect
   
   // Suggestions state
   const [suggestions, setSuggestions] = useState<ChatSuggestion[]>(defaultSuggestionChips);
@@ -52,7 +53,7 @@ export default function ChatPage() {
         behavior: 'smooth',
       });
     }
-  }, [messages]);
+  }, [messages, isStreaming]);
   
   // Fetch starter suggestions on initial load
   useEffect(() => {
@@ -61,8 +62,6 @@ export default function ChatPage() {
           setSuggestions(defaultSuggestionChips);
           return;
       }
-      // We don't set a loading state here.
-      // We show default suggestions and update them when the fetch is complete.
       try {
         const result = await fetchSuggestions(user.uid);
         const suggestionChips = result.map(s => ({ suggestion: s }));
@@ -71,7 +70,6 @@ export default function ChatPage() {
         }
       } catch (error) {
         console.error("Failed to fetch suggestions:", error);
-        // On error, we just keep the default suggestions.
       }
     }
     getSuggestions();
@@ -91,7 +89,6 @@ export default function ChatPage() {
     }
   }, [user]);
 
-  // Initial history fetch
   useEffect(() => {
     fetchHistory();
   }, [fetchHistory]);
@@ -122,29 +119,51 @@ export default function ChatPage() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoading || !user) return;
+    if (!inputValue.trim() || isLoading || isStreaming || !user) return;
 
     const userMessage: ChatMessage = { role: 'user', content: inputValue };
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
+    const currentHistory = [...messages, userMessage];
+    setMessages(currentHistory);
     setInputValue('');
     setIsLoading(true);
 
     try {
-      const { aiResponse, chatId: newChatId } = await getAiChatResponse(user.uid, newMessages, activeChatId);
-      setMessages([...newMessages, aiResponse]);
+      const { aiResponse, chatId: newChatId } = await getAiChatResponse(user.uid, currentHistory, activeChatId);
+      
+      setIsLoading(false);
+      setIsStreaming(true);
+      
+      const placeholderAiMessage: ChatMessage = { role: 'model', content: '' };
+      setMessages(prev => [...prev, placeholderAiMessage]);
+      
+      const fullAiText = aiResponse.content;
+      let charIndex = 0;
+      const typingInterval = setInterval(() => {
+        if (charIndex < fullAiText.length) {
+          charIndex++;
+          const typedText = fullAiText.slice(0, charIndex);
+          setMessages(prev => {
+            const updatedMessages = [...prev];
+            updatedMessages[updatedMessages.length - 1].content = typedText;
+            return updatedMessages;
+          });
+        } else {
+          clearInterval(typingInterval);
+          setIsStreaming(false);
+        }
+      }, 25);
+
       if (!activeChatId) {
         setActiveChatId(newChatId);
-        fetchHistory(); // Refresh history list if new chat was created
+        fetchHistory();
       }
     } catch (error) {
+      setIsLoading(false);
       const errorMessage: ChatMessage = {
         role: 'model',
         content: "I'm sorry, I encountered an error and can't respond right now. Please try again later.",
       };
-      setMessages([...newMessages, errorMessage]);
-    } finally {
-      setIsLoading(false);
+      setMessages(prev => [...prev, errorMessage]);
     }
   };
 
@@ -200,7 +219,6 @@ export default function ChatPage() {
               </Link>
             </div>
       </header>
-
 
       <main className="flex-1 flex flex-col min-h-0">
         <div className="flex-1 flex flex-col justify-center overflow-hidden">
@@ -283,9 +301,9 @@ export default function ChatPage() {
             onChange={(e) => setInputValue(e.target.value)}
             placeholder="Ask Cahaya anything..."
             className="flex-1 bg-input border border-border h-14 text-base pl-6 pr-14 rounded-full"
-            disabled={isLoading}
+            disabled={isLoading || isStreaming}
           />
-          <Button type="submit" size="icon" className="w-10 h-10 absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-primary hover:bg-primary/90" disabled={isLoading || !inputValue.trim()}>
+          <Button type="submit" size="icon" className="w-10 h-10 absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-primary hover:bg-primary/90" disabled={isLoading || isStreaming || !inputValue.trim()}>
             <Send className="w-5 h-5" />
           </Button>
         </form>
