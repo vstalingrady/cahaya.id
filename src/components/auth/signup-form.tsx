@@ -4,18 +4,17 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signInWithPopup, GoogleAuthProvider, OAuthProvider } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
-import { FaGoogle, FaApple } from 'react-icons/fa';
+import { FaGoogle } from 'react-icons/fa';
 import { Separator } from '@/components/ui/separator';
 
 const googleProvider = new GoogleAuthProvider();
-const appleProvider = new OAuthProvider('apple.com');
 
 export default function SignupForm() {
   const router = useRouter();
@@ -48,7 +47,7 @@ export default function SignupForm() {
     setPhone(formattedPhone);
   };
   
-  const handleSocialSignIn = async (provider: GoogleAuthProvider | OAuthProvider) => {
+  const handleSocialSignIn = async (provider: GoogleAuthProvider) => {
     setIsSocialLoading(true);
     try {
       await signInWithPopup(auth, provider);
@@ -120,10 +119,6 @@ export default function SignupForm() {
           <Button className="w-full bg-white text-black hover:bg-gray-200 h-14 text-base font-semibold border border-gray-200/50 flex items-center justify-center" type="button" onClick={() => handleSocialSignIn(googleProvider)} disabled={isLoading || isSocialLoading}>
               <FaGoogle className="mr-3" />
               <span>Continue with Google</span>
-          </Button>
-          <Button className="w-full bg-black text-white hover:bg-gray-800 h-14 text-base font-semibold flex items-center justify-center" type="button" onClick={() => handleSocialSignIn(appleProvider)} disabled={isLoading || isSocialLoading}>
-              <FaApple className="mr-3" />
-              <span>Continue with Apple</span>
           </Button>
       </div>
       

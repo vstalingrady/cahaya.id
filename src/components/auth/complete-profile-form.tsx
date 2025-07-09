@@ -5,7 +5,7 @@
  * After phone verification, users provide their full name, email, and password.
  * This component supports multiple authentication methods:
  * 1. Linking email/password to a phone-verified account.
- * 2. Linking a social provider (Google, Apple) to a phone-verified account.
+ * 2. Linking a social provider (Google) to a phone-verified account.
  * 3. A developer bypass mode to create a new user from scratch without phone verification.
  */
 
@@ -32,7 +32,6 @@ import {
   linkWithCredential, 
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  OAuthProvider,
   signInWithPopup,
   linkWithPopup,
   updateProfile
@@ -41,7 +40,7 @@ import {
 import { completeUserProfile } from '@/lib/actions';
 // Icons from lucide-react and react-icons.
 import { User as UserIcon, Mail, Lock, Loader2, Check, X, Eye, EyeOff } from 'lucide-react';
-import { FaGoogle, FaApple } from 'react-icons/fa';
+import { FaGoogle } from 'react-icons/fa';
 // Utility for conditional class names.
 import { cn } from '@/lib/utils';
 
@@ -243,11 +242,11 @@ export default function CompleteProfileForm() {
   };
 
   /**
-   * Handles sign-in/linking with OAuth providers (Google, Apple).
+   * Handles sign-in/linking with OAuth providers (Google).
    * Contains logic for both normal and bypass flows.
-   * @param {GoogleAuthProvider | OAuthProvider} provider - The Firebase auth provider instance.
+   * @param {GoogleAuthProvider} provider - The Firebase auth provider instance.
    */
-  const handleOAuthSignIn = async (provider: GoogleAuthProvider | OAuthProvider) => {
+  const handleOAuthSignIn = async (provider: GoogleAuthProvider) => {
     setIsSubmitting(true);
     setError(null);
     try {
@@ -311,7 +310,6 @@ export default function CompleteProfileForm() {
 
   // Helper functions to trigger the specific OAuth flows.
   const handleGoogleSignIn = () => handleOAuthSignIn(new GoogleAuthProvider());
-  const handleAppleSignIn = () => handleOAuthSignIn(new OAuthProvider('apple.com'));
 
   const handleDevAutofill = () => {
     setFullName('Dev User');
@@ -337,10 +335,6 @@ export default function CompleteProfileForm() {
           <Button className="w-full bg-white text-black hover:bg-gray-200 h-14 text-base font-semibold border border-gray-200/50 flex items-center justify-center" type="button" onClick={handleGoogleSignIn} disabled={isSubmitting}>
               <FaGoogle className="mr-3" />
               <span>Continue with Google</span>
-          </Button>
-          <Button className="w-full bg-black text-white hover:bg-gray-800 h-14 text-base font-semibold flex items-center justify-center" type="button" onClick={handleAppleSignIn} disabled={isSubmitting}>
-              <FaApple className="mr-3" />
-              <span>Continue with Apple</span>
           </Button>
       </div>
       
