@@ -19,6 +19,7 @@ import {
 } from '@/ai/flows/budget-analysis';
 import {
   runFinancialChatFlow,
+  continueFinancialChat,
   type ChatMessage,
 } from '@/ai/flows/chat-flow';
 import {
@@ -969,19 +970,30 @@ export async function getAiChatResponse(
   chatId: string;
 }> {
   try {
-    // 1. Get the AI's response and potential title from the Genkit flow.
-    const { response, title } = await runFinancialChatFlow({ history });
-    const aiMessage: ChatMessage = { role: 'model', content: response };
+    let responseText: string;
+    let newChatTitle: string | undefined;
+
+    // Use the more efficient text-only flow for existing chats.
+    if (chatId) {
+      responseText = await continueFinancialChat({ history });
+    } else {
+      // Use the flow that generates a title for new chats.
+      const { response, title } = await runFinancialChatFlow({ history });
+      responseText = response;
+      newChatTitle = title;
+    }
+    
+    const aiMessage: ChatMessage = { role: 'model', content: responseText };
     const userMessage = history[history.length - 1];
 
     let currentChatId = chatId;
 
-    // 2. If it's a new chat (no chatId) and we got a title, create the session document.
-    if (!currentChatId && title) {
+    // If it's a new chat, create the session document.
+    if (!currentChatId && newChatTitle) {
       const chatSessionsRef = collection(db, 'users', userId, 'chatSessions');
       const newChatDoc = await addDoc(chatSessionsRef, {
         userId,
-        title,
+        title: newChatTitle,
         lastUpdated: Timestamp.now(),
       });
       currentChatId = newChatDoc.id;
@@ -993,7 +1005,7 @@ export async function getAiChatResponse(
       );
     }
 
-    // 3. Use a batched write to save messages and update the session timestamp atomically.
+    // Use a batched write to save messages and update the session timestamp atomically.
     const batch = writeBatch(db);
     const chatSessionRef = doc(
       db,

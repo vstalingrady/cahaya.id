@@ -3,7 +3,8 @@
 /**
  * @fileOverview A conversational AI agent for personal finance.
  *
- * - runFinancialChatFlow - A function that handles the AI chat completions.
+ * - runFinancialChatFlow - A function that handles the AI chat completions for the first turn.
+ * - continueFinancialChat - A function that handles subsequent chat messages.
  * - ChatMessage - The type for a single message in the chat history.
  */
 
@@ -21,37 +22,40 @@ const ChatInputSchema = z.object({
 });
 export type ChatInput = z.infer<typeof ChatInputSchema>;
 
-const ChatOutputSchema = z.object({
+// --- Flow for the FIRST message of a conversation ---
+
+// The output for the first turn needs a `title` for the conversation.
+const InitialChatOutputSchema = z.object({
   response: z.string().describe("The AI's response to the user."),
   title: z
     .string()
-    .optional()
     .describe(
-      "A short, 3-5 word title for the conversation. Only generate this on the first turn."
+      "A short, 3-5 word title for the conversation. You MUST generate this."
     ),
 });
-export type ChatOutput = z.infer<typeof ChatOutputSchema>;
+export type InitialChatOutput = z.infer<typeof InitialChatOutputSchema>;
 
+
+/**
+ * This flow is for the first message in a conversation. It generates a response AND a title.
+ */
 export async function runFinancialChatFlow(
   input: ChatInput
-): Promise<ChatOutput> {
-  const response = await financialChatFlow(input);
-  return response;
+): Promise<InitialChatOutput> {
+  return financialChatFlow(input);
 }
 
-const prompt = ai.definePrompt({
+const firstTurnPrompt = ai.definePrompt({
   name: 'financialChatPrompt',
   input: {schema: ChatInputSchema},
-  output: {schema: ChatOutputSchema},
+  output: {schema: InitialChatOutputSchema}, // Uses the schema that includes the title
   prompt: `You are Cahaya, a friendly, witty, and knowledgeable AI financial assistant for a personal finance app in Indonesia. Your goal is to help users with their financial questions.
 
 You must be encouraging and provide clear, actionable advice. If you don't know the answer, say so. Do not provide financial advice that could be construed as professional investment counseling. You can give general financial knowledge and tips.
 
 Keep your answers concise and easy to understand.
 
-Use the provided chat history to maintain context of the conversation.
-
-IMPORTANT: If this is the first user message in the conversation (i.e., the history contains only a single 'user' message), you MUST generate a short, descriptive title for the conversation (e.g., "Saving for a Japan Trip", "Understanding Index Funds") and include it in the 'title' field of the output. For all subsequent messages, you must OMIT the 'title' field.
+IMPORTANT: This is the first user message in the conversation. You MUST generate a short, descriptive title for the conversation (e.g., "Saving for a Japan Trip", "Understanding Index Funds") and include it in the 'title' field of the output.
 
 Chat History:
 {{#each history}}
@@ -64,10 +68,43 @@ const financialChatFlow = ai.defineFlow(
   {
     name: 'financialChatFlow',
     inputSchema: ChatInputSchema,
-    outputSchema: ChatOutputSchema,
+    outputSchema: InitialChatOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const {output} = await firstTurnPrompt(input);
     return output!;
   }
 );
+
+
+// --- Flow for CONTINUING an existing conversation ---
+
+// This prompt is simpler and outputs only a string, which is faster.
+const continueChatPrompt = ai.definePrompt({
+  name: 'continueFinancialChatPrompt',
+  input: { schema: ChatInputSchema }, // Still takes the history
+  output: { schema: z.string() },      // Outputs a plain string, which is faster
+  prompt: `You are Cahaya, a friendly, witty, and knowledgeable AI financial assistant. Continue the following conversation, responding to the last user message. Keep your answers concise and easy to understand. Do not provide professional investment advice.
+
+Chat History:
+{{#each history}}
+**{{this.role}}**: {{{this.content}}}
+{{/each}}
+**model**:`,
+});
+
+const continueFinancialChatFlow = ai.defineFlow({
+    name: 'continueFinancialChatFlow',
+    inputSchema: ChatInputSchema,
+    outputSchema: z.string(),
+}, async (input) => {
+    const { output } = await continueChatPrompt(input);
+    return output!;
+});
+
+/**
+ * This flow is for subsequent messages in a conversation. It only generates a text response.
+ */
+export async function continueFinancialChat(input: ChatInput): Promise<string> {
+    return continueFinancialChatFlow(input);
+}
