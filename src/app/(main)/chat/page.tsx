@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useRef, useEffect, FormEvent } from 'react';
-import { Send, User, Loader2, Sparkles } from 'lucide-react';
+import { Send, User as UserIcon, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -91,13 +91,23 @@ export default function ChatPage() {
 
   return (
     <div className="flex flex-col h-full w-full max-w-4xl mx-auto animate-fade-in-up">
+      <header className="sticky top-0 bg-background/80 backdrop-blur-md z-20 flex justify-between items-center p-4 border-b border-border">
+          <div>
+              <h1 className="text-xl font-bold font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  Cahaya AI
+              </h1>
+              <p className="text-sm text-muted-foreground">Your personal financial assistant.</p>
+          </div>
+          <Link href="/profile">
+              <Avatar className="w-10 h-10">
+                  <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
+                  <AvatarFallback>
+                  <UserIcon className="w-5 h-5" />
+                  </AvatarFallback>
+              </Avatar>
+          </Link>
+      </header>
       <main className="flex-1 flex flex-col min-h-0">
-        <header className="flex items-center relative py-4 flex-shrink-0">
-            <h1 className="text-2xl font-bold mx-auto font-serif bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                Cahaya AI
-            </h1>
-        </header>
-        
         <div className="flex-1 flex flex-col justify-center overflow-hidden">
           {messages.length === 0 && !isLoading ? (
             <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
@@ -151,7 +161,7 @@ export default function ChatPage() {
                     <Avatar className="w-8 h-8 flex-shrink-0">
                         <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || 'User'} />
                         <AvatarFallback>
-                        <User className="w-4 h-4" />
+                        <UserIcon className="w-4 h-4" />
                         </AvatarFallback>
                     </Avatar>
                     )}
