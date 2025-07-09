@@ -168,7 +168,7 @@ export default function ChatPage() {
 
       <footer className="p-4 w-full max-w-3xl mx-auto flex-shrink-0">
         <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground mb-2">
-            <GeminiLogo className="w-4 h-4" />
+            <GeminiLogo />
             <span>Powered by Gemini</span>
         </div>
         <form onSubmit={handleSubmit} className="relative">
