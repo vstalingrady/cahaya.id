@@ -31,6 +31,7 @@ const PUBLIC_ROUTES = [
     '/complete-profile', 
     '/setup-security', 
     '/terms-of-service',
+    '/forgot-password',
     '/link-account', // Make the entire flow public
     '/mock-ayo-connect',
 ];
@@ -65,14 +66,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     const isPublicRoute = PUBLIC_ROUTES.some(route => {
+        // Exact match for root, startsWith for others to catch sub-paths like /link-account/[slug]
         if (route === '/') return pathname === '/';
         return pathname.startsWith(route);
     });
-
-    if (user && isPublicRoute && pathname !== '/') {
-      router.replace('/dashboard');
-    }
-
+    
+    // If the user is not logged in and trying to access a protected route, redirect to login.
     if (!user && !isPublicRoute) {
       router.replace('/login');
     }
