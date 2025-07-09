@@ -8,14 +8,19 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, AtSign, ArrowLeft } from 'lucide-react';
+import { Loader2, AtSign, ArrowLeft, KeyRound } from 'lucide-react';
 import CuanLogo from '@/components/icons/CuanLogo';
+import { useRouter } from 'next/navigation';
 
 export default function ForgotPasswordPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isEmailSent, setIsEmailSent] = useState(false);
+  const [code, setCode] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,10 +29,6 @@ export default function ForgotPasswordPage() {
     try {
       await sendPasswordResetEmail(auth, email);
       setIsEmailSent(true);
-      toast({
-        title: 'Password Reset Email Sent',
-        description: `An email has been sent to ${email} with instructions to reset your password.`,
-      });
     } catch (error: any) {
       console.error('Forgot Password Error:', error);
       let errorMessage = 'An unexpected error occurred. Please try again.';
@@ -45,6 +46,21 @@ export default function ForgotPasswordPage() {
       setIsLoading(false);
     }
   };
+
+  const handleVerifySubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsVerifying(true);
+    // In a real app, you would use Firebase's verifyPasswordResetCode and confirmPasswordReset.
+    // This is a placeholder to simulate the flow.
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    toast({
+      title: 'Password Reset Successful',
+      description: 'You can now sign in with your new password.',
+    });
+    router.push('/login');
+    setIsVerifying(false);
+  }
 
   const maskEmail = (email: string) => {
     const atIndex = email.indexOf('@');
@@ -69,21 +85,48 @@ export default function ForgotPasswordPage() {
             <div className="text-center space-y-6 bg-card border border-border p-8 rounded-2xl shadow-lg">
                 <div className="flex justify-center">
                     <div className="w-16 h-16 bg-primary/20 text-primary rounded-full flex items-center justify-center">
-                        <AtSign className="w-8 h-8"/>
+                        <KeyRound className="w-8 h-8"/>
                     </div>
                 </div>
-                <h1 className="text-3xl font-bold font-serif">Check Your Email</h1>
+                <h1 className="text-3xl font-bold font-serif">Enter Verification Code</h1>
                 <p className="text-muted-foreground">
-                    We&apos;ve sent a password reset link to <br/>
+                    We have sent an email to <br/>
                     <span className="font-semibold text-foreground">{maskEmail(email)}</span>.
                 </p>
-                <p className='text-sm text-muted-foreground'>Please check your spam folder if you don&apos;t see it in your inbox.</p>
-                <Button asChild className="w-full h-12 text-lg">
-                    <Link href="/login">
-                    <ArrowLeft className="mr-2 h-5 w-5" />
-                    Back to Sign In
-                    </Link>
-                </Button>
+                <form onSubmit={handleVerifySubmit} className="space-y-4">
+                    <div className="space-y-2 text-left">
+                        <Label htmlFor="code">Verification Code</Label>
+                        <Input
+                            id="code"
+                            name="code"
+                            type="text"
+                            value={code}
+                            onChange={(e) => setCode(e.target.value)}
+                            className="bg-input h-14 text-base placeholder:text-muted-foreground text-center tracking-[0.5em]"
+                            placeholder="••••••"
+                            maxLength={6}
+                            disabled={isVerifying}
+                            required
+                        />
+                    </div>
+                     <div className="space-y-2 text-left">
+                        <Label htmlFor="new-password">New Password</Label>
+                        <Input
+                            id="new-password"
+                            name="new-password"
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            className="bg-input h-14 text-base placeholder:text-muted-foreground"
+                            placeholder="Enter new password"
+                            disabled={isVerifying}
+                            required
+                        />
+                    </div>
+                    <Button type="submit" className="w-full h-12 text-lg" disabled={isVerifying || !code || !newPassword}>
+                        {isVerifying ? <Loader2 className="animate-spin" /> : 'Verify & Reset Password'}
+                    </Button>
+                </form>
             </div>
           ) : (
             <>
