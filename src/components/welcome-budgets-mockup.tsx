@@ -50,9 +50,7 @@ const CategoryBudgetCard: React.FC<CategoryBudgetCardProps> = ({ category, icon,
                 </div>
                 <p className="text-sm font-bold text-foreground">Rp {spent.toLocaleString('id-ID')}</p>
             </div>
-            <Progress value={spentPercentage} className="h-2" indicatorClassName={cn(color === '#000000' ? 'bg-white' : '')} style={{
-                '--indicator-color': color
-            } as React.CSSProperties}  />
+            <Progress value={spentPercentage} className="h-2" indicatorClassName={`bg-[${color}]`} />
         </div>
     );
 };
