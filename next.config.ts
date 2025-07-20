@@ -10,7 +10,7 @@ const pwaConfig = withPWA({
 });
 
 const nextConfig: NextConfig = {
-  output: 'export',
+  // No static export for development - use regular Next.js server
   trailingSlash: true,
   typescript: {
     ignoreBuildErrors: true,
