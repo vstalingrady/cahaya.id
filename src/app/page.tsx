@@ -89,74 +89,74 @@ export default function WelcomePage() {
             </section>
 
             {/* Slide 2: Dashboard */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center max-w-sm min-h-36">
-                    <BarChart2 className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Unified Dashboard</h2>
-                    <p className="text-muted-foreground text-sm">See your complete financial picture in one glance. Track balances across all your linked accounts in real-time.</p>
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col px-6 pt-6 pb-4 gap-3 overflow-y-auto custom-scrollbar">
+                <div className="text-center max-w-sm mx-auto flex-shrink-0">
+                    <BarChart2 className="w-6 h-6 text-primary mx-auto mb-2" />
+                    <h2 className="text-xl font-bold font-serif mb-1 text-foreground">Unified Dashboard</h2>
+                    <p className="text-muted-foreground text-xs">See your complete financial picture in one glance. Track balances across all your linked accounts in real-time.</p>
                 </div>
-                <div className="w-full px-4">
-                    <WelcomeDashboardMockup isActive={selectedIndex === 1} className="h-[500px]" />
+                <div className="flex-1 w-full px-2 min-h-0">
+                    <WelcomeDashboardMockup isActive={selectedIndex === 1} className="h-full max-h-[400px]" />
                 </div>
             </section>
 
             {/* Slide 3: Payments */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center max-w-sm min-h-36">
-                    <Zap className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Effortless Payments</h2>
-                    <p className="text-muted-foreground text-sm">Pay bills, transfer funds, and top-up e-wallets seamlessly from any of your accounts, all from one central hub.</p>
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col px-6 pt-6 pb-4 gap-3 overflow-y-auto custom-scrollbar">
+                <div className="text-center max-w-sm mx-auto flex-shrink-0">
+                    <Zap className="w-6 h-6 text-primary mx-auto mb-2" />
+                    <h2 className="text-xl font-bold font-serif mb-1 text-foreground">Effortless Payments</h2>
+                    <p className="text-muted-foreground text-xs">Pay bills, transfer funds, and top-up e-wallets seamlessly from any of your accounts, all from one central hub.</p>
                 </div>
-                <div className="w-full px-4">
-                    <WelcomePaymentMockup isActive={selectedIndex === 2} className="h-[500px]" />
+                <div className="flex-1 w-full px-2 min-h-0">
+                    <WelcomePaymentMockup isActive={selectedIndex === 2} className="h-full max-h-[400px]" />
                 </div>
             </section>
 
             {/* Slide 4: Budgets */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center max-w-sm min-h-36">
-                    <ClipboardList className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Smart Budgeting</h2>
-                    <p className="text-muted-foreground text-sm">Set custom budgets, track your spending against them in real-time, and get coached by our AI to stay on track.</p>
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col px-6 pt-6 pb-4 gap-3 overflow-y-auto custom-scrollbar">
+                <div className="text-center max-w-sm mx-auto flex-shrink-0">
+                    <ClipboardList className="w-6 h-6 text-primary mx-auto mb-2" />
+                    <h2 className="text-xl font-bold font-serif mb-1 text-foreground">Smart Budgeting</h2>
+                    <p className="text-muted-foreground text-xs">Set custom budgets, track your spending against them in real-time, and get coached by our AI to stay on track.</p>
                 </div>
-                <div className="w-full px-4">
-                    <WelcomeBudgetsMockup isActive={selectedIndex === 3} className="h-[500px]" />
+                <div className="flex-1 w-full px-2 min-h-0">
+                    <WelcomeBudgetsMockup isActive={selectedIndex === 3} className="h-full max-h-[400px]" />
                 </div>
             </section>
 
             {/* Slide 5: Insights */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-              <div className="text-center max-w-sm min-h-36">
-                  <Sparkles className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">AI-Powered Insights</h2>
-                  <p className="text-muted-foreground text-sm">Let our AI analyze your spending to find personalized saving opportunities and create actionable financial plans.</p>
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col px-6 pt-6 pb-4 gap-3 overflow-y-auto custom-scrollbar">
+              <div className="text-center max-w-sm mx-auto flex-shrink-0">
+                  <Sparkles className="w-6 h-6 text-primary mx-auto mb-2" />
+                  <h2 className="text-xl font-bold font-serif mb-1 text-foreground">AI-Powered Insights</h2>
+                  <p className="text-muted-foreground text-xs">Let our AI analyze your spending to find personalized saving opportunities and create actionable financial plans.</p>
               </div>
-              <div className="w-full px-4">
-                  <WelcomeInsightsMockup isActive={selectedIndex === 4} className="h-[500px]" />
+              <div className="flex-1 w-full px-2 min-h-0">
+                  <WelcomeInsightsMockup isActive={selectedIndex === 4} className="h-full max-h-[400px]" />
               </div>
             </section>
 
             {/* Slide 6: Vaults */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center max-w-sm min-h-36">
-                    <PiggyBank className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Automated Savings</h2>
-                    <p className="text-muted-foreground text-sm">Create savings vaults for your goals. Automate contributions with round-ups and scheduled transfers.</p>
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col px-6 pt-6 pb-4 gap-3 overflow-y-auto custom-scrollbar">
+                <div className="text-center max-w-sm mx-auto flex-shrink-0">
+                    <PiggyBank className="w-6 h-6 text-primary mx-auto mb-2" />
+                    <h2 className="text-xl font-bold font-serif mb-1 text-foreground">Automated Savings</h2>
+                    <p className="text-muted-foreground text-xs">Create savings vaults for your goals. Automate contributions with round-ups and scheduled transfers.</p>
                 </div>
-                <div className="w-full px-4">
-                    <WelcomeVaultsMockup isActive={selectedIndex === 5} className="h-[500px]" />
+                <div className="flex-1 w-full px-2 min-h-0">
+                    <WelcomeVaultsMockup isActive={selectedIndex === 5} className="h-full max-h-[400px]" />
                 </div>
             </section>
 
             {/* Slide 7: Security */}
-            <section className="flex-[0_0_100%] min-w-0 flex flex-col items-center justify-start px-6 pt-12 pb-6 gap-4 overflow-y-auto custom-scrollbar">
-                <div className="text-center max-w-sm min-h-36">
-                    <ShieldCheck className="w-8 h-8 text-primary mx-auto mb-2" />
-                    <h2 className="text-2xl font-bold font-serif mb-1 text-foreground">Bank-Grade Security</h2>
-                    <p className="text-muted-foreground text-sm">Your data is protected with the highest bank-grade security standards, including 256-bit AES encryption. Your privacy is our priority.</p>
+            <section className="flex-[0_0_100%] min-w-0 flex flex-col px-6 pt-6 pb-4 gap-3 overflow-y-auto custom-scrollbar">
+                <div className="text-center max-w-sm mx-auto flex-shrink-0">
+                    <ShieldCheck className="w-6 h-6 text-primary mx-auto mb-2" />
+                    <h2 className="text-xl font-bold font-serif mb-1 text-foreground">Bank-Grade Security</h2>
+                    <p className="text-muted-foreground text-xs">Your data is protected with the highest bank-grade security standards, including 256-bit AES encryption. Your privacy is our priority.</p>
                 </div>
-                <div className="w-full px-4">
-                    <WelcomeSecurityMockup isActive={selectedIndex === 6} className="h-[500px]" />
+                <div className="flex-1 w-full px-2 min-h-0">
+                    <WelcomeSecurityMockup isActive={selectedIndex === 6} className="h-full max-h-[400px]" />
                 </div>
             </section>
             
