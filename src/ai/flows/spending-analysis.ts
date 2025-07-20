@@ -1,5 +1,6 @@
 // filename: src/ai/flows/spending-analysis.ts
-'use server';
+// Temporarily disabled server actions for static export
+// 'use server';
 
 /**
  * @fileOverview AI-powered spending analysis and categorization flow.

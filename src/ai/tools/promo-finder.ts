@@ -1,4 +1,6 @@
-'use server';
+// Temporarily disabled server actions for static export
+// // Temporarily disabled for standalone APK build
+// 'use server';
 /**
  * @fileOverview A tool for finding local financial promotions.
  *

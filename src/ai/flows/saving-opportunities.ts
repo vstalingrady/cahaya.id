@@ -1,4 +1,5 @@
-'use server';
+// Temporarily disabled for standalone APK build
+// 'use server';
 
 /**
  * @fileOverview This file defines a Genkit flow for providing personalized saving suggestions based on user spending patterns.

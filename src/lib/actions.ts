@@ -7,28 +7,20 @@
  * It also serves as the interface between the frontend and the Genkit AI flows,
  * ensuring that all AI-related logic is handled securely on the server.
  */
-'use server';
+// Temporarily disabled for standalone APK build
+// 'use server';
 
-import {
-  discoverRecurringBills,
-  type BillDiscoveryOutput,
-} from '@/ai/flows/bill-discovery';
-import {
-  budgetAnalysis,
-  type BudgetAnalysisOutput,
-} from '@/ai/flows/budget-analysis';
+// Clean imports for standalone APK
 import {
   runFinancialChatFlow,
   continueFinancialChat,
   type ChatMessage,
-} from '@/ai/flows/chat-flow';
-import {
-  getChatSuggestions as getChatSuggestionsFlow,
-} from '@/ai/flows/chat-suggestions';
-import {
-  personalizedSavingSuggestions,
-  type PersonalizedSavingSuggestionsOutput,
-} from '@/ai/flows/saving-opportunities';
+} from '@/lib/chat-flows';
+
+// Mock types for standalone APK
+export type BillDiscoveryOutput = { error?: string; potentialBills: any[] };
+export type BudgetAnalysisOutput = { error?: string; coachTitle: string; summary: string; suggestions: any[]; proTip: string };
+export type PersonalizedSavingSuggestionsOutput = { error?: string; financialHealthScore: number; spenderType: string; summary: string; suggestions: any[]; investmentPlan: string; localDeals: any[] };
 import { db } from './firebase';
 import {
   collection,
@@ -64,10 +56,13 @@ import {
   favoriteTransactions as seedFavorites,
 } from './data-seed';
 
-import { revalidatePath } from 'next/cache';
+// Standalone APK version - no server dependencies
 import * as bcrypt from 'bcryptjs';
 import { format, isWithinInterval } from 'date-fns';
-import { cookies } from 'next/headers';
+
+// Mock functions for standalone APK
+const revalidatePath = (path: string) => console.log('Mock revalidatePath:', path);
+const cookies = () => ({ set: (name: string, value: string) => console.log('Mock cookie:', name) });
 
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat('id-ID', {
@@ -827,33 +822,16 @@ async function getSpendingPerBudget(
 export async function getSavingSuggestions(
   transactions: Transaction[]
 ): Promise<PersonalizedSavingSuggestionsOutput & { error?: string }> {
-  try {
-    const spendingData = transactions
-      .filter(t => t.amount < 0)
-      .map(t => `${t.description}: ${formatCurrency(t.amount)}`)
-      .join('\n');
-
-    // In a real app, you'd get this info from the user's profile
-    const mockInput = {
-      spendingData: spendingData || 'No spending data for this period.',
-      monthlyIncome: 15000000,
-      location: 'Jakarta',
-    };
-
-    const suggestions = await personalizedSavingSuggestions(mockInput);
-    return suggestions;
-  } catch (error) {
-    console.error('Error getting saving suggestions:', error);
-    return {
-      error: "I'm sorry, I couldn't find any saving opportunities right now.",
-      financialHealthScore: 0,
-      spenderType: 'Error',
-      summary: 'Could not generate suggestions.',
-      suggestions: [],
-      investmentPlan: '',
-      localDeals: [],
-    };
-  }
+  // Mock function for standalone APK - shows "connect to internet" message
+  return {
+    error: "Connect to the internet to get AI-powered saving suggestions and personalized financial insights.",
+    financialHealthScore: 0,
+    spenderType: 'Offline Mode',
+    summary: 'Internet connection required for AI analysis.',
+    suggestions: [],
+    investmentPlan: 'Connect to the internet for personalized investment recommendations.',
+    localDeals: [],
+  };
 }
 
 export async function getBudgetAnalysis(
@@ -950,6 +928,46 @@ export async function getChatSuggestions(userId: string): Promise<string[]> {
     console.error('Error getting chat suggestions:', error);
     // Return empty array on error, client will use defaults.
     return [];
+  }
+}
+
+/**
+ * Mock function to handle account linking for development/testing.
+ * @param prevState Previous form state
+ * @param formData Form data from the link account form
+ * @returns Form state with success/error message
+ */
+export async function linkAccount(
+  prevState: any,
+  formData: FormData
+): Promise<{ message: string | null; errors: any }> {
+  try {
+    const institutionSlug = formData.get('institutionSlug') as string;
+    const username = formData.get('username') as string;
+    const password = formData.get('password') as string;
+    const phone = formData.get('phone') as string;
+
+    // Mock validation - in a real app this would connect to actual banking APIs
+    if (!institutionSlug) {
+      return { message: 'Institution is required', errors: {} };
+    }
+
+    if (institutionSlug.includes('bank') && (!username || !password)) {
+      return { message: 'Username and password are required for bank accounts', errors: {} };
+    }
+
+    if (institutionSlug.includes('wallet') && !phone) {
+      return { message: 'Phone number is required for e-wallet accounts', errors: {} };
+    }
+
+    // Simulate successful account linking
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // In a real app, you'd redirect to success page or dashboard
+    return { message: null, errors: {} };
+  } catch (error) {
+    console.error('Error linking account:', error);
+    return { message: 'Failed to link account. Please try again.', errors: {} };
   }
 }
 

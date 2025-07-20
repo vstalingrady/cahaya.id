@@ -1,5 +1,7 @@
 
-'use server';
+// Temporarily disabled server actions for static export
+// // Temporarily disabled for standalone APK build
+// 'use server';
 
 import * as crypto from 'crypto';
 

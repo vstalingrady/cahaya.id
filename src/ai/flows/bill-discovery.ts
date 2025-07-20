@@ -1,4 +1,5 @@
-'use server';
+// Temporarily disabled for standalone APK build
+// 'use server';
 
 /**
  * @fileOverview An AI flow for discovering recurring bills from transaction history.

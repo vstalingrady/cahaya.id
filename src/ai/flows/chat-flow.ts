@@ -1,5 +1,6 @@
 
-'use server';
+// Temporarily disabled for standalone APK build
+// 'use server';
 /**
  * @fileOverview A conversational AI agent for personal finance.
  *
