@@ -9,6 +9,7 @@ import { AuthProvider } from '@/components/auth/auth-provider';
 export const metadata: Metadata = {
   title: 'Cahaya - All your money, in one place.',
   description: 'Welcome to Cahaya. The secure way to manage your finances.',
+  manifest: '/manifest.json',
 };
 
 const jakartaSans = Plus_Jakarta_Sans({ 
