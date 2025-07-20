@@ -58,7 +58,7 @@ export default function WelcomePage() {
           }}
         >
           <div className="w-full flex justify-between items-center">
-            <div className="w-32 h-auto font-bold text-2xl text-primary font-serif">Semua</div>
+            <div className="w-32 h-auto font-bold text-2xl text-primary font-serif">Cahaya</div>
             <div className="flex items-center gap-2">
               <Button variant="ghost" asChild>
                 <Link href="/login">Log In</Link>
@@ -83,7 +83,7 @@ export default function WelcomePage() {
                         </span>
                     </h1>
                     <p className="text-base text-muted-foreground">
-                        Semua securely connects to all your accounts, giving you a complete financial overview and AI-powered insights to grow your wealth.
+                        Cahaya securely connects to all your accounts, giving you a complete financial overview and AI-powered insights to grow your wealth.
                     </p>
                 </div>
             </section>

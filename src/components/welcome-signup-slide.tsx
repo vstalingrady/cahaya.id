@@ -59,7 +59,7 @@ export default function WelcomeSignupSlide({ onSignUp, isSigningUp }: { onSignUp
             </div>
 
             <div className="text-center text-muted-foreground text-xs pt-8">
-                <p>&copy; {new Date().getFullYear()} Semua. All Rights Reserved.</p>
+                <p>&copy; {new Date().getFullYear()} Cahaya. All Rights Reserved.</p>
             </div>
         </div>
     );
