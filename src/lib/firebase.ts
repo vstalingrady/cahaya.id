@@ -19,6 +19,17 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
+// Log helpful info for debugging auth domain issues
+if (typeof window !== 'undefined') {
+  console.log('🔥 Firebase Auth Domain:', firebaseConfig.authDomain);
+  console.log('🌐 Current Origin:', window.location.origin);
+  
+  // Warn if running on non-localhost IP without proper domain setup
+  if (window.location.hostname !== 'localhost' && window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/)) {
+    console.warn('⚠️ Running on IP address. For Firebase Auth to work, add this domain to Firebase Console: Authentication → Settings → Authorized domains');
+  }
+}
+
 // Check for missing environment variables to provide a helpful error message.
 const requiredEnvVars = [
   'NEXT_PUBLIC_FIREBASE_API_KEY',
