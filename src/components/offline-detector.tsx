@@ -74,11 +74,11 @@ export default function OfflineDetector({ children }: OfflineDetectorProps) {
 
   if (!isOnline) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black flex items-center justify-center p-6">
         <div className="max-w-md w-full text-center space-y-8">
           {/* Logo/Icon */}
           <div className="relative">
-            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-500 to-pink-500 rounded-3xl flex items-center justify-center shadow-2xl">
+            <div className="w-24 h-24 mx-auto bg-gradient-to-br from-orange-500 to-orange-600 rounded-3xl flex items-center justify-center shadow-2xl">
               <WifiOff className="w-12 h-12 text-white" />
             </div>
             <div className="absolute -top-2 -right-2 w-8 h-8 bg-red-500 rounded-full flex items-center justify-center">
@@ -108,7 +108,7 @@ export default function OfflineDetector({ children }: OfflineDetectorProps) {
           <Button 
             onClick={handleRetry}
             disabled={isChecking}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white py-4 rounded-2xl font-semibold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 h-auto"
+            className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white py-4 rounded-2xl font-semibold text-lg shadow-lg transition-all duration-300 transform hover:scale-105 h-auto"
           >
             {isChecking ? (
               <>
