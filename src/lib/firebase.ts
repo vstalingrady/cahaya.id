@@ -12,6 +12,7 @@ import { getStorage } from "firebase/storage";
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
@@ -21,8 +22,17 @@ const firebaseConfig = {
 
 // Log helpful info for debugging auth domain issues
 if (typeof window !== 'undefined') {
-  console.log('🔥 Firebase Auth Domain:', firebaseConfig.authDomain);
+  console.log('🔥 Firebase Config Debug:');
+  console.log('  - Auth Domain:', firebaseConfig.authDomain);
+  console.log('  - Project ID:', firebaseConfig.projectId);
+  console.log('  - API Key:', firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 10)}...` : 'MISSING');
   console.log('🌐 Current Origin:', window.location.origin);
+  
+  // Check if all required config values are present
+  const missingConfig = Object.entries(firebaseConfig).filter(([key, value]) => !value);
+  if (missingConfig.length > 0) {
+    console.error('❌ Missing Firebase config values:', missingConfig.map(([key]) => key));
+  }
   
   // Warn if running on non-localhost IP without proper domain setup
   if (window.location.hostname !== 'localhost' && window.location.hostname.match(/^\d+\.\d+\.\d+\.\d+$/)) {
