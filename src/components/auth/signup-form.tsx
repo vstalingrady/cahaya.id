@@ -32,16 +32,46 @@ export default function SignupForm() {
   
   const handleSocialSignIn = async (provider: GoogleAuthProvider) => {
     setIsSocialLoading(true);
+    
+    // Debug Firebase config
+    console.log('🔥 Firebase Auth Debug (Signup):', {
+      authDomain: auth.app.options.authDomain,
+      projectId: auth.app.options.projectId,
+      currentOrigin: window.location.origin
+    });
+    
     try {
-      await signInWithPopup(auth, provider);
+      console.log('🚀 Starting Google sign-up...');
+      const result = await signInWithPopup(auth, provider);
+      console.log('✅ Google sign-up successful:', result.user.email);
       document.cookie = "isLoggedIn=true; path=/; max-age=86400";
       router.push('/dashboard');
     } catch (error: any) {
-      console.error("Social Sign-In Error:", { code: error.code, message: error.message });
+      console.error("🚨 Social Sign-Up Error Details:", {
+        error: error,
+        code: error?.code,
+        message: error?.message,
+        stack: error?.stack,
+        fullError: JSON.stringify(error, null, 2)
+      });
+      
+      // More specific error handling
+      let errorMessage = "Failed to sign up. Please try again.";
+      
+      if (error?.code === 'auth/auth-domain-config-required') {
+        errorMessage = "Authentication domain not configured. Please contact support.";
+      } else if (error?.code === 'auth/popup-blocked') {
+        errorMessage = "Popup was blocked. Please allow popups and try again.";
+      } else if (error?.code === 'auth/popup-closed-by-user') {
+        errorMessage = "Sign-up was cancelled. Please try again.";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         variant: "destructive",
-        title: "Sign-In Error",
-        description: error.message || "Failed to sign in. Please try again.",
+        title: "Sign-Up Error",
+        description: errorMessage,
       });
     } finally {
       setIsSocialLoading(false);
