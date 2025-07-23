@@ -50,10 +50,12 @@ export default function WelcomeSignupSlide({ onSignUp, isSigningUp }: { onSignUp
                     </div>
                     <p className="text-xs text-muted-foreground">
                         Already have an account?{' '}
-                        <Button asChild variant="link" className="p-0 h-auto text-xs">
-                            <Link href="/login" className="font-semibold underline">
-                                Log In
-                            </Link>
+                        <Button 
+                            variant="link" 
+                            className="p-0 h-auto text-xs font-semibold underline"
+                            onClick={() => window.location.href = '/login'}
+                        >
+                            Log In
                         </Button>
                     </p>
                 </div>

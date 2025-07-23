@@ -60,8 +60,8 @@ export default function WelcomePage() {
           <div className="w-full flex justify-between items-center">
             <div className="w-32 h-auto font-bold text-2xl text-primary font-serif">Cahaya</div>
             <div className="flex items-center gap-2">
-              <Button variant="ghost" asChild>
-                <Link href="/login">Log In</Link>
+              <Button variant="ghost" onClick={() => router.push('/login')}>
+                Log In
               </Button>
               <Button className="bg-primary/90 hover:bg-primary" asChild>
                 <Link href="/signup">Sign Up</Link>
