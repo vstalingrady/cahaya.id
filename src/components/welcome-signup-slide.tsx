@@ -24,16 +24,17 @@ export default function WelcomeSignupSlide({ onSignUp, isSigningUp }: { onSignUp
         .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" data-ai-hint={`${f.name} logo`} /> }));
 
     return (
-        <div className="w-full h-full flex flex-col items-center justify-center gap-2 py-4">
-            <div className="w-full max-w-sm mx-auto text-center">
-                <div className="flex flex-col items-center justify-center mb-4">
-                    <h2 className="text-2xl font-bold font-serif text-primary animate-text-glow">Ready to get started?</h2>
-                    <p className="text-muted-foreground text-sm mt-1">
-                        We support all major banks and e-wallets in Indonesia.
-                    </p>
+        <div className="w-full h-full flex flex-col items-center justify-start gap-3 pt-2 pb-4">
+            <div className="w-full max-w-sm mx-auto text-center space-y-5">
+                <div className="text-center max-w-sm mx-auto flex-shrink-0">
+                    <div className="w-8 h-8 mx-auto mb-2">
+                        <ArrowRight className="w-8 h-8 text-primary" />
+                    </div>
+                    <h2 className="text-2xl font-bold font-serif mb-2 text-foreground">Ready to get started?</h2>
+                    <p className="text-muted-foreground text-sm">We support all major banks and e-wallets in Indonesia.</p>
                 </div>
 
-                <div className="space-y-2 mb-5">
+                <div className="space-y-2">
                     <InfiniteLogoScroller institutions={partnersRow1} speed="slow" direction="forward" />
                     <InfiniteLogoScroller institutions={partnersRow2} speed="slow" direction="reverse" />
                     <InfiniteLogoScroller institutions={partnersRow3} speed="slow" direction="forward" />

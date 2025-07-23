@@ -185,7 +185,12 @@ export default function WelcomePage() {
         </div>
 
         {/* Dot Indicator */}
-        <div className="flex justify-center items-center gap-2 py-4">
+        <div 
+          className={cn(
+            "flex justify-center items-center gap-2 py-4 transition-all duration-500 ease-in-out",
+            isLastSlide ? "opacity-0 pointer-events-none" : "opacity-100"
+          )}
+        >
             {Array.from({ length: numSlides }).map((_, index) => (
                 <button
                     key={index}
