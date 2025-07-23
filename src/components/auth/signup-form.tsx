@@ -4,8 +4,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { signInWithGoogleCapacitor } from '@/lib/google-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,23 +31,13 @@ export default function SignupForm() {
     setPhone(digitsOnly.slice(0, 12));
   };
   
-  const handleSocialSignIn = async (provider: GoogleAuthProvider) => {
+  const handleSocialSignIn = async () => {
     setIsSocialLoading(true);
-    
-    // Debug Firebase config
-    console.log('🔥 Firebase Auth Debug (Signup):', {
-      authDomain: auth.app.options.authDomain,
-      projectId: auth.app.options.projectId,
-      currentOrigin: window.location.origin
-    });
     
     try {
       console.log('🚀 Starting Google sign-up...');
-      console.log('🔧 Auth object:', auth);
-      console.log('🔧 Provider object:', provider);
-      console.log('🔧 signInWithPopup function:', signInWithPopup);
       
-      const result = await signInWithPopup(auth, provider);
+      const result = await signInWithGoogleCapacitor();
       console.log('✅ Google sign-up successful:', result.user.email);
       document.cookie = "isLoggedIn=true; path=/; max-age=86400";
       router.push('/dashboard');
@@ -129,7 +120,7 @@ export default function SignupForm() {
       </div>
       
       <div className="space-y-4">
-          <Button className="w-full bg-white text-black hover:bg-gray-200 h-14 text-base font-semibold border border-gray-200/50 flex items-center justify-center" type="button" onClick={() => handleSocialSignIn(googleProvider)} disabled={isLoading || isSocialLoading}>
+          <Button className="w-full bg-white text-black hover:bg-gray-200 h-14 text-base font-semibold border border-gray-200/50 flex items-center justify-center" type="button" onClick={handleSocialSignIn} disabled={isLoading || isSocialLoading}>
               <FaGoogle className="mr-3" />
               <span>Continue with Google</span>
           </Button>
