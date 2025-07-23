@@ -42,17 +42,18 @@ export default function SignupForm() {
     
     try {
       console.log('🚀 Starting Google sign-up...');
+      console.log('🔧 Auth object:', auth);
+      console.log('🔧 Provider object:', provider);
+      console.log('🔧 signInWithPopup function:', signInWithPopup);
+      
       const result = await signInWithPopup(auth, provider);
       console.log('✅ Google sign-up successful:', result.user.email);
       document.cookie = "isLoggedIn=true; path=/; max-age=86400";
       router.push('/dashboard');
     } catch (error: any) {
-      console.error("🚨 Social Sign-Up Error Details:", {
-        error: error,
+      console.error("🚨 Social Sign-Up Error:", {
         code: error?.code,
-        message: error?.message,
-        stack: error?.stack,
-        fullError: JSON.stringify(error, null, 2)
+        message: error?.message
       });
       
       // More specific error handling
