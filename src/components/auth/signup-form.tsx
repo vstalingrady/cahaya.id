@@ -60,7 +60,10 @@ export default function SignupForm() {
       const result = await signInWithGoogleCapacitor();
       console.log('✅ Google sign-up successful:', result.user.email);
       document.cookie = "isLoggedIn=true; path=/; max-age=86400";
-      router.push('/dashboard');
+      
+      // Let the auth provider handle the redirect flow
+      // It will redirect to PIN entry or dashboard as appropriate
+      router.push('/enter-pin');
     } catch (error: any) {
       console.error("🚨 Social Sign-Up Error:", {
         code: error?.code,
