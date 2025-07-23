@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@capacitor/android": "^6.1.0",
+    "@capacitor/browser": "^6.0.5",
     "@capacitor/core": "^6.1.0",
     "@genkit-ai/googleai": "^1.13.0",
     "@genkit-ai/next": "^1.13.0",

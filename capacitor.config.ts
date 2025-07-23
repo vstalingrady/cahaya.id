@@ -31,6 +31,13 @@ const config: CapacitorConfig = {
     App: {
       handleOpenUrl: true
     }
+  },
+  android: {
+    webContentsDebuggingEnabled: true,
+    allowMixedContent: true,
+    captureInput: true,
+    webViewPresentationMode: 'fullscreen',
+    appendUserAgent: 'CahayaApp/1.0'
   }
 };
 
