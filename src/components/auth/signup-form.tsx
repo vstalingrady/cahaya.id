@@ -4,9 +4,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { GoogleAuthProvider } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { signInWithGoogleCapacitor } from '@/lib/google-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -37,7 +36,7 @@ export default function SignupForm() {
     try {
       console.log('🚀 Starting Google sign-up...');
       
-      const result = await signInWithGoogleCapacitor();
+      const result = await signInWithPopup(auth, googleProvider);
       console.log('✅ Google sign-up successful:', result.user.email);
       document.cookie = "isLoggedIn=true; path=/; max-age=86400";
       router.push('/dashboard');
