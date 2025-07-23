@@ -60,13 +60,6 @@ export default function SignupForm() {
       console.log('🔄 About to call Google auth...');
       const result = await signInWithGoogleCapacitor();
       
-      // If result is null, it means redirect was initiated - just return
-      if (!result) {
-        console.log('🔄 Redirect initiated, waiting for return...');
-        return;
-      }
-      
-      // If we get here, it means we returned from redirect
       console.log('✅ Google sign-up successful:', result.user.email);
       document.cookie = "isLoggedIn=true; path=/; max-age=86400";
       

@@ -6,12 +6,18 @@ const config: CapacitorConfig = {
   appName: 'Cahaya',
   webDir: 'out',
   bundledWebRuntime: false,
-  // server: {
-  //   // Connect to your development server for hot reload
-  //   url: 'http://192.168.1.10:3000',
-  //   cleartext: true,
-  //   allowNavigation: ['192.168.1.10:3000', 'localhost:3000', '*']
-  // },
+  server: {
+    // Connect to your development server for hot reload
+    url: 'http://192.168.1.10:3000',
+    cleartext: true,
+    allowNavigation: [
+      'https://accounts.google.com',
+      'https://cuanflex.firebaseapp.com',
+      '192.168.1.10:3000', 
+      'localhost:3000', 
+      '*'
+    ]
+  },
   plugins: {
     SplashScreen: {
       launchShowDuration: 2000,
@@ -23,7 +29,7 @@ const config: CapacitorConfig = {
       backgroundColor: '#1e293b'
     },
     App: {
-      handleOpenUrl: false
+      handleOpenUrl: true
     }
   }
 };
