@@ -1,10 +1,10 @@
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
+import { signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,29 @@ export default function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSocialLoading, setIsSocialLoading] = useState(false);
 
+  // Check for redirect result on component mount
+  React.useEffect(() => {
+    const checkRedirectResult = async () => {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+          console.log('✅ Google redirect sign-up successful:', result.user.email);
+          document.cookie = "isLoggedIn=true; path=/; max-age=86400";
+          router.push('/dashboard');
+        }
+      } catch (error: any) {
+        console.error('🚨 Redirect result error:', error);
+        toast({
+          variant: "destructive",
+          title: "Sign-Up Error",
+          description: "Authentication failed. Please try again.",
+        });
+      }
+    };
+    
+    checkRedirectResult();
+  }, [router, toast]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     // Allow only digits and limit length
@@ -35,8 +58,21 @@ export default function SignupForm() {
     
     try {
       console.log('🚀 Starting Google sign-up...');
+      console.log('🌐 Current origin:', window.location.origin);
+      console.log('🔥 Auth domain:', auth.app.options.authDomain);
       
-      const result = await signInWithPopup(auth, googleProvider);
+      let result;
+      try {
+        result = await signInWithPopup(auth, googleProvider);
+      } catch (popupError: any) {
+        console.log('🔄 Popup failed, trying redirect...', popupError?.code);
+        if (popupError?.code === 'auth/popup-blocked' || popupError?.code === 'auth/popup-closed-by-user') {
+          await signInWithRedirect(auth, googleProvider);
+          return; // Redirect will handle the rest
+        }
+        throw popupError; // Re-throw if it's not a popup issue
+      }
+      
       console.log('✅ Google sign-up successful:', result.user.email);
       document.cookie = "isLoggedIn=true; path=/; max-age=86400";
       router.push('/dashboard');
