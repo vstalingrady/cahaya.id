@@ -16,13 +16,34 @@ if (Capacitor.isNativePlatform()) {
 
 export const signInWithGoogleCapacitor = async () => {
   try {
+    const platform = Capacitor.getPlatform();
+    const isNative = Capacitor.isNativePlatform();
+    const isWeb = platform === 'web';
+    
     console.log('🔍 Platform check:', {
-      isNative: Capacitor.isNativePlatform(),
-      platform: Capacitor.getPlatform()
+      platform,
+      isNative,
+      isWeb,
+      userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'N/A'
     });
 
-    if (Capacitor.isNativePlatform()) {
-      // Use Capacitor Google Auth for mobile
+    // Use web popup for browser development (including localhost)
+    if (isWeb || typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+      console.log('🌐 Using web popup for browser development...');
+      
+      const provider = new GoogleAuthProvider();
+      provider.addScope('profile');
+      provider.addScope('email');
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      
+      const result = await signInWithPopup(auth, provider);
+      return result;
+    } 
+    
+    // Use Capacitor Google Auth for actual mobile app
+    if (isNative && (platform === 'android' || platform === 'ios')) {
       console.log('📱 Using Capacitor Google Auth for mobile...');
       
       const googleUser = await GoogleAuth.signIn();
@@ -34,20 +55,20 @@ export const signInWithGoogleCapacitor = async () => {
       // Sign in to Firebase with the credential
       const result = await signInWithCredential(auth, credential);
       return result;
-    } else {
-      // Use web popup for browser development
-      console.log('🌐 Using web popup for browser...');
-      
-      const provider = new GoogleAuthProvider();
-      provider.addScope('profile');
-      provider.addScope('email');
-      provider.setCustomParameters({
-        prompt: 'select_account'
-      });
-      
-      const result = await signInWithPopup(auth, provider);
-      return result;
     }
+    
+    // Fallback to web popup if platform detection fails
+    console.log('🔄 Fallback to web popup...');
+    const provider = new GoogleAuthProvider();
+    provider.addScope('profile');
+    provider.addScope('email');
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+    
+    const result = await signInWithPopup(auth, provider);
+    return result;
+    
   } catch (error) {
     console.error('🚨 Google sign-in error:', error);
     throw error;
