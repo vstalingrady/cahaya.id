@@ -4,6 +4,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { financialInstitutions } from '@/lib/data';
 import InfiniteLogoScroller from './infinite-logo-scroller';
@@ -11,6 +12,7 @@ import { Button } from './ui/button';
 
 // --- Main Component ---
 export default function WelcomeSignupSlide({ onSignUp, isSigningUp }: { onSignUp?: () => void; isSigningUp?: boolean }) {
+    const router = useRouter();
     const partnersRow1 = financialInstitutions
         .filter(f => f.type === 'bank' && ['bca', 'mandiri', 'bri', 'bni', 'cimb'].includes(f.slug))
         .map(f => ({ name: f.name, logo: <Image src={f.logoUrl} alt={f.name} width={90} height={36} className="h-9 w-auto object-contain" data-ai-hint={`${f.name} logo`} /> }));
@@ -53,7 +55,7 @@ export default function WelcomeSignupSlide({ onSignUp, isSigningUp }: { onSignUp
                         <Button 
                             variant="link" 
                             className="p-0 h-auto text-xs font-semibold underline"
-                            onClick={() => window.location.href = '/login'}
+                            onClick={() => router.push('/login')}
                         >
                             Log In
                         </Button>
