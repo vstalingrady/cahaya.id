@@ -4,8 +4,9 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
+import { GoogleAuthProvider } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { signInWithGoogleCapacitor } from '@/lib/google-auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,28 +29,7 @@ export default function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSocialLoading, setIsSocialLoading] = useState(false);
 
-  // Check for redirect result on component mount
-  React.useEffect(() => {
-    const checkRedirectResult = async () => {
-      try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          console.log('✅ Google redirect sign-up successful:', result.user.email);
-          document.cookie = "isLoggedIn=true; path=/; max-age=86400";
-          router.push('/dashboard');
-        }
-      } catch (error: any) {
-        console.error('🚨 Redirect result error:', error);
-        toast({
-          variant: "destructive",
-          title: "Sign-Up Error",
-          description: "Authentication failed. Please try again.",
-        });
-      }
-    };
-    
-    checkRedirectResult();
-  }, [router, toast]);
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
@@ -76,8 +56,8 @@ export default function SignupForm() {
         throw new Error('Firebase configuration is incomplete');
       }
       
-      // Use popup method with detailed error logging
-      const result = await signInWithPopup(auth, googleProvider);
+      // Use platform-specific Google Auth
+      const result = await signInWithGoogleCapacitor();
       console.log('✅ Google sign-up successful:', result.user.email);
       document.cookie = "isLoggedIn=true; path=/; max-age=86400";
       router.push('/dashboard');
