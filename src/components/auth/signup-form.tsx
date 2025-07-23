@@ -15,6 +15,11 @@ import { FaGoogle } from 'react-icons/fa';
 import { Separator } from '@/components/ui/separator';
 
 const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('profile');
+googleProvider.addScope('email');
+googleProvider.setCustomParameters({
+  prompt: 'select_account'
+});
 
 export default function SignupForm() {
   const router = useRouter();
@@ -60,19 +65,19 @@ export default function SignupForm() {
       console.log('🚀 Starting Google sign-up...');
       console.log('🌐 Current origin:', window.location.origin);
       console.log('🔥 Auth domain:', auth.app.options.authDomain);
+      console.log('🔧 Firebase config check:', {
+        apiKey: auth.app.options.apiKey?.substring(0, 10) + '...',
+        authDomain: auth.app.options.authDomain,
+        projectId: auth.app.options.projectId
+      });
       
-      let result;
-      try {
-        result = await signInWithPopup(auth, googleProvider);
-      } catch (popupError: any) {
-        console.log('🔄 Popup failed, trying redirect...', popupError?.code);
-        if (popupError?.code === 'auth/popup-blocked' || popupError?.code === 'auth/popup-closed-by-user') {
-          await signInWithRedirect(auth, googleProvider);
-          return; // Redirect will handle the rest
-        }
-        throw popupError; // Re-throw if it's not a popup issue
+      // Test if Firebase is properly initialized
+      if (!auth.app.options.apiKey || !auth.app.options.authDomain) {
+        throw new Error('Firebase configuration is incomplete');
       }
       
+      // Use popup method with detailed error logging
+      const result = await signInWithPopup(auth, googleProvider);
       console.log('✅ Google sign-up successful:', result.user.email);
       document.cookie = "isLoggedIn=true; path=/; max-age=86400";
       router.push('/dashboard');
