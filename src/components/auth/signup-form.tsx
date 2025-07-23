@@ -57,12 +57,20 @@ export default function SignupForm() {
       }
       
       // Use platform-specific Google Auth
+      console.log('🔄 About to call Google auth...');
       const result = await signInWithGoogleCapacitor();
+      
+      // If result is null, it means redirect was initiated - just return
+      if (!result) {
+        console.log('🔄 Redirect initiated, waiting for return...');
+        return;
+      }
+      
+      // If we get here, it means we returned from redirect
       console.log('✅ Google sign-up successful:', result.user.email);
       document.cookie = "isLoggedIn=true; path=/; max-age=86400";
       
-      // Let the auth provider handle the redirect flow
-      // It will redirect to PIN entry or dashboard as appropriate
+      // Navigate to PIN entry
       router.push('/enter-pin');
     } catch (error: any) {
       console.error("🚨 Social Sign-Up Error:", {
