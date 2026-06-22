@@ -16,7 +16,6 @@
 
 **For Web Deployment:**
 ```
-your-app.vercel.app
 your-app.netlify.app
 caharaya.id
 www.caharaya.id
@@ -51,17 +50,17 @@ NEXT_PUBLIC_FIREBASE_APP_ID=1:859834790066:web:751b77f3d245e6dcd919ab
 NEXT_PUBLIC_FIREBASE_RECAPTCHA_SITE_KEY=6LcTY3crAAAAAPS5Gjvt2RcCIi3WKIWaXFzHgr6X
 ```
 
-**Production (Vercel/Netlify):**
+**Production (Netlify):**
 - Add the same environment variables in your deployment platform's settings
-- Vercel: Project Settings → Environment Variables
 - Netlify: Site Settings → Environment Variables
 
 #### **Step 3: Deployment Platforms**
 
-**Vercel:**
+**Firebase App Hosting (recommended):**
 ```bash
-npm install -g vercel
-vercel --prod
+# Configured via apphosting.yaml
+# Deploy through Firebase Console or Firebase CLI
+firebase deploy --only apphosting
 ```
 
 **Netlify:**
